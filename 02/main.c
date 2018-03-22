@@ -7,13 +7,9 @@
 #include <inttypes.h>
 #include <openssl/sha.h>
 
-#define BUFFER_SIZE 1024
+#include "safe.h"
 
-static void safe_free(void* ptr){
-    if(ptr != NULL){
-        free(ptr);
-    }
-}
+#define BUFFER_SIZE 1024
 
 static void pt(unsigned char* md)
 {
