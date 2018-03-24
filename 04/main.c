@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
     char mess1[] = "MEsDAgcAAgEgAiAoQPNcS7L4k+q2qf3U7uyujtwRQNS3pLKN/zrRGERGagIgFjdV1JlqHF8BiIQne0/E3jVM7hWda/USrFI58per45s=";
     char mess2[] = "10895332777036447559";
     unsigned char md_value[EVP_MAX_MD_SIZE];
-    int md_len;
+    unsigned int md_len;
     int i;
 
     OpenSSL_add_all_digests();
