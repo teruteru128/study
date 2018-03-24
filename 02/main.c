@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     uint64_t verifire = 10895332777036447559ULL;
     size_t verifire_len = 0;
     unsigned char md[SHA_DIGEST_LENGTH];
-    unsigned char buf[BUFFER_SIZE];
+    char buf[BUFFER_SIZE];
 
     pubKey_len = strlen(pubKey);
     sprintf(buf, "%" PRIu64, verifire); /* Why "expected a ')'" in PRIu64 ? */
