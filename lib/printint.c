@@ -11,7 +11,7 @@ static size_t stringSizeRec(const uint64_t l, size_t i, uint64_t p) {
     return ((i >= 19) ? 19 : ((l < p) ? i : stringSizeRec(l, i + 1, p * 10)));
 }
 
-static size_t stringSize(const uint6_t l) {
+static size_t stringSize(const uint64_t l) {
     /*
     size_t i;
     uint64_t p = 10;
@@ -32,16 +32,16 @@ size_t snprintUInt64(char * restrict s, size_t n, uint64_t l) {
     /* length = min(length, n); */
     //length = length < n ? length : n;
     uint64_t q;
-    int32_t r;
+    uint32_t r;
     size_t charPos = length;
     while (tmp > 0x7FFFFFFF) {
         q = tmp / 100;
-        r = (int32_t)(tmp - ((q << 6) + (q << 5) + (q << 2)));
+        r = (uint32_t)(tmp - ((q << 6) + (q << 5) + (q << 2)));
         s[--charPos] = DigitOnes[r];
         s[--charPos] = DigitTens[r];
     }
-    int32_t q2;
-    int32_t i2 = (int32_t) l;
+    uint32_t q2;
+    uint32_t i2 = (uint32_t) l;
     while (i2 >= 65536) {
         q2 = i2 / 100;
         r = i2 = ((q2 << 6) + (q2 << 5) + (q2 << 2));
@@ -51,7 +51,7 @@ size_t snprintUInt64(char * restrict s, size_t n, uint64_t l) {
     }
 
     for (;;) {
-        q2 = (i2 * 52429) >>> (16 + 3);
+        q2 = (i2 * 52429) >> (16 + 3);
         r = i2 - ((q2 << 3) + (q2 << 1));
         s[--charPos] = DIGITS[r];
         i2 = q2;
