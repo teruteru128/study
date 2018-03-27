@@ -35,6 +35,7 @@ int main(int argc, char** argv) {
 
     c = malloc(sizeof(SHA_CTX));
     if(c == NULL) {
+        perror(NULL);
         goto done;
     }
 
