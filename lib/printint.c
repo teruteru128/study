@@ -8,7 +8,7 @@ static const char* DigitOnes = "012345678901234567890123456789012345678901234567
 
 
 static size_t stringSizeRec(const uint64_t l, size_t i, uint64_t p) {
-    return ((i >= 19) ? 19 : ((l < p) ? i : stringSizeRec(l, i + 1, p * 10)));
+    return ((i >= 20) ? 20 : ((l < p) ? i : stringSizeRec(l, i + 1, p * 10)));
 }
 
 static size_t stringSize(const uint64_t l) {
@@ -34,9 +34,10 @@ size_t snprintUInt64(char * restrict s, size_t n, uint64_t l) {
     uint64_t q;
     uint32_t r;
     size_t charPos = length;
-    while (tmp > 0x7FFFFFFF) {
+    while (tmp > 0x7FFFFFFFULL) {
         q = tmp / 100;
         r = (uint32_t)(tmp - ((q << 6) + (q << 5) + (q << 2)));
+        tmp = q;
         s[--charPos] = DigitOnes[r];
         s[--charPos] = DigitTens[r];
     }
@@ -44,7 +45,7 @@ size_t snprintUInt64(char * restrict s, size_t n, uint64_t l) {
     uint32_t i2 = (uint32_t) l;
     while (i2 >= 65536) {
         q2 = i2 / 100;
-        r = i2 = ((q2 << 6) + (q2 << 5) + (q2 << 2));
+        r = (i2 - ((q2 << 6) + (q2 << 5) + (q2 << 2)));
         i2 = q2;
         s[--charPos] = DigitOnes[r];
         s[--charPos] = DigitTens[r];
