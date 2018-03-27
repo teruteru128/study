@@ -9,6 +9,9 @@ all:
 #	cd 04; make
 	cd 05; make
 	cd 06; make
+#	cd 07; make
+	cd 08; make
+	cd 09; make
 	cd lib; make
 
 .PHONY: clean
@@ -19,4 +22,7 @@ clean:
 	cd 04; make clean
 	cd 05; make clean
 	cd 06; make clean
+	cd 07; make clean
+	cd 08; make clean
+	cd 09; make clean
 	cd lib; make clean
