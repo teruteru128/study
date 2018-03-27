@@ -1,0 +1,16 @@
+{
+    "C_Cpp.errorSquiggles": "Disabled",
+    "files.associations": {
+        "*.ts": "xml",
+        "safe.h": "c",
+        "sha.h": "c",
+        "curl.h": "c",
+        "nghttp2.h": "c",
+        "winsock2.h": "c",
+        "inttypes.h": "c",
+        "stdint.h": "c",
+        "time.h": "c",
+        "stdlib.h": "c",
+        "printint.h": "c"
+    }
+}
