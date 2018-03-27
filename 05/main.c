@@ -138,7 +138,7 @@ int oauth_consumer_example(int use_post) {
  */
 
 int main (int argc, char **argv) {
-  switch(oauth_consumer_example(0)) {
+  switch(oauth_consumer_example(1)) {
     case 1:
       printf("HTTP request for an oauth request-token failed.\n");
       break;
