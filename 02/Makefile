@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -I../include
-LDFLAGS = -L/usr/local/lib -L/cygdrive/c/Users/onose/git/study/lib
+CFLAGS = -Wall -I../include -g3
+LDFLAGS = -L/usr/local/lib -L../lib
 LDLIBS = -lssl -lcrypto -lsafe
 
 all: main
