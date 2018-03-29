@@ -36,9 +36,8 @@ int main(int argc, char** argv) {
     }
     seed = (unsigned int)(strtoul(buf, NULL, 10) & 0xFFFFFFFFUL);
     srandom(seed);
-    verifire = (uint64_t)random();
-    verifire = (verifire << 32) ^ (uint64_t)random();
-    printf("%"PRIu64"\n", verifire);
+    verifire = (((uint64_t)random()) << 33) ^ (((uint64_t)random()) << 16) ^ ((uint64_t)random());
+    printf("%"PRIu64", %"PRIx64"\n", verifire, verifire);
     for(;;verifire++){
         verifireLength = snprintUInt64(buf, BUF_SIZE, verifire);
 
@@ -51,7 +50,7 @@ int main(int argc, char** argv) {
             break;
         }
     }
-    printf("%" PRIu64"\n", verifire);
+    printf("END: %"PRIu64"\n", verifire);
     for(i = 0; i < SHA_DIGEST_LENGTH; i++){
         printf("%02x", md[i]);
     }
