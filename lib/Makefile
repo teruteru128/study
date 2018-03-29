@@ -5,6 +5,10 @@ LDLIBS =
 
 all: libsafe.so libprintint.so safe.dll printint.dll safe.lib printint.lib
 
+test: printinttest
+
+printinttest: printinttest.c printint.c
+
 lib%.so: %.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) $< -shared -o $@
 
