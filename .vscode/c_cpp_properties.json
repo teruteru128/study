@@ -45,8 +45,9 @@
         {
             "name": "Win32",
             "includePath": [
-                "C:\\cygwin64\\lib\\gcc\\x86_64-pc-cygwin\\6.4.0\\include",
                 "C:\\cygwin64\\usr\\include",
+                "C:\\cygwin64\\lib\\gcc\\x86_64-pc-cygwin\\6.4.0\\include",
+                "${workspaceFolder}\\include",
                 "${workspaceFolder}"
             ],
             "defines": [
@@ -59,6 +60,7 @@
                 "path": [
                     "C:\\cygwin64\\usr\\include",
                     "C:\\cygwin64\\lib\\gcc\\x86_64-pc-cygwin\\6.4.0\\include",
+                    "${workspaceFolder}\\include",
                     "${workspaceFolder}"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
