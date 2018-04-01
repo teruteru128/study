@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -I../include -fPIC -g3 -O0
+CFLAGS = -Wall -I../include -fPIC -O3
 LDFLAGS =
 LDLIBS =
 
