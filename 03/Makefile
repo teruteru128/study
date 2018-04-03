@@ -1,6 +1,6 @@
 
-CFLAGS = -O3
-LDLIBS = -lcrypto
+CFLAGS = -O0
+LDLIBS =
 
 all: main
 
