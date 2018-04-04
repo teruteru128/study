@@ -46,6 +46,7 @@ int main(int argc, char **argv)
                 printf("%02x", md[i]);
             }
             printf("\n");
+            break;
         }
     }
     free(c);
