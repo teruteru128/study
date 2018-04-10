@@ -11,6 +11,7 @@ extern "C" {
 #include <stdint.h>
 
 extern size_t snprintUInt64(char * restrict, size_t, uint64_t);
+extern size_t snprintInt64(char * restrict, size_t, int64_t);
 
 #ifdef __cplusplus
 }

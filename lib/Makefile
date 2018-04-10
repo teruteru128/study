@@ -7,7 +7,7 @@ all: libsafe.so libprintint.so safe.dll printint.dll safe.lib printint.lib
 
 test: printinttest
 
-printinttest: printinttest.c printint.c
+printinttest: printint.o
 
 lib%.so: %.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) $< -shared -o $@
@@ -30,9 +30,9 @@ safe.dll:
 
 printint.dll:
 
-printint.o: printint.c
+printint.o:
 
-safe.o: safe.c
+safe.o:
 
 .PHONY: clean
 

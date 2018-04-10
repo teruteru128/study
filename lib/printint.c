@@ -84,3 +84,8 @@ size_t snprintUInt64(char *restrict s, size_t n, uint64_t l)
     }
     return i;
 }
+
+size_t snprintInt64(char *restrict s, size_t n, int64_t l)
+{
+    return 0;
+}
