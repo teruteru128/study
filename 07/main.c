@@ -52,7 +52,7 @@ int main(int argc, char **argv)
         return (EXIT_FAILURE);
     }
 
-    printf("%" PRIu64 "d\n", getpid());
+    printf("%" PRIu64 "\n", getpid());
     for (;; verifier++)
     {
         SHA1_Init(c);
