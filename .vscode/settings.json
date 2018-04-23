@@ -1,2 +1,8 @@
 {
+    "files.associations": {
+        "easy.h": "c",
+        "curl.h": "c",
+        "uuid.h": "c",
+        "stdio.h": "c"
+    }
 }

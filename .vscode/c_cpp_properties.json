@@ -51,6 +51,7 @@
                 "${workspaceFolder}"
             ],
             "defines": [
+                "__CYGWIN__",
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
