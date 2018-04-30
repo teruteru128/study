@@ -3,6 +3,8 @@
         "easy.h": "c",
         "curl.h": "c",
         "uuid.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "stdbool.h": "c",
+        "asn1.h": "c"
     }
 }
