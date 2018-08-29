@@ -1,6 +1,5 @@
 
 #include "main.h"
-#define _(string) gettext(string)
 
 int main(int argc, char** argv){
 	setlocale (LC_ALL, "");
