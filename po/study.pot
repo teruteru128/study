@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 0.0.0-alpha\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2018-08-26 15:57+0900\n"
+"POT-Creation-Date: 2018-08-29 19:02+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,12 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: 001/main.c:9
+#: 001/main.c:8 020/main.c:8
 #, c-format
 msgid "Hello world!\n"
+msgstr ""
+
+#: 003/main.c:46
+#, c-format
+msgid "verifier : %<PRIu64>\n"
 msgstr ""
