@@ -68,16 +68,14 @@ autom4te.cache
 /aclocal.m4
 /compile
 /config.guess
-/config.h.in
-/config.log
-/config.status
-/config.sub
+config.*
 /configure
 /configure.scan
 /depcomp
 /install-sh
 /missing
 /stamp-h1
+libtool
 
 # https://www.gnu.org/software/libtool/
 
@@ -111,9 +109,11 @@ Makefile
 .lib/
 .libs/
 /m4/
-po/
+po/*
 !po/POTFILES.in
 !po/*.po
 !po/*.pot
+!po/LINGUAS
+!po/Makevars
 stamp-h1
 

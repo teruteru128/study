@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 0.0.0-alpha\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2018-08-29 19:02+0900\n"
+"POT-Creation-Date: 2018-08-30 21:17+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,4 +25,14 @@ msgstr ""
 #: 003/main.c:46
 #, c-format
 msgid "verifier : %<PRIu64>\n"
+msgstr ""
+
+#: 022/main.c:10
+#, c-format
+msgid "%dmicro seconds stopping.\n"
+msgstr ""
+
+#: 022/main.c:12
+#, c-format
+msgid "%dmicro seconds stoped.\n"
 msgstr ""
