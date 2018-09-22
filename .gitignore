@@ -104,6 +104,16 @@ m4/lt~obsolete.m4
 !.vscode/extensions.json
 
 *~
+*.tmp
 
 .deps/
 Makefile
+.lib/
+.libs/
+/m4/
+po/
+!po/POTFILES.in
+!po/*.po
+!po/*.pot
+stamp-h1
+
