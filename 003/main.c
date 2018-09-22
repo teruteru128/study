@@ -39,7 +39,7 @@ int main(int argc, char **argv)
         SHA1_Init(c);
         SHA1_Update(c, in1, in1Length);
         verifierLength = snprintUInt64(in2, IN2_SIZE, verifier);
-        SHA_Update(c, in2, verifierLength);
+        SHA1_Update(c, in2, verifierLength);
         SHA1_Final(md, c);
         if (md[0] == 0 && md[1] == 0 && md[2] == 0 && md[3] == 0 && md[4] == 0)
         {
