@@ -73,7 +73,6 @@ AC_CONFIG_FILES([001/Makefile
                  023/Makefile
                  024/Makefile
                  025/Makefile
-                 026/Makefile
                  po/Makefile.in
                  Makefile
                  lib/Makefile])
