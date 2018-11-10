@@ -30,7 +30,7 @@ AC_CHECK_LIB([ssl], [main])
 AC_CHECK_LIB([uuid], [main])
 # FIXME: Replace `main' with a function in `-ltextdomain':
 AC_CHECK_LIB([textdomain], [main])
-AC_CHECK_LIB([gmp], [main])
+AC_CHECK_LIB(gmp, __gmpz_init)
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h inttypes.h libintl.h locale.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h sys/param.h])
