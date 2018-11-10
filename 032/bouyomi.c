@@ -30,8 +30,8 @@ int main(int argc, char* argv[]){
     char sendBuffer[BUFSIZE];
 
     if(setlocale(LC_CTYPE, "") == NULL){
-    	perror("setlocale");
-	return EXIT_FAILURE;
+        perror("setlocale");
+        return EXIT_FAILURE;
     }
 
     if (argc != 3) {
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]){
 
     servSockAddr.sin_family = AF_INET;
 
-	// IPアドレスをバイナリに変換
+    // IPアドレスをバイナリに変換
     if (inet_aton(argv[1], &servSockAddr.sin_addr) == 0) {
         fprintf(stderr, "Invalid IP Address.\n");
         exit(EXIT_FAILURE);
@@ -73,13 +73,13 @@ int main(int argc, char* argv[]){
     size_t mb_size = MB_LEN_MAX * wcslen(message) + 1;
     char *mb = malloc(mb_size);
     if(mb == NULL){
-    	perror("malloc");
-	return EXIT_FAILURE;
+        perror("malloc");
+    return EXIT_FAILURE;
     }
     // 文字コード変換
     if(wcstombs(mb, message, mb_size) == -1){
-    	perror("wcstombs");
-	return EXIT_FAILURE;
+        perror("wcstombs");
+        return EXIT_FAILURE;
     }
 
     // 棒読みちゃん向けにエンコード
