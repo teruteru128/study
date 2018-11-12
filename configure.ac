@@ -21,13 +21,28 @@ AC_PROG_RANLIB
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lcrypto':
-AC_CHECK_LIB([crypto], [main])
 # FIXME: Replace `main' with a function in `-lprintint':
 #AC_CHECK_LIB([printint], [main])
 # FIXME: Replace `main' with a function in `-lssl':
-AC_CHECK_LIB([ssl], [main])
+#AC_CHECK_LIB([ssl], [main])
+#if test "$with_openssl" = yes ; then
+  dnl Order matters!
+  if test "$PORTNAME" != "win32"; then
+     AC_CHECK_LIB(crypto, CRYPTO_new_ex_data, [], [AC_MSG_ERROR([library 'crypto' is required for OpenSSL])])
+     FOUND_SSL_LIB="no"
+     AC_CHECK_LIB(ssl, OPENSSL_init_ssl, [FOUND_SSL_LIB="yes"])
+     AC_CHECK_LIB(ssl, SSL_library_init, [FOUND_SSL_LIB="yes"])
+     AS_IF([test "x$FOUND_SSL_LIB" = xno], [AC_MSG_ERROR([library 'ssl' is required for OpenSSL])])
+  else
+     AC_SEARCH_LIBS(CRYPTO_new_ex_data, eay32 crypto, [], [AC_MSG_ERROR([library 'eay32' or 'crypto' is required for OpenSSL])])
+     FOUND_SSL_LIB="no"
+     AC_SEARCH_LIBS(OPENSSL_init_ssl, ssleay32 ssl, [FOUND_SSL_LIB="yes"])
+     AC_SEARCH_LIBS(SSL_library_init, ssleay32 ssl, [FOUND_SSL_LIB="yes"])
+     AS_IF([test "x$FOUND_SSL_LIB" = xno], [AC_MSG_ERROR([library 'ssleay32' or 'ssl' is required for OpenSSL])])
+  fi
+#fi
 # FIXME: Replace `main' with a function in `-luuid':
-AC_CHECK_LIB([uuid], [main])
+AC_CHECK_LIB([uuid], uuid_generate)
 # FIXME: Replace `main' with a function in `-ltextdomain':
 AC_CHECK_LIB([textdomain], [main])
 AC_CHECK_LIB(gmp, __gmpz_init)
@@ -47,13 +62,15 @@ AC_TYPE_UINT64_T
 AC_TYPE_UINT8_T
 
 # Checks for library functions.
-AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION(0.19)
+AC_CANONICAL_HOST
+#AM_GNU_SOURCE
+AM_GNU_GETTEXT
+AM_GNU_GETTEXT_VERSION([0.19.8])
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([gettimeofday memchr memset setlocale socket strerror strstr strtoull])
 #LT_INIT
 
-AC_CONFIG_FILES([001/Makefile 
+AC_CONFIG_FILES([001/Makefile
                  003/Makefile
                  004/Makefile
                  005/Makefile
@@ -83,6 +100,7 @@ AC_CONFIG_FILES([001/Makefile
                  030/Makefile
                  031/Makefile
                  032/Makefile
+                 intl/Makefile
                  po/Makefile.in
                  Makefile
                  lib/Makefile])

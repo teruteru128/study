@@ -101,19 +101,41 @@ m4/lt~obsolete.m4
 !.vscode/launch.json
 !.vscode/extensions.json
 
+## Vim
+# Swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Session
+Session.vim
+
+# Temporary
+.netrwhist
+*~
+# Auto-generated tag files
+tags
+# Persistent undo
+[._]*.un~
+
+## Jota+ textedutor
 *~
 *.tmp
 
+## autotools
 .deps/
 Makefile
 .lib/
 .libs/
 /m4/
 po/*
+stamp-h1
+intl/
 !po/POTFILES.in
 !po/*.po
 !po/*.pot
 !po/LINGUAS
 !po/Makevars
-stamp-h1
 

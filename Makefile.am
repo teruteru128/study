@@ -1,4 +1,5 @@
-SUBDIRS  = lib
+SUBDIRS  = intl
+SUBDIRS += lib
 SUBDIRS += po
 SUBDIRS += 001
 SUBDIRS += 003
