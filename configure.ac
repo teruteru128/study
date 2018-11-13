@@ -101,6 +101,7 @@ AC_CONFIG_FILES([001/Makefile
                  030/Makefile
                  031/Makefile
                  032/Makefile
+                 033/Makefile
                  intl/Makefile
                  po/Makefile.in
                  Makefile
