@@ -4,6 +4,7 @@
 #include "config.h"
 #include <gettext.h>
 #define _(str) gettext(str)
+#include <locale.h>
 #include <stdio.h>
 #define PACKAGE "study"
 #define LOCALDIR NULL

@@ -1,5 +1,6 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
+# https://www.glamenv-septzen.net/view/488
 
 AC_PREREQ([2.69])
 AC_INIT([STUDY], [0.0.0-alpha], [teruterubouzu1024@gmail.com])
