@@ -47,6 +47,14 @@ AC_CHECK_LIB([uuid], uuid_generate)
 # FIXME: Replace `main' with a function in `-ltextdomain':
 AC_CHECK_LIB([textdomain], [main])
 AC_CHECK_LIB(gmp, __gmpz_init)
+AC_CHECK_LIB(xmlrpc, [main])
+AC_CHECK_LIB(xmlrpc_abyss, [main])
+AC_CHECK_LIB(xmlrpc_client, [main])
+AC_CHECK_LIB(xmlrpc_server, [main])
+AC_CHECK_LIB(xmlrpc_server_abyss, [main])
+AC_CHECK_LIB(xmlrpc_util, [main])
+AC_CHECK_LIB(xmlrpc_xmlparse, [main])
+AC_CHECK_LIB(xmlrpc_xmltok, [main])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h inttypes.h libintl.h locale.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h sys/param.h])
@@ -71,7 +79,8 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([gettimeofday memchr memset setlocale socket strerror strstr strtoull])
 #LT_INIT
 
-AC_CONFIG_FILES([001/Makefile
+AC_CONFIG_FILES([src/Makefile
+                 001/Makefile
                  003/Makefile
                  004/Makefile
                  005/Makefile
@@ -102,6 +111,7 @@ AC_CONFIG_FILES([001/Makefile
                  031/Makefile
                  032/Makefile
                  033/Makefile
+                 034/Makefile
                  intl/Makefile
                  po/Makefile.in
                  Makefile
