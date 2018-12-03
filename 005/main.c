@@ -8,6 +8,9 @@
 #define BUF_SIZE 21
 #define LOOP_COUNT 100000000ULL
 
+/**
+ * printint benchmark
+ * */
 int main(int argc, char **argv)
 {
     char buf[BUF_SIZE];

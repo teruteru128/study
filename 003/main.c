@@ -15,7 +15,7 @@
 
 int main(int argc, char **argv)
 {
-    SHA_CTX *c;
+    SHA_CTX *c = NULL;
     struct timeval tv;
     unsigned char md[SHA_DIGEST_LENGTH];
     int i;
@@ -55,3 +55,4 @@ int main(int argc, char **argv)
     free(c);
     return EXIT_SUCCESS;
 }
+

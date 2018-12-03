@@ -1,5 +1,5 @@
 
-#include "main.h"
+#include "001.h"
 
 int main(int argc, char** argv){
 	printGettextHelloWorld001();

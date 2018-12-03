@@ -6,6 +6,9 @@
 #include <signal.h>
 #include <unistd.h>
 
+/**
+ * signal sample
+ * */
 static void sigint_action(int sig)
 {
     fprintf(stdout, "SIGINT recive(%d)\n", sig);

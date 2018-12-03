@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <openssl/bn.h>
 
+/**
+ * collatz huge integer test
+ * */
 int main(int argc, char **argv)
 {
     int success = 0;

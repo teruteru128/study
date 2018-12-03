@@ -4,6 +4,9 @@
 #include <inttypes.h>
 #include <locale.h>
 
+/**
+ * Environmental variable test
+ * */
 int main(int argc, char **argv)
 {
     char *str = getenv("PATH");

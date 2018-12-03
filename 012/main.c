@@ -4,6 +4,9 @@
 #include <string.h>
 #include <uuid/uuid.h>
 
+/**
+ * UUID test
+ * */
 int main(int argc, char **argv)
 {
     uuid_t uuid;

@@ -12,6 +12,7 @@
 
 #define CTX_SIZE 8
 
+/** * teamspeak * */
 static void initRandom()
 {
     struct timeval tv;

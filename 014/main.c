@@ -4,6 +4,9 @@
 #include <inttypes.h>
 #include <locale.h>
 
+/**
+ * locale copy test
+ * */
 int main(int argc, char **argv)
 {
     locale_t loc = NULL, nloc;

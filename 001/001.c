@@ -1,4 +1,4 @@
-#include "main.h"
+#include "001.h"
 
 static void initGettext(){
 	setlocale (LC_ALL, "");

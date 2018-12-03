@@ -9,6 +9,9 @@
 
 static uint64_t *verifire_ptr = NULL;
 
+/**
+ * signal samlle
+ * */
 static void sigint_action(int sig)
 {
     fprintf(stderr, "verifier=%" PRIu64 ", %" PRIx64 "\n", *verifire_ptr, *verifire_ptr);

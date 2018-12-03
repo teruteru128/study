@@ -4,6 +4,9 @@
 #include <inttypes.h>
 #include <locale.h>
 
+/**
+ * locale test
+ * */
 int main(int argc, char **argv)
 {
     char *locale = setlocale(LC_ALL, "");
