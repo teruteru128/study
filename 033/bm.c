@@ -5,6 +5,7 @@
 #include <xmlrpc_client.h>
 #include <string.h>
 #include "bitmessage.h"
+#include "api.h"
 #define localhost_ip "127.0.0.1"
 #define bitmessage_port 8442
 #define NAME "TR BM TEST CLIENT"
@@ -20,7 +21,49 @@ void die_if_fault_occurred (xmlrpc_env *env)
         exit(1);
     }
 }
+static int bm_init(){
+    return 0;
+}
+static int bm_cleanup(){
+    return 0;
+}
+static int global_init(){
+}
+static int global_cleanup(){
+}
+struct arg_t{};
+static int arg_parse(struct arg_t* argt, int argc, char** argv){
 
+}
+static char* get_config_filepath(){
+}
+/**
+ *  --xxx arg
+ *  --xxx=arg
+ *  default arg
+ *  short arg
+ * */
+static int config_parse(char* filename){
+
+}
+static char* getString(){
+}
+static int getInt(){
+}
+/**
+ * int main(int argc, char* argv[]){
+    // グローバル定数初期化
+    global_init();
+    // 設定ファイルパース
+    configfile_parse();
+    // コマンドライン引数パース
+    arg_parse();
+    // メイン処理
+    do_main();
+    // 後片付け
+    global_cleanup();
+  }
+ * */
 int main(int const argc, const char ** const argv) {
 
     xmlrpc_env env;
@@ -30,11 +73,20 @@ int main(int const argc, const char ** const argv) {
     char * const clientName = NAME;
     char * const clientVersion = VERSION;
     char * const url = SERVER_URL;
-    char * const methodName = "helloWorld";
+    char * const methodName = "getStatus";
+    char * const fromaddress = "BM-NBJxKhQmidR2TBtD3H74yZhDHpzZ7TXM";
+    char * const toaddress = "BM-2cVogWZyryp9ZDGPQJ6GMpawpofm5oLKYY";
     xmlrpc_client* cp = NULL;
-    xmlrpc_value* paramArray;
-    xmlrpc_value* first;
-    xmlrpc_value* second;
+    xmlrpc_value* paramArray = NULL;
+    xmlrpc_value* first = NULL;
+    xmlrpc_value* second = NULL;
+    xmlrpc_value* toaddressV = NULL;
+    xmlrpc_value* fromaddressV = NULL;
+    xmlrpc_value* subjectV = NULL;
+    xmlrpc_value* messageV = NULL;
+    xmlrpc_value* ackdata = NULL;
+
+    // api_init();
 
     /* Initialize our error-handling environment. */
     xmlrpc_env_init(&env);
@@ -44,18 +96,31 @@ int main(int const argc, const char ** const argv) {
     xmlrpc_client_setup_global_const(&env);
     //[ handle possible failure of above ]
 
+    /**
+    void
+    xmlrpc_client_create(xmlrpc_env *                envP,
+                         int                         flags,
+                         char *                      appname,
+                         char *                      appversion,
+                         struct xmlrpc_clientparms * clientparmsP,
+                         unsigned int                parmSize,
+                         xmlrpc_client **            clientPP);
+    */
     xmlrpc_client_create(&env, XMLRPC_CLIENT_NO_FLAGS, clientName, clientVersion, NULL, 0, &cp);
     die_if_fault_occurred(&env);
 
     sinfo = xmlrpc_server_info_new(&env, url);
     die_if_fault_occurred(&env);
+
     xmlrpc_server_info_set_user(&env, sinfo, "teruteru128", "testpassword");
     die_if_fault_occurred(&env);
+
     xmlrpc_server_info_allow_auth_basic(&env, sinfo);
 
     paramArray = xmlrpc_array_new(&env);
     die_if_fault_occurred(&env);
 
+    /*
     first = xmlrpc_string_new(&env, "Hello");
     die_if_fault_occurred(&env);
 
@@ -66,17 +131,57 @@ int main(int const argc, const char ** const argv) {
     die_if_fault_occurred(&env);
     xmlrpc_array_append_item(&env, paramArray, second);
     die_if_fault_occurred(&env);
-
-    xmlrpc_client_call2(&env, cp, sinfo, methodName,
-                 paramArray, &resultP);
+    */
+    /*
+    toaddressV = xmlrpc_string_new(&env, toaddress);
     die_if_fault_occurred(&env);
+
+    fromaddressV = xmlrpc_string_new(&env, fromaddress);
+    die_if_fault_occurred(&env);
+
+    subjectV = xmlrpc_string_new(&env, "dG9vbHRlc3Q=\n");
+    die_if_fault_occurred(&env);
+
+    messageV = xmlrpc_string_new(&env, "SGVsbG8gV29ybGQh\n");
+    die_if_fault_occurred(&env);
+
+    xmlrpc_array_append_item(&env, paramArray, toaddressV);
+    die_if_fault_occurred(&env);
+    xmlrpc_array_append_item(&env, paramArray, fromaddressV);
+    die_if_fault_occurred(&env);
+    xmlrpc_array_append_item(&env, paramArray, subjectV);
+    die_if_fault_occurred(&env);
+    xmlrpc_array_append_item(&env, paramArray, messageV);
+    die_if_fault_occurred(&env);
+    */
+    ackdata = xmlrpc_string_new(&env, "2d672b4bb31b3d8cb96e587e05f799f0d4d9c102f588581fbd0fdd082f150c1f");
+    die_if_fault_occurred(&env);
+
+    xmlrpc_array_append_item(&env, paramArray, ackdata);
+    die_if_fault_occurred(&env);
+
+    xmlrpc_client_call2(&env, cp, sinfo, methodName, paramArray, &resultP);
+    die_if_fault_occurred(&env);
+
+    printf("XMLRPC_TYPE_INT : %d\n", XMLRPC_TYPE_INT);
+    printf("XMLRPC_TYPE_BOOL %d\n", XMLRPC_TYPE_BOOL);
+    printf("XMLRPC_TYPE_DOUBLE : %d\n", XMLRPC_TYPE_DOUBLE);
+    printf("XMLRPC_TYPE_DATETIME : %d\n", XMLRPC_TYPE_DATETIME);
+    printf("XMLRPC_TYPE_STRING :  %d\n", XMLRPC_TYPE_STRING);
+    printf("XMLRPC_TYPE_BASE64 : %d\n", XMLRPC_TYPE_BASE64);
+    printf("XMLRPC_TYPE_ARRAY : %d\n", XMLRPC_TYPE_ARRAY);
+    printf("XMLRPC_TYPE_STRUCT : %d\n", XMLRPC_TYPE_STRUCT);
+    printf("XMLRPC_TYPE_C_PTR : %d\n", XMLRPC_TYPE_C_PTR);
+    printf("XMLRPC_TYPE_NIL : %d\n", XMLRPC_TYPE_NIL);
+    printf("XMLRPC_TYPE_I8 : %d\n", XMLRPC_TYPE_I8);
+    printf("%d\n", xmlrpc_value_type(resultP));
 
     //xmlrpc_parse_value(&env, resultP, "s", &msg);
     xmlrpc_read_string(&env, resultP, &msg);
     die_if_fault_occurred(&env);
 
     printf("message : %s\n", msg);
-    
+
     free((void *)msg);
     msg = NULL;
 
@@ -88,8 +193,8 @@ int main(int const argc, const char ** const argv) {
 
     /* Clean up our error-handling environment. */
     xmlrpc_env_clean(&env);
-    
     /* Shutdown our XML-RPC client library. */
+
     //xmlrpc_client_cleanup();
     xmlrpc_client_setup_global_const(&env);
 
