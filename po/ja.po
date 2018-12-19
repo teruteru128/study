@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 0.0.0-alpha\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2018-11-27 22:20+0900\n"
+"POT-Creation-Date: 2018-12-20 01:58+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: 001/gettextsample001.c:11 020/main.c:8 026/main026.c:8
+#: src/001-gettext-sample.c:12 001/001.c:12 020/main.c:8 026/main026.c:8
 #, c-format
 msgid "Hello world!\n"
 msgstr "こんにちは世界！\n"
@@ -31,9 +31,9 @@ msgstr "検証子 : %<PRIu64>\n"
 #: 022/main.c:9
 #, c-format
 msgid "%dmicro seconds stopping.\n"
-msgstr "%dマイクロ秒止まります。\n"
+msgstr "%dマイクロ秒停止します。\n"
 
 #: 022/main.c:11
 #, c-format
 msgid "%dmicro seconds stoped.\n"
-msgstr "%dマイクロ秒止まりました。\n"
+msgstr "%dマイクロ秒停止しました。\n"
