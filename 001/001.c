@@ -7,7 +7,7 @@ static void initGettext(){
 	textdomain (PACKAGE);
 }
 
-int printGettextHelloWorld001(){
+int helloWorld001(){
 	initGettext();
 	printf(_("Hello world!\n"));
 }

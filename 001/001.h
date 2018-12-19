@@ -3,7 +3,7 @@
 #define MAIN_H
 #include <study-config.h>
 
-int printGettextHelloWorld001();
+int helloWorld001();
 
 #endif
 
