@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <stdint.h>
 
 #define LOOP_COUNT 0x100000000ULL
 
