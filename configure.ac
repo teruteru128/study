@@ -25,8 +25,10 @@ AC_PROG_RANLIB
 # FIXME: Replace `main' with a function in `-lprintint':
 #AC_CHECK_LIB([printint], [main])
 # FIXME: Replace `main' with a function in `-lssl':
-#AC_CHECK_LIB([ssl], [main])
-#if test "$with_openssl" = yes ; then
+AC_CHECK_LIB([ssl], [SSL_library_init])
+AC_CHECK_LIB([crypto], [EVP_EncryptInit])
+AX_CHECK_OPENSSL
+if test "$with_openssl" = yes ; then
   dnl Order matters!
   if test "$PORTNAME" != "win32"; then
      AC_CHECK_LIB(crypto, CRYPTO_new_ex_data, [], [AC_MSG_ERROR([library 'crypto' is required for OpenSSL])])
@@ -41,7 +43,7 @@ AC_PROG_RANLIB
      AC_SEARCH_LIBS(SSL_library_init, ssleay32 ssl, [FOUND_SSL_LIB="yes"])
      AS_IF([test "x$FOUND_SSL_LIB" = xno], [AC_MSG_ERROR([library 'ssleay32' or 'ssl' is required for OpenSSL])])
   fi
-#fi
+fi
 # FIXME: Replace `main' with a function in `-luuid':
 AC_CHECK_LIB([uuid], uuid_generate)
 # FIXME: Replace `main' with a function in `-ltextdomain':
@@ -112,6 +114,24 @@ AC_CONFIG_FILES([src/Makefile
                  032/Makefile
                  033/Makefile
                  034/Makefile
+                 036/Makefile
+                 037/Makefile
+                 038/Makefile
+                 039/Makefile
+                 040/Makefile
+                 041/Makefile
+                 043/Makefile
+                 044/Makefile
+                 045/Makefile
+                 046/Makefile
+                 047/Makefile
+                 048/Makefile
+                 049/Makefile
+                 050/Makefile
+                 051/Makefile
+                 052/Makefile
+                 053/Makefile
+                 054/Makefile
                  intl/Makefile
                  po/Makefile.in
                  Makefile

@@ -1,6 +1,6 @@
 
 lib_LTLIBRARIES=libsafe.la libprintint.la libtextdomain.la
-include_HEADERS= ../include/safe.h
+include_HEADERS= $(top_srcdir)/include/safe.h
 AM_CPPFLAGS = -I$(top_srcdir)/include
 libsafe_la_SOURCES=safe.c
 libprintint_la_SOURCES=printint.c
