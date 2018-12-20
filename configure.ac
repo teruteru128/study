@@ -113,16 +113,6 @@ AC_CONFIG_FILES([src/Makefile
                  032/Makefile
                  033/Makefile
                  034/Makefile
-                 039/Makefile
-                 040/Makefile
-                 041/Makefile
-                 043/Makefile
-                 044/Makefile
-                 045/Makefile
-                 046/Makefile
-                 047/Makefile
-                 048/Makefile
-                 049/Makefile
                  intl/Makefile
                  po/Makefile.in
                  Makefile
