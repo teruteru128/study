@@ -91,7 +91,9 @@ static size_t parseHexArray(char **out, char **data)
         string = strcat(string, *tmp);
         tmp++;
     }
-    return parseHex(out, string);
+    size_t len = parseHex(out, string);
+    free(string);
+    return len;
 }
 int main(int argc, char **argv)
 {
@@ -124,7 +126,7 @@ int main(int argc, char **argv)
         perror(NULL);
         return 1;
     }
-    char *data;
+    char *data = NULL;
     size_t writelen = parseHexArray(&data, content);
     size_t i = 0;
     for (i = 0; i < writelen; i++)
