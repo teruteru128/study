@@ -8,4 +8,4 @@ all: test.pdf
 	platex -interaction=batchmode $<
 
 clean: 
-	$(RM) test.pdf test.log test.aux
+	$(RM) *.pdf *.log *.aux
