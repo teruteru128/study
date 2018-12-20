@@ -26,11 +26,12 @@ static int get_random(const char* const path, char* buf, const size_t size, cons
 	(void) fclose(rnd);
 	return 0;
 }
+static const char* hexchars = "0123456789abcdef";
 static void hex_dump(const void* pt, const size_t len){
 	char* p = (char *)pt;
 	int i = 0;
 	for(i = 0; i < len; i++){
-		printf("%02x", p[i] & 0xFF);
+		printf("%c%c", hexchars[(p[i] >> 4) & 0x0F], hexchars[(p[i] >> 0) & 0x0F]);
 		if( i % 16 == 15){
 			printf("\n");
 		}
@@ -80,11 +81,16 @@ int main(int argc, char** argv){
 		"やらないか。",
 		"はずれ",
 		"ンアッー！",
-		"スカ"
+		"スカ",
+    NULL
 	};
-
+  size_t messages_size = 0;
+  char** tmp = messages;
+  while(*tmp++ != NULL){
+    messages_size++;
+  }
 	for(i = 0; i < 334;i++){
-		printf("%s\n", messages[(seed = xor(seed)) % 9]);
+		printf("%s\n", messages[(seed = xor(seed)) % messages_size]);
 	}
 
 	return 0;
