@@ -8,7 +8,7 @@
 #include <openssl/sha.h>
 
 #include <printint.h>
-#define IN2_SIZE 20
+#define IN2_SIZE 21
 
 #include <gettext.h>
 #define _(str) gettext(str)
