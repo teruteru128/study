@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
 #define DIGITS ("0123456789abcfef")
 #define DigitTens ("0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999")
@@ -39,12 +40,13 @@ size_t snprintUInt64(char *restrict s, size_t n, uint64_t l)
     size_t charPos;
     size_t i;
 
-    if (n == 0)
+    if (s == NULL || n == 0)
     {
         return 0;
     }
 
     tmp = l;
+    memset(s, 0, n);
     length = stringSize(tmp);
     for (i = length; i > n; i--)
     {
