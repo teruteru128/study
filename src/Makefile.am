@@ -23,7 +23,12 @@ bin_PROGRAMS=study\
 						gettime\
 						dappun\
 						026\
-						028
+						028\
+						prime\
+						prime2\
+						calc\
+						bouyomi\
+						bm
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -I../include
@@ -62,4 +67,7 @@ main_SOURCES=main.c base64.c
 026_CFLAGS = -I../include
 028_SOURCES = 028.c sha-1.c sha-2.c sha-3.c sha-n.c main028.h sha-1.h sha-2.h sha-3.h sha-n.h 028.h
 028_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
+bm_SOURCES = bitmessage.c base64.c api.c xmlrpc.c bm.c bitmessage.h base64.h api.h xmlrpc.h
+bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
+bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
 
