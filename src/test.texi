@@ -1,0 +1,52 @@
+\input texinfo
+@c %**start of header
+@setfilename test.info
+@settitle Hello World!
+@c %**end of header
+@copying
+This manual is for program, version version.
+
+Copyright @copyright{} years copyright-owner.
+
+@quotation
+Permission is granted to …
+@end quotation
+@end copying
+
+@titlepage
+@title name-of-manual-when-printed
+@subtitle subtitle-if-any
+@subtitle second-subtitle
+@author author
+
+@c  The following two commands
+@c  start the copyright page.
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+
+Published by …
+@end titlepage
+
+@c So the toc is printed in the right place.
+@contents
+
+@ifnottex
+@node Top
+@top title
+
+@insertcopying
+@end ifnottex
+
+@menu
+* First Chapter::    Getting started
+* Second Chapter::   Hello world ! % this is your content
+* Copying::          Your rights and freedoms.
+@end menu
+
+@node First Chapter
+@chapter First Chapter
+
+@cindex first chapter
+@cindex chapter, first
+@bye

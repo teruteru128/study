@@ -1,3 +1,0 @@
-
-bin_PROGRAMS=orz
-

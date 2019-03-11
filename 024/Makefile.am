@@ -1,3 +1,0 @@
-
-bin_PROGRAMS=gettime
-

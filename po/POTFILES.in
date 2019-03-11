@@ -1,5 +1,5 @@
 # List of source files which contain translatable strings.
-001/gettextsample001.c
+src/001-gettext-sample.c
 003/main.c
 004/main.c
 005/main.c

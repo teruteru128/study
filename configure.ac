@@ -25,8 +25,10 @@ AC_PROG_RANLIB
 # FIXME: Replace `main' with a function in `-lprintint':
 #AC_CHECK_LIB([printint], [main])
 # FIXME: Replace `main' with a function in `-lssl':
-#AC_CHECK_LIB([ssl], [main])
-#if test "$with_openssl" = yes ; then
+AC_CHECK_LIB([ssl], [SSL_library_init])
+AC_CHECK_LIB([crypto], [EVP_EncryptInit])
+AX_CHECK_OPENSSL
+if test "$with_openssl" = yes ; then
   dnl Order matters!
   if test "$PORTNAME" != "win32"; then
      AC_CHECK_LIB(crypto, CRYPTO_new_ex_data, [], [AC_MSG_ERROR([library 'crypto' is required for OpenSSL])])
@@ -41,7 +43,7 @@ AC_PROG_RANLIB
      AC_SEARCH_LIBS(SSL_library_init, ssleay32 ssl, [FOUND_SSL_LIB="yes"])
      AS_IF([test "x$FOUND_SSL_LIB" = xno], [AC_MSG_ERROR([library 'ssleay32' or 'ssl' is required for OpenSSL])])
   fi
-#fi
+fi
 # FIXME: Replace `main' with a function in `-luuid':
 AC_CHECK_LIB([uuid], uuid_generate)
 # FIXME: Replace `main' with a function in `-ltextdomain':
@@ -80,38 +82,6 @@ AC_CHECK_FUNCS([gettimeofday memchr memset setlocale socket strerror strstr strt
 #LT_INIT
 
 AC_CONFIG_FILES([src/Makefile
-                 001/Makefile
-                 003/Makefile
-                 004/Makefile
-                 005/Makefile
-                 006/Makefile
-                 007/Makefile
-                 008/Makefile
-                 010/Makefile
-                 011/Makefile
-                 012/Makefile
-                 013/Makefile
-                 014/Makefile
-                 015/Makefile
-                 016/Makefile
-                 017/Makefile
-                 018/Makefile
-                 019/Makefile
-                 020/Makefile
-                 021/Makefile
-                 022/Makefile
-                 023/Makefile
-                 024/Makefile
-                 025/Makefile
-                 026/Makefile
-                 027/Makefile
-                 028/Makefile
-                 029/Makefile
-                 030/Makefile
-                 031/Makefile
-                 032/Makefile
-                 033/Makefile
-                 034/Makefile
                  intl/Makefile
                  po/Makefile.in
                  Makefile
