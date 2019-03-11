@@ -2,8 +2,8 @@
 
 static void initGettext(){
 	setlocale (LC_ALL, "");
-	bindtextdomain (PACKAGE, LOCALEDIR);
-	puts(LOCALEDIR);
+	bindtextdomain (PACKAGE, LOCALDIR);
+	puts(LOCALDIR);
 	textdomain (PACKAGE);
 }
 
