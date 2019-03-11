@@ -3,6 +3,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+/*
+  暗黒通信団 ファイルフォーマット小辞典
+*/
+
 const static char *ten = "0000000000000000"
                          "1111111111111111"
                          "2222222222222222"
