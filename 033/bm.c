@@ -5,6 +5,7 @@
 #include <xmlrpc_client.h>
 #include <string.h>
 #include "bitmessage.h"
+#include "base64.h"
 #include "api.h"
 #define localhost_ip "127.0.0.1"
 #define bitmessage_port 8442
@@ -21,6 +22,12 @@ void die_if_fault_occurred (xmlrpc_env *env)
         exit(1);
     }
 }
+typedef struct clientinfo_t {} clientinfo;
+typedef struct serverinfo_t {} serverinfo;
+typedef struct connectioninfo_t {
+  clientinfo client;
+  serverinfo server;
+} connectioninfo;
 /**
  * int main(int argc, char* argv[]){
     // グローバル定数初期化
@@ -37,42 +44,13 @@ void die_if_fault_occurred (xmlrpc_env *env)
  * */
 int main(int const argc, const char ** const argv)
 {
-
-    xmlrpc_env env;
-    xmlrpc_value * resultP = NULL;
-    xmlrpc_server_info *sinfo = NULL;
     const char * msg = NULL;
-    char * const clientName = NAME;
-    char * const clientVersion = VERSION;
-    char * const url = SERVER_URL;
-    char * const methodName = "helloWorld";
-    char * const fromaddress = "BM-NBJxKhQmidR2TBtD3H74yZhDHpzZ7TXM";
-    char * const toaddress = "BM-2cVogWZyryp9ZDGPQJ6GMpawpofm5oLKYY";
-    xmlrpc_client* cp = NULL;
-    xmlrpc_value* paramArray = NULL;
-    xmlrpc_value* first = NULL;
-    xmlrpc_value* second = NULL;
-    xmlrpc_value* toaddressV = NULL;
-    xmlrpc_value* fromaddressV = NULL;
-    xmlrpc_value* subjectV = NULL;
-    xmlrpc_value* messageV = NULL;
-    xmlrpc_value* ackdata = NULL;
+    char *  generaladdress = "BM-2cW67GEKkHGonXKZLCzouLLxnLym3azS8r";
+    char *  fromaddress = "BM-NBJxKhQmidR2TBtD3H74yZhDHpzZ7TXM";
+    char *  toaddress = "BM-NBJxKhQmidR2TBtD3H74yZhDHpzZ7TXM";
+    fromaddress = generaladdress;
+    api_init();
 
-    // api_init();
-    /* Initialize our error-handling environment. */
-    xmlrpc_env_init(&env);
-
-    /* Start up our XML-RPC client library. */
-    //xmlrpc_client_init2(&env, XMLRPC_CLIENT_NO_FLAGS, clientName, clientVersion, NULL, 0);
-    xmlrpc_client_setup_global_const(&env);
-    //[ handle possible failure of above ]
-
-    typedef struct clientinfo_t {} clientinfo;
-    typedef struct serverinfo_t {} serverinfo;
-    typedef struct connectioninfo_t {
-      clientinfo client;
-      serverinfo server;
-    } connectioninfo;
     /**
     void
     xmlrpc_client_create(xmlrpc_env *                envP,
@@ -83,6 +61,7 @@ int main(int const argc, const char ** const argv)
                          unsigned int                parmSize,
                          xmlrpc_client **            clientPP);
     */
+    /*
     xmlrpc_client_create(&env, XMLRPC_CLIENT_NO_FLAGS, clientName, clientVersion, NULL, 0, &cp);
     die_if_fault_occurred(&env);
 
@@ -93,7 +72,50 @@ int main(int const argc, const char ** const argv)
     die_if_fault_occurred(&env);
 
     xmlrpc_server_info_allow_auth_basic(&env, sinfo);
-
+    */
+    FILE* fp = fopen("./bitmessage-addresses.txt", "r");
+    if(fp == NULL){
+      perror("fopen");
+      return EXIT_FAILURE;
+    }
+    char address[64];
+    int i=0;
+    while((fgets(address, 64, fp)) != NULL){
+      if(strlen(address) == 0){
+        continue;
+      }
+      for(i = 0; address[i] != 0;i++){
+        if(address[i] == '\n' || address[i] == '\r'){
+          address[i] = '\0';
+        }
+      }
+      msg = api_simpleSendMessage(address, generaladdress, "Sex!", "...and the City.\n\nDid you expect?\n\nYou are an idiot!\n\nHave A Nice New Year!");
+      printf("message : %s\n", msg);
+      free((void *)msg);
+      msg = NULL;
+    }
+    /*
+    //1687-found-chan-names.txt
+    FILE* fp = fopen("./1687-found-chan-names.txt", "r");
+    if(fp == NULL){
+      perror("fopen");
+      return EXIT_FAILURE;
+    }
+    char address[1025];
+    int i=0;
+    while((fgets(address, 1025, fp)) != NULL){
+      for(i = 0; address[i] != 0;i++){
+        if(address[i] == '\r'||address[i] == '\n'){
+          address[i] = '\0';
+        }
+      }
+      msg = api_getDeterministicAddress(address, 4, 1);
+      printf("%s\n", msg);
+      free((void *)msg);
+      msg = NULL;
+    }
+    */
+    /*
     paramArray = xmlrpc_array_new(&env);
     die_if_fault_occurred(&env);
 
@@ -107,6 +129,7 @@ int main(int const argc, const char ** const argv)
     die_if_fault_occurred(&env);
     xmlrpc_array_append_item(&env, paramArray, second);
     die_if_fault_occurred(&env);
+    */
     /*
     toaddressV = xmlrpc_string_new(&env, toaddress);
     die_if_fault_occurred(&env);
@@ -137,6 +160,7 @@ int main(int const argc, const char ** const argv)
     die_if_fault_occurred(&env);
 
 */
+    /*
     xmlrpc_client_call2(&env, cp, sinfo, methodName, paramArray, &resultP);
     die_if_fault_occurred(&env);
     printf("XMLRPC_TYPE_INT : %d\n", XMLRPC_TYPE_INT);
@@ -155,24 +179,20 @@ int main(int const argc, const char ** const argv)
     //xmlrpc_parse_value(&env, resultP, "s", &msg);
     xmlrpc_read_string(&env, resultP, &msg);
     die_if_fault_occurred(&env);
+    */
 
-    printf("message : %s\n", msg);
-
-    free((void *)msg);
-    msg = NULL;
-
-    xmlrpc_client_destroy(cp);
-    xmlrpc_DECREF(paramArray);
-    xmlrpc_server_info_free(sinfo);
+    //xmlrpc_client_destroy(cp);
+    //xmlrpc_DECREF(paramArray);
+    //xmlrpc_server_info_free(sinfo);
     /* Dispose of our result value. */
-    xmlrpc_DECREF(resultP);
+    //xmlrpc_DECREF(resultP);
 
     /* Clean up our error-handling environment. */
-    xmlrpc_env_clean(&env);
+    //xmlrpc_env_clean(&env);
     /* Shutdown our XML-RPC client library. */
 
     //xmlrpc_client_cleanup();
-    xmlrpc_client_setup_global_const(&env);
+    xmlrpc_client_teardown_global_const();
 
     return 0;
 }

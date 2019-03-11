@@ -13,7 +13,7 @@ int api_add(int, int);
 int api_statusBar();
 int api_listAddresses2();
 int api_createRandomAddress();
-int api_getDeterministicAddress();
+char* api_getDeterministicAddress(char*, int, int);
 int api_getAllInboxMessages();
 int api_getAllInboxMessageIDs();
 int api_getSentMessageByAckData();
@@ -22,15 +22,13 @@ int api_getSentMessageByID();
 int api_getSentMessagesBySender();
 int api_trashMessages();
 /**
-  sendMessage(toaddress, fromaddress, subject, message, ...)
-    sendMessage(toAddress, fromAddress, subject, message)
-    sendMessage(toAddress, fromAddress, subject, message, encodingType)
-    sendMessage(toAddress, fromAddress, subject, message, encodingType, TTL)
+  simpleSendMessage(toaddress, fromaddress, subject, message)
+  sendMessage(toAddress, fromAddress, subject, message, encodingType, TTL)
 */
-int api_simpleSendMessage(xmlrpc_env*, xmlrpc_client*, char*, char*, char*, char*);
-char* api_sendMessage(xmlrpc_env*, xmlrpc_client*, char*, char*, char*, char*, int, int);
+char* api_simpleSendMessage(char*, char*, char*, char*);
+char* api_sendMessage(char*, char*, char*, char*, int, int);
 int api_sendBroadcast();
-char* api_getStatus(xmlrpc_env*, xmlrpc_client*, xmlrpc_server_info*, char*);
+char* api_getStatus(char*);
 int api_listSubscriptions();
 int api_addSubscription();
 int api_deleteSubscriptions();
