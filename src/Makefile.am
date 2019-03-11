@@ -28,10 +28,20 @@ bin_PROGRAMS=study\
 						prime2\
 						calc\
 						bouyomi\
-						bm
+						bm\
+						udpreciever\
+						udpsender\
+						primesearch\
+						portscanner\
+						cudahello
+
+cudahello:
+
+%:%.cu
+	nvcc -ccbin clang-4.0 $^ -o $@
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
-study_CFLAGS= -I../include
+study_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
 #include_HEADERS= printint.h
 study_LDADD= -lprintint -lcrypto
 study_LDFLAGS= -L../lib
@@ -70,4 +80,6 @@ main_SOURCES=main.c base64.c
 bm_SOURCES = bitmessage.c base64.c api.c xmlrpc.c bm.c bitmessage.h base64.h api.h xmlrpc.h
 bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
 bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
+cudahello_SOURCES=cudahello.cu
+cudahello_CFLAGS=-fPIC
 

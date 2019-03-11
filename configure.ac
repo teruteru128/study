@@ -82,15 +82,6 @@ AC_CHECK_FUNCS([gettimeofday memchr memset setlocale socket strerror strstr strt
 #LT_INIT
 
 AC_CONFIG_FILES([src/Makefile
-                 029/Makefile
-                 030/Makefile
-                 031/Makefile
-                 032/Makefile
-                 033/Makefile
-                 034/Makefile
-                 035/Makefile
-                 036/Makefile
-                 037/Makefile
                  intl/Makefile
                  po/Makefile.in
                  Makefile
