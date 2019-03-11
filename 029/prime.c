@@ -28,4 +28,5 @@ int main(int argc, char* argv[]){
 			puts("is definitely prime");
 			break;
 	}
-	return 0;}
+	return 0;
+}
