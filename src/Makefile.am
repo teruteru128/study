@@ -28,12 +28,11 @@ bin_PROGRAMS=study\
 						prime2\
 						calc\
 						bouyomi\
-						bm\
 						udpreciever\
 						udpsender\
 						primesearch\
 						portscanner\
-						cudahello
+						rsa1024
 
 cudahello:
 
@@ -60,6 +59,7 @@ main_SOURCES=main.c base64.c
 008_LDADD= -lprintint -lssl -lcrypto
 008_LDFLAGS= -L../lib
 010_SOURCES=010.c
+012_LDFLAGS= -luuid
 015_LDFLAGS= -lcrypto
 016_LDFLAGS= -lssl -lcrypto
 017_CFLAGS= -I../include
@@ -82,4 +82,5 @@ bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
 bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
 cudahello_SOURCES=cudahello.cu
 cudahello_CFLAGS=-fPIC
+rsa1024_SOURCES=RSA-1024-challenge.c
 
