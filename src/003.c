@@ -17,7 +17,11 @@ int main(int argc, char **argv)
 {
     SHA_CTX *c = NULL;
     struct timeval tv;
-    unsigned char md[SHA_DIGEST_LENGTH];
+    typedef union mc {
+      unsigned char md[SHA_DIGEST_LENGTH];
+      uint32_t ddd[SHA_DIGEST_LENGTH];
+    } MC;
+    MC mc;
     int i;
     char *in1 = "MEsDAgcAAgEgAiAoQPNcS7L4k+q2qf3U7uyujtwRQNS3pLKN/zrRGERGagIgFjdV1JlqHF8BiIQne0/E3jVM7hWda/USrFI58per45s=";
     char in2[IN2_SIZE];
@@ -40,13 +44,13 @@ int main(int argc, char **argv)
         SHA1_Update(c, in1, in1Length);
         verifierLength = snprintUInt64(in2, IN2_SIZE, verifier);
         SHA1_Update(c, in2, verifierLength);
-        SHA1_Final(md, c);
-        if (md[0] == 0 && md[1] == 0 && md[2] == 0 && md[3] == 0 && md[4] == 0)
+        SHA1_Final(mc.md, c);
+        if (mc.ddd[0] == 0 && mc.md[4] == 0)
         {
             printf(_("verifier : %" PRIu64 "\n"), verifier);
             for (i = 0; i < SHA_DIGEST_LENGTH; i++)
             {
-                printf("%02x", md[i]);
+                printf("%02x", mc.md[i]);
             }
             printf("\n");
             break;
