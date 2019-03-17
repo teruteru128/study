@@ -38,6 +38,11 @@ int main(int argc, char* argv[]){
     sleep(1);
   }
 
+  if(pthread_join(thread, NULL) != 0){
+    perror("failed to join thread");
+    return EXIT_FAILURE;
+  }
+
   printf("bye!\n");
   return EXIT_SUCCESS;
 }
