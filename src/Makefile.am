@@ -35,6 +35,7 @@ bin_PROGRAMS+=primesearch
 bin_PROGRAMS+=portscanner
 bin_PROGRAMS+=firstThread
 bin_PROGRAMS+=firstThread2
+bin_PROGRAMS+=firstThread3
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
@@ -78,4 +79,5 @@ bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
 bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
 firstThread_LDFLAGS=-lpthread
 firstThread2_LDFLAGS=-lpthread
+firstThread3_LDFLAGS=-lpthread
 
