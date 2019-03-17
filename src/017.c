@@ -31,6 +31,24 @@ static uint64_t getRandomU64()
 
 #define IN1 "MEwDAgcAAgEgAiEA+i4ptdb7Q5ldNJjyJTd/+hC+ac2YoPoIXYLgPRJE6egCIBcdWTjBr/iW3QjAAl389HYDZF/0GwuxH+MpXdDBrpl0"
 
+int calcSecurityLevel(unsigned char *md, char* id, uint64_t counter){
+  SHA_CTX ctx;
+  char buf[22];
+  size_t counterLength = 0;
+  int i = 0;
+  int j = 0;
+  SHA1_Init(&ctx);
+  SHA1_Update(&ctx, id, strlen(id));
+  counterLength = snprintUInt64(buf, 20, counter);
+  SHA1_Update(&ctx, buf, counterLength);
+  SHA1_Final(md, &ctx);
+  for(i = 0; md[i] == 0&&i < SHA_DIGEST_LENGTH; i++){
+  
+  }
+  for(j = 0; (md[i] >> j) & 0x01 == 0; j++){}
+  return i << 3 + j;
+}
+
 int main(int argc, char **argv)
 {
     SHA_CTX ctx[CTX_SIZE];
@@ -41,6 +59,8 @@ int main(int argc, char **argv)
     size_t counterLength[CTX_SIZE];
     size_t i = 0;
     size_t j = 0;
+    int64_t securityLevel = 0;
+    int64_t maxSecurityLevel = 0;
 
     initRandom();
 
@@ -48,7 +68,7 @@ int main(int argc, char **argv)
     {
         counter[i] = getRandomU64();
     }
-    while (1)
+    while (maxSecurityLevel < 160)
     {
         for (i = 0; i < CTX_SIZE; i++)
         {
@@ -56,42 +76,18 @@ int main(int argc, char **argv)
         }
         for (i = 0; i < CTX_SIZE; i++)
         {
-            SHA1_Init(&(ctx[i]));
-        }
-        for (i = 0; i < CTX_SIZE; i++)
-        {
-            SHA1_Update(&(ctx[i]), IN1, in1Length);
-        }
-        for (i = 0; i < CTX_SIZE; i++)
-        {
-            counterLength[i] = snprintUInt64(buf[i], 20, counter[i]);
-        }
-        for (i = 0; i < CTX_SIZE; i++)
-        {
-            SHA1_Update(&(ctx[i]), buf[i], counterLength[i]);
-        }
-        for (i = 0; i < CTX_SIZE; i++)
-        {
-            SHA1_Final(md[i], &(ctx[i]));
-        }
-        for (i = 0; i < CTX_SIZE; i++)
-        {
-            if (md[i][0] == 0 && md[i][1] == 0 && md[i][2] == 0 && md[i][3] == 0 && md[i][4] == 0)
-            {
-                printf("verifier : %lu\n", counter[i]);
-                for (j = 0; j < SHA_DIGEST_LENGTH; j++)
-                {
-                    printf("%02x", md[i][j]);
-                }
-                printf("\n");
-                if (md[i][0] == 0 && md[i][1] == 0 && md[i][2] == 0 && md[i][3] == 0 && md[i][4] == 0
-                 && md[i][5] == 0 && md[i][6] == 0 && md[i][7] == 0 && md[i][8] == 0 && md[i][9] == 0
-                 && md[i][10] == 0 && md[i][11] == 0 && md[i][12] == 0 && md[i][13] == 0 && md[i][14] == 0 
-                 && md[i][15] == 0 && md[i][16] == 0 && md[i][17] == 0 && md[i][18] == 0 && md[i][19] == 0)
-                {
-                    // 全ビット0
-                    goto out;
-                }
+            securityLevel = calcSecurityLevel(md[i], IN1, counter[i]);
+            if(maxSecurityLevel < securityLevel){
+              printf("Max update: %" PRId64" -> %" PRId64"\n", maxSecurityLevel, securityLevel);
+              maxSecurityLevel = securityLevel;
+            }
+            if(securityLevel >= 32){
+              printf("verifier : %24" PRIu64", ", counter[i]);
+              for (j = 0; j < SHA_DIGEST_LENGTH; j++)
+              {
+                  printf("%02x", md[i][j]);
+              }
+              printf("\n");
             }
         }
     }
