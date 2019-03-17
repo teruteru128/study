@@ -9,6 +9,8 @@ AC_CONFIG_HEADERS([include/config.h])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_MACRO_DIRS([m4])
 AM_PROG_LIBTOOL
+LT_INIT
+AM_PROG_AR
 
 # Checks for programs.
 AC_PROG_CXX
@@ -19,6 +21,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
+AC_ENABLE_SHARED
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lcrypto':
@@ -79,7 +82,6 @@ AM_GNU_GETTEXT
 AM_GNU_GETTEXT_VERSION([0.19.8])
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([gettimeofday memchr memset setlocale socket strerror strstr strtoull])
-#LT_INIT
 
 AC_CONFIG_FILES([src/Makefile
                  intl/Makefile

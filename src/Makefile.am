@@ -32,13 +32,7 @@ bin_PROGRAMS=study\
 						udpreciever\
 						udpsender\
 						primesearch\
-						portscanner\
-						cudahello
-
-cudahello:
-
-%:%.cu
-	nvcc -ccbin clang-4.0 $^ -o $@
+						portscanner
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
@@ -46,8 +40,8 @@ study_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
 study_LDADD= -lprintint -lcrypto
 study_LDFLAGS= -L../lib
 study_SOURCES=study.c\
-							001-gettext-sample.c\
-							001.h
+							gettext-sample.c\
+							gettext-sample.h
 003_CFLAGS= -I../include
 003_LDADD= -lprintint -lcrypto
 003_LDFLAGS= -L../lib
@@ -69,17 +63,15 @@ main_SOURCES=main.c base64.c
 019_LDFLAGS=-lm
 020_SOURCES= 020.c 020.h
 022_SOURCES= 022.c 022.h
-020_CFLAGS= -I../include
+020_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
 022_CFLAGS=-I../include -DLOCALEDIR='"$(localedir)"'
 022_LDADD= -ltextdomain
 022_LDFLAGS=-L../lib
 026_SOURCES = 026.c 026.h
-026_CFLAGS = -I../include
+026_CFLAGS = -I../include -DLOCALEDIR='"$(localedir)"'
 028_SOURCES = 028.c sha-1.c sha-2.c sha-3.c sha-n.c main028.h sha-1.h sha-2.h sha-3.h sha-n.h 028.h
 028_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
-bm_SOURCES = bitmessage.c base64.c api.c xmlrpc.c bm.c bitmessage.h base64.h api.h xmlrpc.h
+bm_SOURCES = bitmessage.c base64.c bmapi.c xmlrpc.c bm.c bitmessage.h base64.h bmapi.h xmlrpc.h
 bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
 bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
-cudahello_SOURCES=cudahello.cu
-cudahello_CFLAGS=-fPIC
 
