@@ -1,38 +1,40 @@
-bin_PROGRAMS=study\
-						003\
-						004\
-						main\
-						005\
-						006\
-						007\
-						008\
-						010\
-						011\
-						012\
-						013\
-						014\
-						015\
-						016\
-						017\
-						018\
-						019\
-						020\
-						021\
-						022\
-						orz\
-						gettime\
-						dappun\
-						026\
-						028\
-						prime\
-						prime2\
-						calc\
-						bouyomi\
-						bm\
-						udpreciever\
-						udpsender\
-						primesearch\
-						portscanner
+bin_PROGRAMS=study
+bin_PROGRAMS+=003
+bin_PROGRAMS+=004
+bin_PROGRAMS+=main
+bin_PROGRAMS+=005
+bin_PROGRAMS+=006
+bin_PROGRAMS+=007
+bin_PROGRAMS+=008
+bin_PROGRAMS+=010
+bin_PROGRAMS+=011
+bin_PROGRAMS+=012
+bin_PROGRAMS+=013
+bin_PROGRAMS+=014
+bin_PROGRAMS+=015
+bin_PROGRAMS+=016
+bin_PROGRAMS+=017
+bin_PROGRAMS+=018
+bin_PROGRAMS+=019
+bin_PROGRAMS+=020
+bin_PROGRAMS+=021
+bin_PROGRAMS+=022
+bin_PROGRAMS+=orz
+bin_PROGRAMS+=gettime
+bin_PROGRAMS+=dappun
+bin_PROGRAMS+=026
+bin_PROGRAMS+=028
+bin_PROGRAMS+=prime
+bin_PROGRAMS+=prime2
+bin_PROGRAMS+=calc
+bin_PROGRAMS+=bouyomi
+bin_PROGRAMS+=bm
+bin_PROGRAMS+=udpreciever
+bin_PROGRAMS+=udpsender
+bin_PROGRAMS+=primesearch
+bin_PROGRAMS+=portscanner
+bin_PROGRAMS+=firstThread
+bin_PROGRAMS+=firstThread2
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
@@ -74,4 +76,6 @@ main_SOURCES=main.c base64.c
 bm_SOURCES = bitmessage.c base64.c bmapi.c xmlrpc.c bm.c bitmessage.h base64.h bmapi.h xmlrpc.h
 bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
 bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
+firstThread_LDFLAGS=-lpthread
+firstThread2_LDFLAGS=-lpthread
 
