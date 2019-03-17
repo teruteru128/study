@@ -9,7 +9,7 @@ Linuxとpthreadによるマルチスレッドプログラミング入門 - 渋�
 void anotherFunc(int n){
   if(n == 2){
     printf("Hasta la vista, baby.\n");
-    pthread_exit(NULL);
+    exit(0);
   }
 }
 
