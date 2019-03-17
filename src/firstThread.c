@@ -24,7 +24,6 @@ int main(int argc, char* argv[]){
     perror("failed to create new thread");
     return EXIT_FAILURE;
   }
-  sleep(1);
 
   for(i = 0; i < 5; i++){
     printf("I'm main. (%d)\n", i);
