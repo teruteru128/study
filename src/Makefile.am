@@ -37,6 +37,7 @@ bin_PROGRAMS+=firstThread
 bin_PROGRAMS+=firstThread2
 bin_PROGRAMS+=firstThread3
 bin_PROGRAMS+=firstThread4
+bin_PROGRAMS+=variables
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
@@ -82,4 +83,5 @@ firstThread_LDFLAGS=-lpthread
 firstThread2_LDFLAGS=-lpthread
 firstThread3_LDFLAGS=-lpthread
 firstThread4_LDFLAGS=-lpthread
+variables_LDFLAGS=-lpthread
 
