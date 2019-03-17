@@ -1,5 +1,5 @@
 
-#include "api.h"
+#include "bmapi.h"
 #include "xmlrpc.h"
 #include "base64.h"
 #include <stdlib.h>

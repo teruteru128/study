@@ -6,7 +6,7 @@
 #include <string.h>
 #include "bitmessage.h"
 #include "base64.h"
-#include "api.h"
+#include "bmapi.h"
 #define localhost_ip "127.0.0.1"
 #define bitmessage_port 8442
 #define NAME "TR BM TEST CLIENT"
