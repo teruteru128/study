@@ -14,25 +14,28 @@ int main(int argc, char* argv[]){
   mpz_t p;
   mpz_t q;
   mpz_t sqQ;
+  mpz_t sqrtN;
+  mpz_t nSubSqQ;
+  mpz_t nSubSqQModQ;
   mpz_t doubledSqQ;
-  mpz_t psubq;
+  mpz_t pSubQ;
   mpz_t num;
-  mpz_inits(n, p, q, sqQ, doubledSqQ, psubq, num, NULL);
+  mpz_inits(n, p, q, sqQ, sqrtN, nSubSqQ, nSubSqQModQ, doubledSqQ, pSubQ, num, NULL);
   mpz_set_str(n, N, BASE);
   // qを1からsqrt(n)までループ, (n-q^2)/qがqより大きくなるまでループ
   int i=0;
-  mpz_setbit(num, 511);
-  for(;;i++){
-    mpz_set(q, num);
-    mpz_setbit(q, i);
-    mpz_mul(sqQ, q, q);
-    if(mpz_cmp(sqQ, n) > 0){
-      break;
-    }
-    mpz_mul_si(doubledSqQ, sqQ, 2);
-    if(mpz_cmp(n, sqQ) > 0 && mpz_cmp(n, doubledSqQ) < 0){
-      gmp_printf("%Zd, %Zx\n", q, q);
-    }
-  }
+  mpz_set_str(q, "b0000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002", 16);
+  mpz_sqrt(sqrtN, n);
+  mpz_mul(sqQ, q, q);
+  mpz_sub(nSubSqQ, n, sqQ);
+  mpz_fdiv_qr(pSubQ, nSubSqQModQ, nSubSqQ, q);
+  mpz_add(p, pSubQ, q);
+  printf("OK\n");
+  printf("OK!\n");
+  gmp_printf("q =              %155Zd\n", q);
+  gmp_printf("sqrt(n) =        %155Zd\n", sqrtN);
+  gmp_printf("n - q*q =        %Zd\n", nSubSqQ);
+  gmp_printf("p - q =          %155Zd\n", pSubQ);
+  gmp_printf("(n - q*q) %% q = %155Zd\n", nSubSqQModQ);
 }
 
