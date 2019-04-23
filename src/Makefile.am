@@ -32,7 +32,10 @@ bin_PROGRAMS=study\
 						udpsender\
 						primesearch\
 						portscanner\
-						rsa1024
+						rsa1024\
+						curltest\
+						rsa\
+						prime3
 
 cudahello:
 
@@ -83,4 +86,5 @@ bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-c
 cudahello_SOURCES=cudahello.cu
 cudahello_CFLAGS=-fPIC
 rsa1024_SOURCES=RSA-1024-challenge.c
+curltest_LDFLAGS=-lcurl
 
