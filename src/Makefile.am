@@ -1,6 +1,6 @@
 bin_PROGRAMS=study\
 						003\
-						004\
+						loop-bench\
 						main\
 						005\
 						006\
@@ -35,7 +35,9 @@ bin_PROGRAMS=study\
 						rsa1024\
 						curltest\
 						rsa\
-						prime3
+						prime3\
+						maxmovingsum
+
 
 cudahello:
 

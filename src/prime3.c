@@ -19,14 +19,10 @@ int main(int argc, char* argv[]){
     }
     mpz_add_ui(nfacadd1, nfac, 1);
     isPrime = mpz_probab_prime_p(nfacadd1, 20);
-    if(isPrime != 0){
-      printf("%d! + 1 is %s\n", i, msg[isPrime]);
-    }
+    printf("%d! + 1 is %s\n", i, msg[isPrime]);
     mpz_sub_ui(nfacsub1, nfac, 1);
     isPrime = mpz_probab_prime_p(nfacsub1, 20);
-    if(isPrime != 0){
     printf("%d! - 1 is %s\n", i, msg[isPrime]);
-    }
   }
   return EXIT_SUCCESS;
 }
