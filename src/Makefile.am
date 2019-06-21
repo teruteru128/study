@@ -39,6 +39,9 @@ bin_PROGRAMS+=firstThread3
 bin_PROGRAMS+=firstThread4
 bin_PROGRAMS+=variables
 bin_PROGRAMS+=variables3
+bin_PROGRAMS+=seq
+bin_PROGRAMS+=sum
+bin_PROGRAMS+=maxmovingsum
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
@@ -86,4 +89,7 @@ firstThread3_LDFLAGS=-lpthread
 firstThread4_LDFLAGS=-lpthread
 variables_LDFLAGS=-lpthread
 variables3_LDFLAGS=-lpthread
+seq_CFLAGS=-lm
+seq_LDFLAGS=-lm
+sum_LDFLAGS=-lm
 
