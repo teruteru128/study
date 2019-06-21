@@ -17,7 +17,7 @@ bin_PROGRAMS=study\
 						018\
 						019\
 						020\
-						021\
+						lzhout\
 						022\
 						orz\
 						gettime\
