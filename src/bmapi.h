@@ -35,7 +35,7 @@ int api_deleteSubscriptions();
 int api_listAddressBookEntries();
 int api_addAddressBookEntry();
 int api_deleteAddressBookEntry();
-int api_createChan();
+char *api_createChan(char *);
 int api_deleteAddress();
 int api_decodeAddress();
 int api_addAddressToBlackWhiteList();
