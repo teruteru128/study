@@ -22,7 +22,7 @@ bin_PROGRAMS=study\
 						orz\
 						gettime\
 						dappun\
-						026\
+						localetest1\
 						028\
 						prime\
 						prime2\
