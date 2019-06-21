@@ -1,5 +1,5 @@
 
-#include "api.h"
+#include "bmapi.h"
 #include "xmlrpc.h"
 #include "base64.h"
 #include <stdlib.h>
@@ -161,5 +161,42 @@ char* api_getDeterministicAddress(char* pass, int addver, int stream){
   xmlrpc_DECREF(paramArray);
   xmlrpc_DECREF(resultP);
   return msg;
+}
+
+char * api_createChan(char *passphrase){
+  char * const methodName = "sendMessage";
+  char * address = NULL;
+  xmlrpc_value* passArray = NULL;
+  xmlrpc_value* passV = NULL;
+  xmlrpc_value* resultP = NULL;
+  xmlrpc_value* encodingTypeP = NULL;
+  char *adb64tmp = base64encode(passphrase, strlen(passphrase));
+  printf("%s, %s\n", passphrase, adb64tmp);
+  size_t len = strlen(adb64tmp);
+  char *adbtmp2 = calloc(sizeof(char), len + 2);
+  strncpy(adbtmp2, adb64tmp, len);
+  adbtmp2[len] = '\n';
+
+  passArray = xmlrpc_array_new(&env);
+  die_if_fault_occurred(&env);
+
+  passV = xmlrpc_string_new(&env, adbtmp2);
+  die_if_fault_occurred(&env);
+//  encodingTypeP = xmlrpc_int_new(&env, 2);
+//  die_if_fault_occurred(&env);
+
+  xmlrpc_array_append_item(&env, passArray, passV);
+  die_if_fault_occurred(&env);
+//  xmlrpc_array_append_item(&env, passArray, encodingTypeP);
+//  die_if_fault_occurred(&env);
+  api_call(methodName, passArray, &resultP);
+  die_if_fault_occurred(&env);
+  printf("%s\n", xmlrpc_type_name(xmlrpc_value_type(resultP)));
+  xmlrpc_read_string(&env, resultP, (const char** const)&address);
+  xmlrpc_DECREF(passArray);
+  xmlrpc_DECREF(resultP);
+  free(adb64tmp);
+  free(adbtmp2);
+  return address;
 }
 

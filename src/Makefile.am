@@ -1,42 +1,51 @@
-bin_PROGRAMS=study\
-						003\
-						loop-bench\
-						main\
-						printBench\
-						006\
-						007\
-						008\
-						010\
-						011\
-						012\
-						013\
-						014\
-						015\
-						016\
-						017\
-						018\
-						019\
-						020\
-						lzhout\
-						022\
-						orz\
-						gettime\
-						dappun\
-						localetest1\
-						028\
-						prime\
-						prime2\
-						calc\
-						bouyomi\
-						udpreciever\
-						udpsender\
-						primesearch\
-						portscanner\
-						rsa1024\
-						curltest\
-						rsa\
-						prime3\
-						maxmovingsum
+bin_PROGRAMS=study
+bin_PROGRAMS+=003
+bin_PROGRAMS+=loop-bench
+bin_PROGRAMS+=main
+bin_PROGRAMS+=printBench\
+bin_PROGRAMS+=006
+bin_PROGRAMS+=007
+bin_PROGRAMS+=008
+bin_PROGRAMS+=010
+bin_PROGRAMS+=011
+bin_PROGRAMS+=012
+bin_PROGRAMS+=013
+bin_PROGRAMS+=014
+bin_PROGRAMS+=015
+bin_PROGRAMS+=016
+bin_PROGRAMS+=017
+bin_PROGRAMS+=018
+bin_PROGRAMS+=019
+bin_PROGRAMS+=020
+bin_PROGRAMS+=lzhout
+bin_PROGRAMS+=022
+bin_PROGRAMS+=orz
+bin_PROGRAMS+=gettime
+bin_PROGRAMS+=dappun
+bin_PROGRAMS+=localetest1
+bin_PROGRAMS+=028
+bin_PROGRAMS+=prime
+bin_PROGRAMS+=prime2
+bin_PROGRAMS+=calc
+bin_PROGRAMS+=bouyomi
+bin_PROGRAMS+=bm
+bin_PROGRAMS+=udpreciever
+bin_PROGRAMS+=udpsender
+bin_PROGRAMS+=primesearch
+bin_PROGRAMS+=portscanner
+bin_PROGRAMS+=firstThread
+bin_PROGRAMS+=firstThread2
+bin_PROGRAMS+=firstThread3
+bin_PROGRAMS+=firstThread4
+bin_PROGRAMS+=variables
+bin_PROGRAMS+=variables3
+bin_PROGRAMS+=seq
+bin_PROGRAMS+=sum
+bin_PROGRAMS+=rsa1024
+bin_PROGRAMS+=curltest
+bin_PROGRAMS+=rsa
+bin_PROGRAMS+=prime3
+bin_PROGRAMS+=maxmovingsum
 
 
 cudahello:
@@ -50,8 +59,8 @@ study_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
 study_LDADD= -lprintint -lcrypto
 study_LDFLAGS= -L../lib
 study_SOURCES=study.c\
-							001-gettext-sample.c\
-							001.h
+							gettext-sample.c\
+							gettext-sample.h
 003_CFLAGS= -I../include
 003_LDADD= -lprintint -lcrypto
 003_LDFLAGS= -L../lib
@@ -74,17 +83,26 @@ main_SOURCES=main.c base64.c
 019_LDFLAGS=-lm
 020_SOURCES= 020.c 020.h
 022_SOURCES= 022.c 022.h
-020_CFLAGS= -I../include
+020_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
 022_CFLAGS=-I../include -DLOCALEDIR='"$(localedir)"'
 022_LDADD= -ltextdomain
 022_LDFLAGS=-L../lib
 026_SOURCES = 026.c 026.h
-026_CFLAGS = -I../include
+026_CFLAGS = -I../include -DLOCALEDIR='"$(localedir)"'
 028_SOURCES = 028.c sha-1.c sha-2.c sha-3.c sha-n.c main028.h sha-1.h sha-2.h sha-3.h sha-n.h 028.h
 028_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
-bm_SOURCES = bitmessage.c base64.c api.c xmlrpc.c bm.c bitmessage.h base64.h api.h xmlrpc.h
+bm_SOURCES = bitmessage.c base64.c bmapi.c xmlrpc.c bm.c bitmessage.h base64.h bmapi.h xmlrpc.h
 bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
 bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
+firstThread_LDFLAGS=-lpthread
+firstThread2_LDFLAGS=-lpthread
+firstThread3_LDFLAGS=-lpthread
+firstThread4_LDFLAGS=-lpthread
+variables_LDFLAGS=-lpthread
+variables3_LDFLAGS=-lpthread
+seq_CFLAGS=-lm
+seq_LDFLAGS=-lm
+sum_LDFLAGS=-lm
 cudahello_SOURCES=cudahello.cu
 cudahello_CFLAGS=-fPIC
 rsa1024_SOURCES=RSA-1024-challenge.c

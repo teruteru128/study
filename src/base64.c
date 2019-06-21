@@ -19,7 +19,9 @@ char* base64encode(const char*data, const size_t size){
 
 
   length = size * 4 / 3 + 3 + 1;
+#ifdef _DEBUG
   printf("size : %ld, length : %ld\n", size, length);
+#endif
   base64 = calloc(sizeof(char), length);
   if(base64 == NULL){
     return NULL;

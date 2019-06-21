@@ -5,5 +5,5 @@ AM_CPPFLAGS = -I$(top_srcdir)/include
 libsafe_la_SOURCES=safe.c
 libprintint_la_SOURCES=printint.c
 libtextdomain_la_SOURCES=textdomain.c
-AM_CPPFLAGS+= -DLOCALEDIR='"$(localedir)"'
+libtextdomain_la_CFLAGS := -DLOCALEDIR='"$(localedir)"'
 

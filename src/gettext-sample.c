@@ -1,11 +1,14 @@
 
-#include "localetest1.h"
+#include "gettext-sample.h"
 
-int main(int argc, char** argv){
+static void initGettext(){
   setlocale (LC_ALL, "");
   bindtextdomain (PACKAGE, LOCALEDIR);
   textdomain (PACKAGE);
+}
+
+int helloWorld001(){
+  initGettext();
   printf(_("Hello world!\n"));
-  return 0;
 }
 
