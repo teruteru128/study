@@ -1,8 +1,8 @@
 bin_PROGRAMS=study
 bin_PROGRAMS+=003
-bin_PROGRAMS+=004
+bin_PROGRAMS+=loop-bench
 bin_PROGRAMS+=main
-bin_PROGRAMS+=005
+bin_PROGRAMS+=printBench\
 bin_PROGRAMS+=006
 bin_PROGRAMS+=007
 bin_PROGRAMS+=008
@@ -17,12 +17,12 @@ bin_PROGRAMS+=017
 bin_PROGRAMS+=018
 bin_PROGRAMS+=019
 bin_PROGRAMS+=020
-bin_PROGRAMS+=021
+bin_PROGRAMS+=lzhout
 bin_PROGRAMS+=022
 bin_PROGRAMS+=orz
 bin_PROGRAMS+=gettime
 bin_PROGRAMS+=dappun
-bin_PROGRAMS+=026
+bin_PROGRAMS+=localetest1
 bin_PROGRAMS+=028
 bin_PROGRAMS+=prime
 bin_PROGRAMS+=prime2
@@ -41,7 +41,17 @@ bin_PROGRAMS+=variables
 bin_PROGRAMS+=variables3
 bin_PROGRAMS+=seq
 bin_PROGRAMS+=sum
+bin_PROGRAMS+=rsa1024
+bin_PROGRAMS+=curltest
+bin_PROGRAMS+=rsa
+bin_PROGRAMS+=prime3
 bin_PROGRAMS+=maxmovingsum
+
+
+cudahello:
+
+%:%.cu
+	nvcc -ccbin clang-4.0 $^ -o $@
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
@@ -54,15 +64,16 @@ study_SOURCES=study.c\
 003_CFLAGS= -I../include
 003_LDADD= -lprintint -lcrypto
 003_LDFLAGS= -L../lib
-005_CFLAGS= -I../include
-005_LDADD= -lprintint -lssl -lcrypto
-005_LDFLAGS= -L../lib
+printBench_CFLAGS= -I../include
+printBench_LDADD= -lprintint -lssl -lcrypto
+printBench_LDFLAGS= -L../lib
 main_SOURCES=main.c base64.c
 008_SOURCES=008.c
 008_CFLAGS= -I../include
 008_LDADD= -lprintint -lssl -lcrypto
 008_LDFLAGS= -L../lib
 010_SOURCES=010.c
+012_LDFLAGS= -luuid
 015_LDFLAGS= -lcrypto
 016_LDFLAGS= -lssl -lcrypto
 017_CFLAGS= -I../include
@@ -92,4 +103,8 @@ variables3_LDFLAGS=-lpthread
 seq_CFLAGS=-lm
 seq_LDFLAGS=-lm
 sum_LDFLAGS=-lm
+cudahello_SOURCES=cudahello.cu
+cudahello_CFLAGS=-fPIC
+rsa1024_SOURCES=RSA-1024-challenge.c
+curltest_LDFLAGS=-lcurl
 
