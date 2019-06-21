@@ -2,7 +2,7 @@ bin_PROGRAMS=study\
 						003\
 						loop-bench\
 						main\
-						005\
+						printBench\
 						006\
 						007\
 						008\
@@ -55,9 +55,9 @@ study_SOURCES=study.c\
 003_CFLAGS= -I../include
 003_LDADD= -lprintint -lcrypto
 003_LDFLAGS= -L../lib
-005_CFLAGS= -I../include
-005_LDADD= -lprintint -lssl -lcrypto
-005_LDFLAGS= -L../lib
+printBench_CFLAGS= -I../include
+printBench_LDADD= -lprintint -lssl -lcrypto
+printBench_LDFLAGS= -L../lib
 main_SOURCES=main.c base64.c
 008_SOURCES=008.c
 008_CFLAGS= -I../include
