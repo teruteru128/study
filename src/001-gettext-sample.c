@@ -1,9 +1,10 @@
 #include "001.h"
+#include <stdio.h>
 
 static void initGettext(){
 	setlocale (LC_ALL, "");
 	bindtextdomain (PACKAGE, LOCALDIR);
-	puts(LOCALDIR);
+	fputs(LOCALEDIR, stdout);
 	textdomain (PACKAGE);
 }
 

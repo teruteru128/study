@@ -1,8 +1,8 @@
 bin_PROGRAMS=study\
 						003\
-						004\
+						loop-bench\
 						main\
-						005\
+						printBench\
 						006\
 						007\
 						008\
@@ -17,23 +17,27 @@ bin_PROGRAMS=study\
 						018\
 						019\
 						020\
-						021\
+						lzhout\
 						022\
 						orz\
 						gettime\
 						dappun\
-						026\
+						localetest1\
 						028\
 						prime\
 						prime2\
 						calc\
 						bouyomi\
-						bm\
 						udpreciever\
 						udpsender\
 						primesearch\
 						portscanner\
-						cudahello
+						rsa1024\
+						curltest\
+						rsa\
+						prime3\
+						maxmovingsum
+
 
 cudahello:
 
@@ -51,15 +55,16 @@ study_SOURCES=study.c\
 003_CFLAGS= -I../include
 003_LDADD= -lprintint -lcrypto
 003_LDFLAGS= -L../lib
-005_CFLAGS= -I../include
-005_LDADD= -lprintint -lssl -lcrypto
-005_LDFLAGS= -L../lib
+printBench_CFLAGS= -I../include
+printBench_LDADD= -lprintint -lssl -lcrypto
+printBench_LDFLAGS= -L../lib
 main_SOURCES=main.c base64.c
 008_SOURCES=008.c
 008_CFLAGS= -I../include
 008_LDADD= -lprintint -lssl -lcrypto
 008_LDFLAGS= -L../lib
 010_SOURCES=010.c
+012_LDFLAGS= -luuid
 015_LDFLAGS= -lcrypto
 016_LDFLAGS= -lssl -lcrypto
 017_CFLAGS= -I../include
@@ -82,4 +87,6 @@ bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
 bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
 cudahello_SOURCES=cudahello.cu
 cudahello_CFLAGS=-fPIC
+rsa1024_SOURCES=RSA-1024-challenge.c
+curltest_LDFLAGS=-lcurl
 

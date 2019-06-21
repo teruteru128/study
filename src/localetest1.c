@@ -1,5 +1,5 @@
 
-#include "026.h"
+#include "localetest1.h"
 
 int main(int argc, char** argv){
   setlocale (LC_ALL, "");
