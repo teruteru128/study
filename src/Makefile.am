@@ -1,5 +1,5 @@
 bin_PROGRAMS=study
-bin_PROGRAMS+=003
+bin_PROGRAMS+=teamspeakcalc
 bin_PROGRAMS+=loop-bench
 bin_PROGRAMS+=main
 bin_PROGRAMS+=printBench
@@ -61,9 +61,9 @@ study_LDFLAGS= -L../lib
 study_SOURCES=study.c\
 							gettext-sample.c\
 							gettext-sample.h
-003_CFLAGS= -I../include
-003_LDADD= -lprintint -lcrypto
-003_LDFLAGS= -L../lib
+teamspeakcalc_CFLAGS= -I../include
+teamspeakcalc_LDADD= -lprintint -lcrypto
+teamspeakcalc_LDFLAGS= -L../lib
 printBench_CFLAGS= -I../include
 printBench_LDADD= -lprintint -lssl -lcrypto
 printBench_LDFLAGS= -L../lib
