@@ -16,7 +16,7 @@ bin_PROGRAMS+=016
 bin_PROGRAMS+=017
 bin_PROGRAMS+=018
 bin_PROGRAMS+=019
-bin_PROGRAMS+=020
+bin_PROGRAMS+=gettextsample2
 bin_PROGRAMS+=lzhout
 bin_PROGRAMS+=022
 bin_PROGRAMS+=orz
@@ -59,8 +59,8 @@ study_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
 study_LDADD= -lprintint -lcrypto
 study_LDFLAGS= -L../lib
 study_SOURCES=study.c\
-							gettext-sample.c\
-							gettext-sample.h
+							gettextsample.c\
+							gettextsample.h
 teamspeakcalc_CFLAGS= -I../include
 teamspeakcalc_LDADD= -lprintint -lcrypto
 teamspeakcalc_LDFLAGS= -L../lib
