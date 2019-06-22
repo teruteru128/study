@@ -8,7 +8,7 @@ bin_PROGRAMS+=007
 bin_PROGRAMS+=008
 bin_PROGRAMS+=010
 bin_PROGRAMS+=011
-bin_PROGRAMS+=012
+bin_PROGRAMS+=uuidtest
 bin_PROGRAMS+=013
 bin_PROGRAMS+=014
 bin_PROGRAMS+=015
@@ -60,8 +60,7 @@ study_LDADD= -lprintint -lcrypto
 study_LDFLAGS= -L../lib
 study_SOURCES=study.c\
 							gettext-sample.c\
-							gettext-sample.h\
-							001-gettext-sample.c
+							gettext-sample.h
 003_CFLAGS= -I../include
 003_LDADD= -lprintint -lcrypto
 003_LDFLAGS= -L../lib
@@ -74,7 +73,7 @@ main_SOURCES=main.c base64.c
 008_LDADD= -lprintint -lssl -lcrypto
 008_LDFLAGS= -L../lib
 010_SOURCES=010.c
-012_LDFLAGS= -luuid
+uuidtest_LDFLAGS= -luuid
 015_LDFLAGS= -lcrypto
 016_LDFLAGS= -lssl -lcrypto
 017_CFLAGS= -I../include
@@ -88,8 +87,8 @@ main_SOURCES=main.c base64.c
 022_CFLAGS=-I../include -DLOCALEDIR='"$(localedir)"'
 022_LDADD= -ltextdomain
 022_LDFLAGS=-L../lib
-026_SOURCES = 026.c 026.h
-026_CFLAGS = -I../include -DLOCALEDIR='"$(localedir)"'
+localetest1_SOURCES = localetest1.c localetest1.h
+localetest1_CFLAGS = -I../include -DLOCALEDIR='"$(localedir)"'
 028_SOURCES = 028.c sha-1.c sha-2.c sha-3.c sha-n.c main028.h sha-1.h sha-2.h sha-3.h sha-n.h 028.h
 028_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 bm_SOURCES = bitmessage.c base64.c bmapi.c xmlrpc.c bm.c bitmessage.h base64.h bmapi.h xmlrpc.h
