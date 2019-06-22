@@ -2,7 +2,7 @@ bin_PROGRAMS=study
 bin_PROGRAMS+=003
 bin_PROGRAMS+=loop-bench
 bin_PROGRAMS+=main
-bin_PROGRAMS+=printBench\
+bin_PROGRAMS+=printBench
 bin_PROGRAMS+=006
 bin_PROGRAMS+=007
 bin_PROGRAMS+=008
@@ -60,7 +60,8 @@ study_LDADD= -lprintint -lcrypto
 study_LDFLAGS= -L../lib
 study_SOURCES=study.c\
 							gettext-sample.c\
-							gettext-sample.h
+							gettext-sample.h\
+							001-gettext-sample.c
 003_CFLAGS= -I../include
 003_LDADD= -lprintint -lcrypto
 003_LDFLAGS= -L../lib
