@@ -74,14 +74,6 @@ int main(int argc, char** argv){
 	uint32_t seed = n[0];
 	char* messages[] = {
 		"orz",
-		"失礼しました。熱盛と出てしまいました。",
-		"http://games.kids.yahoo.co.jp/sports/013.html",
-		"http://games.kids.yahoo.co.jp/sports/015.html",
-		"http://www.nicovideo.jp/watch/sm20465807",
-		"やらないか。",
-		"はずれ",
-		"ンアッー！",
-		"スカ",
     NULL
 	};
   size_t messages_size = 0;
