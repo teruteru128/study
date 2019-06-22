@@ -18,7 +18,7 @@ bin_PROGRAMS+=018
 bin_PROGRAMS+=019
 bin_PROGRAMS+=gettextsample2
 bin_PROGRAMS+=lzhout
-bin_PROGRAMS+=022
+bin_PROGRAMS+=gettextsample3
 bin_PROGRAMS+=orz
 bin_PROGRAMS+=gettime
 bin_PROGRAMS+=dappun
@@ -81,12 +81,12 @@ uuidtest_LDFLAGS= -luuid
 017_LDFLAGS= -L../lib
 018_SOURCES= 018.c server.c
 019_LDFLAGS=-lm
-020_SOURCES= 020.c 020.h
-022_SOURCES= 022.c 022.h
-020_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
-022_CFLAGS=-I../include -DLOCALEDIR='"$(localedir)"'
-022_LDADD= -ltextdomain
-022_LDFLAGS=-L../lib
+gettextsample2_SOURCES= gettextsample2.c gettextsample2.h
+gettextsample2_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
+gettextsample3_SOURCES= gettextsample3.c gettextsample3.h
+gettextsample3_CFLAGS=-I../include -DLOCALEDIR='"$(localedir)"'
+gettextsample3_LDADD= -ltextdomain
+gettextsample3_LDFLAGS=-L../lib
 localetest1_SOURCES = localetest1.c localetest1.h
 localetest1_CFLAGS = -I../include -DLOCALEDIR='"$(localedir)"'
 028_SOURCES = 028.c sha-1.c sha-2.c sha-3.c sha-n.c main028.h sha-1.h sha-2.h sha-3.h sha-n.h 028.h
