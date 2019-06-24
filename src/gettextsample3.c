@@ -1,6 +1,6 @@
 
 #include <mytextdomain.h>
-#include "022.h"
+#include "gettextsample3.h"
 
 int main(void){
 	int microseconds = 3.75 * 1000000;
