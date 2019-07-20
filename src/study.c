@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "gettext-sample.h"
+#include "gettextsample.h"
 
 int main(int argc, char* argv[]){
   helloWorld001();
