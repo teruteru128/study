@@ -46,6 +46,7 @@ bin_PROGRAMS+=curltest
 bin_PROGRAMS+=rsa
 bin_PROGRAMS+=prime3
 bin_PROGRAMS+=maxmovingsum
+bin_PROGRAMS+=list2
 
 
 cudahello:
