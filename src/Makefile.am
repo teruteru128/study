@@ -23,7 +23,7 @@ bin_PROGRAMS+=orz
 bin_PROGRAMS+=gettime
 bin_PROGRAMS+=dappun
 bin_PROGRAMS+=localetest1
-bin_PROGRAMS+=028
+bin_PROGRAMS+=self-made-libsha
 bin_PROGRAMS+=prime
 bin_PROGRAMS+=prime2
 bin_PROGRAMS+=calc
@@ -89,8 +89,8 @@ gettextsample3_LDADD= -ltextdomain
 gettextsample3_LDFLAGS=-L../lib
 localetest1_SOURCES = localetest1.c localetest1.h
 localetest1_CFLAGS = -I../include -DLOCALEDIR='"$(localedir)"'
-028_SOURCES = 028.c sha-1.c sha-2.c sha-3.c sha-n.c main028.h sha-1.h sha-2.h sha-3.h sha-n.h 028.h
-028_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
+self-made-libsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-n.c sha-1.h sha-2.h sha-3.h sha-n.h 028.h
+self-made-libsha_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 bm_SOURCES = bitmessage.c base64.c bmapi.c xmlrpc.c bm.c bitmessage.h base64.h bmapi.h xmlrpc.h
 bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
 bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
