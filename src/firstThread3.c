@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 /*
-Linuxとpthreadによるマルチスレッドプログラミング入門 - 渋谷克智
+Linuxとpthreadsによるマルチスレッドプログラミング入門 - 渋谷克智
 */
 void *threadFunc(void *arg){
   int n = (int)arg;
