@@ -1,7 +1,9 @@
 
 #include <stdio.h>
 
+/*
+  shaライブラリ 自作
+*/
 int main(int argc, char** argv){
-	puts("hello world!");
-	return 0;
+  return 0;
 }

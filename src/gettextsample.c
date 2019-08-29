@@ -1,5 +1,5 @@
 
-#include "gettext-sample.h"
+#include "gettextsample.h"
 
 static void initGettext(){
   setlocale (LC_ALL, "");
