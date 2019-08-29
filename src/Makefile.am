@@ -47,6 +47,7 @@ bin_PROGRAMS+=rsa
 bin_PROGRAMS+=prime3
 bin_PROGRAMS+=maxmovingsum
 bin_PROGRAMS+=list2
+bin_PROGRAMS+=threadAttr
 
 
 cudahello:
@@ -111,4 +112,5 @@ cudahello_SOURCES=cudahello.cu
 cudahello_CFLAGS=-fPIC
 rsa1024_SOURCES=RSA-1024-challenge.c
 curltest_LDFLAGS=-lcurl
+threadAttr_LDFLAGS=-pthread
 
