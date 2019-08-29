@@ -46,6 +46,8 @@ bin_PROGRAMS+=curltest
 bin_PROGRAMS+=rsa
 bin_PROGRAMS+=prime3
 bin_PROGRAMS+=maxmovingsum
+bin_PROGRAMS+=list2
+bin_PROGRAMS+=threadAttr
 bin_PROGRAMS+=yattaze
 
 
@@ -55,41 +57,44 @@ cudahello:
 	nvcc -ccbin clang-4.0 $^ -o $@
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
-study_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
-#include_HEADERS= printint.h
-study_LDADD= -lprintint -lcrypto
-study_LDFLAGS= -L../lib
+study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
+study_LDADD= -lcrypto
+study_LDFLAGS=
 study_SOURCES=study.c\
 							gettextsample.c\
-							gettextsample.h
-teamspeakcalc_CFLAGS= -I../include
-teamspeakcalc_LDADD= -lprintint -lcrypto
-teamspeakcalc_LDFLAGS= -L../lib
-printBench_CFLAGS= -I../include
-printBench_LDADD= -lprintint -lssl -lcrypto
-printBench_LDFLAGS= -L../lib
+							gettextsample.h\
+							printint.c
+teamspeakcalc_CFLAGS=
+teamspeakcalc_LDADD= -lcrypto
+teamspeakcalc_LDFLAGS=
+teamspeakcalc_SOURCES= teamspeakcalc.c printint.c
+printBench_CFLAGS=
+printBench_LDADD= -lssl -lcrypto
+printBench_LDFLAGS=
+printBench_SOURCES= printBench.c printint.c
 readrandom_SOURCES=readrandom.c base64.c
-teamspeakIdUpgrater_SOURCES=teamspeakIdUpgrater.c
-teamspeakIdUpgrater_CFLAGS= -I../include
-teamspeakIdUpgrater_LDADD= -lprintint -lssl -lcrypto
-teamspeakIdUpgrater_LDFLAGS= -L../lib
+teamspeakIdUpgrater_SOURCES=teamspeakIdUpgrater.c printint.c
+teamspeakIdUpgrater_CFLAGS=
+teamspeakIdUpgrater_LDADD= -lssl -lcrypto
+teamspeakIdUpgrater_LDFLAGS=
 argparsesample_SOURCES=argparsesample.c
 uuidtest_LDFLAGS= -luuid
 015_LDFLAGS= -lcrypto
 016_LDFLAGS= -lssl -lcrypto
-017_CFLAGS= -I../include
-017_LDADD= -lprintint -lssl -lcrypto
-017_LDFLAGS= -L../lib
+017_CFLAGS=
+017_LDADD= -lssl -lcrypto
+017_LDFLAGS=
+017_SOURCES= 017.c printint.c
 018_SOURCES= 018.c server.c
 019_LDFLAGS=-lm
 gettextsample2_SOURCES= gettextsample2.c gettextsample2.h
-gettextsample2_CFLAGS= -I../include -DLOCALEDIR='"$(localedir)"'
-gettextsample3_SOURCES= gettextsample3.c gettextsample3.h
-gettextsample3_CFLAGS=-I../include -DLOCALEDIR='"$(localedir)"'
-gettextsample3_LDADD= -ltextdomain
-gettextsample3_LDFLAGS=-L../lib
+gettextsample2_CFLAGS= -DLOCALEDIR='"$(localedir)"'
+gettextsample3_SOURCES= gettextsample3.c gettextsample3.h textdomain.c
+gettextsample3_CFLAGS= -DLOCALEDIR='"$(localedir)"'
+gettextsample3_LDADD=
+gettextsample3_LDFLAGS=
 localetest1_SOURCES = localetest1.c localetest1.h
-localetest1_CFLAGS = -I../include -DLOCALEDIR='"$(localedir)"'
+localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
 selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-n.c sha-1.h sha-2.h sha-3.h sha-n.h 028.h
 selfmadelibsha_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 bm_SOURCES = bitmessage.c base64.c bmapi.c xmlrpc.c bm.c bitmessage.h base64.h bmapi.h xmlrpc.h
@@ -108,4 +113,5 @@ cudahello_SOURCES=cudahello.cu
 cudahello_CFLAGS=-fPIC
 rsa1024_SOURCES=RSA-1024-challenge.c
 curltest_LDFLAGS=-lcurl
+threadAttr_LDFLAGS=-pthread
 

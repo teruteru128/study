@@ -1,11 +1,12 @@
 /*
-    今回:https://qiita.com/tajima_taso/items/13b5662aca1f68fc6e8e
-    前回:https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
+    今回: https://qiita.com/tajima_taso/items/13b5662aca1f68fc6e8e
+    前回: https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <arpa/inet.h>
 #include <stdlib.h> //atoi(), exit(), EXIT_FAILURE, EXIT_SUCCESS
 #include <string.h> //memset(), strcmp()
@@ -14,6 +15,7 @@
 #include <limits.h>
 #include <locale.h>
 #include <wchar.h>
+#include <netdb.h>
 
 #define MSGSIZE 1024
 #define BUFSIZE (MSGSIZE + 1)
@@ -23,12 +25,43 @@
 #define DEFAULT_SERV_ADDRESS4 "127.0.0.1"
 #define DEFAULT_SERV_ADDRESS6 "::1"
 
+/**
+ * アドレスとポート番号を表示する。
+ * <I> adrinf: アドレス情報
+ */
+void print_addrinfo(struct addrinfo *adrinf) {
+  char hbuf[NI_MAXHOST];  /* 返されるアドレスを格納する */
+  char sbuf[NI_MAXSERV];  /* 返されるポート番号を格納する */
+  int rc;
+
+  /* アドレス情報に対応するアドレスとポート番号を得る */
+  rc = getnameinfo(adrinf->ai_addr, adrinf->ai_addrlen,
+            hbuf, sizeof(hbuf),
+            sbuf, sizeof(sbuf),
+            NI_NUMERICHOST | NI_NUMERICSERV);
+  if (rc != 0) {
+    fprintf(stderr, "getnameinfo(): %s\n", gai_strerror(rc));
+    return;
+  }
+
+  printf("[%s]:%s\n", hbuf, sbuf);
+}
+
+
 int main(int argc, char* argv[]){
     int sock;
     struct sockaddr_in servSockAddr;
     unsigned short servPort;
-    char servAddr[] = DEFAULT_SERV_ADDRESS4;
-    char servPortStr[] = DEFAULT_PORT_STR;
+    char *servAddr = DEFAULT_SERV_ADDRESS;
+    char *servPortStr = DEFAULT_PORT_STR;
+    struct addrinfo hints;
+    struct addrinfo *res = NULL;
+    struct addrinfo *adrinf = NULL;
+
+    char hbuf[NI_MAXHOST];
+    char sbuf[NI_MAXSERV];
+
+    int rc = 0;
 
     if(setlocale(LC_CTYPE, "") == NULL){
         perror("setlocale");
@@ -41,37 +74,38 @@ int main(int argc, char* argv[]){
     }
 
     memset(&servSockAddr, 0, sizeof(servSockAddr));
-
     servSockAddr.sin_family = AF_INET;
 
-    // IPアドレスをバイナリに変換
-    if (inet_aton(servAddr, &servSockAddr.sin_addr) == 0) {
-        fprintf(stderr, "Invalid IP Address.\n");
-        exit(EXIT_FAILURE);
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_socktype = SOCK_STREAM;
+    rc = getaddrinfo(servAddr, servPortStr, &hints, &res);
+    if(rc!=0){
+      perror("getaddrinfo");
     }
 
-    if ((servPort = (unsigned short) atoi(servPortStr)) == 0) {
-        fprintf(stderr, "invalid port number.\n");
-        exit(EXIT_FAILURE);
+    for(adrinf = res; adrinf!=NULL;adrinf=adrinf->ai_next){
+        sock = socket(adrinf->ai_family, adrinf->ai_socktype, adrinf->ai_protocol);
+        if(sock<0){
+          perror("socket()");
+          exit(EXIT_FAILURE);
+        }
+        rc = connect(sock, adrinf->ai_addr, adrinf->ai_addrlen);
+        if(rc<0){
+          close(sock);
+          continue;
+        }
+        print_addrinfo(adrinf);
+        break;
     }
-    servSockAddr.sin_port = htons(servPort);
-
-    if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0 ){
-        perror("socket() failed.");
-        exit(EXIT_FAILURE);
+    freeaddrinfo(res);
+    if(rc<0){
+      perror("connect()");
+      close(sock);
+      exit(EXIT_FAILURE);
     }
-
-    if (connect(sock, (struct sockaddr*) &servSockAddr, sizeof(servSockAddr)) < 0) {
-        perror("connect() failed.");
-        exit(EXIT_FAILURE);
-    }
-    // コネクションの確立ここまで
-    printf("connect to %s\n", inet_ntoa(servSockAddr.sin_addr));
-
     char *mb = argv[1];
 
     // 棒読みちゃん向けにエンコード
-    size_t capacity = 0;
     short command = 1;
     short speed = -1;
     short tone = -1;
@@ -79,26 +113,29 @@ int main(int argc, char* argv[]){
     short voice = 0;
     char encode = 0;
     size_t length = strlen(mb);
+    size_t capacity = 0;
+
     // なぜhtonsなしで読み上げできるのか謎
-    //command = (short) htons(command);
+    // 棒読みちゃんはリトルエンディアン指定だそうです
+    //command = (short) htons((uint16_t)command);
     capacity += sizeof(command);
 
-    //speed = (short) htons(speed);
+    //speed = (short) htons((uint16_t)speed);
     capacity += sizeof(speed);
 
-    //tone = (short) htons(tone);
+    //tone = (short) htons((uint16_t)tone);
     capacity += sizeof(tone);
 
-    //volume = (short) htons(volume);
+    //volume = (short) htons((uint16_t)volume);
     capacity += sizeof(volume);
 
     capacity += sizeof(encode);
 
     capacity += length;
 
-    int length_32 = (uint32_t)length;
+    int32_t length_32 = (int32_t)length;
     //length_32 = (int) htonl((uint32_t)length);
-    capacity += sizeof(length);
+    capacity += sizeof(length_32);
 
     ssize_t w = 0;
     // 送信
@@ -110,7 +147,7 @@ int main(int argc, char* argv[]){
     w = write(sock, &encode, sizeof(encode));
     w = write(sock, &length_32, sizeof(length_32));
     w = write(sock, mb, length);
-
+    printf("送信しました！\n");
     // ソケットを閉じる
     close(sock);
     return EXIT_SUCCESS;

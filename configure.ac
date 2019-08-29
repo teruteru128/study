@@ -4,8 +4,8 @@
 
 AC_PREREQ([2.69])
 AC_INIT([STUDY], [0.0.0-alpha], [teruterubouzu1024@gmail.com])
-AC_CONFIG_SRCDIR([include/config.h.in])
-AC_CONFIG_HEADERS([include/config.h])
+AC_CONFIG_SRCDIR([src/config.h.in])
+AC_CONFIG_HEADERS([src/config.h])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_MACRO_DIRS([m4])
 AM_PROG_LIBTOOL

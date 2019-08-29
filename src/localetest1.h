@@ -1,7 +1,7 @@
 
 #ifndef MAIN_H
 #define MAIN_H
-#include <study-config.h>
+#include "study-config.h"
 #if 0
 #include <config.h>
 #include <stdio.h>

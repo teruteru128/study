@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <math.h>
 
 /*
   shaライブラリ 自作
