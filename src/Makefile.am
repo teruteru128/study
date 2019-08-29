@@ -1,7 +1,7 @@
 bin_PROGRAMS=study
 bin_PROGRAMS+=teamspeakcalc
 bin_PROGRAMS+=loop-bench
-bin_PROGRAMS+=main
+bin_PROGRAMS+=readrandom
 bin_PROGRAMS+=printBench
 bin_PROGRAMS+=signalsample
 bin_PROGRAMS+=signalsample2
@@ -23,7 +23,7 @@ bin_PROGRAMS+=orz
 bin_PROGRAMS+=gettime
 bin_PROGRAMS+=dappun
 bin_PROGRAMS+=localetest1
-bin_PROGRAMS+=028
+bin_PROGRAMS+=selfmadelibsha
 bin_PROGRAMS+=prime
 bin_PROGRAMS+=prime2
 bin_PROGRAMS+=calc
@@ -48,6 +48,7 @@ bin_PROGRAMS+=prime3
 bin_PROGRAMS+=maxmovingsum
 bin_PROGRAMS+=list2
 bin_PROGRAMS+=threadAttr
+bin_PROGRAMS+=yattaze
 
 
 cudahello:
@@ -71,7 +72,7 @@ printBench_CFLAGS=
 printBench_LDADD= -lssl -lcrypto
 printBench_LDFLAGS=
 printBench_SOURCES= printBench.c printint.c
-main_SOURCES=main.c base64.c
+readrandom_SOURCES=readrandom.c base64.c
 teamspeakIdUpgrater_SOURCES=teamspeakIdUpgrater.c printint.c
 teamspeakIdUpgrater_CFLAGS=
 teamspeakIdUpgrater_LDADD= -lssl -lcrypto
@@ -94,8 +95,8 @@ gettextsample3_LDADD=
 gettextsample3_LDFLAGS=
 localetest1_SOURCES = localetest1.c localetest1.h
 localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
-028_SOURCES = 028.c sha-1.c sha-2.c sha-3.c sha-n.c main028.h sha-1.h sha-2.h sha-3.h sha-n.h 028.h
-028_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
+selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-n.c sha-1.h sha-2.h sha-3.h sha-n.h 028.h
+selfmadelibsha_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 bm_SOURCES = bitmessage.c base64.c bmapi.c xmlrpc.c bm.c bitmessage.h base64.h bmapi.h xmlrpc.h
 bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
 bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
