@@ -47,6 +47,7 @@ bin_PROGRAMS+=rsa
 bin_PROGRAMS+=prime3
 bin_PROGRAMS+=maxmovingsum
 bin_PROGRAMS+=yattaze
+bin_PROGRAMS+=dragon
 
 
 cudahello:
@@ -108,4 +109,5 @@ cudahello_SOURCES=cudahello.cu
 cudahello_CFLAGS=-fPIC
 rsa1024_SOURCES=RSA-1024-challenge.c
 curltest_LDFLAGS=-lcurl
+dragon_SOURCES=dragon.c svgplot.c svgplot.h
 
