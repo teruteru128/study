@@ -49,10 +49,14 @@ bin_PROGRAMS+=maxmovingsum
 bin_PROGRAMS+=list2
 bin_PROGRAMS+=threadAttr
 bin_PROGRAMS+=yattaze
+<<<<<<< HEAD
 bin_PROGRAMS+=encodersa
 bin_PROGRAMS+=CoDec
 bin_PROGRAMS+=iconv_Chk
 bin_PROGRAMS+=falcon
+=======
+bin_PROGRAMS+=dragon
+>>>>>>> Add dragon curve ploter
 
 
 cudahello:
@@ -124,4 +128,5 @@ curltest_LDFLAGS=-lcurl
 threadAttr_LDFLAGS=-pthread
 encodersa_LDFLAGS=-lcrypto -lssl
 falcon_SOURCES=falcon.c random.c random.h
+dragon_SOURCES=dragon.c svgplot.c svgplot.h
 
