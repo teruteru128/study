@@ -4,36 +4,13 @@
 #include <stdint.h>
 #include <math.h>
 #include <gmp.h>
+#include "random.h"
 
-#if 0
-uint32_t xor64(void) {
-  static uint64_t x = 88172645463325252ULL;
-  x = x ^ (x << 7);
-  return x = x ^ (x >> 9);
-}
-#endif
-
-uint32_t xor64(uint64_t *x) {
-  uint64_t tmp = *x;
-  tmp = tmp ^ (tmp << 7);
-  return *x = tmp ^ (tmp >> 9);
-}
 
 #define FILENAME "/dev/urandom"
 uint64_t readSeed(){
-  FILE *f = NULL;
-  f = fopen(FILENAME, "rb");
-  if(f == NULL){
-    perror("fopen");
-    return 0;
-  }
   uint64_t val = 0;
-  size_t siz = fread(&val, sizeof(val), 1, f);
-  if(siz != 1){
-    fprintf(stderr, "failed random value(siz: %ld, %ld)\n", siz, sizeof(val));
-  }
-err:
-  fclose(f);
+  get_random(FILENAME, val, sizeof(uint64_t), 1);
   return val;
 }
 

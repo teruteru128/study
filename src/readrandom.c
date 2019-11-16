@@ -9,6 +9,18 @@
 #define D_SIZE (1024)
 #endif
 
+/*
+    if(useTrue == 1){
+      use /dev/random
+    }else{
+      use /dev/urandom
+    } calloc
+*/
+size_t readrandom(void *buf, size_t size, size_t nmemb, int useTrue){
+  
+  return 0;
+}
+
 int main(int argc, char* argv[]){
   char* path = "/dev/urandom";
   char buf1[D_SIZE];
