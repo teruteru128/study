@@ -49,6 +49,10 @@ bin_PROGRAMS+=maxmovingsum
 bin_PROGRAMS+=list2
 bin_PROGRAMS+=threadAttr
 bin_PROGRAMS+=yattaze
+bin_PROGRAMS+=encodersa
+bin_PROGRAMS+=CoDec
+bin_PROGRAMS+=iconv_Chk
+bin_PROGRAMS+=falcon
 
 
 cudahello:
@@ -63,7 +67,9 @@ study_LDFLAGS=
 study_SOURCES=study.c\
 							gettextsample.c\
 							gettextsample.h\
-							printint.c
+							printint.c\
+							random.c\
+							random.h
 teamspeakcalc_CFLAGS=
 teamspeakcalc_LDADD= -lcrypto
 teamspeakcalc_LDFLAGS=
@@ -79,6 +85,7 @@ teamspeakIdUpgrater_LDADD= -lssl -lcrypto
 teamspeakIdUpgrater_LDFLAGS=
 argparsesample_SOURCES=argparsesample.c
 uuidtest_LDFLAGS= -luuid
+013_LDFLAGS= -lsodium
 015_LDFLAGS= -lcrypto
 016_LDFLAGS= -lssl -lcrypto
 017_CFLAGS=
@@ -93,9 +100,10 @@ gettextsample3_SOURCES= gettextsample3.c gettextsample3.h textdomain.c
 gettextsample3_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 gettextsample3_LDADD=
 gettextsample3_LDFLAGS=
+orz_SOURCES= orz.c random.h random.c
 localetest1_SOURCES = localetest1.c localetest1.h
 localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
-selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-n.c sha-1.h sha-2.h sha-3.h sha-n.h 028.h
+selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-1.h sha-2.h sha-3.h self-made-libsha.h
 selfmadelibsha_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 bm_SOURCES = bitmessage.c base64.c bmapi.c xmlrpc.c bm.c bitmessage.h base64.h bmapi.h xmlrpc.h
 bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
@@ -114,4 +122,6 @@ cudahello_CFLAGS=-fPIC
 rsa1024_SOURCES=RSA-1024-challenge.c
 curltest_LDFLAGS=-lcurl
 threadAttr_LDFLAGS=-pthread
+encodersa_LDFLAGS=-lcrypto -lssl
+falcon_SOURCES=falcon.c random.c random.h
 

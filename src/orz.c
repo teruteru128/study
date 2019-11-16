@@ -6,26 +6,8 @@
 
 #define URANDOM_PATH "/dev/urandom"
 #define BUF_SIZE 8
+#include "random.h"
 
-static int get_random(const char* const path, char* buf, const size_t size, const size_t nmemb) {
-
-	FILE* rnd = fopen(path, "rb");
-	if(rnd == NULL){
-		perror("fopen rnd");
-		return -1;
-	}
-	size_t r = fread(buf, size, nmemb, rnd);
-	if(r < 0){
-		perror("fread rnd");
-		return -1;
-	}
-	if(r != (size * nmemb)){
-		warnx("reading failed");
-	}
-
-	(void) fclose(rnd);
-	return 0;
-}
 static const char* hexchars = "0123456789abcdef";
 static void hex_dump(const void* pt, const size_t len){
 	char* p = (char *)pt;
@@ -36,24 +18,6 @@ static void hex_dump(const void* pt, const size_t len){
 			printf("\n");
 		}
 	}
-}
-static uint32_t xor(const uint32_t seed){
-	uint32_t s = seed;
-	s = s ^ (s << 13);
-	s = s ^ (s >> 17);
-	return s ^ (s << 15);
-}
-static uint64_t xor64(const uint64_t seed){
-	uint64_t s = seed;
-	s = s ^ (s << 13);
-	s = s ^ (s >> 7);
-	return s ^ (s << 17);
-}
-static uint32_t xor96(const uint32_t seed1, const uint32_t seed2, const uint32_t seed3){
-	return 0;
-}
-static uint32_t xor128(const uint32_t seed1, const uint32_t seed2, const uint32_t seed3, const uint32_t seed4){
-	return 0;
 }
 
 int main(int argc, char** argv){

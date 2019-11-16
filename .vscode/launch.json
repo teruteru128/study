@@ -5,17 +5,30 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "13 Launch",
+            "name": "(gdb) Attach encodersa",
+            "type": "cppdbg",
+            "request": "attach",
+            "program": "${workspaceFolder}/src/encodersa",
+            "processId": "${command:pickProcess}",
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },{
+            "name": "(gdb) Launch encodersa",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/13/main.exe",
+            "program": "${workspaceFolder}/src/encodersa",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": true,
+            "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "C:\\cygwin64\\bin\\gdb.exe",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -24,47 +37,5 @@
                 }
             ]
         },
-        {
-            "name": "15 Launch",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/15/main.exe",
-            "args": [
-                "C:\\Users\\terut\\Downloads\\3rd_id.identity.40.ini"
-            ],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": true,
-            "MIMode": "gdb",
-            "miDebuggerPath": "C:\\cygwin64\\bin\\gdb.exe",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "16 Launch",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/16/main.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": true,
-            "MIMode": "gdb",
-            "miDebuggerPath": "C:\\cygwin64\\bin\\gdb.exe",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ]
-        }
     ]
 }
