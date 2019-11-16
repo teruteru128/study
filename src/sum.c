@@ -39,34 +39,21 @@ err:
 
 int main(int argc, char* argv[]){
   uint64_t seed = readSeed();
-  int64_t x = 8866128975287528LL;
-  int64_t y = -8778405442862239LL;
-  int64_t z = -2736111468807040LL;
-  mpz_t x, y, z;
-  mpz_inits(x, y, z, NULL);
-  mpz_set_si(x, 8866128975287528LL);
-  mpz_set_si(y, -8778405442862239LL);
-  mpz_set_si(z, -2736111468807040LL);
+  mpz_t x, y, z, sum;
+  mpz_inits(x, y, z, sum, NULL);
+  mpz_set_si(x, -80538738812075974LL);
+  mpz_set_si(y, 80435758145817515LL);
+  mpz_set_si(z, 12602123297335631LL);
 
   printf("%08lx\n", seed);
-  printf("%ld\n", x * x * x + y * y * y + z * z * z);
+  mpz_pow_ui(x, x, 3);
+  mpz_pow_ui(y, y, 3);
+  mpz_pow_ui(z, z, 3);
+  mpz_add(sum, sum, x);
+  mpz_add(sum, sum, y);
+  mpz_add(sum, sum, z);
+  gmp_printf("%Zd + %Zd + %Zd = %Zd\n", x,y,z, sum);
 
-  x = (((int64_t)xor64(&seed) << 32) + ((int64_t)xor64(&seed))) & 0x7FFFFFFFFFFFFFFFLL;
-  y = -abs(xor64(&seed));
-  z = -abs(xor64(&seed));
-  printf("%ld, %ld, %ld\n", x, y, z);
-  int64_t sum = 0;
-  for(;y < 0; y++){
-    for(;z < 0; z++){
-      sum = y * y * y;
-      sum += z * z * z;
-      sum += x * x * x;
-      if(0 < sum && sum < 100){
-        printf("%ld\n", y);
-        printf("%ld\n", sum);
-      }
-    }
-  }
   return EXIT_SUCCESS;
 }
 

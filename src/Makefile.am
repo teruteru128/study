@@ -1,7 +1,7 @@
 bin_PROGRAMS=study
 bin_PROGRAMS+=teamspeakcalc
 bin_PROGRAMS+=loop-bench
-bin_PROGRAMS+=readrandom
+bin_PROGRAMS+=read_random
 bin_PROGRAMS+=printBench
 bin_PROGRAMS+=signalsample
 bin_PROGRAMS+=signalsample2
@@ -48,9 +48,12 @@ bin_PROGRAMS+=prime3
 bin_PROGRAMS+=maxmovingsum
 bin_PROGRAMS+=yattaze
 bin_PROGRAMS+=dragon
+bin_PROGRAMS+=doublerandom
+bin_PROGRAMS+=cudahello
+bin_PROGRAMS+=FizzBuzz
+bin_PROGRAMS+=Nabeatsu
+bin_PROGRAMS+=epsp-parser-test
 
-
-cudahello:
 
 %:%.cu
 	nvcc -ccbin clang-4.0 $^ -o $@
@@ -69,7 +72,7 @@ teamspeakcalc_LDFLAGS= -L../lib
 printBench_CFLAGS= -I../include
 printBench_LDADD= -lprintint -lssl -lcrypto
 printBench_LDFLAGS= -L../lib
-readrandom_SOURCES=readrandom.c base64.c
+read_random_SOURCES=read_random.c base64.c
 teamspeakIdUpgrater_SOURCES=teamspeakIdUpgrater.c
 teamspeakIdUpgrater_CFLAGS= -I../include
 teamspeakIdUpgrater_LDADD= -lprintint -lssl -lcrypto
@@ -90,7 +93,8 @@ gettextsample3_CFLAGS=-I../include -DLOCALEDIR='"$(localedir)"'
 gettextsample3_LDADD= -ltextdomain
 gettextsample3_LDFLAGS=-L../lib
 localetest1_SOURCES = localetest1.c localetest1.h
-localetest1_CFLAGS = -I../include -DLOCALEDIR='"$(localedir)"'
+#localetest1_CFLAGS = -I../include -DLOCALEDIR='"$(localedir)"'
+localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
 selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-n.c sha-1.h sha-2.h sha-3.h sha-n.h 028.h
 selfmadelibsha_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 bm_SOURCES = bitmessage.c base64.c bmapi.c xmlrpc.c bm.c bitmessage.h base64.h bmapi.h xmlrpc.h
@@ -110,4 +114,6 @@ cudahello_CFLAGS=-fPIC
 rsa1024_SOURCES=RSA-1024-challenge.c
 curltest_LDFLAGS=-lcurl
 dragon_SOURCES=dragon.c svgplot.c svgplot.h
+Nabeatsu_SOURCES=FizzBuzz.c
+epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h
 
