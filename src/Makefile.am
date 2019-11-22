@@ -1,7 +1,7 @@
 bin_PROGRAMS=study
 bin_PROGRAMS+=teamspeakcalc
 bin_PROGRAMS+=loop-bench
-bin_PROGRAMS+=readrandom
+bin_PROGRAMS+=read_random
 bin_PROGRAMS+=printBench
 bin_PROGRAMS+=signalsample
 bin_PROGRAMS+=signalsample2
@@ -53,9 +53,13 @@ bin_PROGRAMS+=encodersa
 bin_PROGRAMS+=CoDec
 bin_PROGRAMS+=iconv_Chk
 bin_PROGRAMS+=falcon
+bin_PROGRAMS+=dragon
+bin_PROGRAMS+=doublerandom
+bin_PROGRAMS+=cudahello
+bin_PROGRAMS+=FizzBuzz
+bin_PROGRAMS+=Nabeatsu
+bin_PROGRAMS+=epsp-parser-test
 
-
-cudahello:
 
 %:%.cu
 	nvcc -ccbin clang-4.0 $^ -o $@
@@ -78,11 +82,11 @@ printBench_CFLAGS=
 printBench_LDADD= -lssl -lcrypto
 printBench_LDFLAGS=
 printBench_SOURCES= printBench.c printint.c
-readrandom_SOURCES=readrandom.c base64.c
-teamspeakIdUpgrater_SOURCES=teamspeakIdUpgrater.c printint.c
-teamspeakIdUpgrater_CFLAGS=
-teamspeakIdUpgrater_LDADD= -lssl -lcrypto
-teamspeakIdUpgrater_LDFLAGS=
+read_random_SOURCES=read_random.c base64.c
+teamspeakIdUpgrater_SOURCES=teamspeakIdUpgrater.c
+teamspeakIdUpgrater_CFLAGS= -I../include
+teamspeakIdUpgrater_LDADD= -lprintint -lssl -lcrypto
+teamspeakIdUpgrater_LDFLAGS= -L../lib
 argparsesample_SOURCES=argparsesample.c
 uuidtest_LDFLAGS= -luuid
 013_LDFLAGS= -lsodium
@@ -102,8 +106,9 @@ gettextsample3_LDADD=
 gettextsample3_LDFLAGS=
 orz_SOURCES= orz.c random.h random.c
 localetest1_SOURCES = localetest1.c localetest1.h
+#localetest1_CFLAGS = -I../include -DLOCALEDIR='"$(localedir)"'
 localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
-selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-1.h sha-2.h sha-3.h self-made-libsha.h
+selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-n.c sha-1.h sha-2.h sha-3.h sha-n.h 028.h
 selfmadelibsha_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 bm_SOURCES = bitmessage.c base64.c bmapi.c xmlrpc.c bm.c bitmessage.h base64.h bmapi.h xmlrpc.h
 bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
@@ -124,4 +129,7 @@ curltest_LDFLAGS=-lcurl
 threadAttr_LDFLAGS=-pthread
 encodersa_LDFLAGS=-lcrypto -lssl
 falcon_SOURCES=falcon.c random.c random.h
+dragon_SOURCES=dragon.c svgplot.c svgplot.h
+Nabeatsu_SOURCES=FizzBuzz.c
+epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h
 

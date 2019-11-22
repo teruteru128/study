@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 
-int main(int argc, char* argv[]){
+void printYattaze(void){
   puts("やったぜ。　投稿者：変態糞土方 (8月16日（水）07時14分22秒)");
   puts("昨日の8月15日にいつもの浮浪者のおっさん（60歳）と先日メールくれた汚れ好きの土方のにいちゃん");
   puts("（45歳）とわし（53歳）の3人で県北にある川の土手の下で盛りあったぜ。");
@@ -26,6 +26,9 @@ int main(int argc, char* argv[]){
   puts("岡山の県北であえる奴なら最高や。わしは163*90*53,おっさんは165*75*60、や");
   puts("糞まみれでやりたいやつ、至急、メールくれや。");
   puts("土方姿のまま浣腸して、糞だらけでやろうや。");
+}
+int main(int argc, char* argv[]){
+  printYattaze();
   return 0;
 }
 

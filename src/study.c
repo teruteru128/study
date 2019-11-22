@@ -1,4 +1,5 @@
 
+#include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -7,6 +8,14 @@
 #include "random.h"
 #define D_SIZE (1024)
 
+
+static const char *cmdline_ops[]={
+  "orz",
+  "yattaze",
+  "Nabeatsu",
+  "FizzBuzz",
+  NULL
+};
 
 int main(int argc, char* argv[]){
   helloWorld001();
