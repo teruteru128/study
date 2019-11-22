@@ -46,20 +46,36 @@ typedef struct connectioninfo_t {
 char buf[BUFSIZ];
 int main(int const argc, const char ** const argv)
 {
+  char *sendmsg = "";
+  char chan_name[64];
   char *msg = NULL;
   char *  generaladdress = "BM-2cW67GEKkHGonXKZLCzouLLxnLym3azS8r";
   uuid_t uuid;
   api_init();
+
+  FILE *infile = NULL;
+  infile = fopen(infile, "r");
+  if(infile == NULL){
+    perror("");
+    return EXIT_FAILURE;
+  }
+
+  char *tmp = NULL;
+  char *message = "";
+  do{
+    tmp = fgets(chan_name, 64, infile);
+    api_simpleSendMessage(generaladdress, chan_name, "HAPPY NEW YEAR!", message);
+  }while(tmp != NULL);
 
   uuid_generate_random(uuid);
   uuid_unparse(uuid, buf);
   buf[strlen(buf)] = '\n';
 
   char * uuid_address = api_createChan(buf);
-printf("%s, %s\n", buf, uuid_address);
- msg=api_simpleSendMessage(uuid_address, uuid_address, buf, buf);
- printf("%s\n", msg);
- free(msg);
+  printf("%s, %s\n", buf, uuid_address);
+  msg=api_simpleSendMessage(uuid_address, uuid_address, buf, buf);
+  printf("%s\n", msg);
+  free(msg);
 
   xmlrpc_client_teardown_global_const();
 
