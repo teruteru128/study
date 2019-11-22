@@ -65,7 +65,7 @@ int main(int argc, char* argv[]){
   (*printf)("  *printf = %p\n", *printf);
   (**printf)(" **printf = %p\n", **printf);
   (***printf)("***printf = %p\n", ***printf);
-  int i = 1;
+  i = 1;
   int j;
   for(j=0;j<10;j++){
     printf("%d\n", !j);

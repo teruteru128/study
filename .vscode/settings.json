@@ -12,6 +12,7 @@
         "gettextsample.h": "c",
         "inet.h": "c",
         "types.h": "c",
-        "bouyomi.h": "c"
+        "bouyomi.h": "c",
+        "sstream": "c"
     }
 }

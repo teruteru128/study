@@ -4,7 +4,6 @@
 #include <string.h>
 #include <regex.h>
 #include <errno.h>
-#include <endian.h>
 #include "epsp-parser.h"
 
 /*
@@ -18,11 +17,14 @@ void print_reg_error(int errorcode, regex_t* buf){
     free(msg);
 }
 
-typedef struct epsp_packet_t{
-  int code;
-  int hop_count;
-  char* data;
-} epsp_packet;
+/*
+   max(strlen(src)+1, n)バイトの領域を新たに割り当てしディープコピー
+   strdupを使うといい string.h
+ */
+char* strnclone(const char* src, const size_t n){
+  char* dest = calloc(n+1, sizeof(char));
+  return strncpy(dest, src, n);
+}
 
 /* strlen(src)+1バイトの領域を新たに割り当てしディープコピー */
 char* strclone(const char* src){
@@ -30,19 +32,7 @@ char* strclone(const char* src){
   return strnclone(src, len);
 }
 
-/*
-   max(strlen(src)+1, n)バイトの領域を新たに割り当てしディープコピー
-   strdupを使うといい string.h
- */
-char* strnclone(const char* src, const size_t n){
-  char* dest = calloc(len+1, sizeof(char));
-  return strncpy(dest, src, len);
-}
-
-int main(int argc, char* argv[]){
-  // 正規表現で分割 OR strtokで分割
-  //
-  char* regex = "([[:digit:]]+) ([[:digit:]]+) ?(.*)?";
+int split_by_regex(char* str, char* regex){
   regex_t regbuf;
   int errco=0;
   if((errco=regcomp(&regbuf, regex, REG_EXTENDED|REG_NEWLINE)) != 0){
@@ -52,30 +42,85 @@ int main(int argc, char* argv[]){
 
   regmatch_t match[8];
   size_t size = sizeof(match) / sizeof(regmatch_t);
-  char* str = "116 1 25:6911:901:2";
   if((errco=regexec(&regbuf, str, size, match, 0)) != 0){
     print_reg_error(errco, &regbuf);
     regfree(&regbuf);
     return EXIT_FAILURE;
   }
+  epsp_packet* packet = NULL;
+  if(errco == REG_NOMATCH){
+    //no match
+    regfree(&regbuf);
+    return 0;
+  }
+  packet = malloc(sizeof(epsp_packet));
+  packet->code      = strtol(str + match[1].rm_so, NULL, 10);
+  packet->hop_count = strtol(str + match[2].rm_so, NULL, 10);
+  if(match[3].rm_so == -1 || match[3].rm_eo == -1){
+    // not found
+    packet->data = NULL;
+  }else{
+    size_t data_start = match[3].rm_so;
+    size_t data_end = match[3].rm_eo;
+    size_t data_len = data_end - data_start;
+    packet->data = malloc(data_len + 1);
+    memcpy(packet->data, str+data_start, data_len);
+    packet->data[data_len] = 0;
+  }
+  free(packet->data);
+  free(packet);
+
   for(size_t i = 0; i < size; i++){
     size_t start = match[i].rm_so;
     size_t end = match[i].rm_eo;
     if(start==-1||end==-1){
-      //printf("no match\n");
+      fprintf(stderr, "no match : %ld\n", i);
       continue;
     }
     size_t len = end - start;
-    printf("%ld : ", len);
+    printf("%ld : %ld, %ld , %ld: ", len, start, end, len);
     // substr ここから
-    char* group = calloc(len+1, sizeof(char));
-    strncpy(group, str+start, len);
+    // strdupはない場合もある
+    //char* group = strdup(str+start, len);
+    // malloc + memset + strncpy_s 現環境にstrncpy_s無し
+    //char* group = malloc(len+1);
+    //memset(group, 0, len+1);
+    //strncpy_s(group, len+1, str+start, len);
+    // malloc + strncpy + null終端挿入
+    //char* group = malloc(len+1);
+    //strncpy(group, str+start, len);
+    //group[len] = 0;
+    // malloc + memcpy + null終端挿入
+    char* group = malloc(len+1);
+    memcpy(group, str+start, len);
+    group[len] = 0;
     // substr ここまで
     printf("%s\n", group);
     free(group);
   }
   regfree(&regbuf);
   fprintf(stderr, "OK\n");
+  return EXIT_SUCCESS;
+}
+
+/*
+  プロトコルフォーマットに合致しているか検査しないといけないので面倒くさい可能性が高い
+*/
+int split_by_strtok(const char* str){
+  char* target = strdup(str);
+
+  free(target);
+  return EXIT_FAILURE;
+}
+
+int main(int argc, char* argv[]){
+  // 正規表現で分割 OR strtokで分割
+  //
+  char* regex = "([[:digit:]]+) ([[:digit:]]+) ?(.*)?";
+  char* str = "116 12 25:6911:901:2";
+  if(split_by_regex(str, regex) != EXIT_SUCCESS){
+    return EXIT_FAILURE;
+  }
   return EXIT_SUCCESS;
 }
 
