@@ -32,6 +32,27 @@ char* strclone(const char* src){
   return strnclone(src, len);
 }
 
+typedef struct string_array string_array;
+
+typedef struct string_array{
+  char* str;
+  string_array* next;
+} string_array;
+
+/*
+  文字列の配列を返す
+*/
+int split(string_array** dest, regex_t pattern, char* input, size_t limit){
+}
+
+int split_regex(string_array** dest, char* pattern, char* str, size_t limit){
+}
+
+int split_strtok(string_array** dest, char* delim, char* src, size_t limit){
+}
+void free_string_array(string_array* str){
+}
+
 int split_by_regex(char* str, char* regex){
   regex_t regbuf;
   int errco=0;
