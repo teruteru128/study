@@ -8,6 +8,13 @@
 #include "random.h"
 #define D_SIZE (1024)
 
+static void print_reg_error(int errorcode, regex_t* buf){
+    size_t len = regerror(errorcode, buf, NULL, 0);
+    char* msg = malloc(len);
+    regerror(errorcode, buf, msg, len);
+    fprintf(stderr, "%s\n", msg);
+    free(msg);
+}
 
 static const char *cmdline_ops[]={
   "orz",
@@ -18,67 +25,38 @@ static const char *cmdline_ops[]={
 };
 
 int main(int argc, char* argv[]){
-  helloWorld001();
-  char *path = "/dev/urandom";
-  int64_t seed;
-  FILE* fp = NULL;
 
-  fp = fopen(path, "rb");
-  if(fp == NULL){
-    perror("fopen");
+  char* p = " ";
+  regex_t ptn;
+  int errorcode = regcomp(&ptn, p, REG_EXTENDED|REG_NEWLINE);
+  if(errorcode != 0){
+    print_reg_error(errorcode, &ptn);
     return EXIT_FAILURE;
   }
 
-  size_t len = 0;
-  if((len = fread(&seed, sizeof(int64_t), 1, fp)) < 1){
-    perror("fread");
+  regmatch_t match[5];
+  size_t size = sizeof(match)/ sizeof(regmatch_t);
+
+  char* string = "111111 22 333";
+
+  errorcode = regexec(&ptn, string, size, match, 0);
+  if(errorcode != 0){
+    print_reg_error(errorcode, &ptn);
     return EXIT_FAILURE;
   }
 
-  if(fclose(fp)){
-    perror("fclose");
-    return EXIT_FAILURE;
+  printf("match[0] -> so : %d, eo : %d\n", match[0].rm_so, match[0].rm_eo);
+  int i = 0;
+  for(;i < 5;i++){
+    printf("%d, %d\n", match[i].rm_so, match[i].rm_eo);
   }
-
-  Random random;
-  setSeed(&random, seed);
-
-  double d=0;
-  int gotGoldenClover = 0;
-  size_t count = 0;
-
-  int i, c = nextIntWithRange(&random, 128);
-
-  for(i=0;i<c;i++){
-     //xor();
+  if(match[1].rm_so == -1 || match[4].rm_so != -1){
+    fputs("packet failed", stderr);
   }
+  printf("%s\n", &string[match[1].rm_so]);
+  printf("%s\n", &string[match[2].rm_so]);
+  printf("%s\n", &string[match[3].rm_so]);
 
-  do{
-    d=nextDoubleXor();
-    gotGoldenClover = d < 0.0007;
-    count++;
-    printf("%ld : %d %lf\n", count, gotGoldenClover, d);
-  }while(!gotGoldenClover);
-
-  (&printf)("  &printf = %p\n", &printf);
-  printf("   printf = %p\n", printf);
-  (*printf)("  *printf = %p\n", *printf);
-  (**printf)(" **printf = %p\n", **printf);
-  (***printf)("***printf = %p\n", ***printf);
-  i = 1;
-  int j;
-  for(j=0;j<10;j++){
-    printf("%d\n", !j);
-  }
-  while(i<argc){
-    int is_command = 0;
-    int j;
-    for(j = 0; cmdline_ops[j] != NULL; j++){
-      if(!strcmp(argv[i], cmdline_ops[j])){
-        is_command=1;
-      }
-    }
-  }
   return EXIT_SUCCESS;
 }
 
