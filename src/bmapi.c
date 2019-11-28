@@ -75,7 +75,7 @@ char* api_getStatus(char* ackData){
 }
 
 char* api_simpleSendMessage(char* toaddress, char* fromaddress, char* subject, char* message){
-  return api_sendMessage(toaddress, fromaddress, subject, message, 2, 28 * 24 * 60 * 60);
+  return api_sendMessage(toaddress, fromaddress, subject, message, 2, 4 * 24 * 60 * 60);
 }
 char* api_sendMessage(char* toaddress, char* fromaddress, char* subject, char* message, int encodingType, int TTL){
   char * const methodName = "sendMessage";

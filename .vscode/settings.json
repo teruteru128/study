@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.ts": "xml",
         "easy.h": "c",
         "curl.h": "c",
         "uuid.h": "c",
@@ -7,6 +8,11 @@
         "stdbool.h": "c",
         "asn1.h": "c",
         "socket.h": "c",
-        "netdb.h": "c"
+        "netdb.h": "c",
+        "gettextsample.h": "c",
+        "inet.h": "c",
+        "types.h": "c",
+        "bouyomi.h": "c",
+        "sstream": "c"
     }
 }

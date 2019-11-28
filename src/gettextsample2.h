@@ -2,7 +2,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <study-config.h>
+#include "study-config.h"
 
 #endif
 

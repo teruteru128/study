@@ -1,4 +1,3 @@
-
 lib_LTLIBRARIES = libsafe.la libprintint.la libtextdomain.la
 #lib_LTLIBRARIES+= libsafe.so libprintint.so libtextdomain.so
 #include_HEADERS= $(top_srcdir)/include/safe.h
