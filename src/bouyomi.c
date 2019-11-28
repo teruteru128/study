@@ -27,6 +27,7 @@
 #define DEFAULT_SERV_ADDRESS "localhost"
 #define DEFAULT_SERV_ADDRESS4 "127.0.0.1"
 #define DEFAULT_SERV_ADDRESS6 "::1"
+#define ONION_SERV_ADDRESS "2ayu6gqru3xzfzbvud64ezocamykp56kunmkzveqmuxvout2yubeeuad.onion"
 
 /**
  * アドレスとポート番号を表示する。
@@ -52,6 +53,7 @@ static void print_addrinfo(struct addrinfo *adrinf) {
 
 
 int main(int argc, char* argv[]){
+    // TODO IPv6 support (getaddrinfo)
     char *servAddr = DEFAULT_SERV_ADDRESS;
     char *servPortStr = DEFAULT_PORT_STR;
 
