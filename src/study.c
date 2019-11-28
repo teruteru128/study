@@ -24,6 +24,14 @@ static const char *cmdline_ops[]={
   NULL
 };
 
+static const char *cmdline_ops[]={
+  "orz",
+  "yattaze",
+  "Nabeatsu",
+  "FizzBuzz",
+  NULL
+};
+
 int main(int argc, char* argv[]){
 
   char* p = " ";
