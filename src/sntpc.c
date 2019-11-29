@@ -29,7 +29,7 @@ static void print_addrinfo(struct addrinfo *adrinf) {
       sbuf, sizeof(sbuf),
       NI_NUMERICHOST | NI_NUMERICSERV);
   if (rc != 0) {
-    fprintf(stderr, "getnameinfo(): %s\n", gai_strerror(rc));
+    perror("getnameinfo");
     return;
   }
 
@@ -67,9 +67,7 @@ int main(int argc, char* argv[]){
   struct addrinfo *ptr;
   int sock_ai_family;
   int sock_ai_protocol;
-  for(ptr = res; ptr != NULL; ptr = ptr->ai_next){
-    print_addrinfo(ptr);
-  }
+
   for(ptr = res; ptr != NULL; ptr = ptr->ai_next){
     recv_sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
     if(recv_sock < 0){
@@ -114,8 +112,8 @@ int main(int argc, char* argv[]){
     close(recv_sock);
     return EXIT_FAILURE;
   }
-  ptr = res;
-  for(; ptr!=NULL;ptr=ptr->ai_next){
+
+  for(ptr = res; ptr!=NULL;ptr=ptr->ai_next){
     if(ptr->ai_family == sock_ai_family && ptr->ai_protocol == sock_ai_protocol){
       break;
     }
