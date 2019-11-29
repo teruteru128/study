@@ -59,6 +59,7 @@ bin_PROGRAMS+=cudahello
 bin_PROGRAMS+=FizzBuzz
 bin_PROGRAMS+=Nabeatsu
 bin_PROGRAMS+=epsp-parser-test
+bin_PROGRAMS+=sntpc
 
 
 %:%.cu
@@ -132,4 +133,4 @@ falcon_SOURCES=falcon.c random.c random.h
 dragon_SOURCES=dragon.c svgplot.c svgplot.h
 Nabeatsu_SOURCES=FizzBuzz.c
 epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h
-
+sntpc_SOURCES=sntpc.c

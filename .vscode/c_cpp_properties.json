@@ -30,7 +30,9 @@
                 "/usr/local/include",
                 "${workspaceFolder}"
             ],
-            "defines": [],
+            "defines": [
+                "_GNU_SOURCE"
+            ],
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
@@ -73,3 +75,4 @@
     ],
     "version": 4
 }
+
