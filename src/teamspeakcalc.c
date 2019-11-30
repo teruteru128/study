@@ -7,19 +7,19 @@
 #include <sys/time.h>
 #include <openssl/sha.h>
 
-#include <printint.h>
+#include "printint.h"
 #define IN2_SIZE 21
 
-#include <gettext.h>
+#include "gettext.h"
 #define _(str) gettext(str)
 
 int main(int argc, char **argv)
 {
-    SHA_CTX *c = NULL;
+    SHA_CTX c;
     struct timeval tv;
     typedef union mc {
-      unsigned char md[SHA_DIGEST_LENGTH];
-      uint32_t ddd[SHA_DIGEST_LENGTH];
+        unsigned char md[SHA_DIGEST_LENGTH];
+        uint32_t ddd[SHA_DIGEST_LENGTH / sizeof(uint32_t)];
     } MC;
     MC mc;
     int i;
@@ -31,21 +31,23 @@ int main(int argc, char **argv)
 
     gettimeofday(&tv, NULL);
     srand48(((tv.tv_usec & 0xFFFFFFFF) << 32) ^ ((tv.tv_usec >> 32) & 0xFFFFFFFF) ^ tv.tv_sec);
-    verifier = ((uint64_t)mrand48() << 33) ^ (((uint64_t)mrand48() << 16) & 0xffffffffULL) ^ (((uint64_t)mrand48()) & 0xffffffffULL);
-    c = malloc(sizeof(SHA_CTX));
-    if (c == NULL)
-    {
-        exit(EXIT_FAILURE);
-    }
-    memset(c, 0, sizeof(SHA_CTX));
+    /*
+        1111111111111111111111111111111100000000000000000000000000000000
+        0000000000000000111111111111111111111111111111110000000000000000
+        0000000000000000000000000000000011111111111111111111111111111111
+    */
+    verifier = mrand48() & 0xffffffffULL;
+    verifier = (verifier << 16) ^ (mrand48() & 0xffffffffULL);
+    verifier = (verifier << 16) ^ (mrand48() & 0xffffffffULL);
+    memset(&c, 0, sizeof(SHA_CTX));
     for (;; verifier++)
     {
-        SHA1_Init(c);
-        SHA1_Update(c, in1, in1Length);
-        verifierLength = snprintUInt64(in2, IN2_SIZE, verifier);
-        SHA1_Update(c, in2, verifierLength);
-        SHA1_Final(mc.md, c);
-        if (mc.ddd[0] == 0 && mc.md[4] == 0)
+        SHA1_Init(&c);
+        SHA1_Update(&c, in1, in1Length);
+        verifierLength=snprintf(in2, IN2_SIZE, "%ld", verifier);
+        SHA1_Update(&c, in2, verifierLength);
+        SHA1_Final(mc.md, &c);
+        if (mc.md[0] == 0&&mc.md[1] == 0&&mc.md[2] == 0&&mc.md[3] == 0)
         {
             printf(_("verifier : %" PRIu64 "\n"), verifier);
             for (i = 0; i < SHA_DIGEST_LENGTH; i++)
@@ -56,7 +58,5 @@ int main(int argc, char **argv)
             break;
         }
     }
-    free(c);
     return EXIT_SUCCESS;
 }
-
