@@ -19,16 +19,11 @@ static void print_reg_error(int errorcode, regex_t* buf){
 static const char *cmdline_ops[]={
   "orz",
   "yattaze",
+  "dappun",
   "Nabeatsu",
   "FizzBuzz",
-  NULL
-};
-
-static const char *cmdline_ops[]={
-  "orz",
-  "yattaze",
-  "Nabeatsu",
-  "FizzBuzz",
+  "uuidtest",
+  "ankokudan_decode",
   NULL
 };
 
