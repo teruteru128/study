@@ -35,14 +35,28 @@ char* strclone(const char* src){
 typedef struct string_array string_array;
 
 typedef struct string_array{
+  char** str;
+  size_t length;
+} string_array;
+
+typedef struct string_list string_list;
+
+typedef struct string_list{
   char* str;
   string_array* next;
-} string_array;
+} string_list;
 
 /*
   文字列の配列を返す
 */
+/*
 int split(string_array** dest, regex_t pattern, char* input, size_t limit){
+}
+*/
+
+int split(char **dest,char* src,char* delim)
+{
+
 }
 
 int split_regex(string_array** dest, char* pattern, char* str, size_t limit){
@@ -50,6 +64,17 @@ int split_regex(string_array** dest, char* pattern, char* str, size_t limit){
 
 int split_strtok(string_array** dest, char* delim, char* src, size_t limit){
 }
+
+/*
+  プロトコルフォーマットに合致しているか検査しないといけないので面倒くさい可能性が高い
+*/
+int split_by_strtok(const char* str){
+  char* target = strdup(str);
+
+  free(target);
+  return EXIT_FAILURE;
+}
+
 void free_string_array(string_array* str){
 }
 
@@ -123,17 +148,13 @@ int split_by_regex(char* str, char* regex){
   fprintf(stderr, "OK\n");
   return EXIT_SUCCESS;
 }
-
 /*
-  プロトコルフォーマットに合致しているか検査しないといけないので面倒くさい可能性が高い
+  初期化
+  mainloop
+    接続受け付け
+  heartbeat loop
+  aaa
 */
-int split_by_strtok(const char* str){
-  char* target = strdup(str);
-
-  free(target);
-  return EXIT_FAILURE;
-}
-
 int main(int argc, char* argv[]){
   // 正規表現で分割 OR strtokで分割
   //
