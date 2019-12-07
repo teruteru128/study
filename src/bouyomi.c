@@ -255,7 +255,7 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
   short command = 1;
   short speed = -1;
   short tone = -1;
-  short volume = -1;
+  short volume = 200;
   short voice = 0;
   char encode;
   if(charset == UTF_8){
@@ -270,6 +270,7 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
 
   // なぜhtonsなしで読み上げできるのか謎
   // 棒読みちゃんはリトルエンディアン指定だそうです
+  // c#サンプルでBinaryWriterを使ってたから本体でもBinaryReader使ってるんじゃないんですか？知らんけど
   *((short*)&header[0]) = command;
   *((short*)&header[2]) = speed;
   *((short*)&header[4]) = tone;

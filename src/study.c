@@ -6,11 +6,16 @@
 //#include "gettext.h"
 #include "gettextsample.h"
 #include "random.h"
+#include <linux/random.h>
 #define D_SIZE (1024)
 
 static void print_reg_error(int errorcode, regex_t* buf){
     size_t len = regerror(errorcode, buf, NULL, 0);
     char* msg = malloc(len);
+    if(msg == NULL){
+      perror("print_reg_error malloc");
+      return;
+    }
     regerror(errorcode, buf, msg, len);
     fprintf(stderr, "%s\n", msg);
     free(msg);
