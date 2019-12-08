@@ -10,6 +10,7 @@
 #include <unistd.h> //close()
 #include <errno.h>
 #include <time.h>
+#include "random.h"
 
 #define SERVER_NAME "ntp.nict.jp"
 #define SERVER_PORT "ntp"
@@ -57,12 +58,19 @@ https://www.nakka.com/lib/inet/sntpcex.html
 */
 int main(int argc, char *argv[])
 {
+  uint64_t seed[312];
+  read_random(seed, sizeof(uint64_t), 312, 0);
+  init_by_array64(seed, 312);
+  /* [1024,65536) */
+  unsigned short port_num=(unsigned short)(genrand64_real2()*64512+1024);
+  char port_str[8];
+  snprintf(port_str,8, "%d", port_num);
   struct addrinfo hints, *res;
   memset(&hints, 0, sizeof(struct addrinfo));
 
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_flags = AI_PASSIVE;
-  int err = getaddrinfo(NULL, "20009", &hints, &res);
+  int err = getaddrinfo(NULL, port_str, &hints, &res);
   if (err != 0)
   {
     perror("getaddrinfo localhost");

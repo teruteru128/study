@@ -22,7 +22,7 @@ char* base64encode(const char*data, const size_t size){
 #ifdef _DEBUG
   printf("size : %ld, length : %ld\n", size, length);
 #endif
-  base64 = calloc(length, sizeof(char));
+  base64 = malloc(length);
   if(base64 == NULL){
     return NULL;
   }

@@ -51,6 +51,17 @@ static void print_addrinfo(struct addrinfo *adrinf) {
   fprintf(stderr, "[%s]:%s\n", hbuf, sbuf);
 }
 
+// アライメントが入るためそのまま送信してはいけない
+typedef struct bouyomi_header_t{
+    short command;
+    short speed;
+    short tone;
+    short volume;
+    short voice;
+    char encode;
+    char empty; // alignment
+    int32_t length;
+} bouyomi_header;
 typedef struct bouyomi_conf_t{
     short command;
     short speed;
@@ -169,6 +180,7 @@ int main(int argc, char* argv[]){
   int rc = 0;
   int ignore_errors = 0;
 
+  printf("%ld\n", sizeof(bouyomi_header));
   if(setlocale(LC_ALL, "ja_JP.UTF-8") == NULL){
     perror("setlocale");
     return EXIT_FAILURE;
@@ -255,7 +267,7 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
   short command = 1;
   short speed = -1;
   short tone = -1;
-  short volume = -1;
+  short volume = 200;
   short voice = 0;
   char encode;
   if(charset == UTF_8){
@@ -270,6 +282,7 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
 
   // なぜhtonsなしで読み上げできるのか謎
   // 棒読みちゃんはリトルエンディアン指定だそうです
+  // c#サンプルでBinaryWriterを使ってたから本体でもBinaryReader使ってるんじゃないんですか？知らんけど
   *((short*)&header[0]) = command;
   *((short*)&header[2]) = speed;
   *((short*)&header[4]) = tone;
