@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void movingsum(){}
+/* 移動合計 */
+void moving_sum(){}
+void moving_average(){}
 void max(){}
 
 int maxmovingsum(int *array, const size_t datasize, const size_t windowsize){

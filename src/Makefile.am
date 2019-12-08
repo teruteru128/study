@@ -17,7 +17,7 @@ bin_PROGRAMS+=017
 bin_PROGRAMS+=service-sample
 bin_PROGRAMS+=019
 bin_PROGRAMS+=gettextsample2
-bin_PROGRAMS+=lzhout
+bin_PROGRAMS+=ankokudan_decode
 bin_PROGRAMS+=gettextsample3
 bin_PROGRAMS+=orz
 bin_PROGRAMS+=gettime
@@ -60,7 +60,7 @@ bin_PROGRAMS+=FizzBuzz
 bin_PROGRAMS+=Nabeatsu
 bin_PROGRAMS+=epsp-parser-test
 bin_PROGRAMS+=sntpc
-
+bin_PROGRAMS+=repeated-trials
 
 %:%.cu
 	nvcc -ccbin clang-4.0 $^ -o $@
