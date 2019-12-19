@@ -60,6 +60,7 @@ bin_PROGRAMS+=FizzBuzz
 bin_PROGRAMS+=Nabeatsu
 bin_PROGRAMS+=epsp-parser-test
 bin_PROGRAMS+=sntpc
+bin_PROGRAMS+=string_list_test
 
 
 %:%.cu
@@ -84,10 +85,10 @@ printBench_LDADD= -lssl -lcrypto
 printBench_LDFLAGS=
 printBench_SOURCES= printBench.c printint.c
 read_random_SOURCES=read_random.c base64.c
-teamspeakIdUpgrader_SOURCES= teamspeakIdUpgrader.c
-teamspeakIdUpgrader_CFLAGS= -I../include
-teamspeakIdUpgrader_LDADD= -lprintint -lssl -lcrypto
-teamspeakIdUpgrader_LDFLAGS= -L../lib
+teamspeakIdUpgrader_SOURCES= teamspeakIdUpgrader.c printint.c
+teamspeakIdUpgrader_CFLAGS=
+teamspeakIdUpgrader_LDADD= -lssl -lcrypto
+teamspeakIdUpgrader_LDFLAGS=
 argparsesample_SOURCES=argparsesample.c
 uuidtest_LDFLAGS= -luuid
 013_LDFLAGS= -lsodium
@@ -134,3 +135,4 @@ dragon_SOURCES=dragon.c svgplot.c svgplot.h
 Nabeatsu_SOURCES=FizzBuzz.c
 epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h
 sntpc_SOURCES=sntpc.c
+string_list_test_SOURCES=string_list.h string_list.c string_list_test.c

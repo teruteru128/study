@@ -5,7 +5,7 @@
 AC_PREREQ([2.69])
 AC_INIT([STUDY], [0.0.0-alpha], [teruterubouzu1024@gmail.com])
 #AC_CONFIG_SRCDIR([src/config.h.in])
-AC_CONFIG_HEADERS([include/config.h])
+AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_MACRO_DIRS([m4])
 AM_PROG_LIBTOOL
@@ -30,7 +30,8 @@ AC_ENABLE_SHARED
 # FIXME: Replace `main' with a function in `-lssl':
 AC_CHECK_LIB([ssl], [SSL_library_init])
 AC_CHECK_LIB([crypto], [EVP_EncryptInit])
-AX_CHECK_OPENSSL
+AC_CHECK_LIB([sodium], [sodium_init],,AC_MSG_WARN(libsodium is needed for CURVE security))
+#AX_CHECK_OPENSSL
 if test "$with_openssl" = yes ; then
   dnl Order matters!
   if test "$PORTNAME" != "win32"; then
@@ -86,6 +87,5 @@ AC_CHECK_FUNCS([gettimeofday memchr memset setlocale socket strerror strstr strt
 AC_CONFIG_FILES([src/Makefile
                  intl/Makefile
                  po/Makefile.in
-                 Makefile
-                 lib/Makefile])
+                 Makefile])
 AC_OUTPUT

@@ -2,10 +2,6 @@
 #ifndef EPSP_PARSER_H
 #define EPSP_PARSER_H
 
-typedef struct a{
-  char** array;
-  size_t length;
-} string_array;
 string_list;
 typedef struct {
   char* str;
