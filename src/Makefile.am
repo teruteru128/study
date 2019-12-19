@@ -37,6 +37,7 @@ bin_PROGRAMS+=firstThread
 bin_PROGRAMS+=firstThread2
 bin_PROGRAMS+=firstThread3
 bin_PROGRAMS+=firstThread4
+bin_PROGRAMS+=firstThread4-1
 bin_PROGRAMS+=variables
 bin_PROGRAMS+=variables3
 bin_PROGRAMS+=seq
@@ -61,6 +62,7 @@ bin_PROGRAMS+=Nabeatsu
 bin_PROGRAMS+=epsp-parser-test
 bin_PROGRAMS+=sntpc
 bin_PROGRAMS+=string_list_test
+bin_PROGRAMS+=dragon
 
 
 %:%.cu
@@ -108,7 +110,7 @@ gettextsample3_LDADD=
 gettextsample3_LDFLAGS=
 orz_SOURCES= orz.c random.h random.c
 localetest1_SOURCES = localetest1.c localetest1.h
-#localetest1_CFLAGS = -I../include -DLOCALEDIR='"$(localedir)"'
+localetest1_CFLAGS = 
 localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
 selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-n.c sha-1.h sha-2.h sha-3.h sha-n.h 028.h
 selfmadelibsha_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
@@ -119,6 +121,7 @@ firstThread_LDFLAGS=-lpthread
 firstThread2_LDFLAGS=-lpthread
 firstThread3_LDFLAGS=-lpthread
 firstThread4_LDFLAGS=-lpthread
+firstThread4_1_LDFLAGS=-lpthread
 variables_LDFLAGS=-lpthread
 variables3_LDFLAGS=-lpthread
 seq_CFLAGS=-lm

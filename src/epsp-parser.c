@@ -61,12 +61,12 @@ static int parse_internal(epsp_packet* packet, const char* line){
 
   char* catch = NULL;
   packet->code = strtol(code_str, &catch, 10);
-  if(**catch != '\0'){
+  if(*catch != '\0'){
     goto clean;
   }
   if(hop_str != NULL){
     packet->hop_count = strtol(hop_str, &catch, 10);
-    if(**catch != '\0'){
+    if(*catch != '\0'){
       goto clean;
     }
   }
