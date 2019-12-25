@@ -139,3 +139,5 @@ Nabeatsu_SOURCES=FizzBuzz.c
 epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h
 sntpc_SOURCES=sntpc.c
 string_list_test_SOURCES=string_list.h string_list.c string_list_test.c
+bouyomi_SOURCES=bouyomi.c bouyomi.h charset-convert.c charset-convert.h
+CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h
