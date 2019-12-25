@@ -24,7 +24,7 @@ int main(int argc, char** argv){
   int len = 4;
   // /dev/urandom から8192バイトも読み込むことないよね？
   if(get_random(URANDOM_PATH, &seed, sizeof(uint32_t), 1) != 0){
-    warnx("failed");
+    perror("failed");
     return EXIT_FAILURE;
   }
 
@@ -37,12 +37,12 @@ int main(int argc, char** argv){
   while(*tmp++ != NULL){
     messages_size++;
   }
-  shuffle(messages, messages_size);
+  shuffle((void*)messages, messages_size);
   size_t i=0;
   for(i = 0; i < messages_size;i++){
-    printf("%s", messages[i]);
+    fputs(messages[i], stdout);
   }
-  printf("\n");
+  fputs("\n", stdout);
 
   return 0;
 }
