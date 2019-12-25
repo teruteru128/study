@@ -22,6 +22,7 @@
         "strings.h": "c",
         "string.h": "c",
         "stddef.h": "c"
+        "config.h": "c"
     }
 }
 

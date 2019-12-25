@@ -1,4 +1,6 @@
 
+#include <stdio.h>
+#include <stdint.h>
 #include "internal_random.h"
 #include "random.h"
 

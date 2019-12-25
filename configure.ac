@@ -4,8 +4,8 @@
 
 AC_PREREQ([2.69])
 AC_INIT([STUDY], [0.0.0-alpha], [teruterubouzu1024@gmail.com])
-#AC_CONFIG_SRCDIR([src/config.h.in])
-AC_CONFIG_HEADERS([include/config.h])
+AC_CONFIG_SRCDIR([config.h.in])
+AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_MACRO_DIRS([m4])
 AM_PROG_LIBTOOL
@@ -21,71 +21,64 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
+AC_PROG_MKDIR_P
+AC_PROG_YACC
 AC_ENABLE_SHARED
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lcrypto':
-# FIXME: Replace `main' with a function in `-lprintint':
-#AC_CHECK_LIB([printint], [main])
+AC_CHECK_LIB([crypto], [main])
+# FIXME: Replace `main' with a function in `-lcurl':
+AC_CHECK_LIB([curl], [main])
+# FIXME: Replace `main' with a function in `-lm':
+AC_CHECK_LIB([m], [main])
+# FIXME: Replace `main' with a function in `-lpthread':
+AC_CHECK_LIB([pthread], [main])
+# FIXME: Replace `main' with a function in `-lsodium':
+AC_CHECK_LIB([sodium], [main])
 # FIXME: Replace `main' with a function in `-lssl':
-AC_CHECK_LIB([ssl], [SSL_library_init])
-AC_CHECK_LIB([crypto], [EVP_EncryptInit])
-AX_CHECK_OPENSSL
-if test "$with_openssl" = yes ; then
-  dnl Order matters!
-  if test "$PORTNAME" != "win32"; then
-     AC_CHECK_LIB(crypto, CRYPTO_new_ex_data, [], [AC_MSG_ERROR([library 'crypto' is required for OpenSSL])])
-     FOUND_SSL_LIB="no"
-     AC_CHECK_LIB(ssl, OPENSSL_init_ssl, [FOUND_SSL_LIB="yes"])
-     AC_CHECK_LIB(ssl, SSL_library_init, [FOUND_SSL_LIB="yes"])
-     AS_IF([test "x$FOUND_SSL_LIB" = xno], [AC_MSG_ERROR([library 'ssl' is required for OpenSSL])])
-  else
-     AC_SEARCH_LIBS(CRYPTO_new_ex_data, eay32 crypto, [], [AC_MSG_ERROR([library 'eay32' or 'crypto' is required for OpenSSL])])
-     FOUND_SSL_LIB="no"
-     AC_SEARCH_LIBS(OPENSSL_init_ssl, ssleay32 ssl, [FOUND_SSL_LIB="yes"])
-     AC_SEARCH_LIBS(SSL_library_init, ssleay32 ssl, [FOUND_SSL_LIB="yes"])
-     AS_IF([test "x$FOUND_SSL_LIB" = xno], [AC_MSG_ERROR([library 'ssleay32' or 'ssl' is required for OpenSSL])])
-  fi
-fi
+AC_CHECK_LIB([ssl], [main])
 # FIXME: Replace `main' with a function in `-luuid':
-AC_CHECK_LIB([uuid], uuid_generate)
+AC_CHECK_LIB([uuid], [main])
 # FIXME: Replace `main' with a function in `-ltextdomain':
 AC_CHECK_LIB([textdomain], [main])
-AC_CHECK_LIB(gmp, __gmpz_init)
-AC_CHECK_LIB(xmlrpc, [main])
-AC_CHECK_LIB(xmlrpc_abyss, [main])
-AC_CHECK_LIB(xmlrpc_client, [main])
-AC_CHECK_LIB(xmlrpc_server, [main])
-AC_CHECK_LIB(xmlrpc_server_abyss, [main])
-AC_CHECK_LIB(xmlrpc_util, [main])
-AC_CHECK_LIB(xmlrpc_xmlparse, [main])
-AC_CHECK_LIB(xmlrpc_xmltok, [main])
+AC_CHECK_LIB([gmp], [__gmpz_init])
+AC_CHECK_LIB([xmlrpc], [main])
+AC_CHECK_LIB([xmlrpc_abyss], [main])
+AC_CHECK_LIB([xmlrpc_client], [main])
+AC_CHECK_LIB([xmlrpc_server], [main])
+AC_CHECK_LIB([xmlrpc_server_abyss], [main])
+AC_CHECK_LIB([xmlrpc_util], [main])
+AC_CHECK_LIB([xmlrpc_xmlparse], [main])
+AC_CHECK_LIB([xmlrpc_xmltok], [main])
 
 # Checks for header files.
-AC_CHECK_HEADERS([arpa/inet.h inttypes.h libintl.h locale.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h sys/param.h])
+AC_FUNC_ALLOCA
+AC_CHECK_HEADERS([argz.h arpa/inet.h fcntl.h float.h inttypes.h langinfo.h libintl.h limits.h locale.h malloc.h netdb.h netinet/in.h stddef.h stdint.h stdio_ext.h stdlib.h string.h sys/param.h sys/socket.h sys/time.h unistd.h wchar.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
 AC_C_INLINE
+AC_TYPE_INT32_T
 AC_TYPE_INT64_T
 AC_C_RESTRICT
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
+AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
 AC_TYPE_UINT8_T
+AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
-AC_CANONICAL_HOST
-#AM_GNU_SOURCE
 AM_GNU_GETTEXT
-AM_GNU_GETTEXT_VERSION([0.19.8])
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([gettimeofday memchr memset setlocale socket strerror strstr strtoull])
+AC_FUNC_MBRTOWC
+AC_FUNC_MMAP
+AC_FUNC_REALLOC
+AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify getcwd gettimeofday localeconv mblen mbrlen memchr mempcpy memset munmap nl_langinfo pow regcomp select setlocale socket sqrt stpcpy strcasecmp strchr strcspn strdup strerror strrchr strstr strtol strtoul strtoull])
 
-AC_CONFIG_FILES([src/Makefile
+AC_CONFIG_FILES([Makefile
                  intl/Makefile
-                 po/Makefile.in
-                 Makefile
-                 lib/Makefile])
+                 src/Makefile])
 AC_OUTPUT

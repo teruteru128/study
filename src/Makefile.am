@@ -37,6 +37,7 @@ bin_PROGRAMS+=firstThread
 bin_PROGRAMS+=firstThread2
 bin_PROGRAMS+=firstThread3
 bin_PROGRAMS+=firstThread4
+bin_PROGRAMS+=firstThread4-1
 bin_PROGRAMS+=variables
 bin_PROGRAMS+=variables3
 bin_PROGRAMS+=seq
@@ -61,6 +62,9 @@ bin_PROGRAMS+=Nabeatsu
 bin_PROGRAMS+=epsp-parser-test
 bin_PROGRAMS+=sntpc
 bin_PROGRAMS+=repeated-trials
+bin_PROGRAMS+=string_list_test
+bin_PROGRAMS+=dragon
+
 
 %:%.cu
 	nvcc -ccbin clang-4.0 $^ -o $@
@@ -84,10 +88,10 @@ printBench_LDADD= -lssl -lcrypto
 printBench_LDFLAGS=
 printBench_SOURCES= printBench.c printint.c
 read_random_SOURCES=read_random.c base64.c random.c  random.h
-teamspeakIdUpgrader_SOURCES= teamspeakIdUpgrader.c
-teamspeakIdUpgrader_CFLAGS= -I../include
-teamspeakIdUpgrader_LDADD= -lprintint -lssl -lcrypto
-teamspeakIdUpgrader_LDFLAGS= -L../lib
+teamspeakIdUpgrader_SOURCES= teamspeakIdUpgrader.c printint.c
+teamspeakIdUpgrader_CFLAGS=
+teamspeakIdUpgrader_LDADD= -lssl -lcrypto
+teamspeakIdUpgrader_LDFLAGS=
 argparsesample_SOURCES=argparsesample.c
 uuidtest_LDFLAGS= -luuid
 013_LDFLAGS= -lsodium
@@ -107,7 +111,7 @@ gettextsample3_LDADD=
 gettextsample3_LDFLAGS=
 orz_SOURCES= orz.c random.h random.c
 localetest1_SOURCES = localetest1.c localetest1.h
-#localetest1_CFLAGS = -I../include -DLOCALEDIR='"$(localedir)"'
+localetest1_CFLAGS = 
 localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
 selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-n.c sha-1.h sha-2.h sha-3.h sha-n.h 028.h
 selfmadelibsha_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
@@ -118,6 +122,7 @@ firstThread_LDFLAGS=-lpthread
 firstThread2_LDFLAGS=-lpthread
 firstThread3_LDFLAGS=-lpthread
 firstThread4_LDFLAGS=-lpthread
+firstThread4_1_LDFLAGS=-lpthread
 variables_LDFLAGS=-lpthread
 variables3_LDFLAGS=-lpthread
 seq_CFLAGS=-lm
@@ -134,3 +139,6 @@ dragon_SOURCES=dragon.c svgplot.c svgplot.h
 Nabeatsu_SOURCES=FizzBuzz.c
 epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h
 sntpc_SOURCES=sntpc.c random.c random.h
+string_list_test_SOURCES=string_list.h string_list.c string_list_test.c
+bouyomi_SOURCES=bouyomi.c bouyomi.h charset-convert.c charset-convert.h
+CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h
