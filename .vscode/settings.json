@@ -15,7 +15,8 @@
         "bouyomi.h": "c",
         "sstream": "c",
         "features.h": "c",
-        "libintl.h": "c"
+        "libintl.h": "c",
+        "config.h": "c"
     }
 }
 
