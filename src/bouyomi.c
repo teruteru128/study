@@ -180,7 +180,6 @@ int main(int argc, char* argv[]){
   int rc = 0;
   int ignore_errors = 0;
 
-  printf("%ld\n", sizeof(bouyomi_header));
   if(setlocale(LC_ALL, "ja_JP.UTF-8") == NULL){
     perror("setlocale");
     return EXIT_FAILURE;
@@ -299,7 +298,7 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
 
   char *servAddr = ONION_SERV_ADDRESS;
   char *servPortStr = DEFAULT_PORT_STR;
-  int use_onion = 1;
+  int use_onion = 0;
   if(use_onion == 1){
     servAddr = ONION_SERV_ADDRESS;
   }else{
