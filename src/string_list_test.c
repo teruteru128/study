@@ -11,6 +11,7 @@ int main(int argc, char*argv[]){
         printf("%s\n", tmp->str);
         tmp=tmp->next;
     }
+    printf("%ld\n", string_list_size(list));
     printf("%s\n", tmp->str);
     string_list_free(list);
     return 0;

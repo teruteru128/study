@@ -39,7 +39,7 @@ size_t string_list_size(string_list* list){
     }
     string_list* tmp = list;
     size_t count = 1;
-    while(tmp->next == NULL){
+    while(tmp->next != NULL){
         count++;
         tmp = tmp->next;
     }
