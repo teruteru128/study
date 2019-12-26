@@ -25,7 +25,7 @@ int main(int argc, char** argv){
 	uint32_t n[BUF_SIZE / sizeof(uint32_t)];
 	int len = 4;
 	// /dev/urandom から8192バイトも読み込むことないよね？
-	if(get_random(URANDOM_PATH, buf, sizeof(char), BUF_SIZE) != 0){
+	if(read_file(URANDOM_PATH, buf, sizeof(char), BUF_SIZE) != 0){
 		warnx("failed");
 		return -1;
 	}

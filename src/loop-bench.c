@@ -4,6 +4,7 @@
 
 #define LOOP_COUNT 0x100000000ULL
 
+/* TODO: remove or remake */
 int main(int argc, char **argv)
 {
     uint64_t i;

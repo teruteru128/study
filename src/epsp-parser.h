@@ -2,15 +2,7 @@
 #ifndef EPSP_PARSER_H
 #define EPSP_PARSER_H
 
-typedef struct a{
-  char** array;
-  size_t length;
-} string_array;
-string_list;
-typedef struct {
-  char* str;
-  string_list* next;
-}string_list;
+#include "string_list.h"
 
 // TODO move to epsp_protocol.h
 typedef struct epsp_packet_t{

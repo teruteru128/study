@@ -1,7 +1,7 @@
 SUBDIRS  = intl
-SUBDIRS += include
-SUBDIRS += lib
-SUBDIRS += po
+#SUBDIRS += include
+#SUBDIRS += lib
+#SUBDIRS += po
 SUBDIRS += src
 
 ACLOCAL_AMFLAGS = -I m4

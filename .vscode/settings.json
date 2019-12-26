@@ -15,7 +15,14 @@
         "bouyomi.h": "c",
         "sstream": "c",
         "features.h": "c",
-        "libintl.h": "c"
+        "libintl.h": "c",
+        "stdint.h": "c",
+        "random.h": "c",
+        "epsp-parser.h": "c",
+        "strings.h": "c",
+        "string.h": "c",
+        "stddef.h": "c"
+        "config.h": "c"
     }
 }
 
