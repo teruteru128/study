@@ -37,13 +37,14 @@ int main(int argc, char** argv){
   while(*tmp++ != NULL){
     messages_size++;
   }
-  shuffle((void*)messages, messages_size);
-  size_t i=0;
-  for(i = 0; i < messages_size;i++){
-    fputs(messages[i], stdout);
+  while(1){
+    shuffle((void*)messages, messages_size);
+    size_t i=0;
+    for(i = 0; i < messages_size;i++){
+      fputs(messages[i], stdout);
+    }
+    fputs("\n", stdout);
   }
-  fputs("\n", stdout);
 
   return 0;
 }
-
