@@ -10,7 +10,7 @@
 #define FILENAME "/dev/urandom"
 uint64_t readSeed(){
   uint64_t val = 0;
-  get_random(FILENAME, val, sizeof(uint64_t), 1);
+  read_file(FILENAME, val, sizeof(uint64_t), 1);
   return val;
 }
 

@@ -23,7 +23,7 @@ void shuffle(void **array, size_t size) {
 int main(int argc, char** argv){
   int len = 4;
   // /dev/urandom から8192バイトも読み込むことないよね？
-  if(get_random(URANDOM_PATH, &seed, sizeof(uint32_t), 1) != 0){
+  if(read_file(URANDOM_PATH, &seed, sizeof(uint32_t), 1) != 0){
     perror("failed");
     return EXIT_FAILURE;
   }
