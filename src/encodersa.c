@@ -36,7 +36,7 @@ int main(int argc, char* argv[]){
   }
   BN_CTX_start(ctx);
   BIGNUM *r0 = NULL, *r1 = NULL, *r2 = NULL, *n = BN_new(), *e = BN_new(),
-  *d = BN_secure_new(), *p = BN_secure_new(), *q = BN_secure_new(), *dmp = BN_secure_new(), *dmq = BN_secure_new(), *iqmp = BN_secure_new(), *tmp;
+  *d = BN_secure_new(), *p = BN_secure_new(), *q = BN_secure_new(), *dmp = BN_secure_new(), *dmq = BN_secure_new(), *iqmp = BN_secure_new();
   if(iqmp==NULL){
     perror("BN_new");
     goto err;
@@ -84,9 +84,7 @@ int main(int argc, char* argv[]){
   }
   if(BN_cmp(p, q)<0){
     printf("qのほうが大きい\n");
-    tmp = p;
-    p = q;
-    q = tmp;
+    BN_swap(p, q);
   }else{
     printf("pのほうが大きい\n");
   }
