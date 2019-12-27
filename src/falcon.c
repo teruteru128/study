@@ -38,7 +38,7 @@ int main(int argc, char** argv){
     messages_size++;
   }
   while(1){
-    shuffle((void*)messages, messages_size);
+    shuffle((void**)messages, messages_size);
     size_t i=0;
     for(i = 0; i < messages_size;i++){
       fputs(messages[i], stdout);
