@@ -6,7 +6,7 @@
 #include <xmlrpc.h>
 #include <xmlrpc_client.h>
 
-int api_init();
+int api_init(void);
 int api_cleanup();
 char *api_helloWorld(char*, char*);
 int api_add(int, int);
