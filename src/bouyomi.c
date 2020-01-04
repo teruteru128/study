@@ -20,6 +20,7 @@
 #include <netdb.h>
 #include <errno.h>
 #include "charset-convert.h"
+#include "print_addrinfo.h"
 
 #define MSGSIZE 1024
 #define BUFSIZE (MSGSIZE + 1)
@@ -29,28 +30,6 @@
 #define DEFAULT_SERV_ADDRESS4 "127.0.0.1"
 #define DEFAULT_SERV_ADDRESS6 "::1"
 #define ONION_SERV_ADDRESS "2ayu6gqru3xzfzbvud64ezocamykp56kunmkzveqmuxvout2yubeeuad.onion"
-
-/**
- * アドレスとポート番号を表示する。
- * <I> adrinf: アドレス情報
- */
-static void print_addrinfo(struct addrinfo *adrinf) {
-  char hbuf[NI_MAXHOST];  /* 返されるアドレスを格納する */
-  char sbuf[NI_MAXSERV];  /* 返されるポート番号を格納する */
-  int rc;
-
-  /* アドレス情報に対応するアドレスとポート番号を得る */
-  rc = getnameinfo(adrinf->ai_addr, adrinf->ai_addrlen,
-            hbuf, sizeof(hbuf),
-            sbuf, sizeof(sbuf),
-            NI_NUMERICHOST | NI_NUMERICSERV);
-  if (rc != 0) {
-    fprintf(stderr, "getnameinfo(): %s\n", gai_strerror(rc));
-    return;
-  }
-
-  fprintf(stderr, "[%s]:%s\n", hbuf, sbuf);
-}
 
 // アライメントが入るためそのまま送信してはいけない
 typedef struct bouyomi_header_t{

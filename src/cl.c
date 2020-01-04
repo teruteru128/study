@@ -1,5 +1,6 @@
 /*
- * cl.c - ¥µ¡¼¥Ğ¤«¤é¤Î±şÅú¤òÆÀ¤ë¤À¤±¤Î¥¯¥é¥¤¥¢¥ó¥È
+ * cl.c - ã‚µãƒ¼ãƒã‹ã‚‰ã®å¿œç­”ã‚’å¾—ã‚‹ã ã‘ã®ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆ
+ * http://www.koutou-software.net/misc/howto-independ-addfamilysock.php
  */
 
 #include <sys/types.h>
@@ -10,47 +11,26 @@
 #include <stdio.h>
 #include <string.h>
 
-/**
- * ¥¢¥É¥ì¥¹¤È¥İ¡¼¥ÈÈÖ¹æ¤òÉ½¼¨¤¹¤ë¡£
- * <I> adrinf: ¥¢¥É¥ì¥¹¾ğÊó
- */
-void print_addrinfo(struct addrinfo *adrinf)
-{
-	char hbuf[NI_MAXHOST];	/* ÊÖ¤µ¤ì¤ë¥¢¥É¥ì¥¹¤ò³ÊÇ¼¤¹¤ë */
-	char sbuf[NI_MAXSERV];	/* ÊÖ¤µ¤ì¤ë¥İ¡¼¥ÈÈÖ¹æ¤ò³ÊÇ¼¤¹¤ë */
-	int rc;
-
-	/* ¥¢¥É¥ì¥¹¾ğÊó¤ËÂĞ±ş¤¹¤ë¥¢¥É¥ì¥¹¤È¥İ¡¼¥ÈÈÖ¹æ¤òÆÀ¤ë */
-	rc = getnameinfo(adrinf->ai_addr, adrinf->ai_addrlen,
-						hbuf, sizeof(hbuf),
-						sbuf, sizeof(sbuf),
-						NI_NUMERICHOST | NI_NUMERICSERV);
-	if (rc != 0) {
-		fprintf(stderr, "getnameinfo(): %s\n", gai_strerror(rc));
-		return;
-	}
-
-	printf("[%s]:%s\n", hbuf, sbuf);
-}
+#include "print_addrinfo.h"
 
 /**
- * ¥¹¥¿¡¼¥È¥¢¥Ã¥×
+ * ã‚¹ã‚¿ãƒ¼ãƒˆã‚¢ãƒƒãƒ—
  */
 int main(int argc, char *argv[])
 {
-	struct addrinfo hints;		/* ¼èÆÀ¤·¤¿¤¤¥¢¥É¥ì¥¹¾ğÊó¤ò»Ø¼¨¤¹¤ë */
-	struct addrinfo *res;		/* ¼èÆÀ¤·¤¿¥¢¥É¥ì¥¹¾ğÊó¤¬ÊÖ¤Ã¤Æ¤¯¤ë */
-	struct addrinfo *adrinf;	/* ÀÜÂ³Í×µá»ş¤Ë»È¤¦ */
+	struct addrinfo hints;		/* å–å¾—ã—ãŸã„ã‚¢ãƒ‰ãƒ¬ã‚¹æƒ…å ±ã‚’æŒ‡ç¤ºã™ã‚‹ */
+	struct addrinfo *res;		/* å–å¾—ã—ãŸã‚¢ãƒ‰ãƒ¬ã‚¹æƒ…å ±ãŒè¿”ã£ã¦ãã‚‹ */
+	struct addrinfo *adrinf;	/* æ¥ç¶šè¦æ±‚æ™‚ã«ä½¿ã† */
 
 	int rc;
 
-	/* °ú¿ô¤Î¿ô¤ò¥Á¥§¥Ã¥¯¤¹¤ë */
+	/* å¼•æ•°ã®æ•°ã‚’ãƒã‚§ãƒƒã‚¯ã™ã‚‹ */
 	if (argc != 3) {
 		fprintf(stderr, "usage: %s nodename servname\n", argv[0]);
 		return -1;
 	}
 
-	/* °ú¿ô¤Ç»ØÄê¤µ¤ì¤¿¥¢¥É¥ì¥¹¡¢¥İ¡¼¥ÈÈÖ¹æ¤«¤é¥¢¥É¥ì¥¹¾ğÊó¤òÆÀ¤ë */
+	/* å¼•æ•°ã§æŒ‡å®šã•ã‚ŒãŸã‚¢ãƒ‰ãƒ¬ã‚¹ã€ãƒãƒ¼ãƒˆç•ªå·ã‹ã‚‰ã‚¢ãƒ‰ãƒ¬ã‚¹æƒ…å ±ã‚’å¾—ã‚‹ */
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_socktype = SOCK_STREAM;
 
@@ -60,7 +40,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	/* ÆÀ¤é¤ì¤¿¥¢¥É¥ì¥¹¤¹¤Ù¤Æ¤ËÂĞ¤·ÀÜÂ³¤ò¹Ô¤¦ */
+	/* å¾—ã‚‰ã‚ŒãŸã‚¢ãƒ‰ãƒ¬ã‚¹ã™ã¹ã¦ã«å¯¾ã—æ¥ç¶šã‚’è¡Œã† */
 	for (adrinf = res; adrinf != NULL; adrinf = adrinf->ai_next) {
 
 		char buf[2048];
@@ -68,7 +48,7 @@ int main(int argc, char *argv[])
 		int len;
 
 		/*
-		 * ÀÜÂ³Í×µá¤ò¤¹¤ë¡£
+		 * æ¥ç¶šè¦æ±‚ã‚’ã™ã‚‹ã€‚
 		 */
 		sock = socket(adrinf->ai_family, adrinf->ai_socktype, adrinf->ai_protocol);
 		if (sock < 0) {
@@ -83,10 +63,10 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
-		/* ¥¢¥É¥ì¥¹¾ğÊó¤òÉ½¼¨¤¹¤ë */
+		/* ã‚¢ãƒ‰ãƒ¬ã‚¹æƒ…å ±ã‚’è¡¨ç¤ºã™ã‚‹ */
 		print_addrinfo(adrinf);
 
-		/* ¥µ¡¼¥Ğ¤«¤é¤Î±şÅú¤òÉ½¼¨¤¹¤ë */
+		/* ã‚µãƒ¼ãƒã‹ã‚‰ã®å¿œç­”ã‚’è¡¨ç¤ºã™ã‚‹ */
 		while (0 < (len = read(sock, buf, sizeof(buf)))) {
 			printf("%.*s", len, buf);
 		}

@@ -73,12 +73,7 @@ bin_PROGRAMS+=dragon
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 study_LDADD= -lcrypto
 study_LDFLAGS=
-study_SOURCES=study.c\
-							gettextsample.c\
-							gettextsample.h\
-							printint.c\
-							random.c\
-							random.h
+study_SOURCES=study.c gettextsample.c gettextsample.h printint.c random.c random.h
 teamspeakcalc_CFLAGS=
 teamspeakcalc_LDADD= -lcrypto
 teamspeakcalc_LDFLAGS=
@@ -111,7 +106,6 @@ gettextsample3_LDADD=
 gettextsample3_LDFLAGS=
 orz_SOURCES= orz.c random.h random.c
 localetest1_SOURCES = localetest1.c localetest1.h
-localetest1_CFLAGS = 
 localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
 selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-n.c sha-1.h sha-2.h sha-3.h sha-n.h 028.h
 selfmadelibsha_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
@@ -136,9 +130,10 @@ threadAttr_LDFLAGS=-pthread
 encodersa_LDFLAGS=-lcrypto -lssl
 falcon_SOURCES=falcon.c random.c random.h
 dragon_SOURCES=dragon.c svgplot.c svgplot.h
-Nabeatsu_SOURCES=FizzBuzz.c
+FizzBuzz_SOURCES=FizzBuzz.c printint.c printint.h
+Nabeatsu_SOURCES=FizzBuzz.c printint.c printint.h
 epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h
 sntpc_SOURCES=sntpc.c random.c random.h
 string_list_test_SOURCES=string_list.h string_list.c string_list_test.c
-bouyomi_SOURCES=bouyomi.c bouyomi.h charset-convert.c charset-convert.h
+bouyomi_SOURCES=bouyomi.c bouyomi.h charset-convert.c charset-convert.h print_addrinfo.c print_addrinfo.h
 CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h
