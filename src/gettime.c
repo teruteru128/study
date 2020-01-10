@@ -181,7 +181,6 @@ int main(int argc, char** argv){
 	if(inet_ntop(AF_INET, &addr, str, sizeof(addr)) != NULL){
 		printf("%s\n", str);
 	}
-	
 
 	puts("after:");
 	for(i = 0; i < 64; i++){

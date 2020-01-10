@@ -6,6 +6,7 @@
 #include <strings.h>
 #include <regex.h>
 #include "epsp-parser.h"
+#include "string_array.h"
 
 #define LINE_PATTERN "([[:digit:]]+) ([[:digit:]]+) ?(.+)?"
 
@@ -42,10 +43,17 @@ static int parse_internal(epsp_packet* packet, const char* line){
   char* copy_line = strdup(line);
   // 予め改行文字(CRLF)は削除する
   // 半角スペースで分割する
-  char* code_str = strtok(copy_line, " ");
-  char* hop_str = strtok(NULL, " ");
-  char* data_str = strtok(NULL, " ");
-  char* trash_str = strtok(NULL, " ");
+  char* code_str = NULL;
+  char* hop_str = NULL;
+  char* data_str = NULL;
+  char* trash_str = NULL;
+  {
+    char* catch = NULL;
+    code_str = strtok_r(copy_line, " ", &catch);
+    hop_str = strtok_r(NULL, " ", &catch);
+    data_str = strtok_r(NULL, " ", &catch);
+    trash_str = strtok_r(NULL, " ", &catch);
+  }
   // 分割した結果0個以下または4個以上の場合失敗
   if(code_str == NULL){
     // 0個
@@ -58,7 +66,9 @@ static int parse_internal(epsp_packet* packet, const char* line){
 
   // 初期値
   packet->code = -1;
+  packet->code_str = NULL;
   packet->hop_count = -1;
+  packet->hop_count_str = NULL;
   packet->data = NULL;
 
   {
@@ -76,33 +86,54 @@ static int parse_internal(epsp_packet* packet, const char* line){
   }
   if(data_str != NULL){
     // 本当は分割して配列として渡したい
-    packet->data = strdup(data_str);
+    //packet->data = strdup(data_str);
+    string_array * data = malloc(sizeof(string_array));
+    data->str = malloc(sizeof(char*) * 10);
+    data->length = 10;
+    data->size = 0;
+    char *tp = NULL, *catch = NULL;
+    for(tp = strtok_r(data_str, ",", &catch); tp; tp = strtok_r(NULL, ",", &catch)){
+      // string_array_add(data, tp);
+      if(data->size>data->length){
+        char **a = realloc(data->str, sizeof(char*) * (data->size+3));
+        if(a == NULL){
+          free(data->str);
+          free(data);
+          free(copy_line);
+          return 0;
+        }
+        data->str = a;
+        data->length = data->size + 3;
+      }
+      data->str[data->size++] = strdup(tp);
+      if(data->str[data->size-1] == NULL){
+        for(size_t i = 0; i < data->size;i++){
+          free(data->str[i]);
+        }
+        free(data->str);
+        free(data);
+        free(copy_line);
+        return 0;
+      }
+    }
+    // int trimToSize(string_array *)
+    // trimToSize(data);
+    char *a = realloc(data->str, sizeof(char *) * data->size);
+    if(a == NULL){
+      for(size_t i = 0; i < data->size;i++){
+        free(data->str[i]);
+      }
+      free(data->str);
+      free(data);
+      free(copy_line);
+      return 0;
+    }
+    data->length = data->size;
+    packet->data = data;
   }
   free(copy_line);
   return 1;
 
-  /*
-  regmatch_t match[4];
-  size_t size = sizeof(match)/sizeof(regmatch_t);
-  int errorcode = regexec(line_pattern, line, size, match, 0);
-  if(errorcode != 0){
-    return NULL;
-  }
-  // データをコード、ホップ数、その他データにパースする。失敗したらその時点で終了
-  epsp_packet* packet = malloc(sizeof(epsp_packet));
-  packet->code = strtol(line+match[1].rm_so, NULL, 0);
-  packet->hop_count = strtol(line+match[2].rm_so, NULL, 0);
-  if(match[3].rm_so == -1 || match[3].rm_eo == -1){
-    packet->data = NULL;
-  }else{
-    size_t data_start = match[3].rm_so;
-    size_t data_end = match[3].rm_eo;
-    size_t data_len = data_end - data_start;
-    packet->data = malloc(data_len + 1);
-    memcpy(packet->data, line+data_start, data_len);
-    packet->data[data_len] = 0;
-  }
-  */
 clean:
   free(copy_line);
   return 0;
@@ -111,7 +142,7 @@ clean:
 /**
     https://github.com/teruteru128/epsp-peer-cs/blob/master/Client/Common/Net/Packet.cs
 */
-epsp_packet* parse_epsp_packet(char* line){
+epsp_packet* epsp_packet_parse(char* line){
   if(line_pattern == NULL || line == NULL){
     return NULL;
   }
@@ -137,91 +168,6 @@ void print_reg_error(int errorcode, regex_t* buf){
     regerror(errorcode, buf, msg, len);
     printf("%s\n", msg);
     free(msg);
-}
-
-/*
-   max(strlen(src)+1, n)バイトの領域を新たに割り当てしディープコピー
-   strdupを使うといい string.h
- */
-char* strnclone(const char* src, const size_t n){
-  char* dest = calloc(n+1, sizeof(char));
-  return strncpy(dest, src, n);
-}
-
-/* strlen(src)+1バイトの領域を新たに割り当てしディープコピー */
-char* strclone(const char* src){
-  size_t len = strlen(src);
-  return strnclone(src, len);
-}
-
-string_list* string_list_insert_after(string_list* list, string_node* node, string_node* new_node){
-  new_node->prev=node;
-  new_node->next = node->next;
-  if(node->next == NULL){
-    list->lastNode = new_node;
-  }else{
-    node->next->prev = new_node;
-  }
-  node->next = new_node;
-  return list;
-}
-
-string_list* string_list_insert_before(string_list* list, string_node* node, string_node* new_node){
-  new_node->prev=node->prev;
-  new_node->next=node;
-  if(node->prev==NULL){
-    list->firstNode=new_node;
-  }else{
-    node->prev->next=new_node;
-  }
-  node->prev=new_node;
-  return list;
-}
-
-string_list* string_list_insert_first(string_list* list, string_node* new_node){
-  if(list->firstNode == NULL){
-    list->firstNode=new_node;
-    list->lastNode=new_node;
-    new_node->prev=NULL;
-    new_node->next=NULL;
-  }else{
-    string_list_insert_before(list, list->firstNode, new_node);
-  }
-  return list;
-}
-
-string_list* string_list_insert_last(string_list* list, string_node* new_node){
-  if(list->lastNode==NULL){
-    string_list_insert_first(list, new_node);
-  }else{
-    string_list_insert_after(list, list->lastNode, new_node);
-  }
-  return list;
-}
-
-string_list* string_list_remove(string_list* list, string_node* node){
-  if(node->prev==NULL){
-    list->firstNode = node->next;
-  }else{
-    node->prev->next = node->next;
-  }
-  if(node->next == NULL){
-    list->lastNode=node->prev;
-  }else{
-    node->next->prev = node->prev;
-  }
-}
-
-size_t string_list_length(string_list* a){
-  if(a == NULL||a->firstNode==NULL){
-    return 0;
-  }
-  string_node* b;
-  size_t count = 1;
-  for(b=a->firstNode;b->next!=NULL;b=b->next){
-    count++;
-  }
-  return count;
 }
 
 /*
@@ -274,72 +220,5 @@ int split_by_strtok(const char* str){
 void free_string_array(string_array* str){
 }
 int split_by_regex(char* str, char* regex){
-  regex_t regbuf;
-  int errco=0;
-  if((errco=regcomp(&regbuf, regex, REG_EXTENDED|REG_NEWLINE)) != 0){
-    print_reg_error(errco, &regbuf);
-    return 1;
-  }
-
-  regmatch_t match[8];
-  size_t size = sizeof(match) / sizeof(regmatch_t);
-  if((errco=regexec(&regbuf, str, size, match, 0)) != 0){
-    print_reg_error(errco, &regbuf);
-    regfree(&regbuf);
-    return EXIT_FAILURE;
-  }
-  epsp_packet* packet = NULL;
-  if(errco == REG_NOMATCH){
-    //no match
-    regfree(&regbuf);
-    return 0;
-  }
-  packet = malloc(sizeof(epsp_packet));
-  packet->code      = strtol(str + match[1].rm_so, NULL, 10);
-  packet->hop_count = strtol(str + match[2].rm_so, NULL, 10);
-  if(match[3].rm_so == -1 || match[3].rm_eo == -1){
-    // not found
-    packet->data = NULL;
-  }else{
-    size_t data_start = match[3].rm_so;
-    size_t data_end = match[3].rm_eo;
-    size_t data_len = data_end - data_start;
-    packet->data = malloc(data_len + 1);
-    memcpy(packet->data, str+data_start, data_len);
-    packet->data[data_len] = 0;
-  }
-  free(packet->data);
-  free(packet);
-
-  for(size_t i = 0; i < size; i++){
-    size_t start = match[i].rm_so;
-    size_t end = match[i].rm_eo;
-    if(start==-1||end==-1){
-      fprintf(stderr, "no match : %ld\n", i);
-      continue;
-    }
-    size_t len = end - start;
-    printf("%ld : %ld, %ld , %ld: ", len, start, end, len);
-    // substr ここから
-    // strdupはない場合もある
-    //char* group = strdup(str+start, len);
-    // malloc + memset + strncpy_s 現環境にstrncpy_s無し
-    //char* group = malloc(len+1);
-    //memset(group, 0, len+1);
-    //strncpy_s(group, len+1, str+start, len);
-    // malloc + strncpy + null終端挿入
-    //char* group = malloc(len+1);
-    //strncpy(group, str+start, len);
-    //group[len] = 0;
-    // malloc + memcpy + null終端挿入
-    char* group = malloc(len+1);
-    memcpy(group, str+start, len);
-    group[len] = 0;
-    // substr ここまで
-    printf("%s\n", group);
-    free(group);
-  }
-  regfree(&regbuf);
-  fprintf(stderr, "OK\n");
   return EXIT_SUCCESS;
 }

@@ -107,7 +107,7 @@ int send_to_server(char* hostname, char*servicename, char* data, size_t len){
     perror("close");
     return EXIT_FAILURE;
   }
-
+  return EXIT_SUCCESS;
 }
 
 /*
@@ -202,6 +202,11 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
   } else if(charset == SHIFT_JIS){
     //  文字コードを変換してから代入
     encode_utf8_2_sjis(&out, in);
+  }
+
+  if(out == NULL){
+    perror("out encode OR copy failed");
+    return EXIT_FAILURE;
   }
 
   // TODO encode関数に分離

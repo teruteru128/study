@@ -40,6 +40,7 @@ bin_PROGRAMS+=firstThread4
 bin_PROGRAMS+=firstThread4-1
 bin_PROGRAMS+=variables
 bin_PROGRAMS+=variables3
+bin_PROGRAMS+=variables4
 bin_PROGRAMS+=seq
 bin_PROGRAMS+=sum
 bin_PROGRAMS+=rsa1024

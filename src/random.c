@@ -176,7 +176,7 @@ uint64_t genrand64_int64(void)
 
         mti = 0;
     }
-  
+
     x = mt[mti++];
 
     x ^= (x >> 29) & UINT64_C(0x5555555555555555);

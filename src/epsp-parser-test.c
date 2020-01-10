@@ -24,20 +24,6 @@ void print_reg_error(int errorcode, regex_t* buf){
 }
 
 /*
-   max(strlen(src)+1, n)バイトの領域を新たに割り当てしディープコピー
-   strdupを使うといい string.h
- */
-char* strnclone(const char* src, const size_t n){
-  char* dest = calloc(n+1, sizeof(char));
-  return strncpy(dest, src, n);
-}
-
-/* strlen(src)+1バイトの領域を新たに割り当てしディープコピー */
-char* strclone(const char* src){
-  size_t len = strlen(src);
-  return strnclone(src, len);
-}
-/*
   文字列の配列を返す
 */
 int main(int argc, char* argv[]){

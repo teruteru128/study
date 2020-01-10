@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 	}
 	fclose(fp);
 	free(buf);
-	
+
 	mpz_t p;
 	mpz_t q;
 	mpz_t n;

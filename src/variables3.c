@@ -6,6 +6,7 @@
 #include <string.h>
 /*
 Linuxとpthreadによるマルチスレッドプログラミング入門 - 渋谷克智
+3-3
 */
 char *varA;
 #define STRINGSIZE 32
