@@ -211,7 +211,7 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
 
   // TODO encode関数に分離
   // 棒読みちゃん向けにエンコード
-  char header[15]; //で書き直す
+  char header[15];
   short command = 1;
   short speed = -1;
   short tone = -1;
