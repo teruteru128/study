@@ -107,6 +107,7 @@ int main(int argc, char* argv[]){
 
         BN_with_flags(pr0, r0, BN_FLG_CONSTTIME);
         if (!BN_mod_inverse(d, e, pr0, ctx)) {
+            perror(ERR_reason_error_string(ERR_get_error()));
             BN_free(pr0);
             goto err;               /* d */
         }
@@ -159,11 +160,16 @@ int main(int argc, char* argv[]){
   RSA_set0_crt_params(rsa, dmp, dmq, iqmp);
 #if 1
   // 検証
-  if(RSA_check_key(rsa) != 1){
+  int err = RSA_check_key(rsa);
+  printf("RSA_check_key is %d\n", err);
+  if(err == 1){
+    printf("RSA is OK\n");
+  }else if(err == 0){
+    printf("RSA is NG : %s\n", ERR_reason_error_string(ERR_get_error()));
+    goto err;
+  } else {
     perror(ERR_reason_error_string(ERR_get_error()));
     goto err;
-  }else{
-    printf("RSA is OK\n");
   }
 #endif
   // ファイル書き出し
