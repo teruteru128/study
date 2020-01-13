@@ -77,54 +77,30 @@ static int parse_internal(epsp_packet* packet, const char* line){
     if(*catch != '\0'){
       goto clean;
     }
+    packet->code_str = strdup(code_str);
+    if(packet->code_str == NULL){
+      goto clean;
+    }
     if(hop_str != NULL){
       packet->hop_count = strtol(hop_str, &catch, 10);
       if(*catch != '\0'){
         goto clean;
       }
-    }
-  }
-  if(data_str != NULL){
-    // 本当は分割して配列として渡したい
-    //packet->data = strdup(data_str);
-    char** str = malloc(sizeof(char*) * 10);
-    size_t length = 10;
-    size_t size = 0;
-    char *tp = NULL, *catch = NULL;
-    for(tp = strtok_r(data_str, ":", &catch); tp; tp = strtok_r(NULL, ":", &catch)){
-      // string_array_add(data, tp);
-      if(size>length){
-        char **a = realloc(str, sizeof(char*) * (length + 3));
-        if(a == NULL){
-          free(str);
-          goto clean;
-        }
-        str = a;
-        length = length + 3;
-      }
-      str[size] = strdup(tp);
-      if(str[size] == NULL){
-        for(size_t i = 0; i < size;i++){
-          free(str[i]);
-        }
-        free(str);
+      packet->hop_count_str = strdup(hop_str);
+      if(packet->hop_count == NULL){
+        free(packet->code_str);
         goto clean;
       }
     }
-    // int trimToSize(string_array *)
-    // trimToSize(data);
-    char *a = realloc(str, sizeof(char *) * size);
-    if(a == NULL){
-      for(size_t i = 0; i < size;i++){
-        free(str[i]);
-      }
-      free(str);
-      goto clean;
+  }
+  if(data_str != NULL){
+    string_array * data = string_array_split(data_str, ":");
+    if(data == NULL){
+      perror("");
+      return NULL;
     }
-    string_array * data = malloc(sizeof(string_array));
-    data->str = str;
-    data->length = length;
-    data->size = size;
+    packet->data = data;
+  }else{
   }
   free(copy_line);
   return 1;
@@ -146,6 +122,7 @@ epsp_packet* epsp_packet_parse(char* line){
   // tryparse(call internal parser)
   // return packet OR Exception
   epsp_packet* packet = malloc(sizeof(epsp_packet));
+  memset(packet, 0, sizeof(epsp_packet));
   if(parse_internal(packet, line)){
   }else{
     //failed

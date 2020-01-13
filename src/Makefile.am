@@ -66,10 +66,6 @@ bin_PROGRAMS+=repeated-trials
 bin_PROGRAMS+=string_list_test
 bin_PROGRAMS+=dragon
 
-
-%:%.cu
-	nvcc -ccbin clang-4.0 $^ -o $@
-
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 study_LDADD= -lcrypto
@@ -136,5 +132,8 @@ Nabeatsu_SOURCES=FizzBuzz.c printint.c printint.h
 epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h
 sntpc_SOURCES=sntpc.c random.c random.h
 string_list_test_SOURCES=string_list.h string_list.c string_list_test.c
-bouyomi_SOURCES=bouyomi.c bouyomi.h charset-convert.c charset-convert.h print_addrinfo.c print_addrinfo.h
+bouyomi_CFLAGS=
+bouyomi_LDADD=
+bouyomi_LDFLAGS=
+bouyomi_SOURCES= print_addrinfo.c print_addrinfo.h charset-convert.c charset-convert.h bouyomi.c bouyomi.h
 CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h

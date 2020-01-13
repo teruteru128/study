@@ -18,5 +18,6 @@ typedef struct string_array{
 /* If the initial capacity is less than or equal to 0, use 10 as the initial capacity.  */
 string_array* string_array_create(size_t initialCapacity);
 int string_array_add(string_array *, char *);
+string_array *string_array_split(const char *in, const char *delim);
 
 #endif

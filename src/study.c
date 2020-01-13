@@ -1,81 +1,16 @@
 
-#include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <assert.h>
-//#include "gettext.h"
-#include "gettextsample.h"
-#include "random.h"
-#include "bitset.h"
-#include <linux/random.h>
 #define D_SIZE (1024)
 
-static void print_reg_error(int errorcode, regex_t* buf){
-    size_t len = regerror(errorcode, buf, NULL, 0);
-    char* msg = malloc(len);
-    if(msg == NULL){
-      perror("print_reg_error malloc");
-      return;
-    }
-    regerror(errorcode, buf, msg, len);
-    fprintf(stderr, "%s\n", msg);
-    free(msg);
-}
-
-static const char *cmdline_ops[]={
-  "orz",
-  "yattaze",
-  "dappun",
-  "Nabeatsu",
-  "FizzBuzz",
-  "uuidtest",
-  "ankokudan_decode",
-  NULL
-};
-
-int main(int argc, char* argv[]){
-  // alloc/free か init/clear のどっちかにしたい
-  bitset set;
-  bitset_init(&set);
-  bitset_set(&set, 19937);
-  printf("%d\n", bitset_get(&set, 19937));
-  bitset_free(&set);
-
-/*
-  char* p = " ";
-  regex_t ptn;
-  int errorcode = regcomp(&ptn, p, REG_EXTENDED|REG_NEWLINE);
-  if(errorcode != 0){
-    print_reg_error(errorcode, &ptn);
-    return EXIT_FAILURE;
-  }
-
-  regmatch_t match[5];
-  size_t size = sizeof(match)/ sizeof(regmatch_t);
-
-  char* string = "111111 22 333";
-
-  errorcode = regexec(&ptn, string, size, match, 0);
-  if(errorcode != 0){
-    print_reg_error(errorcode, &ptn);
-    return EXIT_FAILURE;
-  }
-
-  printf("match[0] -> so : %d, eo : %d\n", match[0].rm_so, match[0].rm_eo);
+int main(int argc, char *argv[])
+{
   int i = 0;
-  for(;i < 5;i++){
-    printf("%d, %d\n", match[i].rm_so, match[i].rm_eo);
+  for (; i < 10; i++)
+  {
+    printf("%d\n", i);
   }
-  if(match[1].rm_so == -1 || match[4].rm_so != -1){
-    fputs("packet failed", stderr);
-  }
-  printf("%s\n", &string[match[1].rm_so]);
-  printf("%s\n", &string[match[2].rm_so]);
-  printf("%s\n", &string[match[3].rm_so]);
-*/
+  printf("%d\n", i);
   return EXIT_SUCCESS;
 }
-

@@ -3,24 +3,47 @@
     前回: https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
 */
 
+#define HAVE_CONFIG_H 1
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "bouyomi.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/socket.h>
-#include <netdb.h>
 #include <sys/types.h>
-#include <arpa/inet.h>
 #include <stdlib.h> //atoi(), exit(), EXIT_FAILURE, EXIT_SUCCESS
 #include <string.h> //memset(), strcmp()
-#include <unistd.h> //close()
-#include <iconv.h>
 #include <limits.h>
 #include <locale.h>
+#ifdef HAVE_WCHAR_H
 #include <wchar.h>
-#include <netdb.h>
+#endif
 #include <errno.h>
 #include "charset-convert.h"
 #include "print_addrinfo.h"
+
+#ifdef _WIN32
+#include <winsock2.h>
+#include <windows.h>
+#else
+#include <iconv.h>
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_NETDB_H
+#include <netdb.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h> //close()
+#endif
 
 #define MSGSIZE 1024
 #define BUFSIZE (MSGSIZE + 1)

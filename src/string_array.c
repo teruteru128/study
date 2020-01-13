@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "string_array.h"
 
@@ -64,7 +65,7 @@ string_array *string_array_split(const char *in, char *delim)
     }
     // int trimToSize(string_array *)
     // trimToSize(data);
-    char *tmp = realloc(str, sizeof(char *) * size);
+    char *tmp = realloc(str, sizeof(char *) * --size);
     if (tmp == NULL)
     {
         free(work);
@@ -78,6 +79,7 @@ string_array *string_array_split(const char *in, char *delim)
     string_array *data = malloc(sizeof(string_array));
     if (data == NULL)
     {
+        free(work);
         for (size_t i = 0; i < size; i++)
         {
             free(str[i]);
@@ -85,6 +87,7 @@ string_array *string_array_split(const char *in, char *delim)
         free(str);
         return NULL;
     }
+    free(work);
     data->str = str;
     data->length = length;
     data->size = size;
