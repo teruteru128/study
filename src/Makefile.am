@@ -74,7 +74,7 @@ bin_PROGRAMS+=dragon
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 study_LDADD= -lcrypto
 study_LDFLAGS=
-study_SOURCES=study.c gettextsample.c gettextsample.h printint.c random.c random.h
+study_SOURCES=study.c gettextsample.c gettextsample.h printint.c random.c random.h bitset.c bitset.h
 teamspeakcalc_CFLAGS=
 teamspeakcalc_LDADD= -lcrypto
 teamspeakcalc_LDFLAGS=
