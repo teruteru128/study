@@ -87,49 +87,44 @@ static int parse_internal(epsp_packet* packet, const char* line){
   if(data_str != NULL){
     // 本当は分割して配列として渡したい
     //packet->data = strdup(data_str);
-    string_array * data = malloc(sizeof(string_array));
-    data->str = malloc(sizeof(char*) * 10);
-    data->length = 10;
-    data->size = 0;
+    char** str = malloc(sizeof(char*) * 10);
+    size_t length = 10;
+    size_t size = 0;
     char *tp = NULL, *catch = NULL;
-    for(tp = strtok_r(data_str, ",", &catch); tp; tp = strtok_r(NULL, ",", &catch)){
+    for(tp = strtok_r(data_str, ":", &catch); tp; tp = strtok_r(NULL, ":", &catch)){
       // string_array_add(data, tp);
-      if(data->size>data->length){
-        char **a = realloc(data->str, sizeof(char*) * (data->size+3));
+      if(size>length){
+        char **a = realloc(str, sizeof(char*) * (length + 3));
         if(a == NULL){
-          free(data->str);
-          free(data);
-          free(copy_line);
-          return 0;
+          free(str);
+          goto clean;
         }
-        data->str = a;
-        data->length = data->size + 3;
+        str = a;
+        length = length + 3;
       }
-      data->str[data->size++] = strdup(tp);
-      if(data->str[data->size-1] == NULL){
-        for(size_t i = 0; i < data->size;i++){
-          free(data->str[i]);
+      str[size] = strdup(tp);
+      if(str[size] == NULL){
+        for(size_t i = 0; i < size;i++){
+          free(str[i]);
         }
-        free(data->str);
-        free(data);
-        free(copy_line);
-        return 0;
+        free(str);
+        goto clean;
       }
     }
     // int trimToSize(string_array *)
     // trimToSize(data);
-    char *a = realloc(data->str, sizeof(char *) * data->size);
+    char *a = realloc(str, sizeof(char *) * size);
     if(a == NULL){
-      for(size_t i = 0; i < data->size;i++){
-        free(data->str[i]);
+      for(size_t i = 0; i < size;i++){
+        free(str[i]);
       }
-      free(data->str);
-      free(data);
-      free(copy_line);
-      return 0;
+      free(str);
+      goto clean;
     }
-    data->length = data->size;
-    packet->data = data;
+    string_array * data = malloc(sizeof(string_array));
+    data->str = str;
+    data->length = length;
+    data->size = size;
   }
   free(copy_line);
   return 1;
