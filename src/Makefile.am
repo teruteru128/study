@@ -65,6 +65,7 @@ bin_PROGRAMS+=sntpc
 bin_PROGRAMS+=repeated-trials
 bin_PROGRAMS+=string_list_test
 bin_PROGRAMS+=dragon
+bin_PROGRAMS+=log-sample
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'

@@ -54,6 +54,7 @@ iconv_Chk
 sntpc
 argparsesample
 envgettest
+log-sample
 loop-bench
 printBench
 read_random
