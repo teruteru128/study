@@ -55,7 +55,6 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     int r = EC_POINT_mul(secp256k1, pubkey, prikey, NULL, NULL, ctx);
-    printf("EC_POINT_mul r : %d\n", r);
     if(r!=1){
         unsigned long err = ERR_get_error();
         fprintf(stderr, "EC_POINT_mul : %s\n", ERR_error_string(err, NULL));
@@ -63,18 +62,11 @@ int main(int argc, char *argv[])
 
     }
     r = EC_KEY_set_public_key(keypair, pubkey);
-    printf("EC_KEY_set_public_key r : %d\n", r);
     if(r != 1){
         unsigned long err = ERR_get_error();
         fprintf(stderr, "EC_KEY_set_public_key : %s\n", ERR_error_string(err, NULL));
         return EXIT_FAILURE;
     }
-    r = EC_POINT_is_at_infinity(secp256k1, pubkey);
-    printf("EC_POINT_is_at_infinity r : %d\n", r);
-    r = EC_POINT_is_on_curve(secp256k1, pubkey, ctx);
-    printf("EC_POINT_is_on_curve r : %d\n", r);
-    r = EC_KEY_check_key(keypair);
-    printf("EC_KEY_check_key r : %d\n", r);
     int pubEncSize = i2o_ECPublicKey(keypair, NULL);
     printf("pubEncSize : %d\n", pubEncSize);
     unsigned char *encodedPublicKey = calloc(pubEncSize, 1);
@@ -88,7 +80,6 @@ int main(int argc, char *argv[])
     }
     */
     r = i2o_ECPublicKey(keypair, &p);
-    printf("i2o_ECPublicKey r : %d\n", r);
     if (r == 0)
     {
         unsigned long err = ERR_get_error();
