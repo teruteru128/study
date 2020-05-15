@@ -247,7 +247,7 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
 
   char *servAddr = ONION_SERV_ADDRESS;
   char *servPortStr = DEFAULT_PORT_STR;
-  int use_onion = 0;
+  int use_onion = 1;
   if(use_onion == 1){
     servAddr = ONION_SERV_ADDRESS;
   }else{

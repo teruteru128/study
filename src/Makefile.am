@@ -66,7 +66,8 @@ bin_PROGRAMS+=repeated-trials
 bin_PROGRAMS+=string_list_test
 bin_PROGRAMS+=dragon
 bin_PROGRAMS+=log-sample
-
+bin_PROGRAMS+=mysqlfast
+bin_PROGRAMS+=bmkeygen
 
 %:%.cu
 	nvcc -ccbin clang-4.0 $^ -o $@
