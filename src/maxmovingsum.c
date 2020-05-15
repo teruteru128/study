@@ -16,7 +16,7 @@ int main(int argc, char* argv[]){
   int movingsum[621];
   int maxtmp=0;
   srand(114514);
-  int i=0;
+  int i = 0;
   for(i = 0;i < 625; i++){
     rawchunk[i] = (rand() % 10) == 0;
   }
@@ -39,7 +39,6 @@ int main(int argc, char* argv[]){
   int maxx=312;
   int widx = maxx - minx;
   int x;
-  int i=0;
   for(z = minz; z < maxz; z++){
     i = (z+widz)%WIDTH;
     sum = sum - buf[i];

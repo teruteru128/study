@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.ts": "xml",
+        ".classpath": "xml",
         "easy.h": "c",
         "curl.h": "c",
         "uuid.h": "c",
@@ -22,7 +23,10 @@
         "strings.h": "c",
         "string.h": "c",
         "stddef.h": "c",
-        "config.h": "c"
+        "config.h": "c",
+        "bitset.h": "c",
+        "math.h": "c",
+        "curses.h": "c"
     }
 }
 

@@ -7,6 +7,7 @@
 #include <regex.h>
 #include "epsp-parser.h"
 #include "string_array.h"
+#include "string_list.h"
 
 #define LINE_PATTERN "([[:digit:]]+) ([[:digit:]]+) ?(.+)?"
 
@@ -87,7 +88,7 @@ static int parse_internal(epsp_packet* packet, const char* line){
         goto clean;
       }
       packet->hop_count_str = strdup(hop_str);
-      if(packet->hop_count == NULL){
+      if(packet->hop_count_str == NULL){
         free(packet->code_str);
         goto clean;
       }
@@ -166,7 +167,7 @@ string_list* split(char* src, char* regex, int limit)
         char*s=malloc(next-off+1);
         strncpy(s, regex, next-off);
         s[next-off]=0;
-        string_list_insert_last(list, s);
+        string_list_add(list, s);
       }else{}
     }
   }

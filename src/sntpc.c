@@ -110,6 +110,7 @@ int main(int argc, char *argv[])
   }
   freeaddrinfo(res);
 
+  printf("%ld\n", sizeof(struct NTP_Packet));
   struct NTP_Packet send;
   send.Control_Word = htonl(0x0B000000);
   send.root_delay = 0;
@@ -120,6 +121,14 @@ int main(int argc, char *argv[])
   send.receive_timestamp = 0;
   send.transmit_timestamp_seconds = 0;
   send.transmit_timestamp_fractions = 0;
+  char* a = (char *)&send;
+  int i = 0;
+  for(;i < 48; i++){
+    printf("%02x", a[i] & 0xff);
+    if(i > 0 && (i%16) == 15){
+      printf("\n");
+    }
+  }
 
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_flags = 0;

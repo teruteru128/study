@@ -15,7 +15,7 @@
 #define SHA_DIGEST_LENGTH 20
 
 typedef struct SHAstate_st{
-    SHA_LONG h0,h1,h2,h3,h4;
+    SHA_LONG s0,s1,s2,s3,s4;
     SHA_LONG Nl, Nh;
     SHA_LONG data[SHA_LBLOCK];
 }SHA_CTX;
