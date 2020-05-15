@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     {
         return EXIT_FAILURE;
     }
-    EC_builtin_curve *list = calloc(curve_list_size, sizeof(EC_get_builtin_curves));
+    EC_builtin_curve *list = calloc(curve_list_size, sizeof(EC_builtin_curve));
     if (list == NULL)
     {
         return EXIT_FAILURE;
@@ -21,9 +21,11 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     size_t i = 0;
+    char *name = null;
     for (; i < success_flag; i++)
     {
-        fprintf(stdout, "%d, %p\n", list[i].nid, list[i].comment);
+        name = OBJ_nid2sn(list[i].nid);
+        fprintf(stdout, "%d, %s\n", list[i].nid, list[i].comment);
     }
     free(list);
     return EXIT_SUCCESS;
