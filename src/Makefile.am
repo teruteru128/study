@@ -66,6 +66,8 @@ bin_PROGRAMS+=repeated-trials
 bin_PROGRAMS+=string_list_test
 bin_PROGRAMS+=dragon
 bin_PROGRAMS+=log-sample
+bin_PROGRAMS+=mysqlfast
+bin_PROGRAMS+=bmkeygen
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
