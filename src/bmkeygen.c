@@ -1,17 +1,73 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <openssl/bn.h>
 #include <openssl/ec.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/objects.h>
+#include <openssl/ripemd.h>
+#include <openssl/sha.h>
+
+#define PRIVATE_KEY_LENGTH 32
+#define PUBLIC_KEY_LENGTH 65
+#define SHA512_HASH_LENGTH 64
+#define RIPEMD160_HASH_LENGTH 20
+#define KEY_CACHE_SIZE 65536
+
+int nextBytes(char *buf, size_t len)
+{
+    char *inf = "/dev/urandom";
+    FILE *in = fopen(inf, "rb");
+    if (in == NULL)
+    {
+        return EXIT_FAILURE;
+    }
+
+    size_t r = fread(buf, 1, len, in);
+
+    if (len != r)
+    {
+        perror("fread");
+        fclose(in);
+        return EXIT_FAILURE;
+    }
+    int i = fclose(in);
+
+    if (i != 0)
+    {
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
 
 int main(int argc, char *argv[])
 {
     OpenSSL_add_all_digests();
+    unsigned char *privateKeys = calloc(sizeof(char), KEY_CACHE_SIZE * PRIVATE_KEY_LENGTH);
+    if (privateKeys == NULL)
+    {
+        return EXIT_FAILURE;
+    }
+    unsigned char *publicKeys = calloc(sizeof(char), KEY_CACHE_SIZE * PUBLIC_KEY_LENGTH);
+    if (publicKeys == NULL)
+    {
+        return EXIT_FAILURE;
+    }
+    unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
+    unsigned char jPublicKey[PUBLIC_KEY_LENGTH];
+    unsigned char cache64[SHA512_DIGEST_LENGTH];
+    nextBytes(privateKeys, KEY_CACHE_SIZE * PRIVATE_KEY_LENGTH);
+    printf("%p\n", privateKeys);
+    printf("%p\n", &privateKeys[PRIVATE_KEY_LENGTH]);
     size_t i = 0;
+    size_t j = 0;
+    int r = 0;
+
     const int secp256k1nid = 714;
+    // curve 生成
     EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(secp256k1nid);
     if (secp256k1 == NULL)
     {
@@ -19,31 +75,15 @@ int main(int argc, char *argv[])
         fprintf(stderr, "EC_GROUP_new_by_curve_name : %s\n", ERR_error_string(err, NULL));
         return EXIT_FAILURE;
     }
-    EC_KEY *keypair = EC_KEY_new_by_curve_name(secp256k1nid);
-    if (keypair == NULL)
+    // private key working area
+    BIGNUM *prikey2 = BN_new();
+    if (prikey2 == NULL)
     {
         unsigned long err = ERR_get_error();
-        fprintf(stderr, "EC_KEY_new_by_curve_name : %s\n", ERR_error_string(err, NULL));
+        fprintf(stderr, "BN_new : %s\n", ERR_error_string(err, NULL));
         return EXIT_FAILURE;
     }
-    if (EC_KEY_generate_key(keypair) != 1)
-    {
-        unsigned long err = ERR_get_error();
-        fprintf(stderr, "EC_KEY_generate_key : %s\n", ERR_error_string(err, NULL));
-        return EXIT_FAILURE;
-    }
-    /***********************************/
-    /* BN_bin2bnでバイナリをBIGNUMに変換 */
-    const BIGNUM *prikey = EC_KEY_get0_private_key(keypair);
-    if (prikey == NULL)
-    {
-        unsigned long err = ERR_get_error();
-        fprintf(stderr, "EC_KEY_get0_private_key : %s\n", ERR_error_string(err, NULL));
-        return EXIT_FAILURE;
-    }
-    BN_print_fp(stdout, prikey);
-    fprintf(stdout, "\n");
-    /***********************************/
+    // public key working area
     EC_POINT *pubkey = EC_POINT_new(secp256k1);
     if (pubkey == NULL)
     {
@@ -58,52 +98,57 @@ int main(int argc, char *argv[])
         fprintf(stderr, "BN_CTX_new : %s\n", ERR_error_string(err, NULL));
         return EXIT_FAILURE;
     }
-    int r = EC_POINT_mul(secp256k1, pubkey, prikey, NULL, NULL, ctx);
-    if (r != 1)
+    printf("Initializing public keys...\n");
+    size_t pri_off = 0;
+    size_t pub_off = 0;
+    for (i = 0; i < 65536; i++)
     {
-        unsigned long err = ERR_get_error();
-        fprintf(stderr, "EC_POINT_mul : %s\n", ERR_error_string(err, NULL));
-        return EXIT_FAILURE;
+        pri_off += PRIVATE_KEY_LENGTH;
+        pub_off += PUBLIC_KEY_LENGTH;
+        BN_bin2bn(privateKeys + pri_off, PRIVATE_KEY_LENGTH, prikey2);
+
+        r = EC_POINT_mul(secp256k1, pubkey, prikey2, NULL, NULL, ctx);
+        if (r != 1)
+        {
+            unsigned long err = ERR_get_error();
+            fprintf(stderr, "EC_POINT_mul : %s\n", ERR_error_string(err, NULL));
+            return EXIT_FAILURE;
+        }
+        r = EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, publicKeys + pub_off, PUBLIC_KEY_LENGTH, ctx);
+        if (r == 0)
+        {
+            unsigned long err = ERR_get_error();
+            fprintf(stderr, "EC_POINT_mul : %s\n", ERR_error_string(err, NULL));
+            return EXIT_FAILURE;
+        }
     }
-    r = EC_KEY_set_public_key(keypair, pubkey);
-    if (r != 1)
+    printf("Public keys has been initialized.\n");
+    // iのキャッシュサイズは一つ
+    // jのキャッシュサイズは4つ
+    for (i = 0; i < KEY_CACHE_SIZE; i++)
     {
-        unsigned long err = ERR_get_error();
-        fprintf(stderr, "EC_KEY_set_public_key : %s\n", ERR_error_string(err, NULL));
-        return EXIT_FAILURE;
+        memcpy(iPublicKey, &publicKeys[i * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
+        // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
+        for (j = 0; j <= i; j++)
+        {
+            memcpy(jPublicKey, &publicKeys[j * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
+        }
     }
-    int pubEncSize = i2o_ECPublicKey(keypair, NULL);
-    printf("pubEncSize : %d\n", pubEncSize);
-    unsigned char *encodedPublicKey = calloc(pubEncSize, 1);
-    unsigned char *p = encodedPublicKey;
-    printf("key : %p\n", encodedPublicKey);
-    /*
-    if (encodedPublicKey == NULL)
+    for (i = 0; i < PRIVATE_KEY_LENGTH; i++)
     {
-        perror("calloc encodedPublicKey");
-        return EXIT_FAILURE;
-    }
-    */
-    /* i2o_ECPublicKeyはprivate keyがセットされていなくても正常に動作するんだろうか？ */
-    /* EC_POINT_point2octでpointを直接オクテット形式に変換 */
-    r = i2o_ECPublicKey(keypair, &p);
-    if (r == 0)
-    {
-        unsigned long err = ERR_get_error();
-        fprintf(stderr, "i2o_ECPublicKey : %s\n", ERR_error_string(err, NULL));
-        return EXIT_FAILURE;
-    }
-    for (i = 0; i < pubEncSize; i++)
-    {
-        printf("%02x", encodedPublicKey[i]);
+        printf("%02x", privateKeys[i]);
     }
     printf("\n");
-    printf("key : %p\n", encodedPublicKey);
-    printf("key : %p\n", p);
+    for (i = 0; i < PUBLIC_KEY_LENGTH; i++)
+    {
+        printf("%02x", publicKeys[i]);
+    }
+    printf("\n");
     /***********************************/
+    free(privateKeys);
+    free(publicKeys);
     BN_CTX_free(ctx);
     EC_POINT_free(pubkey);
-    EC_KEY_free(keypair);
     EC_GROUP_free(secp256k1);
     EVP_cleanup();
     return EXIT_SUCCESS;
