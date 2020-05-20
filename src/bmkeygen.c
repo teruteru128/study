@@ -4,14 +4,17 @@
 #include <openssl/bn.h>
 #include <openssl/ec.h>
 #include <openssl/err.h>
+#include <openssl/evp.h>
 #include <openssl/objects.h>
 
 int main(int argc, char *argv[])
 {
+    OpenSSL_add_all_digests();
     size_t i = 0;
     const int secp256k1nid = 714;
-    EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name (secp256k1nid);
-    if(secp256k1 == NULL){
+    EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(secp256k1nid);
+    if (secp256k1 == NULL)
+    {
         unsigned long err = ERR_get_error();
         fprintf(stderr, "EC_GROUP_new_by_curve_name : %s\n", ERR_error_string(err, NULL));
         return EXIT_FAILURE;
@@ -30,6 +33,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     /***********************************/
+    /* BN_bin2bnでバイナリをBIGNUMに変換 */
     const BIGNUM *prikey = EC_KEY_get0_private_key(keypair);
     if (prikey == NULL)
     {
@@ -47,7 +51,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "EC_POINT_new : %s\n", ERR_error_string(err, NULL));
         return EXIT_FAILURE;
     }
-    BN_CTX* ctx = BN_CTX_new();
+    BN_CTX *ctx = BN_CTX_new();
     if (ctx == NULL)
     {
         unsigned long err = ERR_get_error();
@@ -55,14 +59,15 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     int r = EC_POINT_mul(secp256k1, pubkey, prikey, NULL, NULL, ctx);
-    if(r!=1){
+    if (r != 1)
+    {
         unsigned long err = ERR_get_error();
         fprintf(stderr, "EC_POINT_mul : %s\n", ERR_error_string(err, NULL));
         return EXIT_FAILURE;
-
     }
     r = EC_KEY_set_public_key(keypair, pubkey);
-    if(r != 1){
+    if (r != 1)
+    {
         unsigned long err = ERR_get_error();
         fprintf(stderr, "EC_KEY_set_public_key : %s\n", ERR_error_string(err, NULL));
         return EXIT_FAILURE;
@@ -79,6 +84,8 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     */
+    /* i2o_ECPublicKeyはprivate keyがセットされていなくても正常に動作するんだろうか？ */
+    /* EC_POINT_point2octでpointを直接オクテット形式に変換 */
     r = i2o_ECPublicKey(keypair, &p);
     if (r == 0)
     {
@@ -98,33 +105,6 @@ int main(int argc, char *argv[])
     EC_POINT_free(pubkey);
     EC_KEY_free(keypair);
     EC_GROUP_free(secp256k1);
-    /***********************************/
-    /*
-    size_t curve_list_size = EC_get_builtin_curves(NULL, 114514);
-    if (curve_list_size == 0)
-    {
-        return EXIT_FAILURE;
-    }
-    EC_builtin_curve *list = calloc(curve_list_size, sizeof(EC_builtin_curve));
-    if (list == NULL)
-    {
-        return EXIT_FAILURE;
-    }
-    size_t success_flag = EC_get_builtin_curves(list, curve_list_size);
-    if (success_flag == 0)
-    {
-        return EXIT_FAILURE;
-    }
-    const char *shortname = NULL;
-    const char *longname = NULL;
-    for (i = 0; i < success_flag; i++)
-    {
-        shortname = OBJ_nid2sn(list[i].nid);
-        longname = OBJ_nid2ln(list[i].nid);
-        fprintf(stdout, "%d, %s, %s, %s\n", list[i].nid, longname, shortname, list[i].comment);
-    }
-    printf("%d\n", OBJ_sn2nid("secp256k1"));
-    free(list);
-    */
+    EVP_cleanup();
     return EXIT_SUCCESS;
 }
