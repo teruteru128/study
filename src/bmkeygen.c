@@ -101,10 +101,8 @@ int main(int argc, char *argv[])
     printf("Initializing public keys...\n");
     size_t pri_off = 0;
     size_t pub_off = 0;
-    for (i = 0; i < 65536; i++)
+    for (i = 0; i < 65536; i++, pri_off += PRIVATE_KEY_LENGTH, pub_off += PUBLIC_KEY_LENGTH)
     {
-        pri_off += PRIVATE_KEY_LENGTH;
-        pub_off += PUBLIC_KEY_LENGTH;
         BN_bin2bn(privateKeys + pri_off, PRIVATE_KEY_LENGTH, prikey2);
 
         r = EC_POINT_mul(secp256k1, pubkey, prikey2, NULL, NULL, ctx);
