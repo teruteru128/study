@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <openssl/bn.h>
 #include <openssl/ec.h>
 #include <openssl/err.h>
@@ -12,9 +13,8 @@
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
-#define SHA512_HASH_LENGTH 64
-#define RIPEMD160_HASH_LENGTH 20
 #define KEY_CACHE_SIZE 65536
+#define REQUIRE_NLZ 3
 
 int nextBytes(char *buf, size_t len)
 {
@@ -43,15 +43,100 @@ int nextBytes(char *buf, size_t len)
     return EXIT_SUCCESS;
 }
 
+#define ADDRESS_VERSION 4
+#define STREAM_NUMBER 1
+
+char *encodeVarint(unsigned long u)
+{
+    return NULL;
+}
+
+char *encodeBase58()
+{
+    return NULL;
+}
+
+char *encodeAddress0(int version, int stream, char *ripe, int max)
+{
+    max = max <= 20 ? max : 20;
+    max = max >= 1 ? max : 1;
+    size_t ripelen = 20;
+    if(version >= 2 && version < 4)
+    {
+        int i = 0;
+        for(;ripe[i] == 0 && i < 2; i++){}
+    } else if(version == 4)
+    {
+        int i = 0;
+        for(;ripe[i] == 0 && i < 2; i++){}
+    }
+}
+
+char *encodeAddress(int version, int stream, char *ripe)
+{
+    return encodeAddress0(version, stream, ripe, 20);
+}
+
+char *encodeWIF(char *key)
+{
+    return NULL;
+}
+
+char *formatKey(char *address, char *privateSigningKeyWIF, char *privateEncryptionKeyWIF)
+{
+    char *buf = malloc(301);
+    memset(buf, 0, 300);
+    snprintf(buf, 300, "[%s]]\nlabel = relpace this label\nenabled = true\ndecoy = false\nnoncetrialsperbyte = 1000\npayloadlengthextrabytes = 1000\nprivsigningkey = %s\nprivencryptionkey = %s\n", address, privateSigningKeyWIF, privateEncryptionKeyWIF);
+    return buf;
+}
+
+int exportAddress(unsigned char *privateSigningKey, unsigned char *publicSigningKey, unsigned char *privateEncryptionKey, unsigned char *publicEncryptionKey, unsigned char *ripe)
+{
+    /*
+    char *address4 = encodeAddress(4, 1, ripe);
+    char *privateSigningKeyWIF = encodeWIF(privateSigningKey);
+    char *privateEncryptionKeyWIF = encodeWIF(privateEncryptionKey);
+    char *formated = formatKey(address4, privateSigningKeyWIF, privateEncryptionKeyWIF);
+    */
+    //printf("%s\n", formated);
+    size_t i;
+    printf("ripe = ");
+    for (i = 0; i < RIPEMD160_DIGEST_LENGTH; i++)
+    {
+        printf("%02x", ripe[i]);
+    }
+    printf("\n");
+    printf("private signing key = ");
+    for (i = 0; i < PRIVATE_KEY_LENGTH; i++)
+    {
+        printf("%02x", privateSigningKey[i]);
+    }
+    printf("\n");
+    printf("private encryption key = ");
+    for (i = 0; i < PRIVATE_KEY_LENGTH; i++)
+    {
+        printf("%02x", privateEncryptionKey[i]);
+    }
+    printf("\n");
+    printf("\n");
+    /*
+    free(formated);
+    free(privateEncryptionKeyWIF);
+    free(privateSigningKeyWIF);
+    free(address4);
+    */
+    return EXIT_SUCCESS;
+}
+
 int main(int argc, char *argv[])
 {
     OpenSSL_add_all_digests();
-    unsigned char *privateKeys = calloc(sizeof(char), KEY_CACHE_SIZE * PRIVATE_KEY_LENGTH);
+    unsigned char *privateKeys = calloc(PRIVATE_KEY_LENGTH, KEY_CACHE_SIZE);
     if (privateKeys == NULL)
     {
         return EXIT_FAILURE;
     }
-    unsigned char *publicKeys = calloc(sizeof(char), KEY_CACHE_SIZE * PUBLIC_KEY_LENGTH);
+    unsigned char *publicKeys = calloc(PUBLIC_KEY_LENGTH, KEY_CACHE_SIZE);
     if (publicKeys == NULL)
     {
         return EXIT_FAILURE;
@@ -66,18 +151,18 @@ int main(int argc, char *argv[])
     size_t j = 0;
     int r = 0;
 
-    const int secp256k1nid = 714;
     // curve 生成
-    EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(secp256k1nid);
+    EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
     if (secp256k1 == NULL)
     {
         unsigned long err = ERR_get_error();
         fprintf(stderr, "EC_GROUP_new_by_curve_name : %s\n", ERR_error_string(err, NULL));
         return EXIT_FAILURE;
     }
+    const EC_POINT *g = EC_GROUP_get0_generator(secp256k1);
     // private key working area
-    BIGNUM *prikey2 = BN_new();
-    if (prikey2 == NULL)
+    BIGNUM *prikey = BN_new();
+    if (prikey == NULL)
     {
         unsigned long err = ERR_get_error();
         fprintf(stderr, "BN_new : %s\n", ERR_error_string(err, NULL));
@@ -99,20 +184,27 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     printf("Initializing public keys...\n");
-    size_t pri_off = 0;
-    size_t pub_off = 0;
-    for (i = 0; i < 65536; i++, pri_off += PRIVATE_KEY_LENGTH, pub_off += PUBLIC_KEY_LENGTH)
+    BIGNUM *tmp = NULL;
+    struct timespec start, end;
+    timespec_get(&start, TIME_UTC);
+    for (i = 0; i < KEY_CACHE_SIZE; i++)
     {
-        BN_bin2bn(privateKeys + pri_off, PRIVATE_KEY_LENGTH, prikey2);
+        tmp = BN_bin2bn(privateKeys + (i * PRIVATE_KEY_LENGTH), PRIVATE_KEY_LENGTH, prikey);
+        if (!tmp)
+        {
+            unsigned long err = ERR_get_error();
+            fprintf(stderr, "BN_bin2bn : %s\n", ERR_error_string(err, NULL));
+            return EXIT_FAILURE;
+        }
 
-        r = EC_POINT_mul(secp256k1, pubkey, prikey2, NULL, NULL, ctx);
+        r = EC_POINT_mul(secp256k1, pubkey, prikey, NULL, NULL, ctx);
         if (r != 1)
         {
             unsigned long err = ERR_get_error();
             fprintf(stderr, "EC_POINT_mul : %s\n", ERR_error_string(err, NULL));
             return EXIT_FAILURE;
         }
-        r = EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, publicKeys + pub_off, PUBLIC_KEY_LENGTH, ctx);
+        r = EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH, ctx);
         if (r == 0)
         {
             unsigned long err = ERR_get_error();
@@ -120,16 +212,50 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
     }
+    timespec_get(&end, TIME_UTC);
     printf("Public keys has been initialized.\n");
+    unsigned long ss = ((unsigned long)start.tv_sec) * 1000000000UL + start.tv_nsec;
+    unsigned long ee = ((unsigned long)end.tv_sec) * 1000000000UL + end.tv_nsec;
+    printf("%lf keys / s\n", (1e9 * KEY_CACHE_SIZE) / (ee - ss));
     // iのキャッシュサイズは一つ
     // jのキャッシュサイズは4つ
+    SHA512_CTX sha512ctx;
+    RIPEMD160_CTX ripemd160ctx;
+    size_t nlz;
     for (i = 0; i < KEY_CACHE_SIZE; i++)
     {
-        memcpy(iPublicKey, &publicKeys[i * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
+        memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
         // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
         for (j = 0; j <= i; j++)
         {
-            memcpy(jPublicKey, &publicKeys[j * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
+            SHA512_Init(&sha512ctx);
+            SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+            SHA512_Update(&sha512ctx, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
+            SHA512_Final(cache64, &sha512ctx);
+            RIPEMD160_Init(&ripemd160ctx);
+            RIPEMD160_Update(&ripemd160ctx, cache64, 64);
+            RIPEMD160_Final(cache64, &ripemd160ctx);
+            for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++)
+            {
+            }
+            if (nlz >= REQUIRE_NLZ)
+            {
+                exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (j * PRIVATE_KEY_LENGTH), publicKeys + (j * PUBLIC_KEY_LENGTH), cache64);
+            }
+            SHA512_Init(&sha512ctx);
+            SHA512_Update(&sha512ctx, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
+            SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+            SHA512_Final(cache64, &sha512ctx);
+            RIPEMD160_Init(&ripemd160ctx);
+            RIPEMD160_Update(&ripemd160ctx, cache64, 64);
+            RIPEMD160_Final(cache64, &ripemd160ctx);
+            for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++)
+            {
+            }
+            if (nlz >= REQUIRE_NLZ)
+            {
+                exportAddress(privateKeys + (j * PRIVATE_KEY_LENGTH), publicKeys + (j * PUBLIC_KEY_LENGTH), privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+            }
         }
     }
     for (i = 0; i < PRIVATE_KEY_LENGTH; i++)
@@ -145,6 +271,7 @@ int main(int argc, char *argv[])
     /***********************************/
     free(privateKeys);
     free(publicKeys);
+    BN_free(prikey);
     BN_CTX_free(ctx);
     EC_POINT_free(pubkey);
     EC_GROUP_free(secp256k1);
