@@ -131,15 +131,9 @@ int main(int argc, char *argv[])
 {
     OpenSSL_add_all_digests();
     unsigned char *privateKeys = calloc(PRIVATE_KEY_LENGTH, KEY_CACHE_SIZE);
-    if (privateKeys == NULL)
-    {
-        return EXIT_FAILURE;
-    }
+    if (!privateKeys){return EXIT_FAILURE;}
     unsigned char *publicKeys = calloc(sizeof(char), PUBLIC_KEY_LENGTH * KEY_CACHE_SIZE);
-    if (publicKeys == NULL)
-    {
-        return EXIT_FAILURE;
-    }
+    if (!publicKeys){return EXIT_FAILURE;}
     unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
     unsigned char jPublicKey[PUBLIC_KEY_LENGTH];
     unsigned char cache64[SHA512_DIGEST_LENGTH];
@@ -149,36 +143,16 @@ int main(int argc, char *argv[])
 
     // curve 生成
     EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
-    if (secp256k1 == NULL)
-    {
-        unsigned long err = ERR_get_error();
-        fprintf(stderr, "EC_GROUP_new_by_curve_name : %s\n", ERR_error_string(err, NULL));
-        return EXIT_FAILURE;
-    }
+    if (!secp256k1){unsigned long err = ERR_get_error();fprintf(stderr, "EC_GROUP_new_by_curve_name : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
     const EC_POINT *g = EC_GROUP_get0_generator(secp256k1);
     // private key working area
     BIGNUM *prikey = BN_new();
-    if (prikey == NULL)
-    {
-        unsigned long err = ERR_get_error();
-        fprintf(stderr, "BN_new : %s\n", ERR_error_string(err, NULL));
-        return EXIT_FAILURE;
-    }
+    if (!prikey){unsigned long err = ERR_get_error();fprintf(stderr, "BN_new : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
     // public key working area
     EC_POINT *pubkey = EC_POINT_new(secp256k1);
-    if (pubkey == NULL)
-    {
-        unsigned long err = ERR_get_error();
-        fprintf(stderr, "EC_POINT_new : %s\n", ERR_error_string(err, NULL));
-        return EXIT_FAILURE;
-    }
+    if (!pubkey){unsigned long err = ERR_get_error();fprintf(stderr, "EC_POINT_new : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
     BN_CTX *ctx = BN_CTX_new();
-    if (ctx == NULL)
-    {
-        unsigned long err = ERR_get_error();
-        fprintf(stderr, "BN_CTX_new : %s\n", ERR_error_string(err, NULL));
-        return EXIT_FAILURE;
-    }
+    if (!ctx){unsigned long err = ERR_get_error();fprintf(stderr, "BN_CTX_new : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
     BIGNUM *tmp = NULL;
     SHA512_CTX sha512ctx;
     RIPEMD160_CTX ripemd160ctx;
@@ -186,30 +160,15 @@ int main(int argc, char *argv[])
     while(true)
     {
         nextBytes(privateKeys, KEY_CACHE_SIZE * PRIVATE_KEY_LENGTH);
+        // 公開鍵の生成に2時間半以上かかるので注意
         for (i = 0; i < KEY_CACHE_SIZE; i++)
         {
             tmp = BN_bin2bn(privateKeys + (i * PRIVATE_KEY_LENGTH), PRIVATE_KEY_LENGTH, prikey);
-            if (!tmp)
-            {
-                unsigned long err = ERR_get_error();
-                fprintf(stderr, "BN_bin2bn : %s\n", ERR_error_string(err, NULL));
-                return EXIT_FAILURE;
-            }
-
+            if (!tmp){unsigned long err = ERR_get_error();fprintf(stderr, "BN_bin2bn : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
             r = EC_POINT_mul(secp256k1, pubkey, prikey, NULL, NULL, ctx);
-            if (!r)
-            {
-                unsigned long err = ERR_get_error();
-                fprintf(stderr, "EC_POINT_mul : %s\n", ERR_error_string(err, NULL));
-                return EXIT_FAILURE;
-            }
+            if (!r){unsigned long err = ERR_get_error();fprintf(stderr, "EC_POINT_mul : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
             r = EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH, ctx);
-            if (!r)
-            {
-                unsigned long err = ERR_get_error();
-                fprintf(stderr, "EC_POINT_mul : %s\n", ERR_error_string(err, NULL));
-                return EXIT_FAILURE;
-            }
+            if (!r){unsigned long err = ERR_get_error();fprintf(stderr, "EC_POINT_mul : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
         }
         // iのキャッシュサイズは一つ
         // jのキャッシュサイズは4つ
@@ -253,9 +212,7 @@ int main(int argc, char *argv[])
                 if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "RIPEMD160_Update : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
                 r = RIPEMD160_Final(cache64, &ripemd160ctx);
                 if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "RIPEMD160_Final : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
-                for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++)
-                {
-                }
+                for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
                 if (nlz >= REQUIRE_NLZ)
                 {
                     exportAddress(privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
