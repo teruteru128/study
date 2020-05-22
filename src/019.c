@@ -4,6 +4,7 @@
 
 int main(int argc, char **argv)
 {
+#if 1
     double a = 0.114514;
     printf("%.18lf\n", a);
     while (a > 0)
@@ -12,5 +13,12 @@ int main(int argc, char **argv)
         printf("%.18lf\n", a);
     }
     printf("\n");
+#endif
+    int i = 0;
+    if(!i){
+        printf("true\n");
+    }else{
+        printf("false\n");
+    }
     return 0;
 }
