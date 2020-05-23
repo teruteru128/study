@@ -17,6 +17,8 @@
 #define PUBLIC_KEY_LENGTH 65
 #define KEY_CACHE_SIZE 16777216ULL
 #define REQUIRE_NLZ 5
+#define ADDRESS_VERSION 4
+#define STREAM_NUMBER 1
 
 int nextBytes(char *buf, size_t len)
 {
@@ -45,9 +47,7 @@ int nextBytes(char *buf, size_t len)
     return EXIT_SUCCESS;
 }
 
-#define ADDRESS_VERSION 4
-#define STREAM_NUMBER 1
-
+#if 0
 char *encodeVarint(unsigned long u)
 {
     return NULL;
@@ -91,6 +91,7 @@ char *formatKey(char *address, char *privateSigningKeyWIF, char *privateEncrypti
     snprintf(buf, 300, "[%s]]\nlabel = relpace this label\nenabled = true\ndecoy = false\nnoncetrialsperbyte = 1000\npayloadlengthextrabytes = 1000\nprivsigningkey = %s\nprivencryptionkey = %s\n", address, privateSigningKeyWIF, privateEncryptionKeyWIF);
     return buf;
 }
+#endif
 
 int exportAddress(unsigned char *privateSigningKey, unsigned char *publicSigningKey, unsigned char *privateEncryptionKey, unsigned char *publicEncryptionKey, unsigned char *ripe)
 {
@@ -99,23 +100,23 @@ int exportAddress(unsigned char *privateSigningKey, unsigned char *publicSigning
     char *privateSigningKeyWIF = encodeWIF(privateSigningKey);
     char *privateEncryptionKeyWIF = encodeWIF(privateEncryptionKey);
     char *formated = formatKey(address4, privateSigningKeyWIF, privateEncryptionKeyWIF);
+    printf("%s\n", formated);
     */
-    //printf("%s\n", formated);
-    size_t i;
+    size_t i = 0;
     fputs("ripe = ", stdout);
     for (i = 0; i < RIPEMD160_DIGEST_LENGTH; i++)
     {
-        printf("%02x", ripe[i]);
+        fprintf(stdout, "%02x", ripe[i]);
     }
     fputs("\nprivate signing key = ", stdout);
     for (i = 0; i < PRIVATE_KEY_LENGTH; i++)
     {
-        printf("%02x", privateSigningKey[i]);
+        fprintf(stdout, "%02x", privateSigningKey[i]);
     }
     fputs("\nprivate encryption key = ", stdout);
     for (i = 0; i < PRIVATE_KEY_LENGTH; i++)
     {
-        printf("%02x", privateEncryptionKey[i]);
+        fprintf(stdout, "%02x", privateEncryptionKey[i]);
     }
     fputs("\n\n", stdout);
     /*
@@ -127,32 +128,37 @@ int exportAddress(unsigned char *privateSigningKey, unsigned char *publicSigning
     return EXIT_SUCCESS;
 }
 
+#define errchk(v, f) if (!v){unsigned long err = ERR_get_error();fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+
 int main(int argc, char *argv[])
 {
     OpenSSL_add_all_digests();
-    unsigned char *privateKeys = calloc(PRIVATE_KEY_LENGTH, KEY_CACHE_SIZE);
-    if (!privateKeys){return EXIT_FAILURE;}
-    unsigned char *publicKeys = calloc(sizeof(char), PUBLIC_KEY_LENGTH * KEY_CACHE_SIZE);
-    if (!publicKeys){return EXIT_FAILURE;}
+    unsigned char *privateKeys = calloc(KEY_CACHE_SIZE, PRIVATE_KEY_LENGTH);
+    if (!privateKeys){perror("calloc(privateKeys)");return EXIT_FAILURE;}
+    unsigned char *publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
+    if (!publicKeys){perror("calloc(publicKeys)");return EXIT_FAILURE;}
     unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
     unsigned char jPublicKey[PUBLIC_KEY_LENGTH];
+    // unsigned char jPublicKey[PUBLIC_KEY_LENGTH * 4];
     unsigned char cache64[SHA512_DIGEST_LENGTH];
     size_t i = 0;
     size_t j = 0;
+    //size_t jj_max = 0;
+    //size_t jj = 0;
     int r = 0;
 
     // curve 生成
     EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
-    if (!secp256k1){unsigned long err = ERR_get_error();fprintf(stderr, "EC_GROUP_new_by_curve_name : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+    errchk(secp256k1, EC_GROUP_new_by_curve_name)
     const EC_POINT *g = EC_GROUP_get0_generator(secp256k1);
     // private key working area
     BIGNUM *prikey = BN_new();
-    if (!prikey){unsigned long err = ERR_get_error();fprintf(stderr, "BN_new : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+    errchk(prikey, BN_new)
     // public key working area
     EC_POINT *pubkey = EC_POINT_new(secp256k1);
-    if (!pubkey){unsigned long err = ERR_get_error();fprintf(stderr, "EC_POINT_new : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+    errchk(pubkey, EC_POINT_new)
     BN_CTX *ctx = BN_CTX_new();
-    if (!ctx){unsigned long err = ERR_get_error();fprintf(stderr, "BN_CTX_new : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+    errchk(ctx, BN_CTX_new)
     BIGNUM *tmp = NULL;
     SHA512_CTX sha512ctx;
     RIPEMD160_CTX ripemd160ctx;
@@ -160,15 +166,15 @@ int main(int argc, char *argv[])
     while(true)
     {
         nextBytes(privateKeys, KEY_CACHE_SIZE * PRIVATE_KEY_LENGTH);
-        // 公開鍵の生成に2時間半以上かかるので注意
+        // 公開鍵の生成に非常に時間がかかるので注意。秒速9000鍵で30分程度
         for (i = 0; i < KEY_CACHE_SIZE; i++)
         {
             tmp = BN_bin2bn(privateKeys + (i * PRIVATE_KEY_LENGTH), PRIVATE_KEY_LENGTH, prikey);
-            if (!tmp){unsigned long err = ERR_get_error();fprintf(stderr, "BN_bin2bn : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+            errchk(tmp, BN_bin2bn)
             r = EC_POINT_mul(secp256k1, pubkey, prikey, NULL, NULL, ctx);
-            if (!r){unsigned long err = ERR_get_error();fprintf(stderr, "EC_POINT_mul : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+            errchk(r, EC_POINT_mul)
             r = EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH, ctx);
-            if (!r){unsigned long err = ERR_get_error();fprintf(stderr, "EC_POINT_mul : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+            errchk(r, EC_POINT_point2oct)
         }
         // iのキャッシュサイズは一つ
         // jのキャッシュサイズは4つ
@@ -177,46 +183,54 @@ int main(int argc, char *argv[])
             // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
             memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
             for (j = 0; j <= i; j++)
+            //for (j = 0; j <= i; j+=4)
             {
                 memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
+                // memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH * 4);
+                // for(jj = 0; jj < 4 && (j + jj) <= i; jj++) {
                 r = SHA512_Init(&sha512ctx);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "SHA512_Init : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+                errchk(r, SHA512_Init)
                 r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "SHA512_Update : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+                errchk(r, SHA512_Update)
                 r = SHA512_Update(&sha512ctx, jPublicKey, PUBLIC_KEY_LENGTH);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "SHA512_Update : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+                // r = SHA512_Update(&sha512ctx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
+                errchk(r, SHA512_Update)
                 r = SHA512_Final(cache64, &sha512ctx);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "SHA512_Final : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+                errchk(r, SHA512_Final)
                 r = RIPEMD160_Init(&ripemd160ctx);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "RIPEMD160_Init : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
-                r = RIPEMD160_Update(&ripemd160ctx, cache64, 64);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "RIPEMD160_Update : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+                errchk(r, RIPEMD160_Init)
+                r = RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+                errchk(r, RIPEMD160_Update)
                 r = RIPEMD160_Final(cache64, &ripemd160ctx);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "RIPEMD160_Final : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+                errchk(r, RIPEMD160_Final)
                 for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
                 if (nlz >= REQUIRE_NLZ)
                 {
                     exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, cache64);
+                    // exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], cache64);
                 }
                 r = SHA512_Init(&sha512ctx);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "SHA512_Init : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+                errchk(r, SHA512_Init)
                 r = SHA512_Update(&sha512ctx, jPublicKey, PUBLIC_KEY_LENGTH);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "SHA512_Update : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+                // r = SHA512_Update(&sha512ctx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
+                errchk(r, SHA512_Update)
                 r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "SHA512_Update : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+                errchk(r, SHA512_Update)
                 r = SHA512_Final(cache64, &sha512ctx);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "SHA512_Final : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+                errchk(r, SHA512_Final)
                 r = RIPEMD160_Init(&ripemd160ctx);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "RIPEMD160_Init : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
-                r = RIPEMD160_Update(&ripemd160ctx, cache64, 64);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "RIPEMD160_Update : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+                errchk(r, RIPEMD160_Init)
+                r = RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+                errchk(r, RIPEMD160_Update)
                 r = RIPEMD160_Final(cache64, &ripemd160ctx);
-                if(!r){unsigned long err = ERR_get_error();fprintf(stderr, "RIPEMD160_Final : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+                errchk(r, RIPEMD160_Final)
                 for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
                 if (nlz >= REQUIRE_NLZ)
                 {
                     exportAddress(privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+                    // exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
                 }
+                // } // jj
             }
         }
     }
