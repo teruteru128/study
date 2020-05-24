@@ -138,13 +138,12 @@ int main(int argc, char *argv[])
     unsigned char *publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
     if (!publicKeys){perror("calloc(publicKeys)");return EXIT_FAILURE;}
     unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
-    unsigned char jPublicKey[PUBLIC_KEY_LENGTH];
-    // unsigned char jPublicKey[PUBLIC_KEY_LENGTH * 4];
+    unsigned char jPublicKey[PUBLIC_KEY_LENGTH * 4];
     unsigned char cache64[SHA512_DIGEST_LENGTH];
     size_t i = 0;
     size_t j = 0;
-    //size_t jj_max = 0;
-    //size_t jj = 0;
+    size_t jj_max = 0;
+    size_t jj = 0;
     int r = 0;
 
     // curve 生成
@@ -165,7 +164,9 @@ int main(int argc, char *argv[])
     size_t nlz = 0;
     while(true)
     {
+        fprintf(stderr, "秘密鍵を初期化しています...\n");
         nextBytes(privateKeys, KEY_CACHE_SIZE * PRIVATE_KEY_LENGTH);
+        fprintf(stderr, "秘密鍵を初期化しました。公開鍵を初期化します。\n");
         // 公開鍵の生成に非常に時間がかかるので注意。秒速9000鍵で30分程度
         for (i = 0; i < KEY_CACHE_SIZE; i++)
         {
@@ -176,63 +177,59 @@ int main(int argc, char *argv[])
             r = EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH, ctx);
             errchk(r, EC_POINT_point2oct)
         }
+        fprintf(stderr, "公開鍵の初期化が完了しました。\n");
         // iのキャッシュサイズは一つ
         // jのキャッシュサイズは4つ
         for (i = 0; i < KEY_CACHE_SIZE; i++)
         {
             // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
             memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-            for (j = 0; j <= i; j++)
-            //for (j = 0; j <= i; j+=4)
+            for (j = 0; j <= i; j+=4)
             {
-                memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-                // memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH * 4);
-                // for(jj = 0; jj < 4 && (j + jj) <= i; jj++) {
-                r = SHA512_Init(&sha512ctx);
-                errchk(r, SHA512_Init)
-                r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                errchk(r, SHA512_Update)
-                r = SHA512_Update(&sha512ctx, jPublicKey, PUBLIC_KEY_LENGTH);
-                // r = SHA512_Update(&sha512ctx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
-                errchk(r, SHA512_Update)
-                r = SHA512_Final(cache64, &sha512ctx);
-                errchk(r, SHA512_Final)
-                r = RIPEMD160_Init(&ripemd160ctx);
-                errchk(r, RIPEMD160_Init)
-                r = RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
-                errchk(r, RIPEMD160_Update)
-                r = RIPEMD160_Final(cache64, &ripemd160ctx);
-                errchk(r, RIPEMD160_Final)
-                for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
-                if (nlz >= REQUIRE_NLZ)
-                {
-                    exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, cache64);
-                    // exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], cache64);
-                }
-                r = SHA512_Init(&sha512ctx);
-                errchk(r, SHA512_Init)
-                r = SHA512_Update(&sha512ctx, jPublicKey, PUBLIC_KEY_LENGTH);
-                // r = SHA512_Update(&sha512ctx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
-                errchk(r, SHA512_Update)
-                r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                errchk(r, SHA512_Update)
-                r = SHA512_Final(cache64, &sha512ctx);
-                errchk(r, SHA512_Final)
-                r = RIPEMD160_Init(&ripemd160ctx);
-                errchk(r, RIPEMD160_Init)
-                r = RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
-                errchk(r, RIPEMD160_Update)
-                r = RIPEMD160_Final(cache64, &ripemd160ctx);
-                errchk(r, RIPEMD160_Final)
-                for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
-                if (nlz >= REQUIRE_NLZ)
-                {
-                    exportAddress(privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
-                    // exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
-                }
-                // } // jj
+                memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH * 4);
+                for(jj = 0; jj < 4 && (j + jj) <= i; jj++) {
+                    r = SHA512_Init(&sha512ctx);
+                    errchk(r, SHA512_Init)
+                    r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+                    errchk(r, SHA512_Update)
+                    r = SHA512_Update(&sha512ctx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
+                    errchk(r, SHA512_Update)
+                    r = SHA512_Final(cache64, &sha512ctx);
+                    errchk(r, SHA512_Final)
+                    r = RIPEMD160_Init(&ripemd160ctx);
+                    errchk(r, RIPEMD160_Init)
+                    r = RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+                    errchk(r, RIPEMD160_Update)
+                    r = RIPEMD160_Final(cache64, &ripemd160ctx);
+                    errchk(r, RIPEMD160_Final)
+                    for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
+                    if (nlz >= REQUIRE_NLZ)
+                    {
+                        exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], cache64);
+                    }
+                    r = SHA512_Init(&sha512ctx);
+                    errchk(r, SHA512_Init)
+                    r = SHA512_Update(&sha512ctx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
+                    errchk(r, SHA512_Update)
+                    r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+                    errchk(r, SHA512_Update)
+                    r = SHA512_Final(cache64, &sha512ctx);
+                    errchk(r, SHA512_Final)
+                    r = RIPEMD160_Init(&ripemd160ctx);
+                    errchk(r, RIPEMD160_Init)
+                    r = RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+                    errchk(r, RIPEMD160_Update)
+                    r = RIPEMD160_Final(cache64, &ripemd160ctx);
+                    errchk(r, RIPEMD160_Final)
+                    for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
+                    if (nlz >= REQUIRE_NLZ)
+                    {
+                        exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+                    }
+                } // jj
             }
         }
+        fprintf(stderr, "公開鍵のキャッシュを使い切りました。再初期化します\n");
     }
     /* DEAD CODE ***********************/
     free(privateKeys);
