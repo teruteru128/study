@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 int main(int argc, char **argv)
@@ -12,5 +13,5 @@ int main(int argc, char **argv)
         printf("%.18lf\n", a);
     }
     printf("\n");
-    return 0;
+    return EXIT_SUCCESS;
 }
