@@ -129,6 +129,7 @@ int exportAddress(unsigned char *privateSigningKey, unsigned char *publicSigning
 }
 
 #define errchk(v, f) if (!v){unsigned long err = ERR_get_error();fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL));return EXIT_FAILURE;}
+#define J_CACHE_SIZE 4
 
 int main(int argc, char *argv[])
 {
@@ -138,7 +139,7 @@ int main(int argc, char *argv[])
     unsigned char *publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
     if (!publicKeys){perror("calloc(publicKeys)");return EXIT_FAILURE;}
     unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
-    unsigned char jPublicKey[PUBLIC_KEY_LENGTH * 4];
+    unsigned char jPublicKey[PUBLIC_KEY_LENGTH * J_CACHE_SIZE];
     unsigned char cache64[SHA512_DIGEST_LENGTH];
     size_t i = 0;
     size_t j = 0;
@@ -184,10 +185,30 @@ int main(int argc, char *argv[])
         {
             // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
             memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-            for (j = 0; j <= i; j+=4)
+            // i = jの時に2回計算していた分を削減
+            r = SHA512_Init(&sha512ctx);
+            errchk(r, SHA512_Init)
+            r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+            errchk(r, SHA512_Update)
+            r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+            errchk(r, SHA512_Update)
+            r = SHA512_Final(cache64, &sha512ctx);
+            errchk(r, SHA512_Final)
+            r = RIPEMD160_Init(&ripemd160ctx);
+            errchk(r, RIPEMD160_Init)
+            r = RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+            errchk(r, RIPEMD160_Update)
+            r = RIPEMD160_Final(cache64, &ripemd160ctx);
+            errchk(r, RIPEMD160_Final)
+            if(!(cache64[0] || cache64[1] || cache64[2] || cache64[3] || cache64[4]))
             {
-                memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH * 4);
-                for(jj = 0; jj < 4 && (j + jj) <= i; jj++) {
+                exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+            }
+            for (j = 0; j <= i; j += J_CACHE_SIZE)
+            {
+                memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH * J_CACHE_SIZE);
+                for(jj = 0; jj < J_CACHE_SIZE && (j + jj) < i; jj++)
+                {
                     r = SHA512_Init(&sha512ctx);
                     errchk(r, SHA512_Init)
                     r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
@@ -202,8 +223,7 @@ int main(int argc, char *argv[])
                     errchk(r, RIPEMD160_Update)
                     r = RIPEMD160_Final(cache64, &ripemd160ctx);
                     errchk(r, RIPEMD160_Final)
-                    for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
-                    if (nlz >= REQUIRE_NLZ)
+                    if(!(cache64[0] || cache64[1] || cache64[2] || cache64[3] || cache64[4]))
                     {
                         exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], cache64);
                     }
@@ -221,17 +241,18 @@ int main(int argc, char *argv[])
                     errchk(r, RIPEMD160_Update)
                     r = RIPEMD160_Final(cache64, &ripemd160ctx);
                     errchk(r, RIPEMD160_Final)
-                    for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
-                    if (nlz >= REQUIRE_NLZ)
+                    if(!(cache64[0] || cache64[1] || cache64[2] || cache64[3] || cache64[4]))
                     {
                         exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
                     }
                 } // jj
             }
+            fprintf(stderr, "fin j : %ld\n", i);
         }
         fprintf(stderr, "公開鍵のキャッシュを使い切りました。再初期化します\n");
     }
     /* DEAD CODE ***********************/
+shutdown:
     free(privateKeys);
     free(publicKeys);
     BN_free(prikey);
