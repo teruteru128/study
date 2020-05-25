@@ -1,16 +1,23 @@
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 int main(int argc, char **argv)
 {
-    double a = 0.114514;
-    printf("%.18lf\n", a);
-    while (a > 0)
+    size_t i = 0;
+    size_t j = 0;
+    size_t sum = 0;
+    size_t size = 65536;
+    for(i = 0; i < size; i++)
     {
-        a = 2 * sqrt(a - pow(a, 2));
-        printf("%.18lf\n", a);
+        sum++;
+        for(j = 0; j < i; j++)
+        {
+            sum++;
+            sum++;
+        }
     }
-    printf("\n");
-    return 0;
+    printf("%ld\n", sum);
+    return EXIT_SUCCESS;
 }

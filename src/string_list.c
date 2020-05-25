@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include "string_list.h"
 
+/*
+    XXX strを追加するときにコピー(strdup)して追加するかそのまま追加するか
+*/
 string_list* string_list_add(string_list* dest, char* str){
     string_list* work;
     if(dest == NULL){

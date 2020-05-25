@@ -1,6 +1,5 @@
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <gmp.h>
@@ -16,37 +15,37 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	FILE* fp = NULL;
 	char* fname = argv[1];
-	char* buf = calloc(BUFSIZE, sizeof(char));
-
-	if(buf == NULL){
-		perror("calloc");
-		return 1;
-	}
 
 	size_t i;
 	mpz_t num[2];
 
 	mpz_inits(num[0], num[1], NULL);
 
-	fp = fopen(fname, "r");
-	if(fp == NULL){
-		perror("fopen");
-		return 2;
-	}
-	for(i = 0; i < 2; i++){
-		char *f = fgets(buf, BUFSIZE, fp);
-		if(f == NULL){
-			perror("fgets");
-			fclose(fp);
-			return 3;
+	{
+		FILE* fp = fopen(fname, "r");
+		if(fp == NULL){
+			perror("fopen");
+			return 2;
 		}
-		mpz_set_str(num[i], f, 16);
+		char buf[BUFSIZE];
+
+		memset(buf, 0, BUFSIZE);
+		char *f = NULL;
+		for(i = 0; i < 2 && (f = fgets(buf, BUFSIZE, fp)) != NULL; ) {
+			if(ferror(fp)){
+				perror("fgets");
+				fclose(fp);
+				return 3;
+			}
+			char firstchar = f[0];
+			if(firstchar != '#' && firstchar != '\r' && firstchar != '\n' && firstchar != '\0') {
+				mpz_set_str(num[i], f, 16);
+				i++;
+			}
+		}
+		fclose(fp);
 	}
-	fclose(fp);
-	free(buf);
-	
 	mpz_t p;
 	mpz_t q;
 	mpz_t n;

@@ -40,6 +40,7 @@ bin_PROGRAMS+=firstThread4
 bin_PROGRAMS+=firstThread4-1
 bin_PROGRAMS+=variables
 bin_PROGRAMS+=variables3
+bin_PROGRAMS+=variables4
 bin_PROGRAMS+=seq
 bin_PROGRAMS+=sum
 bin_PROGRAMS+=rsa1024
@@ -64,21 +65,15 @@ bin_PROGRAMS+=sntpc
 bin_PROGRAMS+=repeated-trials
 bin_PROGRAMS+=string_list_test
 bin_PROGRAMS+=dragon
-
-
-%:%.cu
-	nvcc -ccbin clang-4.0 $^ -o $@
+bin_PROGRAMS+=log-sample
+bin_PROGRAMS+=mysqlfast
+bin_PROGRAMS+=bmkeygen
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 study_LDADD= -lcrypto
 study_LDFLAGS=
-study_SOURCES=study.c\
-							gettextsample.c\
-							gettextsample.h\
-							printint.c\
-							random.c\
-							random.h
+study_SOURCES=study.c gettextsample.c gettextsample.h printint.c random.c random.h bitset.c bitset.h
 teamspeakcalc_CFLAGS=
 teamspeakcalc_LDADD= -lcrypto
 teamspeakcalc_LDFLAGS=
@@ -111,9 +106,8 @@ gettextsample3_LDADD=
 gettextsample3_LDFLAGS=
 orz_SOURCES= orz.c random.h random.c
 localetest1_SOURCES = localetest1.c localetest1.h
-localetest1_CFLAGS = 
 localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
-selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-n.c sha-1.h sha-2.h sha-3.h sha-n.h 028.h
+selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-1.h sha-2.h sha-3.h self-made-libsha.h
 selfmadelibsha_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 bm_SOURCES = bitmessage.c base64.c bmapi.c xmlrpc.c bm.c bitmessage.h base64.h bmapi.h xmlrpc.h
 bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
@@ -130,15 +124,19 @@ seq_LDFLAGS=-lm
 sum_LDFLAGS=-lm
 cudahello_SOURCES=cudahello.cu
 cudahello_CFLAGS=-fPIC
-rsa1024_SOURCES=RSA-1024-challenge.c
+rsa1024_SOURCES=rsa1024.c
 curltest_LDFLAGS=-lcurl
 threadAttr_LDFLAGS=-pthread
 encodersa_LDFLAGS=-lcrypto -lssl
 falcon_SOURCES=falcon.c random.c random.h
 dragon_SOURCES=dragon.c svgplot.c svgplot.h
-Nabeatsu_SOURCES=FizzBuzz.c
+FizzBuzz_SOURCES=FizzBuzz.c printint.c printint.h
+Nabeatsu_SOURCES=FizzBuzz.c printint.c printint.h
 epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h
 sntpc_SOURCES=sntpc.c random.c random.h
 string_list_test_SOURCES=string_list.h string_list.c string_list_test.c
-bouyomi_SOURCES=bouyomi.c bouyomi.h charset-convert.c charset-convert.h
+bouyomi_CFLAGS=
+bouyomi_LDADD=
+bouyomi_LDFLAGS=
+bouyomi_SOURCES= print_addrinfo.c print_addrinfo.h charset-convert.c charset-convert.h bouyomi.c bouyomi.h
 CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h

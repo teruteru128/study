@@ -9,6 +9,6 @@ int main(void){
 	printf(_("%dmicro seconds stopping.\n"), microseconds);
 	usleep(microseconds);
 	printf(_("%dmicro seconds stoped.\n"), microseconds);
-	
+
 	return 0;
 }

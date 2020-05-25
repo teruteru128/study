@@ -43,7 +43,6 @@ int calcSecurityLevel(unsigned char *md, char* id, uint64_t counter){
   SHA1_Update(&ctx, buf, counterLength);
   SHA1_Final(md, &ctx);
   for(i = 0; md[i] == 0&&i < SHA_DIGEST_LENGTH; i++){
-  
   }
   for(j = 0; (md[i] >> j) & 0x01 == 0; j++){}
   return i << 3 + j;

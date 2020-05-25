@@ -11,8 +11,8 @@
 #include <unistd.h>
 #include <stdint.h>
 
-#include <printint.h>
-#define IN2_SIZE 20
+#include "printint.h"
+#define IN2_SIZE 24
 
 static uint64_t *verifire_ptr = NULL;
 
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     uint64_t verifier;
     size_t verifierLength;
 
-    verifire_ptr = &verifier;
+    //verifire_ptr = &verifier;
 
     gettimeofday(&tv, NULL);
     srand48(((tv.tv_usec & 0xFFFFFFFF) << 32) ^ ((tv.tv_usec >> 32) & 0xFFFFFFFF) ^ tv.tv_sec);
@@ -46,20 +46,22 @@ int main(int argc, char **argv)
     }
     memset(c, 0, sizeof(SHA_CTX));
 
+/*
     if (signal(SIGINT, act) == SIG_ERR)
     {
         printf("Error: signal() SIGINT: %s\n", strerror(errno));
         perror(NULL);
         return (EXIT_FAILURE);
     }
-
+*/
     printf("%d\n", getpid());
     for (;; verifier++)
     {
         SHA1_Init(c);
         SHA1_Update(c, in1, in1Length);
-        verifierLength = snprintUInt64(in2, IN2_SIZE, verifier);
-        SHA1_Update(c, in2, verifierLength);
+        //verifierLength = snprintUInt64(in2, IN2_SIZE, verifier);
+        ltoa(verifier, in2, 10);
+        SHA1_Update(c, in2, strlen(in2));
         SHA1_Final(md, c);
         if (md[0] == 0 && md[1] == 0 && md[2] == 0 && md[3] == 0 && md[4] == 0)
         {

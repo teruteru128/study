@@ -44,6 +44,7 @@ int main(int argc, char* argv[]){
     perror("failed to join thread");
     return EXIT_FAILURE;
   }
+  printf("%d\n", ret == &n);
   printf("threadFunc has been terminated with number %d\n", *ret);
   printf("ret+1=%d\n", *(ret+1));
   printf("ret+2=%d\n", *(ret+2));

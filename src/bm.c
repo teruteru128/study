@@ -44,6 +44,9 @@ typedef struct connectioninfo_t {
   }
  * */
 char buf[BUFSIZ];
+int api_init(void){
+
+}
 int main(int const argc, const char ** const argv)
 {
   char *sendmsg = "";
@@ -52,11 +55,13 @@ int main(int const argc, const char ** const argv)
   char *  generaladdress = "BM-2cW67GEKkHGonXKZLCzouLLxnLym3azS8r";
   uuid_t uuid;
   api_init();
-
+  if(argc<2){
+    return EXIT_FAILURE;
+  }
   FILE *infile = NULL;
-  infile = fopen(infile, "r");
+  infile = fopen(argv[1], "r");
   if(infile == NULL){
-    perror("");
+    perror("fopen");
     return EXIT_FAILURE;
   }
 

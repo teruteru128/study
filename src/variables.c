@@ -5,6 +5,7 @@
 #include <stdio.h>
 /*
 Linuxとpthreadによるマルチスレッドプログラミング入門 - 渋谷克智
+3-2
 */
 long varA;
 void *threadFunc(void *arg){

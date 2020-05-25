@@ -34,7 +34,7 @@ void chr_conv(char const *str,char *hairtetu[],int cnt);
 
    ex)入力文字列をUTF8からcp932に変換して表示
     echo "変換文字"|./iconv_Chk 1
-   
+
    ex)入力ファイルをUTF8からcp932に変換して表示
     cat aaa.txt|./iconv_Chk 1
 
