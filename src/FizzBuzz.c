@@ -60,8 +60,8 @@ int main(int argc, char* argv[]){
   time_t sec = end.tv_sec - start.tv_sec;
   long nsec = end.tv_nsec - start.tv_nsec;
   double passed = sec * 1000000000L + nsec;
-  printf("%.8f秒かかりました\n", passed / 1000000000.);
-  printf("1秒あたり %.12f回\n", MAX/(passed / 1000000000.));
+  printf("%.8f秒かかりました\n", passed / 1e9);
+  printf("1秒あたり %.12f回\n", MAX/(passed / 1e9));
   if(strstr(argv[0], "Nabeatsu")){
     showNabeatsu();
   }else if(strstr(argv[0], "FizzBuzz")){
