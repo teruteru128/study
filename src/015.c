@@ -13,7 +13,6 @@ int main(int argc, char **argv)
     BIGNUM *tmp = BN_new();
     const BIGNUM *one = BN_value_one();
     BN_CTX *ctx = BN_CTX_new();
-    BN_ULONG success_ul = 0;
     char *out = NULL;
     if (n == NULL)
     {
@@ -67,8 +66,8 @@ int main(int argc, char **argv)
         else
         {
             //even
-            success_ul = BN_div_word(tmp, 2);
-            if (success_ul == (BN_ULONG)-1)
+            success = BN_rshift(tmp, tmp, 1);
+            if (success != 1)
             {
                 perror(NULL);
                 return EXIT_FAILURE;
