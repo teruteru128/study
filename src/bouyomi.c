@@ -55,58 +55,67 @@
 #define ONION_SERV_ADDRESS "2ayu6gqru3xzfzbvud64ezocamykp56kunmkzveqmuxvout2yubeeuad.onion"
 
 // アライメントが入るためそのまま送信してはいけない
-typedef struct bouyomi_header_t{
-    short command;
-    short speed;
-    short tone;
-    short volume;
-    short voice;
-    char encode;
-    char empty; // alignment
-    int32_t length;
+typedef struct bouyomi_header_t
+{
+  short command;
+  short speed;
+  short tone;
+  short volume;
+  short voice;
+  char encode;
+  char empty; // alignment
+  int32_t length;
 } bouyomi_header;
-typedef struct bouyomi_conf_t{
-    short command;
-    short speed;
-    short tone;
-    short volume;
-    short voice;
-    char encode;
-    size_t length;
-    char* msg;
+typedef struct bouyomi_conf_t
+{
+  short command;
+  short speed;
+  short tone;
+  short volume;
+  short voice;
+  char encode;
+  size_t length;
+  char *msg;
 } bouyomi_conf;
-typedef struct config_line_t{
-  char* key;
-  char* value;
-  struct config_line_t* next;
+typedef struct config_line_t
+{
+  char *key;
+  char *value;
+  struct config_line_t *next;
 } config_line_t;
 
-typedef enum charset_t {
+typedef enum charset_t
+{
   UTF_8 = 0,
   UNICODE = 1,
   SHIFT_JIS = 2
 } charset;
 
-int send_to_server(char* hostname, char*servicename, char* data, size_t len){
+int send_to_server(char *hostname, char *servicename, char *data, size_t len)
+{
   struct addrinfo hints, *res = NULL;
   memset(&hints, 0, sizeof(hints));
   hints.ai_socktype = SOCK_STREAM;
   int rc = getaddrinfo(hostname, servicename, &hints, &res);
-  if(rc!=0){
+  if (rc != 0)
+  {
     perror("getaddrinfo");
     return EXIT_FAILURE;
   }
 
   struct addrinfo *adrinf = NULL;
   int sock = 0;
-  for(adrinf = res; adrinf != NULL; adrinf = adrinf->ai_next){
+  for (adrinf = res; adrinf != NULL; adrinf = adrinf->ai_next)
+  {
     sock = socket(adrinf->ai_family, adrinf->ai_socktype, adrinf->ai_protocol);
-    if(sock<0){
+    if (sock < 0)
+    {
       perror("socket()");
       exit(EXIT_FAILURE);
     }
     rc = connect(sock, adrinf->ai_addr, adrinf->ai_addrlen);
-    if(rc<0){
+    if (rc < 0)
+    {
       close(sock);
       continue;
     }
@@ -114,7 +123,8 @@ int send_to_server(char* hostname, char*servicename, char* data, size_t len){
     break;
   }
   freeaddrinfo(res);
-  if(rc<0){
+  if (rc < 0)
+  {
     perror("connect()");
     close(sock);
     exit(EXIT_FAILURE);
@@ -126,7 +136,8 @@ int send_to_server(char* hostname, char*servicename, char* data, size_t len){
   fprintf(stderr, "送信しました！\n");
   // ソケットを閉じる
   rc = close(sock);
-  if(rc != 0){
+  if (rc != 0)
+  {
     perror("close");
     return EXIT_FAILURE;
   }
@@ -143,11 +154,13 @@ int send_to_server(char* hostname, char*servicename, char* data, size_t len){
   host & port
   charset
 */
-int main(int argc, char* argv[]){
+int main(int argc, char *argv[])
+{
   int rc = 0;
   int ignore_errors = 0;
 
-  if(setlocale(LC_ALL, "ja_JP.UTF-8") == NULL){
+  if (setlocale(LC_ALL, "ja_JP.UTF-8") == NULL)
+  {
     perror("setlocale");
     return EXIT_FAILURE;
   }
@@ -207,27 +220,36 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
    }
    }*/
   char *in = NULL;
-  if(argc >= 2){
+  if (argc >= 2)
+  {
     in = argv[1];
-  } else {
+  }
+  else
+  {
     in = "テストでーす";
   }
   charset charset = UTF_8;
   char *out = NULL;
 
-  if(charset == UTF_8){
+  if (charset == UTF_8)
+  {
     //  エンコード用変数にそのまま代入
     // freeするために複製を入れる
     out = strdup(in);
-  } else if(charset == UNICODE){
+  }
+  else if (charset == UNICODE)
+  {
     //  文字コードを変換してから代入
     encode_utf8_2_unicode(&out, in);
-  } else if(charset == SHIFT_JIS){
+  }
+  else if (charset == SHIFT_JIS)
+  {
     //  文字コードを変換してから代入
     encode_utf8_2_sjis(&out, in);
   }
 
-  if(out == NULL){
+  if (out == NULL)
+  {
     perror("out encode OR copy failed");
     return EXIT_FAILURE;
   }
@@ -241,11 +263,16 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
   short volume = 200;
   short voice = 0;
   char encode;
-  if(charset == UTF_8){
+  if (charset == UTF_8)
+  {
     encode = 0;
-  } else if(charset == UNICODE){
+  }
+  else if (charset == UNICODE)
+  {
     encode = 1;
-  } else if(charset == SHIFT_JIS){
+  }
+  else if (charset == SHIFT_JIS)
+  {
     encode = 2;
   }
   size_t length = strlen(out);
@@ -254,16 +281,16 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
   // なぜhtonsなしで読み上げできるのか謎
   // 棒読みちゃんはリトルエンディアン指定だそうです
   // c#サンプルでBinaryWriterを使ってたから本体でもBinaryReader使ってるんじゃないんですか？知らんけど
-  *((short*)&header[0]) = command;
-  *((short*)&header[2]) = speed;
-  *((short*)&header[4]) = tone;
-  *((short*)&header[6]) = volume;
-  *((short*)&header[8]) = voice;
-  *((char*)&header[10]) = encode;
-  *((int*)&header[11]) = length;
+  *((short *)&header[0]) = command;
+  *((short *)&header[2]) = speed;
+  *((short *)&header[4]) = tone;
+  *((short *)&header[6]) = volume;
+  *((short *)&header[8]) = voice;
+  *((char *)&header[10]) = encode;
+  *((int *)&header[11]) = length;
 
   size_t send_len = 15 + length;
-  char* send_buf = malloc(send_len);
+  char *send_buf = malloc(send_len);
   memcpy(send_buf, header, 15);
   memcpy(send_buf + 15, out, length);
   free(out);
@@ -271,9 +298,12 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
   char *servAddr = ONION_SERV_ADDRESS;
   char *servPortStr = DEFAULT_PORT_STR;
   int use_onion = 1;
-  if(use_onion == 1){
+  if (use_onion == 1)
+  {
     servAddr = ONION_SERV_ADDRESS;
-  }else{
+  }
+  else
+  {
     servAddr = DEFAULT_SERV_ADDRESS;
   }
   rc = send_to_server(servAddr, servPortStr, send_buf, send_len);
