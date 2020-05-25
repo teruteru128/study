@@ -19,6 +19,15 @@
 #define REQUIRE_NLZ 5
 #define ADDRESS_VERSION 4
 #define STREAM_NUMBER 1
+#define J_CACHE_SIZE 4
+
+#define errchk(v, f)                                                \
+    if (!v)                                                         \
+    {                                                               \
+        unsigned long err = ERR_get_error();                        \
+        fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL)); \
+        return EXIT_FAILURE;                                        \
+    }
 
 int nextBytes(char *buf, size_t len)
 {
@@ -127,15 +136,6 @@ int exportAddress(unsigned char *privateSigningKey, unsigned char *publicSigning
     */
     return EXIT_SUCCESS;
 }
-
-#define errchk(v, f)                                                \
-    if (!v)                                                         \
-    {                                                               \
-        unsigned long err = ERR_get_error();                        \
-        fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL)); \
-        return EXIT_FAILURE;                                        \
-    }
-#define J_CACHE_SIZE 4
 
 int main(int argc, char *argv[])
 {
