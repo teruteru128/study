@@ -34,7 +34,7 @@ AC_CHECK_LIB([pthread], [main], [], [AC_MSG_FAILURE([could not find lib pthread]
 AC_CHECK_LIB([sodium], [main], [], [AC_MSG_FAILURE([could not find lib sodium])])
 AC_CHECK_LIB([ssl], [main], [], [AC_MSG_FAILURE([could not find lib ssl])])
 AC_CHECK_LIB([uuid], [main], [], [AC_MSG_FAILURE([could not find lib uuid])])
-AC_CHECK_LIB([textdomain], [main], [], [AC_MSG_FAILURE([could not find lib textdomain])])
+#AC_CHECK_LIB([textdomain], [main], [], [AC_MSG_FAILURE([could not find lib textdomain])])
 AC_CHECK_LIB([gmp], [__gmpz_init], [], [AC_MSG_FAILURE([could not find lib gmp])])
 AC_CHECK_LIB([xmlrpc], [main], [], [AC_MSG_FAILURE([could not find lib xmlrpc])])
 AC_CHECK_LIB([xmlrpc_abyss], [main], [], [AC_MSG_FAILURE([could not find lib xmlrpc_abyss])])
