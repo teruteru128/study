@@ -27,31 +27,23 @@ AC_PROG_YACC
 AC_ENABLE_SHARED
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-lcrypto':
-AC_CHECK_LIB([crypto], [main])
-# FIXME: Replace `main' with a function in `-lcurl':
-AC_CHECK_LIB([curl], [main])
-# FIXME: Replace `main' with a function in `-lm':
-AC_CHECK_LIB([m], [main])
-# FIXME: Replace `main' with a function in `-lpthread':
-AC_CHECK_LIB([pthread], [main])
-# FIXME: Replace `main' with a function in `-lsodium':
-AC_CHECK_LIB([sodium], [main])
-# FIXME: Replace `main' with a function in `-lssl':
-AC_CHECK_LIB([ssl], [main])
-# FIXME: Replace `main' with a function in `-luuid':
-AC_CHECK_LIB([uuid], [main])
-# FIXME: Replace `main' with a function in `-ltextdomain':
-AC_CHECK_LIB([textdomain], [main])
-AC_CHECK_LIB([gmp], [__gmpz_init])
-AC_CHECK_LIB([xmlrpc], [main])
-AC_CHECK_LIB([xmlrpc_abyss], [main])
-AC_CHECK_LIB([xmlrpc_client], [main])
-AC_CHECK_LIB([xmlrpc_server], [main])
-AC_CHECK_LIB([xmlrpc_server_abyss], [main])
-AC_CHECK_LIB([xmlrpc_util], [main])
-AC_CHECK_LIB([xmlrpc_xmlparse], [main])
-AC_CHECK_LIB([xmlrpc_xmltok], [main])
+AC_CHECK_LIB([crypto], [main], [], [AC_MSG_FAILURE([could not find lib crypto])])
+AC_CHECK_LIB([curl], [main], [], [AC_MSG_FAILURE([could not find lib curl])])
+AC_CHECK_LIB([m], [main], [], [AC_MSG_FAILURE([could not find lib m])])
+AC_CHECK_LIB([pthread], [main], [], [AC_MSG_FAILURE([could not find lib pthread])])
+AC_CHECK_LIB([sodium], [main], [], [AC_MSG_FAILURE([could not find lib sodium])])
+AC_CHECK_LIB([ssl], [main], [], [AC_MSG_FAILURE([could not find lib ssl])])
+AC_CHECK_LIB([uuid], [main], [], [AC_MSG_FAILURE([could not find lib uuid])])
+AC_CHECK_LIB([textdomain], [main], [], [AC_MSG_FAILURE([could not find lib textdomain])])
+AC_CHECK_LIB([gmp], [__gmpz_init], [], [AC_MSG_FAILURE([could not find lib gmp])])
+AC_CHECK_LIB([xmlrpc], [main], [], [AC_MSG_FAILURE([could not find lib xmlrpc])])
+AC_CHECK_LIB([xmlrpc_abyss], [main], [], [AC_MSG_FAILURE([could not find lib xmlrpc_abyss])])
+AC_CHECK_LIB([xmlrpc_client], [main], [], [AC_MSG_FAILURE([could not find lib xmlrpc_client])])
+AC_CHECK_LIB([xmlrpc_server], [main], [], [AC_MSG_FAILURE([could not find lib xmlrpc_server])])
+AC_CHECK_LIB([xmlrpc_server_abyss], [main], [], [AC_MSG_FAILURE([could not find lib xmlrpc_server_abyss])])
+AC_CHECK_LIB([xmlrpc_util], [main], [], [AC_MSG_FAILURE([could not find lib xmlrpc_util])])
+AC_CHECK_LIB([xmlrpc_xmlparse], [main], [], [AC_MSG_FAILURE([could not find lib xmlrpc_xmlparse])])
+AC_CHECK_LIB([xmlrpc_xmltok], [main], [], [AC_MSG_FAILURE([could not find lib xmlrpc_xmltok])])
 
 # Checks for header files.
 AC_FUNC_ALLOCA
