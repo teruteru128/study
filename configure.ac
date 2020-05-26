@@ -72,7 +72,13 @@ AC_TYPE_UINT8_T
 AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
-AM_GNU_GETTEXT
+m4_ifdef([AM_GNU_GETTEXT], [
+AM_GNU_GETTEXT([external])
+po_makefile_in=po/Makefile.in
+AM_CONDITIONAL([HAVE_PO], [true])
+],[
+AM_CONDITIONAL([HAVE_PO], [false])
+])
 AC_FUNC_MALLOC
 AC_FUNC_MBRTOWC
 AC_FUNC_MMAP
@@ -81,5 +87,6 @@ AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify getcwd gettimeofday lo
 
 AC_CONFIG_FILES([Makefile
                  intl/Makefile
+                 $po_makefile_in
                  src/Makefile])
 AC_OUTPUT
