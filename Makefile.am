@@ -1,4 +1,4 @@
-SUBDIRS  = intl
+SUBDIRS  =
 #SUBDIRS += include
 #SUBDIRS += lib
 #SUBDIRS += po
