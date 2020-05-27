@@ -69,7 +69,8 @@ AM_GNU_GETTEXT([external])
 po_makefile_in=po/Makefile.in
 AM_CONDITIONAL([HAVE_PO], [true])
 ],[
-AM_CONDITIONAL([HAVE_PO], [false])
+# AM_CONDITIONAL([HAVE_PO], [false])
+AC_MSG_FAILURE([could not find lib gettext])
 ])
 AC_FUNC_MALLOC
 AC_FUNC_MBRTOWC
