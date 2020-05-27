@@ -78,6 +78,6 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify getcwd gettimeofday localeconv mblen mbrlen memchr mempcpy memset munmap nl_langinfo pow regcomp select setlocale socket sqrt stpcpy strcasecmp strchr strcspn strdup strerror strrchr strstr strtol strtoul strtoull])
 
 AC_CONFIG_FILES([Makefile
-                 $po_makefile_in
+                 po/Makefile.in
                  src/Makefile])
 AC_OUTPUT
