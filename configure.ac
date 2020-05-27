@@ -7,7 +7,6 @@ AC_INIT([STUDY], [0.0.0-alpha], [teruterubouzu1024@gmail.com])
 AC_CONFIG_SRCDIR([src/study.c])
 AC_CONFIG_HEADERS([src/config.h])
 AM_INIT_AUTOMAKE([foreign])
-AM_GNU_GETTEXT
 AC_CONFIG_MACRO_DIRS([m4])
 AM_PROG_LIBTOOL
 LT_INIT
