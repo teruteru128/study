@@ -103,11 +103,11 @@ uuidtest_LDFLAGS= -luuid
 017_LDADD= -lssl -lcrypto
 017_LDFLAGS=
 017_SOURCES= 017.c printint.c
-service_sample_SOURCES= service-sample.c server.c
+service_sample_SOURCES= service-sample.c server.c server.h
 019_LDFLAGS=-lm
 gettextsample2_SOURCES= gettextsample2.c gettextsample2.h study-config.h
 gettextsample2_CFLAGS= -DLOCALEDIR='"$(localedir)"'
-gettextsample3_SOURCES= gettextsample3.c gettextsample3.h study-config.h textdomain.c textdomain_inner.h
+gettextsample3_SOURCES= gettextsample3.c gettextsample3.h study-config.h textdomain.c textdomain_inner.h mytextdomain.h
 gettextsample3_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 gettextsample3_LDADD=
 gettextsample3_LDFLAGS=
@@ -148,3 +148,4 @@ bouyomi_LDADD=
 bouyomi_LDFLAGS=
 bouyomi_SOURCES= print_addrinfo.c print_addrinfo.h charset-convert.c charset-convert.h bouyomi.c bouyomi.h
 CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h
+gettime_SOURCES= gettime.c gettime.h
