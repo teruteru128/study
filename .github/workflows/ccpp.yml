@@ -11,6 +11,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install dependents
+      run: sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev --install-recommends --install-suggests
     - name: autogen.sh
       run: ./autogen.sh
     - name: configure
