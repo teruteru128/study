@@ -1,3 +1,4 @@
+##https://github.com/github/gitignore/blob/f76d089/C.gitignore
 # Prerequisites
 *.d
 
@@ -51,6 +52,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+##https://raw.githubusercontent.com/github/gitignore/c022baa5052bff5fa7d83c79310871b9e085f991/Autotools.gitignore
 # http://www.gnu.org/software/automake
 
 Makefile.in
@@ -59,6 +61,8 @@ Makefile.in
 /py-compile
 /test-driver
 /ylwrap
+.deps/
+.dirstamp
 
 # http://www.gnu.org/software/autoconf
 
@@ -68,14 +72,16 @@ autom4te.cache
 /aclocal.m4
 /compile
 /config.guess
-config.*
+/src/config.h.in
+/config.log
+/config.status
+/config.sub
 /configure
 /configure.scan
 /depcomp
 /install-sh
 /missing
 /stamp-h1
-libtool
 
 # https://www.gnu.org/software/libtool/
 
@@ -93,17 +99,27 @@ m4/ltsugar.m4
 m4/ltversion.m4
 m4/lt~obsolete.m4
 
-# Visual Studio Code
+# Generated Makefile 
+# (meta build system like autotools, 
+# can automatically generate from config.status script
+# (which is called by configure script))
+Makefile
 
+##https://raw.githubusercontent.com/github/gitignore/eefa65c924329ad918985713cdb195e6bc68744b/Global/VisualStudioCode.gitignore
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+*.code-workspace
 
-## Vim
+# Local History for Visual Studio Code
+.history/
+
+##https://github.com/github/gitignore/blob/41ec058/Global/Vim.gitignore
 # Swap
 [._]*.s[a-v][a-z]
+!*.svg  # comment out if you don't need vector files
 [._]*.sw[a-p]
 [._]s[a-rt-v][a-z]
 [._]ss[a-gi-z]
@@ -111,6 +127,7 @@ m4/lt~obsolete.m4
 
 # Session
 Session.vim
+Sessionx.vim
 
 # Temporary
 .netrwhist
@@ -123,33 +140,3 @@ tags
 ## Jota+ textedutor
 *~
 *.tmp
-
-## autotools
-.deps/
-Makefile
-.lib/
-.libs/
-/m4/
-po/*
-stamp-h1
-intl/
-!po/POTFILES.in
-!po/*.po
-!po/*.pot
-!po/LINGUAS
-!po/Makevars
-
-*~
-
-# temporary files which can be created if a process still has a handle open of a deleted file
-.fuse_hidden*
-
-# KDE directory preferences
-.directory
-
-# Linux trash folder which might appear on any partition or disk
-.Trash-*
-
-# .nfs files are created when an open file is removed but is still being accessed
-.nfs*
-

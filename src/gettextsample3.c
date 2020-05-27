@@ -1,5 +1,5 @@
 
-#include <mytextdomain.h>
+#include "mytextdomain.h"
 #include "gettextsample3.h"
 
 int main(void){

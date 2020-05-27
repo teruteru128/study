@@ -53,7 +53,6 @@ bin_PROGRAMS+=threadAttr
 bin_PROGRAMS+=yattaze
 bin_PROGRAMS+=encodersa
 bin_PROGRAMS+=CoDec
-bin_PROGRAMS+=iconv_Chk
 bin_PROGRAMS+=falcon
 bin_PROGRAMS+=dragon
 bin_PROGRAMS+=doublerandom
@@ -69,11 +68,19 @@ bin_PROGRAMS+=log-sample
 bin_PROGRAMS+=mysqlfast
 bin_PROGRAMS+=bmkeygen
 
+NVCC=nvcc
+
+.cu.o:
+	$(NVCC) -ccbin $(CC) -c $^ -o $@
+
+cudahello: cudahello.o
+	$(NVCC) -ccbin $(CC) $^ -o $@
+
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 study_LDADD= -lcrypto
 study_LDFLAGS=
-study_SOURCES=study.c gettextsample.c gettextsample.h printint.c random.c random.h bitset.c bitset.h
+study_SOURCES=study.c gettextsample.c gettextsample.h printint.c random.c random.h bitset.c bitset.h internal_random.h
 teamspeakcalc_CFLAGS=
 teamspeakcalc_LDADD= -lcrypto
 teamspeakcalc_LDFLAGS=
@@ -82,7 +89,7 @@ printBench_CFLAGS=
 printBench_LDADD= -lssl -lcrypto
 printBench_LDFLAGS=
 printBench_SOURCES= printBench.c printint.c
-read_random_SOURCES=read_random.c base64.c random.c  random.h
+read_random_SOURCES=read_random.c base64.c random.c  random.h internal_random.h
 teamspeakIdUpgrader_SOURCES= teamspeakIdUpgrader.c printint.c
 teamspeakIdUpgrader_CFLAGS=
 teamspeakIdUpgrader_LDADD= -lssl -lcrypto
@@ -96,15 +103,15 @@ uuidtest_LDFLAGS= -luuid
 017_LDADD= -lssl -lcrypto
 017_LDFLAGS=
 017_SOURCES= 017.c printint.c
-service_sample_SOURCES= service-sample.c server.c
+service_sample_SOURCES= service-sample.c server.c server.h
 019_LDFLAGS=-lm
-gettextsample2_SOURCES= gettextsample2.c gettextsample2.h
+gettextsample2_SOURCES= gettextsample2.c gettextsample2.h study-config.h
 gettextsample2_CFLAGS= -DLOCALEDIR='"$(localedir)"'
-gettextsample3_SOURCES= gettextsample3.c gettextsample3.h textdomain.c
+gettextsample3_SOURCES= gettextsample3.c gettextsample3.h study-config.h textdomain.c textdomain_inner.h mytextdomain.h
 gettextsample3_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 gettextsample3_LDADD=
 gettextsample3_LDFLAGS=
-orz_SOURCES= orz.c random.h random.c
+orz_SOURCES= orz.c random.h random.c internal_random.h
 localetest1_SOURCES = localetest1.c localetest1.h
 localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
 selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-1.h sha-2.h sha-3.h self-made-libsha.h
@@ -122,21 +129,23 @@ variables3_LDFLAGS=-lpthread
 seq_CFLAGS=-lm
 seq_LDFLAGS=-lm
 sum_LDFLAGS=-lm
+sum_SOURCES= sum.c random.c
 cudahello_SOURCES=cudahello.cu
 cudahello_CFLAGS=-fPIC
 rsa1024_SOURCES=rsa1024.c
 curltest_LDFLAGS=-lcurl
 threadAttr_LDFLAGS=-pthread
 encodersa_LDFLAGS=-lcrypto -lssl
-falcon_SOURCES=falcon.c random.c random.h
+falcon_SOURCES=falcon.c random.c random.h internal_random.h
 dragon_SOURCES=dragon.c svgplot.c svgplot.h
 FizzBuzz_SOURCES=FizzBuzz.c printint.c printint.h
 Nabeatsu_SOURCES=FizzBuzz.c printint.c printint.h
-epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h
-sntpc_SOURCES=sntpc.c random.c random.h
+epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h string_array.c string_array.h string_list.c string_list.h
+sntpc_SOURCES=sntpc.c random.c random.h internal_random.h
 string_list_test_SOURCES=string_list.h string_list.c string_list_test.c
 bouyomi_CFLAGS=
 bouyomi_LDADD=
 bouyomi_LDFLAGS=
 bouyomi_SOURCES= print_addrinfo.c print_addrinfo.h charset-convert.c charset-convert.h bouyomi.c bouyomi.h
 CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h
+gettime_SOURCES= gettime.c gettime.h

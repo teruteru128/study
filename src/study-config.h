@@ -4,7 +4,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <gettext.h>
+#include <libintl.h>
 #define _(str) gettext(str)
 #include <locale.h>
 #include <stdio.h>
@@ -12,5 +12,3 @@
 //#define LOCALEDIR NULL
 
 #endif
-
-

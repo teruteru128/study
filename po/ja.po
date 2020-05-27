@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 0.0.0-alpha\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2019-01-01 10:12+0900\n"
+"POT-Creation-Date: 2020-05-27 13:45+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -18,22 +18,22 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/001-gettext-sample.c:12 020/main.c:8 026/main026.c:8
+#: src/gettextsample.c:12 src/gettextsample2.c:8 src/localetest1.c:8
 #, c-format
 msgid "Hello world!\n"
 msgstr "こんにちは世界！\n"
 
-#: 003/main.c:46
-#, c-format
-msgid "verifier : %<PRIu64>\n"
-msgstr "検証子 : %<PRIu64>\n"
-
-#: 022/main.c:9
+#: src/gettextsample3.c:9
 #, c-format
 msgid "%dmicro seconds stopping.\n"
 msgstr "%dマイクロ秒停止します。\n"
 
-#: 022/main.c:11
+#: src/gettextsample3.c:11
 #, c-format
 msgid "%dmicro seconds stoped.\n"
 msgstr "%dマイクロ秒停止しました。\n"
+
+#: src/teamspeakcalc.c:52
+#, c-format
+msgid "verifier : %<PRIu64>\n"
+msgstr "検証子 : %<PRIu64>\n"
