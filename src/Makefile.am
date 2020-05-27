@@ -69,7 +69,7 @@ bin_PROGRAMS+=mysqlfast
 bin_PROGRAMS+=bmkeygen
 
 .cu.o:
-	nvcc -ccbin $(CC) $^ -o $@
+	nvcc -ccbin $(CC) -c $^ -o $@
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
