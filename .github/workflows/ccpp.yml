@@ -29,3 +29,10 @@ jobs:
       run: make check -j
     - name: make distcheck
       run: PATH=/usr/local/cuda-10.2/bin:${PATH} make distcheck -j
+    - name: make dist
+      run: PATH=/usr/local/cuda-10.2/bin:${PATH} make dist -j
+    - name: Save artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: tarball
+        path: study-0.0.0-alpha.tar.gz
