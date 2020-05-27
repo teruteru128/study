@@ -53,7 +53,6 @@ bin_PROGRAMS+=threadAttr
 bin_PROGRAMS+=yattaze
 bin_PROGRAMS+=encodersa
 bin_PROGRAMS+=CoDec
-bin_PROGRAMS+=iconv_Chk
 bin_PROGRAMS+=falcon
 bin_PROGRAMS+=dragon
 bin_PROGRAMS+=doublerandom
