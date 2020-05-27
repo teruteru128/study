@@ -68,8 +68,13 @@ bin_PROGRAMS+=log-sample
 bin_PROGRAMS+=mysqlfast
 bin_PROGRAMS+=bmkeygen
 
+NVCC=nvcc
+
 .cu.o:
-	nvcc -ccbin $(CC) -c $^ -o $@
+	$(NVCC) -ccbin $(CC) -c $^ -o $@
+
+cudahello: cudahello.o
+	$(NVCC) -ccbin $(CC) $^ -o $@
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
