@@ -10,8 +10,7 @@
 #include "printint.h"
 #define IN2_SIZE 21
 
-#include "gettext.h"
-#define _(str) gettext(str)
+#include "study-config.h"
 
 int main(int argc, char **argv)
 {
