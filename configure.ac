@@ -74,6 +74,6 @@ AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify getcwd gettimeofday lo
 
 AC_CONFIG_FILES([Makefile
                  intl/Makefile
-                 po/Makefile
+                 po/Makefile.in
                  src/Makefile])
 AC_OUTPUT
