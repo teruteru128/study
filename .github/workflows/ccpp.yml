@@ -21,6 +21,7 @@ jobs:
         sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev cuda-nvcc-10-2
         echo 'export PATH=/usr/local/cuda-10.2/bin:${PATH}' >> ~/.bash_profile
         source ~/.bash_profile
+        ls -al /usr/local/cuda-10.2/bin
     - name: autogen.sh
       run: ./autogen.sh
     - name: configure
