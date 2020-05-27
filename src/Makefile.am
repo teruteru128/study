@@ -80,7 +80,7 @@ cudahello: cudahello.o
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 study_LDADD= -lcrypto
 study_LDFLAGS=
-study_SOURCES=study.c gettextsample.c gettextsample.h printint.c random.c random.h bitset.c bitset.h
+study_SOURCES=study.c gettextsample.c gettextsample.h printint.c random.c random.h bitset.c bitset.h internal_random.h
 teamspeakcalc_CFLAGS=
 teamspeakcalc_LDADD= -lcrypto
 teamspeakcalc_LDFLAGS=
@@ -89,7 +89,7 @@ printBench_CFLAGS=
 printBench_LDADD= -lssl -lcrypto
 printBench_LDFLAGS=
 printBench_SOURCES= printBench.c printint.c
-read_random_SOURCES=read_random.c base64.c random.c  random.h
+read_random_SOURCES=read_random.c base64.c random.c  random.h internal_random.h
 teamspeakIdUpgrader_SOURCES= teamspeakIdUpgrader.c printint.c
 teamspeakIdUpgrader_CFLAGS=
 teamspeakIdUpgrader_LDADD= -lssl -lcrypto
@@ -111,7 +111,7 @@ gettextsample3_SOURCES= gettextsample3.c gettextsample3.h study-config.h textdom
 gettextsample3_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 gettextsample3_LDADD=
 gettextsample3_LDFLAGS=
-orz_SOURCES= orz.c random.h random.c
+orz_SOURCES= orz.c random.h random.c internal_random.h
 localetest1_SOURCES = localetest1.c localetest1.h
 localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
 selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-1.h sha-2.h sha-3.h self-made-libsha.h
@@ -136,12 +136,12 @@ rsa1024_SOURCES=rsa1024.c
 curltest_LDFLAGS=-lcurl
 threadAttr_LDFLAGS=-pthread
 encodersa_LDFLAGS=-lcrypto -lssl
-falcon_SOURCES=falcon.c random.c random.h
+falcon_SOURCES=falcon.c random.c random.h internal_random.h
 dragon_SOURCES=dragon.c svgplot.c svgplot.h
 FizzBuzz_SOURCES=FizzBuzz.c printint.c printint.h
 Nabeatsu_SOURCES=FizzBuzz.c printint.c printint.h
 epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h string_array.c string_array.h string_list.c string_list.h
-sntpc_SOURCES=sntpc.c random.c random.h
+sntpc_SOURCES=sntpc.c random.c random.h internal_random.h
 string_list_test_SOURCES=string_list.h string_list.c string_list_test.c
 bouyomi_CFLAGS=
 bouyomi_LDADD=
