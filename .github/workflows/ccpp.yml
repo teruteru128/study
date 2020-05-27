@@ -34,5 +34,5 @@ jobs:
     - name: Save artifact
       uses: actions/upload-artifact@v1
       with:
-        name: tarball
+        name: study-0.0.0-alpha.tar.gz
         path: study-0.0.0-alpha.tar.gz
