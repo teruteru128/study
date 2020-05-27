@@ -8,6 +8,7 @@ AC_CONFIG_SRCDIR([src/study.c])
 AC_CONFIG_HEADERS([src/config.h])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_MACRO_DIRS([m4])
+AC_CANONICAL_HOST
 AM_PROG_LIBTOOL
 LT_INIT
 AM_PROG_AR
@@ -16,7 +17,7 @@ AM_PROG_AR
 AC_PROG_CXX
 AC_PROG_AWK
 AC_PROG_CC
-#AC_GNU_SOURCE
+AC_GNU_SOURCE
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -64,7 +65,7 @@ AC_TYPE_UINT8_T
 AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
-#m4_ifdef([AM_GNU_GETTEXT], [AM_GNU_GETTEXT([external])],[AC_MSG_FAILURE([could not find lib gettext])])
+m4_ifdef([AM_GNU_GETTEXT], [AM_GNU_GETTEXT([external])],[AC_MSG_FAILURE([could not find lib gettext])])
 AC_FUNC_MALLOC
 AC_FUNC_MBRTOWC
 AC_FUNC_MMAP
@@ -72,6 +73,7 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify getcwd gettimeofday localeconv mblen mbrlen memchr mempcpy memset munmap nl_langinfo pow regcomp select setlocale socket sqrt stpcpy strcasecmp strchr strcspn strdup strerror strrchr strstr strtol strtoul strtoull])
 
 AC_CONFIG_FILES([Makefile
+                 intl/Makefile
                  po/Makefile
                  src/Makefile])
 AC_OUTPUT
