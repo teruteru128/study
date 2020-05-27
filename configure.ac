@@ -7,6 +7,7 @@ AC_INIT([STUDY], [0.0.0-alpha], [teruterubouzu1024@gmail.com])
 AC_CONFIG_SRCDIR([src/study.c])
 AC_CONFIG_HEADERS([src/config.h])
 AM_INIT_AUTOMAKE([foreign])
+AM_GNU_GETTEXT
 AC_CONFIG_MACRO_DIRS([m4])
 AM_PROG_LIBTOOL
 LT_INIT
@@ -64,12 +65,7 @@ AC_TYPE_UINT8_T
 AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
-AM_GNU_GETTEXT([external])
-m4_ifdef([AM_GNU_GETTEXT], [
-AM_GNU_GETTEXT([external])
-],[
-AC_MSG_FAILURE([could not find lib gettext])
-])
+#m4_ifdef([AM_GNU_GETTEXT], [AM_GNU_GETTEXT([external])],[AC_MSG_FAILURE([could not find lib gettext])])
 AC_FUNC_MALLOC
 AC_FUNC_MBRTOWC
 AC_FUNC_MMAP
