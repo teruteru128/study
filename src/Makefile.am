@@ -68,6 +68,9 @@ bin_PROGRAMS+=log-sample
 bin_PROGRAMS+=mysqlfast
 bin_PROGRAMS+=bmkeygen
 
+.cu.o:
+	nvcc -ccbin $(CC) $^ -o $@
+
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 study_LDADD= -lcrypto
