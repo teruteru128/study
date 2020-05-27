@@ -1,9 +1,9 @@
 SUBDIRS  =
 #SUBDIRS += include
 #SUBDIRS += lib
-#SUBDIRS += po
+SUBDIRS += po
 SUBDIRS += src
 
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = config.rpath m4/ChangeLog
+EXTRA_DIST = config.rpath
