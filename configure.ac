@@ -16,7 +16,7 @@ AM_PROG_AR
 AC_PROG_CXX
 AC_PROG_AWK
 AC_PROG_CC
-AC_GNU_SOURCE
+#AC_GNU_SOURCE
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -72,6 +72,6 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify getcwd gettimeofday localeconv mblen mbrlen memchr mempcpy memset munmap nl_langinfo pow regcomp select setlocale socket sqrt stpcpy strcasecmp strchr strcspn strdup strerror strrchr strstr strtol strtoul strtoull])
 
 AC_CONFIG_FILES([Makefile
-                 po/Makefile.in
+                 po/Makefile
                  src/Makefile])
 AC_OUTPUT
