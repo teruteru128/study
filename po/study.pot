@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 0.0.0-alpha\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-05-27 13:45+0900\n"
+"POT-Creation-Date: 2020-05-28 03:06+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,7 +32,7 @@ msgstr ""
 msgid "%dmicro seconds stoped.\n"
 msgstr ""
 
-#: src/teamspeakcalc.c:52
+#: src/teamspeakcalc.c:51
 #, c-format
 msgid "verifier : %<PRIu64>\n"
 msgstr ""
