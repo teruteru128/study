@@ -98,7 +98,7 @@ static int parse_internal(epsp_packet* packet, const char* line){
     string_array * data = string_array_split(data_str, ":");
     if(data == NULL){
       perror("");
-      return NULL;
+      return EXIT_FAILURE;
     }
     packet->data = data;
   }else{
@@ -109,6 +109,11 @@ static int parse_internal(epsp_packet* packet, const char* line){
 clean:
   free(copy_line);
   return 0;
+}
+
+void epsp_packet_free(epsp_packet* packet)
+{
+
 }
 
 /**
@@ -135,13 +140,7 @@ epsp_packet* epsp_packet_parse(char* line){
 /*
  * https://p2pquake.github.io/epsp-specifications/epsp-specifications.html
  */
-void print_reg_error(int errorcode, regex_t* buf){
-    size_t len = regerror(errorcode, buf, NULL, 0);
-    char* msg = (char*)calloc(len, sizeof(char));
-    regerror(errorcode, buf, msg, len);
-    printf("%s\n", msg);
-    free(msg);
-}
+void print_reg_error(int errorcode, regex_t* buf);
 
 /*
   文字列の配列を返す

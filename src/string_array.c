@@ -22,7 +22,7 @@ int string_array_add(string_array *data, char *a)
     return 0;
 }
 
-string_array *string_array_split(const char *in, char *delim)
+string_array *string_array_split(const char *in, const char *delim)
 {
     char *work = strdup(in);
     if(work == NULL){
@@ -65,7 +65,7 @@ string_array *string_array_split(const char *in, char *delim)
     }
     // int trimToSize(string_array *)
     // trimToSize(data);
-    char *tmp = realloc(str, sizeof(char *) * --size);
+    char *tmp = realloc(str, sizeof(char *) * (size > 0 ? size - 1 : size));
     if (tmp == NULL)
     {
         free(work);

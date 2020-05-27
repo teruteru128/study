@@ -25,7 +25,6 @@ uint32_t xor128(const uint32_t seed1, const uint32_t seed2, const uint32_t seed3
 	return 0;
 }
 
-// FIXME: rename to read_file
 int read_file(const char* const path, void* buf, const size_t size, const size_t nmemb) {
 
 	FILE* rnd = fopen(path, "rb");
