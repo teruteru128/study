@@ -32,7 +32,7 @@ jobs:
     - name: make dist
       run: PATH=/usr/local/cuda-10.2/bin:${PATH} make dist -j
     - name: Save artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: study-0.0.0-alpha.tar.gz
         path: study-0.0.0-alpha.tar.gz
