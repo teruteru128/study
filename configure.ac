@@ -64,12 +64,10 @@ AC_TYPE_UINT8_T
 AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
+AM_GNU_GETTEXT([external])
 m4_ifdef([AM_GNU_GETTEXT], [
 AM_GNU_GETTEXT([external])
-po_makefile_in=po/Makefile.in
-AM_CONDITIONAL([HAVE_PO], [true])
 ],[
-# AM_CONDITIONAL([HAVE_PO], [false])
 AC_MSG_FAILURE([could not find lib gettext])
 ])
 AC_FUNC_MALLOC
@@ -79,6 +77,6 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify getcwd gettimeofday localeconv mblen mbrlen memchr mempcpy memset munmap nl_langinfo pow regcomp select setlocale socket sqrt stpcpy strcasecmp strchr strcspn strdup strerror strrchr strstr strtol strtoul strtoull])
 
 AC_CONFIG_FILES([Makefile
-                 $po_makefile_in
+                 po/Makefile.in
                  src/Makefile])
 AC_OUTPUT
