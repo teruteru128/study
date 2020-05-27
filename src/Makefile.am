@@ -105,9 +105,9 @@ uuidtest_LDFLAGS= -luuid
 017_SOURCES= 017.c printint.c
 service_sample_SOURCES= service-sample.c server.c
 019_LDFLAGS=-lm
-gettextsample2_SOURCES= gettextsample2.c gettextsample2.h
+gettextsample2_SOURCES= gettextsample2.c gettextsample2.h study-config.h
 gettextsample2_CFLAGS= -DLOCALEDIR='"$(localedir)"'
-gettextsample3_SOURCES= gettextsample3.c gettextsample3.h textdomain.c
+gettextsample3_SOURCES= gettextsample3.c gettextsample3.h study-config.h textdomain.c textdomain_inner.h
 gettextsample3_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 gettextsample3_LDADD=
 gettextsample3_LDFLAGS=
