@@ -112,8 +112,9 @@ export LANG=ja_JP.sjis
 cat test_sjis.txt|./iconv_Chk 2
 export LANG=ja_JP.utf8
 ---------------------------------------------------------------
+https://gist.github.com/brokendish/6404612
 */
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     int ret;
     char *moji;
