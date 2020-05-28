@@ -31,7 +31,9 @@
                 "${workspaceFolder}"
             ],
             "defines": [
-                "_GNU_SOURCE"
+                "_GNU_SOURCE",
+                "PACKAGE",
+                "PACKAGE_VERSION"
             ],
             "intelliSenseMode": "clang-x64",
             "browse": {
