@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 0.0.0-alpha\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-05-28 11:09+0900\n"
+"POT-Creation-Date: 2020-05-28 13:31+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -37,3 +37,8 @@ msgstr "%dマイクロ秒停止しました。\n"
 #, c-format
 msgid "verifier : %<PRIu64>\n"
 msgstr "検証子 : %<PRIu64>\n"
+
+#: src/study.c:12
+#, c-format
+msgid "Help me!\n"
+msgstr "助けて！\n"

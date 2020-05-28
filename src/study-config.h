@@ -8,7 +8,6 @@
 #define _(str) gettext(str)
 #include <locale.h>
 #include <stdio.h>
-#define PACKAGE "study"
 //#define LOCALEDIR NULL
 
 #endif

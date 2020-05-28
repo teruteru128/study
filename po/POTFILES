@@ -2,4 +2,5 @@
      ../src/gettextsample2.c \
      ../src/gettextsample3.c \
      ../src/localetest1.c \
-     ../src/teamspeakcalc.c
+     ../src/teamspeakcalc.c \
+     ../src/study.c
