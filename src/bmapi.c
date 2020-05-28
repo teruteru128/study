@@ -4,6 +4,9 @@
 #include "base64.h"
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 static int initflag;
 static xmlrpc_env env;
@@ -14,7 +17,7 @@ void die_if_fault_occurred (xmlrpc_env*);
 int api_init(){
     xmlrpc_env_init(&env);
     xmlrpc_client_setup_global_const(&env);
-    xmlrpc_client_create(&env, XMLRPC_CLIENT_NO_FLAGS, "bm", "0.0.0.1-alpha", NULL, 0, &cp);
+    xmlrpc_client_create(&env, XMLRPC_CLIENT_NO_FLAGS, "bm", PACKAGE_VERSION, NULL, 0, &cp);
     sinfo = xmlrpc_server_info_new(&env, "http://localhost:8442/");
     xmlrpc_server_info_set_user(&env, sinfo, "teruteru128", "testpassword");
     xmlrpc_server_info_allow_auth_basic(&env, sinfo);
