@@ -71,52 +71,45 @@ bin_PROGRAMS+=bmkeygen
 NVCC=nvcc
 
 .cu.o:
-	$(NVCC) -ccbin $(CC) -c $^ -o $@
+	$(NVCC) $(CFLAGS) -ccbin $(CC) -c $^ -o $@
 
 cudahello: cudahello.o
 	$(NVCC) -ccbin $(CC) $^ -o $@
 
 #AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
-study_LDADD= -lcrypto
-study_LDFLAGS=
-study_SOURCES=study.c study-config.h
+study_LDFLAGS= -lcrypto
+study_SOURCES=study.c gettextsample.c gettextsample.h printint.c printint.h random.c random.h internal_random.h bitset.c bitset.h study-config.h gettextsample.h
 teamspeakcalc_CFLAGS=
-teamspeakcalc_LDADD= -lcrypto
-teamspeakcalc_LDFLAGS=
-teamspeakcalc_SOURCES= teamspeakcalc.c printint.c
+teamspeakcalc_LDFLAGS= -lcrypto
+teamspeakcalc_SOURCES= teamspeakcalc.c printint.c printint.h
 printBench_CFLAGS=
-printBench_LDADD= -lssl -lcrypto
-printBench_LDFLAGS=
-printBench_SOURCES= printBench.c printint.c
-read_random_SOURCES=read_random.c base64.c random.c  random.h internal_random.h
-teamspeakIdUpgrader_SOURCES= teamspeakIdUpgrader.c printint.c
+printBench_LDFLAGS= -lssl -lcrypto
+printBench_SOURCES= printBench.c printint.c printint.h
+read_random_SOURCES=read_random.c random.c random.h internal_random.h base64.c base64.h
+teamspeakIdUpgrader_SOURCES= teamspeakIdUpgrader.c printint.c printint.h
 teamspeakIdUpgrader_CFLAGS=
-teamspeakIdUpgrader_LDADD= -lssl -lcrypto
-teamspeakIdUpgrader_LDFLAGS=
+teamspeakIdUpgrader_LDFLAGS= -lssl -lcrypto
 argparsesample_SOURCES=argparsesample.c
 uuidtest_LDFLAGS= -luuid
 013_LDFLAGS= -lsodium
 015_LDFLAGS= -lcrypto
 016_LDFLAGS= -lssl -lcrypto
-017_CFLAGS=
-017_LDADD= -lssl -lcrypto
-017_LDFLAGS=
-017_SOURCES= 017.c printint.c
+017_LDFLAGS= -lssl -lcrypto
+017_SOURCES= 017.c printint.c printint.h
 service_sample_SOURCES= service-sample.c server.c server.h
 019_LDFLAGS=-lm
-gettextsample2_SOURCES= gettextsample2.c gettextsample2.h study-config.h
+gettextsample2_SOURCES= gettextsample2.c gettextsample2.h study-config.h config.h
 gettextsample2_CFLAGS= -DLOCALEDIR='"$(localedir)"'
-gettextsample3_SOURCES= gettextsample3.c gettextsample3.h study-config.h textdomain.c textdomain_inner.h mytextdomain.h
+gettextsample3_SOURCES= gettextsample3.c gettextsample3.h study-config.h config.h textdomain.c textdomain_inner.h mytextdomain.h
 gettextsample3_CFLAGS= -DLOCALEDIR='"$(localedir)"'
-gettextsample3_LDADD=
 gettextsample3_LDFLAGS=
-orz_SOURCES= orz.c random.h random.c internal_random.h
+orz_SOURCES= orz.c random.c random.h internal_random.h
 localetest1_SOURCES = localetest1.c localetest1.h
 localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
-selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-2.c sha-3.c sha-1.h sha-2.h sha-3.h self-made-libsha.h
+selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-1.h sha-2.c sha-2.h sha-3.c sha-3.h self-made-libsha.h
 selfmadelibsha_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
-bm_SOURCES = bitmessage.c base64.c bmapi.c xmlrpc.c bm.c bitmessage.h base64.h bmapi.h xmlrpc.h
+bm_SOURCES = bitmessage.c base64.c base64.h bmapi.c bmapi.h xmlrpc.c xmlrpc.h bm.c bitmessage.h
 bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
 bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
 firstThread_LDFLAGS=-lpthread
@@ -126,10 +119,10 @@ firstThread4_LDFLAGS=-lpthread
 firstThread4_1_LDFLAGS=-lpthread
 variables_LDFLAGS=-lpthread
 variables3_LDFLAGS=-lpthread
-seq_CFLAGS=-lm
+seq_CFLAGS=
 seq_LDFLAGS=-lm
 sum_LDFLAGS=-lm
-sum_SOURCES= sum.c random.c
+sum_SOURCES= sum.c random.c random.h internal_random.h
 cudahello_SOURCES=cudahello.cu
 cudahello_CFLAGS=-fPIC
 rsa1024_SOURCES=rsa1024.c
@@ -141,10 +134,9 @@ dragon_SOURCES=dragon.c svgplot.c svgplot.h
 FizzBuzz_SOURCES=FizzBuzz.c printint.c printint.h
 Nabeatsu_SOURCES=FizzBuzz.c printint.c printint.h
 epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h string_array.c string_array.h string_list.c string_list.h
-sntpc_SOURCES=sntpc.c random.c random.h internal_random.h print_addrinfo.c
-string_list_test_SOURCES=string_list.h string_list.c string_list_test.c
+sntpc_SOURCES=sntpc.c random.c random.h internal_random.h print_addrinfo.c print_addrinfo.h
+string_list_test_SOURCES=string_list.c string_list_test.c
 bouyomi_CFLAGS=
-bouyomi_LDADD=
 bouyomi_LDFLAGS=
 bouyomi_SOURCES= print_addrinfo.c print_addrinfo.h charset-convert.c charset-convert.h bouyomi.c bouyomi.h
 CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h

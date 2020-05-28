@@ -3,8 +3,7 @@
     前回: https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
 */
 
-#define HAVE_CONFIG_H 1
-#if HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 #include "bouyomi.h"

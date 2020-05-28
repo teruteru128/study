@@ -54,31 +54,6 @@ void showNabeatsu()
 #define MAX (100000000)
 int main(int argc, char *argv[])
 {
-  int a = 334;
-  char b[64];
-  itoa(a, b, 10);
-  fputs(b, stdout);
-  fputs("\n", stdout);
-  int i = 0, max = 1000000;
-  struct timespec start;
-  FILE *devnull = fopen("/dev/null", "w");
-  clock_gettime(CLOCK_REALTIME, &start);
-  if (devnull == NULL)
-  {
-    return EXIT_FAILURE;
-  }
-  for (; i < MAX; i++)
-  {
-    itoa(i, b, 10);
-  }
-  struct timespec end;
-  clock_gettime(CLOCK_REALTIME, &end);
-  fclose(devnull);
-  time_t sec = end.tv_sec - start.tv_sec;
-  long nsec = end.tv_nsec - start.tv_nsec;
-  double passed = sec * 1000000000L + nsec;
-  printf("%.8f秒かかりました\n", passed / 1e9);
-  printf("1秒あたり %.12f回\n", MAX / (passed / 1e9));
   if (strstr(argv[0], "Nabeatsu"))
   {
     showNabeatsu();
@@ -86,5 +61,27 @@ int main(int argc, char *argv[])
   else if (strstr(argv[0], "FizzBuzz"))
   {
     showFizzBuzz();
+  } else {
+    int a = 334;
+    char b[64];
+    itoa(a, b, 10);
+    fputs(b, stdout);
+    fputs("\n", stdout);
+    int i = 0, max = 1000000;
+    struct timespec start;
+    clock_gettime(CLOCK_REALTIME, &start);
+    for (; i < MAX; i++)
+    {
+      itoa(i, b, 10);
+    }
+    struct timespec end;
+    clock_gettime(CLOCK_REALTIME, &end);
+    time_t sec = end.tv_sec - start.tv_sec;
+    long nsec = end.tv_nsec - start.tv_nsec;
+    double passed = (sec * 1e9) + nsec;
+    double seconds = passed / 1e9;
+    fprintf(stderr, "%.8f秒かかりました\n", seconds);
+    fprintf(stderr, "1秒あたり %.1f回\n", MAX / seconds);
+    fprintf(stderr, "1回あたり %.12f秒\n", seconds / MAX);
   }
 }

@@ -2,7 +2,7 @@
 #ifndef PRINT_ADDRINFO_H
 #define PRINT_ADDRINFO_H 1
 
-#if HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 #include <sys/types.h>
