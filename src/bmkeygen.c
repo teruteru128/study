@@ -1,4 +1,5 @@
 
+#include "config.h"
 #include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -15,11 +16,11 @@
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
-#define KEY_CACHE_SIZE 16777216ULL
+#define KEY_CACHE_SIZE 65536ULL
 #define REQUIRE_NLZ 5
 #define ADDRESS_VERSION 4
 #define STREAM_NUMBER 1
-#define J_CACHE_SIZE 4
+#define J_CACHE_SIZE 8
 
 #define errchk(v, f)                                                \
     if (!v)                                                         \
@@ -199,7 +200,7 @@ int main(int argc, char *argv[])
         {
             // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
             memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-            // i = jの時に2回計算していた分を削減
+            // i = jの時に同じ鍵の組み合わせを2回計算していた分を削減
             r = SHA512_Init(&sha512ctx);
             errchk(r, SHA512_Init);
             r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
@@ -218,7 +219,7 @@ int main(int argc, char *argv[])
             {
                 exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
             }
-            for (j = 0; j <= i; j += J_CACHE_SIZE)
+            for (j = 0; j < i; j += J_CACHE_SIZE)
             {
                 memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH * J_CACHE_SIZE);
                 for (jj = 0; jj < J_CACHE_SIZE && (j + jj) < i; jj++)
@@ -261,9 +262,7 @@ int main(int argc, char *argv[])
                     }
                 } // jj
             }
-            fprintf(stderr, "fin j : %ld\n", i);
         }
-        fprintf(stderr, "公開鍵のキャッシュを使い切りました。再初期化します\n");
     }
     /* DEAD CODE ***********************/
 shutdown:

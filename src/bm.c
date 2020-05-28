@@ -1,4 +1,5 @@
 
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <xmlrpc.h>
@@ -11,79 +12,86 @@
 #define localhost_ip "127.0.0.1"
 #define bitmessage_port 8442
 #define NAME "TR BM TEST CLIENT"
-#define VERSION "0.0.1-alpha"
 #define SERVER_URL "http://127.0.0.1:8442/"
 
-void die_if_fault_occurred (xmlrpc_env *env)
+void die_if_fault_occurred(xmlrpc_env *env)
 {
-    /* Check our error-handling environment for an XML-RPC fault. */
-    if (env->fault_occurred) {
-        fprintf(stderr, "XML-RPC Fault: %s (%d)\n",
-                env->fault_string, env->fault_code);
-        exit(1);
-    }
+  /* Check our error-handling environment for an XML-RPC fault. */
+  if (env->fault_occurred)
+  {
+    fprintf(stderr, "XML-RPC Fault: %s (%d)\n",
+            env->fault_string, env->fault_code);
+    exit(1);
+  }
 }
-typedef struct clientinfo_t {} clientinfo;
-typedef struct serverinfo_t {} serverinfo;
-typedef struct connectioninfo_t {
+typedef struct clientinfo_t
+{
+} clientinfo;
+typedef struct serverinfo_t
+{
+} serverinfo;
+typedef struct connectioninfo_t
+{
   clientinfo client;
   serverinfo server;
 } connectioninfo;
 /**
  * int main(int argc, char* argv[]){
-    // グローバル定数初期化
-    global_init();
-    // 設定ファイルパース
-    configfile_parse();
-    // コマンドライン引数パース
-    arg_parse();
-    // メイン処理
-    do_main();
-    // 後片付け
-    global_cleanup();
-  }
+ *   // グローバル定数初期化
+ *   global_init();
+ *   // 設定ファイルパース
+ *   configfile_parse();
+ *   // コマンドライン引数パース
+ *   arg_parse();
+ *   // メイン処理
+ *   do_main();
+ *   // 後片付け
+ *   global_cleanup();
+ * }
  * */
 char buf[BUFSIZ];
 /* bmapi.c */
 int api_init(void);
-int main(int const argc, const char ** const argv)
+int main(int const argc, const char **const argv)
 {
   char *sendmsg = "";
   char chan_name[64];
   char *msg = NULL;
-  char *  generaladdress = "BM-2cW67GEKkHGonXKZLCzouLLxnLym3azS8r";
+  char *generaladdress = "BM-2cW67GEKkHGonXKZLCzouLLxnLym3azS8r";
   uuid_t uuid;
   api_init();
-  if(argc<2){
+  if (argc < 2)
+  {
     return EXIT_FAILURE;
   }
   FILE *infile = NULL;
   infile = fopen(argv[1], "r");
-  if(infile == NULL){
+  if (infile == NULL)
+  {
     perror("fopen");
     return EXIT_FAILURE;
   }
 
   char *tmp = NULL;
   char *message = "";
-  do{
+  do
+  {
     tmp = fgets(chan_name, 64, infile);
     api_simpleSendMessage(generaladdress, chan_name, "HAPPY NEW YEAR!", message);
-  }while(tmp != NULL);
+  } while (tmp != NULL);
 
   uuid_generate_random(uuid);
   uuid_unparse(uuid, buf);
   buf[strlen(buf)] = '\n';
 
-  char * uuid_address = api_createChan(buf);
+  char *uuid_address = api_createChan(buf);
   printf("%s, %s\n", buf, uuid_address);
-  msg=api_simpleSendMessage(uuid_address, uuid_address, buf, buf);
+  msg = api_simpleSendMessage(uuid_address, uuid_address, buf, buf);
   printf("%s\n", msg);
   free(msg);
 
   xmlrpc_client_teardown_global_const();
 
   free(uuid_address);
-  return 0;
+  return EXIT_SUCCESS;
 }
-
