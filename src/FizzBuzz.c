@@ -7,30 +7,44 @@
 #include <string.h>
 #include "printint.h"
 
-void showFizzBuzz(){
+void showFizzBuzz()
+{
   int n;
   int tmp;
-  for(n=1; n <= 40; n++){
-    if(n % 3 == 0 && n % 5 == 0){
+  for (n = 1; n <= 40; n++)
+  {
+    if (n % 3 == 0 && n % 5 == 0)
+    {
       printf("Fizz Buzz\n");
-    }else if(n%3 == 0){
+    }
+    else if (n % 3 == 0)
+    {
       printf("Fizz\n");
-    }else if(n%5==0){
+    }
+    else if (n % 5 == 0)
+    {
       printf("Buzz\n");
-    }else{
+    }
+    else
+    {
       printf("%d\n", n);
     }
   }
 }
 
-void showNabeatsu(){
+void showNabeatsu()
+{
   int n;
   char txt[64] = {0};
-  for(n=1; n <= 40; n++){
+  for (n = 1; n <= 40; n++)
+  {
     itoa(n, txt, 10);
-    if(n%3 == 0 || strchr(txt, '3')){
+    if (n % 3 == 0 || strchr(txt, '3'))
+    {
       fputs("アホ\n", stdout);
-    } else {
+    }
+    else
+    {
       fputs(txt, stdout);
       fputs("\n", stdout);
     }
@@ -38,7 +52,8 @@ void showNabeatsu(){
   }
 }
 #define MAX (100000000)
-int main(int argc, char* argv[]){
+int main(int argc, char *argv[])
+{
   int a = 334;
   char b[64];
   itoa(a, b, 10);
@@ -46,13 +61,15 @@ int main(int argc, char* argv[]){
   fputs("\n", stdout);
   int i = 0, max = 1000000;
   struct timespec start;
-  FILE* devnull = fopen("/dev/null", "w");
+  FILE *devnull = fopen("/dev/null", "w");
   clock_gettime(CLOCK_REALTIME, &start);
-  if(devnull == NULL){
+  if (devnull == NULL)
+  {
     return EXIT_FAILURE;
   }
-  for(;i < MAX;i++){
-    itoa(i,b,10);
+  for (; i < MAX; i++)
+  {
+    itoa(i, b, 10);
   }
   struct timespec end;
   clock_gettime(CLOCK_REALTIME, &end);
@@ -61,11 +78,13 @@ int main(int argc, char* argv[]){
   long nsec = end.tv_nsec - start.tv_nsec;
   double passed = sec * 1000000000L + nsec;
   printf("%.8f秒かかりました\n", passed / 1e9);
-  printf("1秒あたり %.12f回\n", MAX/(passed / 1e9));
-  if(strstr(argv[0], "Nabeatsu")){
+  printf("1秒あたり %.12f回\n", MAX / (passed / 1e9));
+  if (strstr(argv[0], "Nabeatsu"))
+  {
     showNabeatsu();
-  }else if(strstr(argv[0], "FizzBuzz")){
+  }
+  else if (strstr(argv[0], "FizzBuzz"))
+  {
     showFizzBuzz();
   }
 }
-

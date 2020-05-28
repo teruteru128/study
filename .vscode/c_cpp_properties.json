@@ -31,9 +31,8 @@
                 "${workspaceFolder}"
             ],
             "defines": [
-                "_GNU_SOURCE",
-                "PACKAGE",
-                "PACKAGE_VERSION"
+                "HAVE_CONFIG_H",
+                "LOCALEDIR"
             ],
             "intelliSenseMode": "clang-x64",
             "browse": {

@@ -1,5 +1,7 @@
 
-#include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include "stdio.h"
+#endif
 #include <stdlib.h>
 #include <inttypes.h>
 #include <locale.h>
