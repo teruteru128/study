@@ -52,7 +52,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-##https://raw.githubusercontent.com/github/gitignore/c022baa5052bff5fa7d83c79310871b9e085f991/Autotools.gitignore
+##https://github.com/github/gitignore/blob/c022baa/Autotools.gitignore
 # http://www.gnu.org/software/automake
 
 Makefile.in
@@ -78,6 +78,7 @@ autom4te.cache
 /config.sub
 /configure
 /configure.scan
+config.h
 /depcomp
 /install-sh
 /missing
@@ -106,7 +107,7 @@ m4/lt~obsolete.m4
 # (which is called by configure script))
 Makefile
 
-##https://raw.githubusercontent.com/github/gitignore/eefa65c924329ad918985713cdb195e6bc68744b/Global/VisualStudioCode.gitignore
+##https://github.com/github/gitignore/blob/eefa65c/Global/VisualStudioCode.gitignore
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
