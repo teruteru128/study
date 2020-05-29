@@ -1,6 +1,7 @@
 
 #include "config.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -9,23 +10,32 @@
 
 int main()
 {
-    int sock;
-    struct sockaddr_in addr;
+    struct sockaddr_in addr = {
+        AF_INET, htons(12345), INADDR_ANY
+    };
+
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+
+    if(sock == -1)
+    {
+        perror("socket");
+        return EXIT_FAILURE;
+    }
+
+    int r = bind(sock, (struct sockaddr *)&addr, sizeof(addr));
+
+    if(r == -1)
+    {
+        perror("bind");
+        return EXIT_FAILURE;
+    }
 
     char buf[2048];
-
-    sock = socket(AF_INET, SOCK_DGRAM, 0);
-
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(12345);
-    addr.sin_addr.s_addr = INADDR_ANY;
-
-    bind(sock, (struct sockaddr *)&addr, sizeof(addr));
-
     memset(buf, 0, sizeof(buf));
-    recv(sock, buf, sizeof(buf), 0);
+    ssize_t len = recv(sock, buf, sizeof(buf), 0);
 
     printf("%s\n", buf);
+    printf("%ld\n", len);
 
     close(sock);
 
