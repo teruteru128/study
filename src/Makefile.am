@@ -68,6 +68,7 @@ bin_PROGRAMS+=log-sample
 bin_PROGRAMS+=mysqlfast
 bin_PROGRAMS+=bmkeygen
 bin_PROGRAMS+=cl
+bin_PROGRAMS+=bcasttest
 
 NVCC=nvcc
 
@@ -155,3 +156,5 @@ prime3_SOURCES=prime3.c config.h
 bmkeygen_SOURCES=bmkeygen.c config.h
 portscanner_SOURCES=portscanner.c config.h
 primesearch_SOURCES=primesearch.c config.h
+udpsender_SOURCES=udpsender.c config.h
+bcasttest_SOURCES=bcasttest.c config.h
