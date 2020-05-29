@@ -50,8 +50,6 @@ typedef struct connectioninfo_t
  * }
  * */
 char buf[BUFSIZ];
-/* bmapi.c */
-int api_init(void);
 int main(int const argc, const char **const argv)
 {
   char *sendmsg = "";

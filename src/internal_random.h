@@ -7,4 +7,3 @@
 #define MASK 0xFFFFFFFFFFFFULL
 
 #endif
-

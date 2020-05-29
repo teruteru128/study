@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     mpz_t n, p, q, r, minQ, maxQ, sqQ, sqrtN, nSubSqQ, nSubSqQModQ, doubledSqQ, pSubQ, num;
     mpz_t t[16];
     mpz_inits(n, p, q, r, minQ, maxQ, sqQ, sqrtN, nSubSqQ, nSubSqQModQ, doubledSqQ, pSubQ, num, NULL);
-    for(i = 0; i < 16; i++)
+    for (i = 0; i < 16; i++)
     {
         mpz_init(t[i]);
     }
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     gmp_printf("p - q =          %155Zd\n", pSubQ);
     gmp_printf("(n - q*q) %% q = %156Zd\n", nSubSqQModQ);
     mpz_clears(n, p, q, r, minQ, maxQ, sqQ, sqrtN, nSubSqQ, nSubSqQModQ, doubledSqQ, pSubQ, num, NULL);
-    for(i = 0; i < 16; i++)
+    for (i = 0; i < 16; i++)
     {
         mpz_clear(t[i]);
     }

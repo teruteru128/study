@@ -12,15 +12,10 @@
 #include <errno.h>
 #include <time.h>
 #include "random.h"
+#include "print_addrinfo.h"
 
 #define SERVER_NAME "ntp.nict.jp"
 #define SERVER_PORT "ntp"
-
-/**
- * アドレスとポート番号を表示する。
- * <I> adrinf: アドレス情報
- */
-void print_addrinfo(struct addrinfo *adrinf);
 
 /* NTPパケット */
 struct NTP_Packet
@@ -45,9 +40,9 @@ int main(int argc, char *argv[])
   read_random(seed, sizeof(uint64_t), 312, 0);
   init_by_array64(seed, 312);
   /* [1024,65536) */
-  unsigned short port_num=(unsigned short)(genrand64_real2()*64512+1024);
+  unsigned short port_num = (unsigned short)(genrand64_real2() * 64512 + 1024);
   char port_str[8];
-  snprintf(port_str,8, "%d", port_num);
+  snprintf(port_str, 8, "%d", port_num);
   struct addrinfo hints, *res;
   memset(&hints, 0, sizeof(struct addrinfo));
 
@@ -104,11 +99,13 @@ int main(int argc, char *argv[])
   send.receive_timestamp = 0;
   send.transmit_timestamp_seconds = 0;
   send.transmit_timestamp_fractions = 0;
-  char* a = (char *)&send;
+  char *a = (char *)&send;
   int i = 0;
-  for(;i < 48; i++){
+  for (; i < 48; i++)
+  {
     printf("%02x", a[i] & 0xff);
-    if(i > 0 && (i%16) == 15){
+    if (i > 0 && (i % 16) == 15)
+    {
       printf("\n");
     }
   }

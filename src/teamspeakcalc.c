@@ -43,10 +43,10 @@ int main(int argc, char **argv)
     {
         SHA1_Init(&c);
         SHA1_Update(&c, in1, in1Length);
-        verifierLength=snprintf(in2, IN2_SIZE, "%ld", verifier);
+        verifierLength = snprintf(in2, IN2_SIZE, "%ld", verifier);
         SHA1_Update(&c, in2, verifierLength);
         SHA1_Final(mc.md, &c);
-        if (mc.md[0] == 0&&mc.md[1] == 0&&mc.md[2] == 0&&mc.md[3] == 0)
+        if (mc.md[0] == 0 && mc.md[1] == 0 && mc.md[2] == 0 && mc.md[3] == 0)
         {
             printf(_("verifier : %" PRIu64 "\n"), verifier);
             for (i = 0; i < SHA_DIGEST_LENGTH; i++)

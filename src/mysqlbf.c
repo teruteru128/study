@@ -10,9 +10,9 @@
 *
 * The MySQL password hash function could be strengthened considerably
 * by:
-* – making two passes over the password
-* – using a bitwise rotate instead of a left shift
-* – causing more arithmetic overflows
+* - making two passes over the password
+* - using a bitwise rotate instead of a left shift
+* - causing more arithmetic overflows
 */
 
 #include <stdio.h>
@@ -33,65 +33,72 @@ int crack0(int stop, u32 targ1, u32 targ2, int *pass_ary)
   int i, c;
   u32 d, e, sum, step, diff, div, xor1, xor2, state1, state2;
   u32 newstate1, newstate2, newstate3;
-  u32 state1_ary[MAX_LEN-2], state2_ary[MAX_LEN-2];
-  u32 xor_ary[MAX_LEN-3], step_ary[MAX_LEN-3];
+  u32 state1_ary[MAX_LEN - 2], state2_ary[MAX_LEN - 2];
+  u32 xor_ary[MAX_LEN - 3], step_ary[MAX_LEN - 3];
   i = -1;
   sum = 7;
   state1_ary[0] = 1345345333L;
   state2_ary[0] = 0x12345671L;
 
-  while (1) {
-    while (i < stop) {
+  while (1)
+  {
+    while (i < stop)
+    {
       i++;
       pass_ary[i] = MIN_CHAR;
       step_ary[i] = (state1_ary[i] & 0x3f) + sum;
-      xor_ary[i] = step_ary[i]*MIN_CHAR + (state1_ary[i] << 8);
+      xor_ary[i] = step_ary[i] * MIN_CHAR + (state1_ary[i] << 8);
       sum += MIN_CHAR;
-      state1_ary[i+1] = state1_ary[i] ^ xor_ary[i];
-      state2_ary[i+1] = state2_ary[i]
-        + ((state2_ary[i] << 8) ^ state1_ary[i+1]);
+      state1_ary[i + 1] = state1_ary[i] ^ xor_ary[i];
+      state2_ary[i + 1] = state2_ary[i] + ((state2_ary[i] << 8) ^ state1_ary[i + 1]);
     }
 
-    state1 = state1_ary[i+1];
-    state2 = state2_ary[i+1];
+    state1 = state1_ary[i + 1];
+    state2 = state2_ary[i + 1];
     step = (state1 & 0x3f) + sum;
-    xor1 = step*MIN_CHAR + (state1 << 8);
+    xor1 = step * MIN_CHAR + (state1 << 8);
     xor2 = (state2 << 8) ^ state1;
 
-    for (c = MIN_CHAR; c <= MAX_CHAR; c++, xor1 += step) {
+    for (c = MIN_CHAR; c <= MAX_CHAR; c++, xor1 += step)
+    {
       newstate2 = state2 + (xor1 ^ xor2);
       newstate1 = state1 ^ xor1;
 
-      newstate3 = (targ2 – newstate2) ^ (newstate2 << 8);
+      newstate3 = (targ2 - newstate2) ^ (newstate2 << 8);
       div = (newstate1 & 0x3f) + sum + c;
-      diff = ((newstate3 ^ newstate1) – (newstate1 << 8)) & MASK;
-      if (diff % div != 0) continue;
+      diff = ((newstate3 ^ newstate1) - (newstate1 << 8)) & MASK;
+      if (diff % div != 0)
+        continue;
       d = diff / div;
-      if (d < MIN_CHAR || d > MAX_CHAR) continue;
+      if (d < MIN_CHAR || d > MAX_CHAR)
+        continue;
 
       div = (newstate3 & 0x3f) + sum + c + d;
-      diff = ((targ1 ^ newstate3) – (newstate3 << 8)) & MASK;
-      if (diff % div != 0) continue;
+      diff = ((targ1 ^ newstate3) - (newstate3 << 8)) & MASK;
+      if (diff % div != 0)
+        continue;
       e = diff / div;
-      if (e < MIN_CHAR || e > MAX_CHAR) continue;
+      if (e < MIN_CHAR || e > MAX_CHAR)
+        continue;
 
-      pass_ary[i+1] = c;
-      pass_ary[i+2] = d;
-      pass_ary[i+3] = e;
+      pass_ary[i + 1] = c;
+      pass_ary[i + 2] = d;
+      pass_ary[i + 3] = e;
       return 1;
     }
 
-    while (i >= 0 && pass_ary[i] >= MAX_CHAR) {
+    while (i >= 0 && pass_ary[i] >= MAX_CHAR)
+    {
       sum -= MAX_CHAR;
-      i–;
+      i--;
     }
-    if (i < 0) break;
+    if (i < 0)
+      break;
     pass_ary[i]++;
     xor_ary[i] += step_ary[i];
     sum++;
-    state1_ary[i+1] = state1_ary[i] ^ xor_ary[i];
-    state2_ary[i+1] = state2_ary[i]
-      + ((state2_ary[i] << 8) ^ state1_ary[i+1]);
+    state1_ary[i + 1] = state1_ary[i] ^ xor_ary[i];
+    state2_ary[i + 1] = state2_ary[i] + ((state2_ary[i] << 8) ^ state1_ary[i + 1]);
   }
 
   return 0;
@@ -103,19 +110,22 @@ void crack(char *hash)
   u32 targ1, targ2, targ3;
   int pass[MAX_LEN];
 
-  if ( sscanf(hash, "%8lx%lx", &targ1, &targ2) != 2 ) {
+  if (sscanf(hash, "%8lx%lx", &targ1, &targ2) != 2)
+  {
     printf("Invalid password hash: %sn", hash);
     return;
   }
   printf("Hash: %08lx%08lxn", targ1, targ2);
-  targ3 = targ2 – targ1;
-  targ3 = targ2 – ((targ3 << 8) ^ targ1);
-  targ3 = targ2 – ((targ3 << 8) ^ targ1);
-  targ3 = targ2 – ((targ3 << 8) ^ targ1);
+  targ3 = targ2 - targ1;
+  targ3 = targ2 - ((targ3 << 8) ^ targ1);
+  targ3 = targ2 - ((targ3 << 8) ^ targ1);
+  targ3 = targ2 - ((targ3 << 8) ^ targ1);
 
-  for (len = 3; len <= MAX_LEN; len++) {
+  for (len = 3; len <= MAX_LEN; len++)
+  {
     printf("Trying length %dn", len);
-    if ( crack0(len-4, targ1, targ3, pass) ) {
+    if (crack0(len - 4, targ1, targ3, pass))
+    {
       printf("Found pass: ");
       for (i = 0; i < len; i++)
         putchar(pass[i]);

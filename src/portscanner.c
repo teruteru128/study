@@ -1,3 +1,5 @@
+
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,15 +10,20 @@
 #include <errno.h>
 
 // http://developer.wonderpla.net/entry/blog/engineer/network_program_with_cpp_01/
-int main(int argc, char* argv[]){
+int main(int argc, char **argv)
+{
   unsigned int port = 0;
-  const char* ip_address = "192.168.1.3";
-  struct sockaddr_in addr = {0, };
+  const char *ip_address = "192.168.1.3";
+  struct sockaddr_in addr = {
+      0,
+  };
 
   int sock = 0;
-  for(port = 1; port < 65536; port++){
+  for (port = 1; port < 65536; port++)
+  {
     sock = socket(PF_INET, SOCK_STREAM, 0);
-    if(sock < 0){
+    if (sock < 0)
+    {
       perror("socket");
       return EXIT_FAILURE;
     }
@@ -37,12 +44,14 @@ int main(int argc, char* argv[]){
        第二引数のstruct sockaddrのキャストだが、sockの第一引数に何を指定しているかで指定される構造体が違うためにキャストすることになる。
        現代のソフトウェア工学的には気持ち悪い実装かも知れないが、connectがシステムコールである故にやむを得ないところがある。
        */
-    if (connect(sock, (struct sockaddr*)&addr, sizeof(addr))!=0)
+    if (connect(sock, (struct sockaddr *)&addr, sizeof(addr)) != 0)
     {
       /* 失敗*/
       printf("socket connect error!!! (%u, %d)\n", port, errno);
       //return EXIT_FAILURE;
-    } else {
+    }
+    else
+    {
       printf("OK(%u)\n", port);
     }
     close(sock);

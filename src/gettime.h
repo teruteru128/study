@@ -19,23 +19,23 @@
 
 #define OFFSET 2208988800ULL
 
-typedef struct sntp_t{
-	unsigned int li : 2;
-	unsigned int vn : 3;
-	unsigned int mode : 3;
-	unsigned int stratum : 8;
-	unsigned int poll : 8;
-	unsigned int precison : 8;
-	unsigned int root_delay;
-	unsigned int root_dispresion;
-	unsigned int reference_identifire;
-	unsigned long reference_timestamp;
-	unsigned long originate_timestamp;
-	unsigned long recive_timestamp;
-	unsigned long transmit_timestamp;
-	// Key Identifier
-	// Message Digest
+typedef struct sntp_t
+{
+  unsigned int li : 2;
+  unsigned int vn : 3;
+  unsigned int mode : 3;
+  unsigned int stratum : 8;
+  unsigned int poll : 8;
+  unsigned int precison : 8;
+  unsigned int root_delay;
+  unsigned int root_dispresion;
+  unsigned int reference_identifire;
+  unsigned long reference_timestamp;
+  unsigned long originate_timestamp;
+  unsigned long recive_timestamp;
+  unsigned long transmit_timestamp;
+  // Key Identifier
+  // Message Digest
 } SNTP;
 
 #endif
-

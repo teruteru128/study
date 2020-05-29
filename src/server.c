@@ -1,4 +1,5 @@
 
+#include "config.h"
 #include <stdio.h>
 #include <string.h>
 #include <netdb.h>
@@ -57,7 +58,7 @@ failure_1:
 }
 int init_server(char *argv)
 {
-    if (sock==0)
+    if (sock == 0)
     {
         sock = get_socket(argv);
     }

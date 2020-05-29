@@ -8,25 +8,26 @@ Linuxとpthreadによるマルチスレッドプログラミング入門 - 渋�
 3-2
 */
 long varA;
-void *threadFunc(void *arg){
+void *threadFunc(void *arg)
+{
   long n = (long)arg;
   long varB;
 
-  varB = 4*n;
-  printf("threadFunc-%ld-1: varA=%ld, varB=%ld\n", n , varA, varB);
-  varA = 5*n;
-  printf("threadFunc-%ld-2: varA=%ld, varB=%ld\n", n , varA, varB);
+  varB = 4 * n;
+  printf("threadFunc-%ld-1: varA=%ld, varB=%ld\n", n, varA, varB);
+  varA = 5 * n;
+  printf("threadFunc-%ld-2: varA=%ld, varB=%ld\n", n, varA, varB);
   sleep(2);
-  printf("threadFunc-%ld-3: varA=%ld, varB=%ld\n", n , varA, varB);
-  varB = 6*n;
-  printf("threadFunc-%ld-4: varA=%ld, varB=%ld\n", n , varA, varB);
+  printf("threadFunc-%ld-3: varA=%ld, varB=%ld\n", n, varA, varB);
+  varB = 6 * n;
+  printf("threadFunc-%ld-4: varA=%ld, varB=%ld\n", n, varA, varB);
   return NULL;
 }
 
-int main(int argc, char* argv[]){
+int main(int argc, char *argv[])
+{
   pthread_t thread1, thread2;
-  long varB=0;
-
+  long varB = 0;
 
   varA = 1;
   varB = 2;
@@ -42,4 +43,3 @@ int main(int argc, char* argv[]){
 
   return EXIT_SUCCESS;
 }
-

@@ -1,4 +1,5 @@
 
+#include "config.h"
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +16,7 @@ void shuffle(void **array, size_t size)
   void *t = NULL;
   for (int i = 0; i < size; i++)
   {
-    int j = (seed = xor(seed)) % size;
+    int j = (seed = xorshift(seed)) % size;
     t = array[i];
     array[i] = array[j];
     array[j] = t;

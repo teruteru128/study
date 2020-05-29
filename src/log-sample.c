@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
     double a = log(1 << 18);
     double b = log(10);

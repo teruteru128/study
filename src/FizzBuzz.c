@@ -1,4 +1,5 @@
 
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -35,9 +36,10 @@ void showFizzBuzz()
 void showNabeatsu()
 {
   int n;
-  char txt[64] = {0};
+  char txt[64];
   for (n = 1; n <= 40; n++)
   {
+    memset(txt, 0, 64);
     itoa(n, txt, 10);
     if (n % 3 == 0 || strchr(txt, '3'))
     {
@@ -48,7 +50,6 @@ void showNabeatsu()
       fputs(txt, stdout);
       fputs("\n", stdout);
     }
-    memset(txt, 0, 64);
   }
 }
 #define MAX (100000000)
