@@ -29,7 +29,7 @@ void ntp2tv(uint8_t ntp[8], struct timeval *tv)
 
   /* now we have in aux the NTP fraction (0..2^32-1) */
   aux *= 1000000; /* multiply by 1e6 */
-  aux >>= 32;		/* and divide by 2^32 */
+  aux >>= 32;     /* and divide by 2^32 */
   tv->tv_usec = aux;
 } /* ntp2tv */
 
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
   sntp.root_dispresion = 0;
   sntp.reference_identifire = 0;
   char *tmp = (char *)&sntp;
-  //	tmp[0] = 0xb0;
+  //tmp[0] = 0xb0;
   //memcpy(&(sntp.transmit_timestamp), ntp, 8);
 
   printf("li : %d\n", sntp.li);

@@ -1,33 +1,51 @@
 
-int BM_init(void){
-	return 1;
-}
-static int bm_init(){
-    return 0;
-}
-static int bm_cleanup(){
-    return 0;
-}
-static int global_init(){
-}
-static int global_cleanup(){
-}
-struct arg_t{};
-static int arg_parse(struct arg_t* argt, int argc, char** argv){
+#include "bitmessage.h"
 
+int BM_init(void)
+{
+    return 1;
 }
-static char* get_config_filepath(){
+
+static int bm_init()
+{
+    return 0;
 }
+
+static int bm_cleanup()
+{
+    return 0;
+}
+
+static int global_init()
+{
+}
+
+static int global_cleanup()
+{
+}
+
+static int arg_parse(struct arg_t *argt, int argc, char **argv)
+{
+}
+
+static char *get_config_filepath()
+{
+}
+
 /**
  *  --xxx arg
  *  --xxx=arg
  *  default arg
  *  short arg
  * */
-static int config_parse(char* filename){
+static int config_parse(char *filename)
+{
+}
 
+static char *getString()
+{
 }
-static char* getString(){
-}
-static int getInt(){
+
+static int getInt()
+{
 }

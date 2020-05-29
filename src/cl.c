@@ -20,9 +20,9 @@
  */
 int main(int argc, char *argv[])
 {
-  struct addrinfo hints;		/* 取得したいアドレス情報を指示する */
-  struct addrinfo *res;		/* 取得したアドレス情報が返ってくる */
-  struct addrinfo *adrinf;	/* 接続要求時に使う */
+  struct addrinfo hints;    /* 取得したいアドレス情報を指示する */
+  struct addrinfo *res;     /* 取得したアドレス情報が返ってくる */
+  struct addrinfo *adrinf;  /* 接続要求時に使う */
 
   int rc;
 

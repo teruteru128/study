@@ -32,5 +32,5 @@ void print_addrinfo0(struct addrinfo *adrinf, FILE *stream)
 
 void print_addrinfo(struct addrinfo *adrinf)
 {
-	print_addrinfo0(adrinf, stdout);
+  print_addrinfo0(adrinf, stdout);
 }

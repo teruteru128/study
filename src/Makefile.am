@@ -131,6 +131,7 @@ cudahello_SOURCES=cudahello.cu config.h
 cudahello_CFLAGS=-fPIC
 cudahello_CC=$(NVCC)
 rsa1024_SOURCES=rsa1024.c config.h
+curltest_SOURCES=curltest.c config.h
 curltest_LDFLAGS=-lcurl
 threadAttr_LDFLAGS=-pthread
 encodersa_LDFLAGS=-lcrypto -lssl
