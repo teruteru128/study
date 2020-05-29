@@ -5,4 +5,3 @@
 #include "study-config.h"
 
 #endif
-

@@ -1,9 +1,9 @@
 
+#include "config.h"
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-
-#include <printint.h>
+#include "printint.h"
 
 #define BUF_SIZE 21
 #define LOOP_COUNT 100000000ULL

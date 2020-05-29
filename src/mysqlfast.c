@@ -43,8 +43,7 @@ int crack0(int stop, u32 targ1, u32 targ2, int *pass_ary)
             xor_ary[i] = step_ary[i] * MIN_CHAR + (state1_ary[i] << 8);
             sum += MIN_CHAR;
             state1_ary[i + 1] = state1_ary[i] ^ xor_ary[i];
-            state2_ary[i + 1] = state2_ary[i]
-                                + ((state2_ary[i] << 8) ^ state1_ary[i + 1]);
+            state2_ary[i + 1] = state2_ary[i] + ((state2_ary[i] << 8) ^ state1_ary[i + 1]);
         }
         state1 = state1_ary[i + 1];
         state2 = state2_ary[i + 1];
@@ -89,8 +88,7 @@ int crack0(int stop, u32 targ1, u32 targ2, int *pass_ary)
         xor_ary[i] += step_ary[i];
         sum++;
         state1_ary[i + 1] = state1_ary[i] ^ xor_ary[i];
-        state2_ary[i + 1] = state2_ary[i]
-                            + ((state2_ary[i] << 8) ^ state1_ary[i + 1]);
+        state2_ary[i + 1] = state2_ary[i] + ((state2_ary[i] << 8) ^ state1_ary[i + 1]);
     }
 
     return 0;

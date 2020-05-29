@@ -11,7 +11,8 @@ Linuxとpthreadによるマルチスレッドプログラミング入門 - 渋�
 char *varA;
 #define STRINGSIZE 32
 
-void *threadFunc(void *arg){
+void *threadFunc(void *arg)
+{
   int n = (int)arg;
   int varB;
 
@@ -23,7 +24,8 @@ void *threadFunc(void *arg){
   return NULL;
 }
 
-int main(int argc, char* argv[]){
+int main(int argc, char *argv[])
+{
   pthread_t thread1, thread2;
 
   varA = (char *)malloc(STRINGSIZE);
@@ -39,4 +41,3 @@ int main(int argc, char* argv[]){
   free(varA);
   return EXIT_SUCCESS;
 }
-
