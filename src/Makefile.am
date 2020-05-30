@@ -146,7 +146,7 @@ sntpc_SOURCES=sntpc.c random.c random.h internal_random.h print_addrinfo.c print
 string_list_test_SOURCES=string_list.c string_list_test.c
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 study_LDFLAGS= -lcrypto
-study_SOURCES=study.c gettextsample.c gettextsample.h printint.c printint.h random.c random.h internal_random.h bitset.c bitset.h study-config.h gettextsample.h
+study_SOURCES=study.c gettextsample.c gettextsample.h printint.c printint.h random.c random.h internal_random.h bitset.c bitset.h study-config.h config.h gettextsample.h
 sum_LDFLAGS=-lm
 sum_SOURCES= sum.c random.c random.h internal_random.h config.h
 teamspeakIdUpgrader_CFLAGS=

@@ -7,6 +7,12 @@
 #include <inttypes.h>
 #include <locale.h>
 #include <sodium.h>
+#if defined(__linux__)
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <linux/random.h>
+#endif
 
 /**
  * locale test
@@ -15,6 +21,24 @@ int main(int argc, char **argv)
 {
   char *locale = setlocale(LC_ALL, "");
   printf("%s\n", locale);
+  //https://libsodium.gitbook.io/doc/usage
+#if defined(__linux__) && defined(RNDGETENTCNT)
+  int fd;
+  int c;
+
+  if ((fd = open("/dev/random", O_RDONLY)) != -1)
+  {
+    if (ioctl(fd, RNDGETENTCNT, &c) == 0 && c < 160)
+    {
+      fputs("This system doesn't provide enough entropy to quickly generate high-quality random numbers.\n"
+            "Installing the rng-utils/rng-tools, jitterentropy or haveged packages may help.\n"
+            "On virtualized Linux environments, also consider using virtio-rng.\n"
+            "The service will not start until enough entropy has been collected.\n",
+            stderr);
+    }
+    (void)close(fd);
+  }
+#endif
   if (sodium_init() < 0)
   {
     return EXIT_FAILURE;
@@ -34,7 +58,7 @@ int main(int argc, char **argv)
   }
 
   /* Generate the server's key pair */
-  if(crypto_kx_keypair(server_pk, server_sk))
+  if (crypto_kx_keypair(server_pk, server_sk))
   {
     perror("crypto_kx_keypair(sv)");
     return EXIT_FAILURE;
