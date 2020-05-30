@@ -1,9 +1,11 @@
-name: Release
+name: Pre Release
 
 on:
   push:
     tags:
-      - "**" 
+      - "**-rc*" 
+      - "**-beta*" 
+      - "**-alpha*" 
 
 jobs:
   release:
@@ -43,7 +45,7 @@ jobs:
         # The name of the release. For example, `Release v1.0.1`
         release_name: Release ${{ github.ref }}
         draft: false
-        prerelease: false
+        prerelease: true
     - name: Upload a Release Asset
       uses: actions/upload-release-asset@v1.0.2
       env:
