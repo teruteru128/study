@@ -7,7 +7,7 @@
 #include "random.h"
 
 #define URANDOM_PATH "/dev/urandom"
-#define BUF_SIZE 8
+#define MAX 1000000
 
 uint32_t seed = 0;
 
@@ -38,21 +38,21 @@ int main(int argc, char **argv)
       NULL};
   size_t messages_size = 0;
   char **tmp = messages;
-  while (*tmp++ != NULL)
+  for (; *tmp++ != NULL; messages_size++)
   {
-    messages_size++;
   }
-  int j = 0;
-  for (j; j < 1000000; j++)
+  size_t i = 0;
+  size_t j = 0;
+  for (; j < MAX; j++)
   {
     shuffle((void **)messages, messages_size);
-    size_t i = 0;
     for (i = 0; i < messages_size; i++)
     {
       fputs(messages[i], stdout);
+      // fputs(messages[(seed = xorshift(seed)) % messages_size], stdout);
     }
     fputs("\n", stdout);
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }
