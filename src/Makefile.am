@@ -79,7 +79,6 @@ NVCC=nvcc
 cudahello: cudahello.o
 	$(NVCC) -ccbin $(CC) $^ -o $@
 
-#AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 015_LDFLAGS= -lcrypto
 016_LDFLAGS= -lssl -lcrypto
 016_SOURCES= 016.c config.h
