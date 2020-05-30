@@ -21,19 +21,18 @@ jobs:
           sudo add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
           sudo apt-get update
           sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev cuda-10-2 libupnp-dev
-          echo "export PATH=/usr/local/cuda-10.2/bin:\${PATH}" >> ~/.bashrc
       - name: autogen.sh
         run: ./autogen.sh
       - name: configure
         run: ./configure
       - name: make
-        run: make -j
+        run: PATH=/usr/local/cuda-10.2/bin:${PATH} make -j
       - name: make check
-        run: make check -j
+        run: PATH=/usr/local/cuda-10.2/bin:${PATH} make check -j
       - name: make distcheck
-        run: make distcheck -j
+        run: PATH=/usr/local/cuda-10.2/bin:${PATH} make distcheck -j
       - name: make dist
-        run: make dist -j
+        run: PATH=/usr/local/cuda-10.2/bin:${PATH} make dist -j
       - name: Save artifact
         uses: actions/upload-artifact@v2
         with:
