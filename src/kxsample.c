@@ -36,7 +36,6 @@ int main(int argc, char **argv)
             "The service will not start until enough entropy has been collected.\n",
             stderr);
     }
-    printf("entropy count : %d\n", c);
     (void)close(fd);
   }
 #endif

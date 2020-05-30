@@ -21,14 +21,17 @@ jobs:
         sudo add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
         sudo apt-get update
         sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev cuda-10-2 libupnp-dev nkf
+        echo "echo \"HELLO .bash_profile\"!" >> ~/.bash_profile
+        echo "echo \"HELLO .bash_login\"!" >> ~/.bash_login
+        echo "echo \"HELLO .bashrc\"!" >> ~/.bashrc
+        echo "export PATH=/usr/local/cuda-10.2/bin:\${PATH}" >> ~/.bashrc
+        echo "echo \"HELLO .profile\"!" >> ~/.profile
     - name: autogen.sh
       run: ./autogen.sh
     - name: configure
       run: ./configure
     - name: make
-      run: |
-        PATH=/usr/local/cuda-10.2/bin:${PATH} make -j
-        ./src/kxsample
+      run: export PATH=/usr/local/cuda-10.2/bin:${PATH} make -j
     - name: make check
       run: PATH=/usr/local/cuda-10.2/bin:${PATH} make check -j
     - name: make distcheck
