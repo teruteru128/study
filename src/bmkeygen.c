@@ -138,6 +138,9 @@ int exportAddress(unsigned char *privateSigningKey, unsigned char *publicSigning
     return EXIT_SUCCESS;
 }
 
+/*
+    TODO: 鍵キャッシュサーバー
+*/
 int main(int argc, char *argv[])
 {
     OpenSSL_add_all_digests();
