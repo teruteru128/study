@@ -3,7 +3,7 @@ name: C/C++ CI
 on:
   push:
     branches:
-      - '**' 
+      - "**"
   pull_request:
 
 jobs:
@@ -12,34 +12,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Install dependents
-      run: |
-        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
-        sudo mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
-        sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
-        sudo add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
-        sudo apt-get update
-        sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev cuda-10-2 libupnp-dev
-        echo "echo \"HELLO .bash_profile\"!" >> ~/.bash_profile
-        echo "echo \"HELLO .bash_login\"!" >> ~/.bash_login
-        echo "echo \"HELLO .bashrc\"!" >> ~/.bashrc
-        echo "export PATH=/usr/local/cuda-10.2/bin:\${PATH}" >> ~/.bashrc
-        echo "echo \"HELLO .profile\"!" >> ~/.profile
-    - name: autogen.sh
-      run: ./autogen.sh
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make -j
-    - name: make check
-      run: make check -j
-    - name: make distcheck
-      run: make distcheck -j
-    - name: make dist
-      run: make dist -j
-    - name: Save artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: study-1.0.0-rc2.tar.gz
-        path: study-1.0.0-rc2.tar.gz
+      - uses: actions/checkout@v2
+      - name: Install dependents
+        run: |
+          wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
+          sudo mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
+          sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+          sudo add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
+          sudo apt-get update
+          sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev cuda-10-2 libupnp-dev
+          echo "export PATH=/usr/local/cuda-10.2/bin:\${PATH}" >> ~/.bashrc
+      - name: autogen.sh
+        run: ./autogen.sh
+      - name: configure
+        run: ./configure
+      - name: make
+        run: make -j
+      - name: make check
+        run: make check -j
+      - name: make distcheck
+        run: make distcheck -j
+      - name: make dist
+        run: make dist -j
+      - name: Save artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: study-1.0.0-rc2.tar.gz
+          path: study-1.0.0-rc2.tar.gz
