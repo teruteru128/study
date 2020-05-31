@@ -28,7 +28,7 @@ jobs:
       - name: make
         run: PATH=/usr/local/cuda-10.2/bin:${PATH} make -j
       - name: test lspci
-        run: lspci | grep -i nvidia
+        run: PATH=/usr/bin:${PATH} lspci | grep -i nvidia
       - name: test cudamalloctest
         run: ./src/cudamalloctest
       - name: make check
