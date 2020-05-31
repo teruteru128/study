@@ -16,6 +16,7 @@ bin_PROGRAMS+=bouyomi
 bin_PROGRAMS+=calc
 bin_PROGRAMS+=cl
 bin_PROGRAMS+=cudahello
+bin_PROGRAMS+=cudamalloctest
 bin_PROGRAMS+=curltest
 bin_PROGRAMS+=dappun
 bin_PROGRAMS+=doublerandom
@@ -79,6 +80,9 @@ NVCC=nvcc
 cudahello: cudahello.o
 	$(NVCC) -ccbin $(CC) $^ -o $@
 
+cudamalloctest: cudamalloctest.o
+	$(NVCC) -ccbin $(CC) $^ -o $@
+
 015_LDFLAGS= -lcrypto
 016_LDFLAGS= -lssl -lcrypto
 016_SOURCES= 016.c config.h
@@ -102,6 +106,8 @@ cl_SOURCES=cl.c config.h print_addrinfo.c print_addrinfo.h config.h
 cudahello_CC=$(NVCC)
 cudahello_CFLAGS=-fPIC
 cudahello_SOURCES=cudahello.cu config.h
+cudamalloctest_CFLAGS=-fPIC
+cudamalloctest_SOURCES=cudamalloctest.cu config.h
 curltest_LDFLAGS=-lcurl
 curltest_SOURCES=curltest.c config.h
 dragon_SOURCES=dragon.c svgplot.c svgplot.h

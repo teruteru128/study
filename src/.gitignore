@@ -16,6 +16,7 @@ bouyomi
 calc
 cl
 cudahello
+cudamalloctest
 curltest
 dappun
 doublerandom
