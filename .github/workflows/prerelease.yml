@@ -6,6 +6,8 @@ on:
       - "**-rc*" 
       - "**-beta*" 
       - "**-alpha*" 
+    branches-ignore:
+      - "**"
 
 jobs:
   release:

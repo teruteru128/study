@@ -21,15 +21,12 @@ jobs:
           sudo add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
           sudo apt-get update
           sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev cuda-10-2 libupnp-dev
-          bash -c "/usr/bin/lspci | grep -i nvidia"
       - name: autogen.sh
         run: ./autogen.sh
       - name: configure
         run: ./configure
       - name: make
         run: PATH=/usr/local/cuda-10.2/bin:${PATH} make -j
-      - name: test cudamalloctest
-        run: ./src/cudamalloctest
       - name: make check
         run: PATH=/usr/local/cuda-10.2/bin:${PATH} make check -j
       - name: make distcheck
