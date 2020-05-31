@@ -19,8 +19,6 @@
  * */
 int main(int argc, char **argv)
 {
-  char *locale = setlocale(LC_ALL, "");
-  printf("%s\n", locale);
   //https://libsodium.gitbook.io/doc/usage
 #if defined(__linux__) && defined(RNDGETENTCNT)
   int fd;
