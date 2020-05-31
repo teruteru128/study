@@ -20,7 +20,7 @@ jobs:
           sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
           sudo add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
           sudo apt-get update
-          sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev cuda-10-2 libupnp-dev
+          sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev cuda-10-2 libupnp-dev pciutils
       - name: autogen.sh
         run: ./autogen.sh
       - name: configure
@@ -28,7 +28,7 @@ jobs:
       - name: make
         run: PATH=/usr/local/cuda-10.2/bin:${PATH} make -j
       - name: test lspci
-        run: PATH=/usr/bin:${PATH} lspci | grep -i nvidia
+        run: which lspci && dpkg -S lspci && PATH=/usr/bin:${PATH} lspci | grep -i nvidia
       - name: test cudamalloctest
         run: ./src/cudamalloctest
       - name: make check
