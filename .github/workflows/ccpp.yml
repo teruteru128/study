@@ -21,7 +21,7 @@ jobs:
           sudo add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
           sudo apt-get update
           sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev cuda-10-2 libupnp-dev
-          /usr/bin/lspci | grep -i nvidia
+          bash -c "/usr/bin/lspci | grep -i nvidia"
       - name: autogen.sh
         run: ./autogen.sh
       - name: configure
