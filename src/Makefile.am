@@ -83,6 +83,7 @@ cudahello: cudahello.o
 cudamalloctest: cudamalloctest.o
 	$(NVCC) -ccbin $(CC) $^ -o $@
 
+014_SOURCES= 014.c
 015_LDFLAGS= -lcrypto
 016_LDFLAGS= -lssl -lcrypto
 016_SOURCES= 016.c config.h

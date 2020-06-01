@@ -1,7 +1,8 @@
 
 #ifdef HAVE_CONFIG_H
-#include "stdio.h"
+#include "config.h"
 #endif
+#include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
 #include <locale.h>
@@ -11,21 +12,18 @@
  * */
 int main(int argc, char **argv)
 {
-    locale_t loc = NULL, nloc;
-    loc = uselocale(NULL);
+    locale_t loc = uselocale((locale_t)0);
     if (loc == NULL)
     {
-        perror(NULL);
+        perror("uselocale");
         return EXIT_FAILURE;
     }
-    nloc = duplocale(loc);
+    locale_t nloc = duplocale(loc);
     if (nloc == NULL)
     {
-        perror(NULL);
+        perror("duplocale");
         return EXIT_FAILURE;
     }
-    freelocale(loc);
     freelocale(nloc);
-    nloc = NULL;
-    return 0;
+    return EXIT_SUCCESS;
 }

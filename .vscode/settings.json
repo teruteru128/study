@@ -4,7 +4,7 @@
         ".classpath": "xml",
         "*.classpath": "xml",
         "*.h": "c",
-        "*.cu": "c",
+        "*.cu": "cuda",
         "chrono": "c",
         "sstream": "c"
     }
