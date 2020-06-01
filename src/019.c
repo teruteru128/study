@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     printf("%.18lf\n", a);
     while(0 < a && a < 1)
     {
-        a = 2 * sqrt((1 - a) * a);
+        a = 2 * sqrt(a * (1 - a));
         printf("%.18lf\n", a);
     }
     printf("\n");
