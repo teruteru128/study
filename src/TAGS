@@ -1,0 +1,1238 @@
+
+yattaze.c,42
+void printYattaze(4,21
+int main(32,2605
+
+string_list_test.c,15
+int main(5,46
+
+config.h.in,8440
+#undef CRAY_STACKSEG_END6,228
+#undef C_ALLOCA9,293
+#undef ENABLE_NLS13,410
+#undef HAVE_ALLOCA16,493
+#undef HAVE_ALLOCA_H20,596
+#undef HAVE_ARGZ_COUNT23,675
+#undef HAVE_ARGZ_H26,755
+#undef HAVE_ARGZ_NEXT29,831
+#undef HAVE_ARGZ_STRINGIFY32,915
+#undef HAVE_ARPA_INET_H35,1004
+#undef HAVE_ASPRINTF38,1084
+#undef HAVE_BUILTIN_EXPECT41,1170
+#undef HAVE_CFLOCALECOPYCURRENT45,1306
+#undef HAVE_CFPREFERENCESCOPYAPPVALUE49,1453
+#undef HAVE_DCGETTEXT53,1576
+#undef HAVE_DECL_FEOF_UNLOCKED57,1691
+#undef HAVE_DECL_FGETS_UNLOCKED61,1816
+#undef HAVE_DECL_GETC_UNLOCKED65,1941
+#undef HAVE_DECL__SNPRINTF69,2061
+#undef HAVE_DECL__SNWPRINTF73,2178
+#undef HAVE_DLFCN_H76,2264
+#undef HAVE_FCNTL_H79,2342
+#undef HAVE_FEATURES_H82,2423
+#undef HAVE_FLOAT_H85,2504
+#undef HAVE_FWPRINTF88,2580
+#undef HAVE_GETCWD91,2655
+#undef HAVE_GETEGID94,2729
+#undef HAVE_GETEUID97,2804
+#undef HAVE_GETGID100,2878
+#undef HAVE_GETLOCALENAME_L103,2960
+#undef HAVE_GETPAGESIZE106,3047
+#undef HAVE_GETTEXT109,3151
+#undef HAVE_GETTIMEOFDAY112,3231
+#undef HAVE_GETUID115,3310
+#undef HAVE_ICONV118,3390
+#undef HAVE_INTMAX_T121,3485
+#undef HAVE_INTTYPES_H124,3567
+#undef HAVE_INTTYPES_H_WITH_UINTMAX128,3689
+#undef HAVE_LANGINFO_CODESET131,3790
+#undef HAVE_LANGINFO_H134,3880
+#undef HAVE_LC_MESSAGES137,3962
+#undef HAVE_LIBCRYPTO140,4050
+#undef HAVE_LIBCURL143,4132
+#undef HAVE_LIBGMP146,4210
+#undef HAVE_LIBINTL_H149,4289
+#undef HAVE_LIBM152,4365
+#undef HAVE_LIBPTHREAD155,4448
+#undef HAVE_LIBSODIUM158,4535
+#undef HAVE_LIBSSL161,4615
+#undef HAVE_LIBUUID164,4694
+#undef HAVE_LIBXMLRPC167,4778
+#undef HAVE_LIBXMLRPC_ABYSS170,4876
+#undef HAVE_LIBXMLRPC_CLIENT173,4982
+#undef HAVE_LIBXMLRPC_SERVER176,5089
+#undef HAVE_LIBXMLRPC_SERVER_ABYSS180,5211
+#undef HAVE_LIBXMLRPC_UTIL183,5320
+#undef HAVE_LIBXMLRPC_XMLPARSE187,5432
+#undef HAVE_LIBXMLRPC_XMLTOK190,5541
+#undef HAVE_LIMITS_H193,5629
+#undef HAVE_LOCALECONV196,5708
+#undef HAVE_LOCALE_H199,5790
+#undef HAVE_LONG_LONG_INT202,5874
+#undef HAVE_MALLOC206,6002
+#undef HAVE_MALLOC_H209,6080
+#undef HAVE_MBLEN212,6154
+#undef HAVE_MBRLEN215,6226
+#undef HAVE_MBRTOWC218,6312
+#undef HAVE_MEMCHR221,6386
+#undef HAVE_MEMORY_H224,6464
+#undef HAVE_MEMPCPY227,6540
+#undef HAVE_MEMSET230,6614
+#undef HAVE_MMAP233,6694
+#undef HAVE_MUNMAP236,6765
+#undef HAVE_NETDB_H239,6842
+#undef HAVE_NETINET_IN_H242,6925
+#undef HAVE_NEWLOCALE245,7007
+#undef HAVE_NL_LANGINFO248,7088
+#undef HAVE_POSIX_PRINTF251,7192
+#undef HAVE_POW254,7268
+#undef HAVE_PTHREAD_MUTEX_RECURSIVE257,7350
+#undef HAVE_PTHREAD_RWLOCK260,7458
+#undef HAVE_PTRDIFF_T263,7544
+#undef HAVE_PUTENV266,7620
+#undef HAVE_REALLOC270,7742
+#undef HAVE_REGCOMP273,7817
+#undef HAVE_SELECT276,7891
+#undef HAVE_SETENV279,7964
+#undef HAVE_SETLOCALE282,8040
+#undef HAVE_SNPRINTF285,8118
+#undef HAVE_SOCKET288,8193
+#undef HAVE_SQRT291,8264
+#undef HAVE_STDDEF_H294,8340
+#undef HAVE_STDINT_H297,8420
+#undef HAVE_STDINT_H_WITH_UINTMAX301,8538
+#undef HAVE_STDIO_EXT_H304,8634
+#undef HAVE_STDLIB_H307,8717
+#undef HAVE_STPCPY310,8792
+#undef HAVE_STRCASECMP313,8869
+#undef HAVE_STRCHR316,8946
+#undef HAVE_STRCSPN319,9020
+#undef HAVE_STRDUP322,9094
+#undef HAVE_STRERROR325,9169
+#undef HAVE_STRINGS_H328,9250
+#undef HAVE_STRING_H331,9331
+#undef HAVE_STRNLEN334,9407
+#undef HAVE_STRRCHR337,9482
+#undef HAVE_STRSTR340,9556
+#undef HAVE_STRTOL343,9629
+#undef HAVE_STRTOUL346,9703
+#undef HAVE_STRTOULL349,9779
+#undef HAVE_SYMLINK352,9855
+#undef HAVE_SYS_PARAM_H355,9937
+#undef HAVE_SYS_SOCKET_H358,10024
+#undef HAVE_SYS_STAT_H361,10110
+#undef HAVE_SYS_TIME_H364,10194
+#undef HAVE_SYS_TYPES_H367,10279
+#undef HAVE_TSEARCH370,10358
+#undef HAVE_UINTMAX_T373,10456
+#undef HAVE_UNISTD_H376,10537
+#undef HAVE_UNSIGNED_LONG_LONG_INT379,10630
+#undef HAVE_USELOCALE382,10722
+#undef HAVE_VISIBILITY386,10844
+#undef HAVE_WCHAR_H389,10925
+#undef HAVE_WCHAR_T392,10991
+#undef HAVE_WCRTOMB395,11066
+#undef HAVE_WCSLEN398,11140
+#undef HAVE_WCSNLEN401,11214
+#undef HAVE_WINT_T404,11279
+#undef HAVE_WORKING_O_NOATIME407,11337
+#undef HAVE_WORKING_O_NOFOLLOW410,11407
+#undef HAVE__BOOL413,11493
+#undef HAVE___ARGZ_COUNT416,11571
+#undef HAVE___ARGZ_NEXT419,11655
+#undef HAVE___ARGZ_STRINGIFY422,11743
+#undef HAVE___FSETLOCKING425,11833
+#undef ICONV_CONST428,11925
+#undef INTDIV0_RAISES_SIGFPE431,12008
+#undef LT_OBJDIR434,12116
+#undef PACKAGE437,12156
+#undef PACKAGE_BUGREPORT440,12251
+#undef PACKAGE_NAME443,12324
+#undef PACKAGE_STRING446,12404
+#undef PACKAGE_TARNAME449,12486
+#undef PACKAGE_URL452,12558
+#undef PACKAGE_VERSION455,12623
+#undef PRI_MACROS_BROKEN458,12717
+#undef PTHREAD_IN_USE_DETECTION_HARD461,12799
+# undef SIZE_MAX466,12942
+#undef STACK_DIRECTION475,13300
+#undef STDC_HEADERS478,13379
+#undef USE_POSIX_THREADS481,13462
+#undef USE_POSIX_THREADS_WEAK485,13575
+#undef USE_PTH_THREADS488,13670
+#undef USE_PTH_THREADS_WEAK492,13783
+#undef USE_SOLARIS_THREADS495,13880
+#undef USE_SOLARIS_THREADS_WEAK499,14001
+# undef _ALL_SOURCE503,14098
+# undef _GNU_SOURCE507,14201
+# undef _POSIX_PTHREAD_SEMANTICS511,14308
+# undef _TANDEM_SOURCE515,14411
+# undef __EXTENSIONS__519,14509
+#undef USE_WINDOWS_THREADS524,14608
+#undef VERSION527,14668
+#undef _MINIX530,14715
+#undef _POSIX_1_SOURCE534,14825
+#undef _POSIX_SOURCE537,14928
+#undef _UINT32_T542,15149
+#undef _UINT64_T547,15366
+#undef _UINT8_T552,15582
+# define _GL_EXTERN_INLINE_STDHEADER_BUG594,17679
+# define _GL_INLINE 603,18006
+# define _GL_EXTERN_INLINE 604,18033
+# define _GL_EXTERN_INLINE_IN_USE605,18074
+#  define _GL_INLINE 610,18348
+#  define _GL_INLINE 612,18423
+# define _GL_EXTERN_INLINE 614,18466
+# define _GL_EXTERN_INLINE_IN_USE615,18500
+# define _GL_INLINE 617,18540
+# define _GL_EXTERN_INLINE 618,18578
+#  define _GL_INLINE_HEADER_CONST_PRAGMA629,19058
+#  define _GL_INLINE_HEADER_CONST_PRAGMA 631,19106
+# define _GL_INLINE_HEADER_BEGIN 634,19227
+# define _GL_INLINE_HEADER_END 639,19469
+# define _GL_INLINE_HEADER_BEGIN642,19543
+# define _GL_INLINE_HEADER_END643,19576
+#  define _GL_UNUSED 651,19859
+#  define _GL_UNUSED653,19916
+#  define _GL_ATTRIBUTE_PURE 660,20094
+#  define _GL_ATTRIBUTE_PURE 662,20157
+#undef inline670,20381
+#undef int32_t675,20547
+#undef int64_t679,20707
+#undef malloc682,20794
+#undef ptrdiff_t686,20913
+#undef realloc689,21003
+#undef restrict694,21178
+# define _Restrict701,21602
+# define __restrict__702,21621
+#undef size_t706,21716
+#undef ssize_t709,21787
+#undef uint16_t713,21950
+#undef uint32_t717,22114
+#undef uint64_t721,22278
+#undef uint8_t725,22441
+#undef uintmax_t729,22557
+#define __libc_lock_t 732,22576
+#define __libc_lock_define 733,22626
+#define __libc_lock_define_initialized 734,22681
+#define __libc_lock_init 735,22748
+#define __libc_lock_lock 736,22801
+#define __libc_lock_unlock 737,22854
+#define __libc_lock_recursive_t 738,22909
+#define __libc_lock_define_recursive 739,22979
+#define __libc_lock_define_initialized_recursive 740,23054
+#define __libc_lock_init_recursive 741,23141
+#define __libc_lock_lock_recursive 742,23214
+#define __libc_lock_unlock_recursive 743,23287
+#define glthread_in_use 744,23362
+#define glthread_lock_init_func 745,23409
+#define glthread_lock_lock_func 746,23468
+#define glthread_lock_unlock_func 747,23527
+#define glthread_lock_destroy_func 748,23588
+#define glthread_rwlock_init_multithreaded 749,23650
+#define glthread_rwlock_init_func 750,23731
+#define glthread_rwlock_rdlock_multithreaded 751,23803
+#define glthread_rwlock_rdlock_func 752,23886
+#define glthread_rwlock_wrlock_multithreaded 753,23960
+#define glthread_rwlock_wrlock_func 754,24043
+#define glthread_rwlock_unlock_multithreaded 755,24117
+#define glthread_rwlock_unlock_func 756,24200
+#define glthread_rwlock_destroy_multithreaded 757,24274
+#define glthread_rwlock_destroy_func 758,24358
+#define glthread_recursive_lock_init_multithreaded 759,24433
+#define glthread_recursive_lock_init_func 760,24530
+#define glthread_recursive_lock_lock_multithreaded 761,24618
+#define glthread_recursive_lock_lock_func 762,24715
+#define glthread_recursive_lock_unlock_multithreaded 763,24803
+#define glthread_recursive_lock_unlock_func 764,24902
+#define glthread_recursive_lock_destroy_multithreaded 765,24992
+#define glthread_recursive_lock_destroy_func 766,25092
+#define glthread_once_func 767,25183
+#define glthread_once_singlethreaded 768,25239
+#define glthread_once_multithreaded 769,25305
+
+list2.c,273
+#define NIL 4,40
+typedef int infotype;5,56
+typedef struct item7,79
+  infotype info;9,101
+  struct item *next;next10,118
+  struct item *prev;prev11,139
+} * pointer;12,160
+pointer add_list(14,174
+void show_list(30,402
+pointer reverse_list(40,522
+int main(55,701
+
+threadAttr.c,73
+#define SIZE 9,121
+void *threadFunc(threadFunc11,144
+int main(27,354
+
+epsp-parser-test.c,46
+void print_reg_error(18,369
+int main(29,641
+
+calc.c,39
+#define BUFSIZE 8,96
+int main(12,265
+
+bmapi.h,19
+#define API_H3,15
+
+internal_random.h,97
+#define INTERNAL_RANDOM_H3,27
+#define MULTIPLIER 5,54
+#define ADDEND 6,88
+#define MASK 7,110
+
+cudahello.cu,16
+int main(8,125
+
+firstThread2.c,77
+void anotherFunc(9,176
+void *threadFunc(threadFunc18,279
+int main(31,445
+
+gettime.c,106
+void ntp2tv(4,23
+size_t print_tv(36,691
+size_t print_ntp(41,786
+void tv2ntp(55,1026
+int main(84,1493
+
+kxsample.c,17
+int main(20,294
+
+017.c,187
+#define IN2_SIZE 12,190
+#define CTX_SIZE 13,210
+static void initRandom(16,251
+static uint64_t getRandomU64(23,429
+#define IN1 32,952
+int calcSecurityLevel(34,1072
+int main(55,1575
+
+repeated-trials.c,15
+int main(4,21
+
+mysqlfast.c,187
+typedef unsigned long u32;10,268
+#define MIN_CHAR 14,363
+#define MAX_CHAR 16,384
+#define MAX_LEN 20,440
+#define MASK 22,460
+int crack0(24,486
+void crack(97,2801
+int main(131,3620
+
+localetest1.c,15
+int main(6,72
+
+string_array.c,264
+string_array *string_array_create(string_array_create7,87
+int trimToSize(10,149
+static char *grow(grow14,186
+static char *growOne(growOne15,209
+static int add_(16,235
+int string_array_add(19,302
+string_array *string_array_split(string_array_split25,421
+
+bitset.c,411
+#define ADDRESS_BITS_PER_WORD 7,82
+#define BITS_PER_WORD 8,116
+#define BIT_INDEX_MASK 9,167
+void checkInvariants(11,211
+static size_t wordIndex(18,478
+static void ensureCapacity(23,568
+static void expandTo(39,1074
+bool bitset_get(49,1295
+static void initWords(56,1493
+void bitset_init(63,1719
+void bitset_init2(70,1839
+bitset* bitset_alloc(81,1985
+void bitset_free(90,2128
+void bitset_set(99,2242
+
+printBench.c,67
+#define BUF_SIZE 8,105
+#define LOOP_COUNT 9,125
+int main(14,190
+
+gettime.h,581
+#define GETTIME_H3,19
+#define DEFAULT_SERVER 18,292
+#define OFFSET 20,334
+typedef struct sntp_t22,364
+  unsigned int li 24,388
+  unsigned int vn 25,411
+  unsigned int mode 26,434
+  unsigned int stratum 27,459
+  unsigned int poll 28,487
+  unsigned int precison 29,512
+  unsigned int root_delay;30,541
+  unsigned int root_dispresion;31,568
+  unsigned int reference_identifire;32,600
+  unsigned long reference_timestamp;33,637
+  unsigned long originate_timestamp;34,674
+  unsigned long recive_timestamp;35,711
+  unsigned long transmit_timestamp;36,745
+} SNTP;39,821
+
+uuidtest.c,17
+int main(10,107
+
+self-made-libsha.c,15
+int main(8,73
+
+cudamalloctest.cu,90
+#define N 8,125
+void sum_of_array(11,151
+void initialize_array(25,751
+int main(32,947
+
+sha-2.c,74
+void sha256_init(4,21
+void sha256_update(8,45
+void sha256_finish(12,71
+
+log-sample.c,15
+int main(6,59
+
+localetest1.h,20
+#define MAIN_H3,16
+
+string_array.h,213
+#define STRING_ARRAY_H3,24
+typedef struct string_array string_array;7,68
+typedef struct string_array{string_array9,111
+  char** str;11,160
+  size_t size;13,197
+  size_t length;15,239
+} string_array;16,256
+
+bitset.h,227
+#define BITSET_H3,18
+typedef struct bitset_t bitset;10,203
+typedef struct bitset_t11,235
+  size_t wordsInUse;13,261
+  bool sizeIsSticky;14,282
+  size_t words_length;15,303
+  uint64_t *words;words16,326
+} bitset;17,345
+
+bitmessage.c,327
+int BM_init(4,26
+static int bm_init(9,63
+static int bm_cleanup(14,103
+static int global_init(19,146
+static int global_cleanup(23,176
+static int arg_parse(27,209
+static char *get_config_filepath(get_config_filepath31,278
+static int config_parse(41,386
+static char *getString(getString45,431
+static int getInt(49,461
+
+print_addrinfo.c,57
+void print_addrinfo0(13,203
+void print_addrinfo(33,799
+
+textdomain.c,26
+void inittextdomain(6,79
+
+bcasttest.c,17
+int main(12,246
+
+sha-2.h,147
+#define SHA_2_H3,17
+typedef struct sha_ctx_t SHA256_CTX;7,55
+typedef struct sha_ctx_t SHA512_CTX;8,92
+static const uint32_t K_256[K_25610,130
+
+encodersa.c,17
+int main(15,263
+
+maxmovingsum.c,195
+#define WIDTH 7,79
+#define MINZ 8,95
+#define MAXZ 9,115
+#define MINX 10,132
+#define MAXX 11,152
+void moving_sum(14,189
+void moving_average(17,211
+int maxmovingsum(21,238
+int main(25,320
+
+rsa.c,15
+int main(4,21
+
+bitmessage.h,51
+#define BITMESSAGE_H3,22
+struct arg_t{arg_t5,44
+
+print_addrinfo.h,31
+#define PRINT_ADDRINFO_H 3,26
+
+primesearch.c,58
+static char *getMessage(getMessage7,78
+int main(29,373
+
+rsa1024.c,95
+#define N 7,78
+#define BASE 23,572
+#define qfile 28,909
+int loadP(30,932
+int main(58,1405
+
+variables3.c,104
+char *varA;varA11,199
+#define STRINGSIZE 12,211
+void *threadFunc(threadFunc14,234
+int main(27,501
+
+random.c,828
+uint32_t xorshift(10,147
+uint64_t xorshift64(18,278
+uint32_t xorshift96(26,410
+uint32_t xorshift128(31,513
+int read_file(36,639
+size_t read_random(60,1026
+static int64_t initialScramble(69,1245
+Random *setSeed(setSeed74,1333
+int32_t next(80,1432
+int64_t nextLong(90,1677
+int32_t nextInt(95,1771
+int32_t nextIntWithRange(100,1829
+#define DOUBLE_UNIT 122,2186
+double nextDouble(123,2216
+double nextDoubleXor(128,2327
+#define NN 134,2498
+#define MM 135,2513
+#define MATRIX_A 136,2528
+#define UM 137,2574
+#define LM 138,2645
+static uint64_t mt[mt140,2718
+static int mti 141,2742
+void init_genrand64(143,2768
+void init_by_array64(152,2954
+uint64_t genrand64_int64(190,3777
+int64_t genrand64_int63(231,4809
+double genrand64_real1(237,4943
+double genrand64_real2(243,5097
+double genrand64_real3(249,5251
+
+curltest.c,15
+int main(7,84
+
+firstThread3.c,52
+void *threadFunc(threadFunc9,176
+int main(22,342
+
+random.h,91
+#define RANDOM_H3,18
+typedef struct random_t8,79
+  int64_t seed;10,105
+} Random;11,121
+
+config.h,7744
+#define ENABLE_NLS 14,485
+#define HAVE_ALLOCA 17,571
+#define HAVE_ALLOCA_H 21,677
+#define HAVE_ARGZ_COUNT 24,759
+#define HAVE_ARGZ_H 27,842
+#define HAVE_ARGZ_NEXT 30,921
+#define HAVE_ARGZ_STRINGIFY 33,1008
+#define HAVE_ARPA_INET_H 36,1100
+#define HAVE_ASPRINTF 39,1183
+#define HAVE_BUILTIN_EXPECT 42,1272
+#define HAVE_DCGETTEXT 54,1693
+#define HAVE_DECL_FEOF_UNLOCKED 58,1811
+#define HAVE_DECL_FGETS_UNLOCKED 62,1939
+#define HAVE_DECL_GETC_UNLOCKED 66,2067
+#define HAVE_DECL__SNPRINTF 70,2190
+#define HAVE_DECL__SNWPRINTF 74,2310
+#define HAVE_DLFCN_H 77,2399
+#define HAVE_FCNTL_H 80,2480
+#define HAVE_FEATURES_H 83,2564
+#define HAVE_FLOAT_H 86,2648
+#define HAVE_FWPRINTF 89,2727
+#define HAVE_GETCWD 92,2805
+#define HAVE_GETEGID 95,2882
+#define HAVE_GETEUID 98,2960
+#define HAVE_GETGID 101,3037
+#define HAVE_GETPAGESIZE 107,3215
+#define HAVE_GETTEXT 110,3322
+#define HAVE_GETTIMEOFDAY 113,3405
+#define HAVE_GETUID 116,3487
+#define HAVE_ICONV 119,3570
+#define HAVE_INTMAX_T 122,3668
+#define HAVE_INTTYPES_H 125,3753
+#define HAVE_INTTYPES_H_WITH_UINTMAX 129,3878
+#define HAVE_LANGINFO_CODESET 132,3982
+#define HAVE_LANGINFO_H 135,4075
+#define HAVE_LC_MESSAGES 138,4160
+#define HAVE_LIBCRYPTO 141,4251
+#define HAVE_LIBCURL 144,4336
+#define HAVE_LIBGMP 147,4417
+#define HAVE_LIBINTL_H 150,4499
+#define HAVE_LIBM 153,4578
+#define HAVE_LIBPTHREAD 156,4664
+#define HAVE_LIBSODIUM 159,4754
+#define HAVE_LIBSSL 162,4837
+#define HAVE_LIBUUID 165,4919
+#define HAVE_LIBXMLRPC 168,5006
+#define HAVE_LIBXMLRPC_ABYSS 171,5107
+#define HAVE_LIBXMLRPC_CLIENT 174,5216
+#define HAVE_LIBXMLRPC_SERVER 177,5326
+#define HAVE_LIBXMLRPC_SERVER_ABYSS 181,5451
+#define HAVE_LIBXMLRPC_UTIL 184,5563
+#define HAVE_LIBXMLRPC_XMLPARSE 188,5678
+#define HAVE_LIBXMLRPC_XMLTOK 191,5790
+#define HAVE_LIMITS_H 194,5881
+#define HAVE_LOCALECONV 197,5963
+#define HAVE_LOCALE_H 200,6048
+#define HAVE_LONG_LONG_INT 203,6135
+#define HAVE_MALLOC 207,6266
+#define HAVE_MALLOC_H 210,6347
+#define HAVE_MBLEN 213,6424
+#define HAVE_MBRLEN 216,6499
+#define HAVE_MBRTOWC 219,6588
+#define HAVE_MEMCHR 222,6665
+#define HAVE_MEMORY_H 225,6746
+#define HAVE_MEMPCPY 228,6825
+#define HAVE_MEMSET 231,6902
+#define HAVE_MMAP 234,6985
+#define HAVE_MUNMAP 237,7059
+#define HAVE_NETDB_H 240,7139
+#define HAVE_NETINET_IN_H 243,7225
+#define HAVE_NEWLOCALE 246,7310
+#define HAVE_NL_LANGINFO 249,7394
+#define HAVE_POSIX_PRINTF 252,7501
+#define HAVE_POW 255,7580
+#define HAVE_PTHREAD_MUTEX_RECURSIVE 258,7665
+#define HAVE_PTHREAD_RWLOCK 261,7776
+#define HAVE_PTRDIFF_T 264,7865
+#define HAVE_PUTENV 267,7944
+#define HAVE_REALLOC 271,8069
+#define HAVE_REGCOMP 274,8147
+#define HAVE_SELECT 277,8224
+#define HAVE_SETENV 280,8300
+#define HAVE_SETLOCALE 283,8379
+#define HAVE_SNPRINTF 286,8460
+#define HAVE_SOCKET 289,8538
+#define HAVE_SQRT 292,8612
+#define HAVE_STDDEF_H 295,8691
+#define HAVE_STDINT_H 298,8774
+#define HAVE_STDINT_H_WITH_UINTMAX 302,8895
+#define HAVE_STDIO_EXT_H 305,8994
+#define HAVE_STDLIB_H 308,9080
+#define HAVE_STPCPY 311,9158
+#define HAVE_STRCASECMP 314,9238
+#define HAVE_STRCHR 317,9318
+#define HAVE_STRCSPN 320,9395
+#define HAVE_STRDUP 323,9472
+#define HAVE_STRERROR 326,9550
+#define HAVE_STRINGS_H 329,9634
+#define HAVE_STRING_H 332,9718
+#define HAVE_STRNLEN 335,9797
+#define HAVE_STRRCHR 338,9875
+#define HAVE_STRSTR 341,9952
+#define HAVE_STRTOL 344,10028
+#define HAVE_STRTOUL 347,10105
+#define HAVE_STRTOULL 350,10184
+#define HAVE_SYMLINK 353,10263
+#define HAVE_SYS_PARAM_H 356,10348
+#define HAVE_SYS_SOCKET_H 359,10438
+#define HAVE_SYS_STAT_H 362,10527
+#define HAVE_SYS_TIME_H 365,10614
+#define HAVE_SYS_TYPES_H 368,10702
+#define HAVE_TSEARCH 371,10784
+#define HAVE_UINTMAX_T 374,10885
+#define HAVE_UNISTD_H 377,10969
+#define HAVE_UNSIGNED_LONG_LONG_INT 380,11065
+#define HAVE_USELOCALE 383,11160
+#define HAVE_VISIBILITY 387,11285
+#define HAVE_WCHAR_H 390,11369
+#define HAVE_WCHAR_T 393,11438
+#define HAVE_WCRTOMB 396,11516
+#define HAVE_WCSLEN 399,11593
+#define HAVE_WCSNLEN 402,11670
+#define HAVE_WINT_T 405,11738
+#define HAVE_WORKING_O_NOATIME 408,11799
+#define HAVE_WORKING_O_NOFOLLOW 411,11872
+#define HAVE__BOOL 414,11961
+#define HAVE___ARGZ_COUNT 417,12042
+#define HAVE___ARGZ_NEXT 420,12129
+#define HAVE___ARGZ_STRINGIFY 423,12220
+#define HAVE___FSETLOCKING 426,12313
+#define ICONV_CONST 429,12408
+#define INTDIV0_RAISES_SIGFPE 432,12493
+#define LT_OBJDIR 435,12604
+#define PACKAGE 438,12654
+#define PACKAGE_BUGREPORT 441,12758
+#define PACKAGE_NAME 444,12862
+#define PACKAGE_STRING 447,12951
+#define PACKAGE_TARNAME 450,13052
+#define PACKAGE_URL 453,13133
+#define PACKAGE_VERSION 456,13202
+#define STDC_HEADERS 479,13995
+#define USE_POSIX_THREADS 482,14081
+#define USE_POSIX_THREADS_WEAK 486,14197
+# define _ALL_SOURCE 504,14747
+# define _GNU_SOURCE 508,14853
+# define _POSIX_PTHREAD_SEMANTICS 512,14963
+# define _TANDEM_SOURCE 516,15069
+# define __EXTENSIONS__ 520,15170
+#define VERSION 528,15338
+# define _GL_EXTERN_INLINE_STDHEADER_BUG595,18398
+# define _GL_INLINE 604,18725
+# define _GL_EXTERN_INLINE 605,18752
+# define _GL_EXTERN_INLINE_IN_USE606,18793
+#  define _GL_INLINE 611,19067
+#  define _GL_INLINE 613,19142
+# define _GL_EXTERN_INLINE 615,19185
+# define _GL_EXTERN_INLINE_IN_USE616,19219
+# define _GL_INLINE 618,19259
+# define _GL_EXTERN_INLINE 619,19297
+#  define _GL_INLINE_HEADER_CONST_PRAGMA630,19777
+#  define _GL_INLINE_HEADER_CONST_PRAGMA 632,19825
+# define _GL_INLINE_HEADER_BEGIN 635,19946
+# define _GL_INLINE_HEADER_END 640,20188
+# define _GL_INLINE_HEADER_BEGIN643,20262
+# define _GL_INLINE_HEADER_END644,20295
+#  define _GL_UNUSED 652,20578
+#  define _GL_UNUSED654,20635
+#  define _GL_ATTRIBUTE_PURE 661,20813
+#  define _GL_ATTRIBUTE_PURE 663,20876
+#define restrict 695,21933
+# define _Restrict702,22369
+# define __restrict__703,22388
+#define __libc_lock_t 733,23385
+#define __libc_lock_define 734,23435
+#define __libc_lock_define_initialized 735,23490
+#define __libc_lock_init 736,23557
+#define __libc_lock_lock 737,23610
+#define __libc_lock_unlock 738,23663
+#define __libc_lock_recursive_t 739,23718
+#define __libc_lock_define_recursive 740,23788
+#define __libc_lock_define_initialized_recursive 741,23863
+#define __libc_lock_init_recursive 742,23950
+#define __libc_lock_lock_recursive 743,24023
+#define __libc_lock_unlock_recursive 744,24096
+#define glthread_in_use 745,24171
+#define glthread_lock_init_func 746,24218
+#define glthread_lock_lock_func 747,24277
+#define glthread_lock_unlock_func 748,24336
+#define glthread_lock_destroy_func 749,24397
+#define glthread_rwlock_init_multithreaded 750,24459
+#define glthread_rwlock_init_func 751,24540
+#define glthread_rwlock_rdlock_multithreaded 752,24612
+#define glthread_rwlock_rdlock_func 753,24695
+#define glthread_rwlock_wrlock_multithreaded 754,24769
+#define glthread_rwlock_wrlock_func 755,24852
+#define glthread_rwlock_unlock_multithreaded 756,24926
+#define glthread_rwlock_unlock_func 757,25009
+#define glthread_rwlock_destroy_multithreaded 758,25083
+#define glthread_rwlock_destroy_func 759,25167
+#define glthread_recursive_lock_init_multithreaded 760,25242
+#define glthread_recursive_lock_init_func 761,25339
+#define glthread_recursive_lock_lock_multithreaded 762,25427
+#define glthread_recursive_lock_lock_func 763,25524
+#define glthread_recursive_lock_unlock_multithreaded 764,25612
+#define glthread_recursive_lock_unlock_func 765,25711
+#define glthread_recursive_lock_destroy_multithreaded 766,25801
+#define glthread_recursive_lock_destroy_func 767,25901
+#define glthread_once_func 768,25992
+#define glthread_once_singlethreaded 769,26048
+#define glthread_once_multithreaded 770,26114
+
+dragon.c,36
+void dragon(9,125
+int main(18,358
+
+firstThread.c,52
+void *threadFunc(threadFunc9,176
+int main(21,322
+
+gettextsample2.c,15
+int main(4,30
+
+bouyomi.c,1080
+#define MSGSIZE 47,853
+#define BUFSIZE 48,874
+#define DEFAULT_PORT 49,904
+#define DEFAULT_PORT_STR 50,931
+#define DEFAULT_SERV_ADDRESS 51,964
+#define DEFAULT_SERV_ADDRESS4 52,1005
+#define DEFAULT_SERV_ADDRESS6 53,1047
+#define ONION_SERV_ADDRESS 54,1083
+typedef struct bouyomi_header_t57,1252
+  short command;59,1286
+  short speed;60,1303
+  short tone;61,1318
+  short volume;62,1332
+  short voice;63,1348
+  char encode;64,1363
+  char empty;65,1378
+  int32_t length;66,1405
+} bouyomi_header;67,1423
+typedef struct bouyomi_conf_t68,1441
+  short command;70,1473
+  short speed;71,1490
+  short tone;72,1505
+  short volume;73,1519
+  short voice;74,1535
+  char encode;75,1550
+  size_t length;76,1565
+  char *msg;msg77,1582
+} bouyomi_conf;78,1595
+typedef struct config_line_t79,1611
+  char *key;key81,1642
+  char *value;value82,1655
+  struct config_line_t *next;next83,1670
+} config_line_t;84,1700
+typedef enum charset_t86,1718
+  UTF_8 88,1743
+  UNICODE 89,1756
+  SHIFT_JIS 90,1771
+} charset;91,1787
+int send_to_server(93,1799
+int main(156,3019
+
+svgplot.c,149
+static double ymax 4,40
+void plot_start(6,65
+void plot_end(15,314
+void move(23,458
+void move_rel(28,530
+void draw(33,604
+void draw_rel(38,676
+
+bmkeygen.c,551
+#define PRIVATE_KEY_LENGTH 17,320
+#define PUBLIC_KEY_LENGTH 18,350
+#define KEY_CACHE_SIZE 19,379
+#define REQUIRE_NLZ 20,411
+#define ADDRESS_VERSION 21,433
+#define STREAM_NUMBER 22,459
+#define J_CACHE_SIZE 23,483
+#define errchk(25,507
+int nextBytes(33,934
+char *encodeVarint(encodeVarint61,1361
+char *encodeBase58(encodeBase5866,1419
+char *encodeAddress0(encodeAddress071,1462
+char *encodeAddress(encodeAddress87,1827
+char *encodeWIF(encodeWIF92,1943
+char *formatKey(formatKey97,1992
+int exportAddress(106,2418
+int main(144,3611
+
+read_random.c,62
+#define D_SIZE 8,106
+#define D_SIZE 10,136
+int main(20,372
+
+printint.c,230
+#define DIGITS 8,102
+#define DigitTens 9,138
+#define DigitOnes 10,261
+static size_t stringSize(15,436
+size_t snprintUInt64(34,806
+size_t snprintInt64(92,1972
+char* reverse(101,2144
+char* ltoa(115,2393
+char* itoa(154,3209
+
+sha-3.h,421
+#define SHA_3_H3,17
+typedef struct sha_ctx_t{sha_ctx_t5,34
+typedef struct sha_ctx_t{}SHA3_224_CTX;SHA3_224_CTX5,34
+typedef struct sha_ctx_t{sha_ctx_t6,74
+typedef struct sha_ctx_t{}SHA3_256_CTX;SHA3_256_CTX6,74
+typedef struct sha_ctx_t{sha_ctx_t7,114
+typedef struct sha_ctx_t{}SHA3_384_CTX;SHA3_384_CTX7,114
+typedef struct sha_ctx_t{sha_ctx_t8,154
+typedef struct sha_ctx_t{}SHA3_512_CTX;SHA3_512_CTX8,154
+
+gettextsample2.h,20
+#define MAIN_H3,16
+
+bouyomi.h,24
+#define BOUYOMI_H 3,19
+
+014.c,17
+int main(13,161
+
+teamspeakIdUpgrader.c,117
+#define IN2_SIZE 15,249
+static uint64_t *verifire_ptr verifire_ptr17,270
+static void act(19,309
+int main(24,401
+
+printint.h,31
+#define HEADER_PRINTINT_H5,33
+
+study-config.h,45
+#define STUDY_CONFIG_H3,24
+#define _(8,116
+
+orz.c,142
+#define URANDOM_PATH 8,98
+#define BUF_SIZE 9,134
+static const char *hexchars hexchars12,174
+static void hex_dump(13,224
+int main(27,491
+
+cl.c,17
+int main(21,404
+
+variables4.c,102
+char *varA;varA7,101
+#define STRINGSIZE 8,113
+void *threadFunc(threadFunc10,136
+int main(21,404
+
+udpsender.c,17
+int main(11,175
+
+signalsample.c,89
+static void sigint_action(12,147
+static int set_signal_handler(17,236
+int main(28,484
+
+firstThread4.c,52
+void *threadFunc(threadFunc9,176
+int main(22,354
+
+charset-convert.c,91
+static int convert(9,129
+int encode_utf8_2_sjis(24,526
+int encode_utf8_2_unicode(34,770
+
+019.c,17
+int main(22,321
+
+prime2.c,40
+#define BUFSIZE 9,116
+int main(11,144
+
+doublerandom.c,15
+int main(7,80
+
+charset-convert.h,15
+#define a3,11
+
+seq.c,16
+int main(9,121
+
+firstThread4-1.c,52
+void *threadFunc(threadFunc9,175
+int main(23,363
+
+sntpc.c,411
+#define SERVER_NAME 17,371
+#define SERVER_PORT 18,405
+struct NTP_Packet21,454
+  int Control_Word;23,474
+  int root_delay;24,494
+  int root_dispersion;25,512
+  int reference_identifier;26,535
+  int64_t reference_timestamp;27,563
+  int64_t originate_timestamp;28,594
+  int64_t receive_timestamp;29,625
+  int transmit_timestamp_seconds;30,654
+  int transmit_timestamp_fractions;31,688
+int main(37,819
+
+gettextsample3.c,15
+int main(5,56
+
+variables.c,71
+long varA;10,179
+void *threadFunc(threadFunc11,190
+int main(27,602
+
+falcon.c,108
+#define URANDOM_PATH 9,118
+#define MAX 10,154
+uint32_t seed 12,175
+void shuffle(14,195
+int main(26,404
+
+gettextsample3.h,24
+#define MAIN_022_H3,20
+
+015.c,16
+int main(9,104
+
+dappun.c,15
+int main(4,21
+
+signalsample2.c,102
+static uint64_t *verifire_ptr verifire_ptr10,142
+static void sigint_action(15,208
+int main(20,338
+
+loop-bench.c,41
+#define LOOP_COUNT 5,41
+int main(8,105
+
+CoDec.c,36
+int encode(15,375
+int main(38,779
+
+mytextdomain.h,26
+#define TEXTDOMAIN_H3,22
+
+base64.c,108
+static const char BASE64_TABLE[BASE64_TABLE5,60
+#define PAD 6,163
+char *base64encode(base64encode8,182
+
+ankokudan_decode.c,158
+const static char *ten ten10,126
+const static char *one one26,831
+static size_t parseHex(42,1536
+static size_t parseHexArray(76,2285
+int main(102,2789
+
+teamspeakcalc.c,157
+#define IN2_SIZE 11,170
+int main(15,218
+    typedef union mc 19,290
+        unsigned char md[md20,313
+        uint32_t ddd[ddd21,358
+    } MC;22,418
+
+prime3.c,15
+int main(8,79
+
+argparsesample.c,780
+#define STR_HYPHEN 7,82
+#define STR_DOUBLE_HYPHEN 8,107
+#define STR_REGISTER 9,140
+#define STR_LOGIN 10,174
+#define STR_LOGOUT 11,202
+#define STR_INIT 12,232
+#define STR_TWEET_LENGTH 13,258
+#define STR_HELP 14,300
+#define STR_L 15,326
+typedef enum logicswitch_e 17,347
+    TWEET 18,376
+    APP_REGISTER,19,391
+    LOGIN,20,409
+    LOGOUT,21,420
+    INIT,22,432
+    TWEET_LENGTH,23,442
+    HELP,24,460
+} LogicSwtich;25,470
+typedef struct args_t30,546
+    LogicSwtich logic;32,570
+    int hasCommandLineArguments;33,593
+    char *status;status34,626
+    char **statuses_v;statuses_v35,644
+    size_t statuses_c;36,667
+} Args;37,690
+static Args *parseCommandLineArgs(parseCommandLineArgs39,699
+static Args *parseStdin(parseStdin45,832
+int main(51,933
+
+epsp-parser.c,397
+#define LINE_PATTERN 12,180
+static regex_t* line_pattern 14,241
+void parser_init(16,279
+void parser_free(27,544
+static int parse_internal(38,700
+void epsp_packet_free(114,2424
+epsp_packet* epsp_packet_parse(122,2568
+string_list* split(154,3336
+int split_regex(176,4020
+int split_strtok(179,4101
+int split_by_strtok(185,4316
+void free_string_array(192,4427
+int split_by_regex(194,4472
+
+bm.c,416
+#define localhost_ip 12,213
+#define bitmessage_port 13,246
+#define NAME 14,275
+#define SERVER_URL 15,308
+void die_if_fault_occurred(17,353
+typedef struct clientinfo_t27,613
+} clientinfo;29,643
+typedef struct serverinfo_t30,657
+} serverinfo;32,687
+typedef struct connectioninfo_t33,701
+  clientinfo client;35,735
+  serverinfo server;36,756
+} connectioninfo;37,777
+char buf[buf52,1114
+int main(53,1132
+
+udpreciever.c,17
+int main(11,172
+
+sum.c,68
+#define FILENAME 10,136
+uint64_t readSeed(11,168
+int main(18,277
+
+epsp-parser.h,226
+#define EPSP_PARSER_H3,23
+typedef struct epsp_packet_t{epsp_packet_t9,130
+  int code;10,160
+  int hop_count;11,172
+  char* code_str;12,189
+  char* hop_count_str;13,207
+  string_array* data;14,230
+} epsp_packet;15,252
+
+prime.c,15
+int main(8,96
+
+study.c,15
+int main(7,87
+
+016.c,986
+#define STD_BUF_SIZE 21,377
+#define CRYPT_OK 22,405
+#define PK_PUBLIC 23,424
+#define min(25,445
+typedef struct ecc_point_t27,490
+    unsigned char *x;x29,519
+    unsigned char *y;y30,541
+    unsigned char *z;z31,563
+} ecc_point;32,585
+typedef struct ecc_key_t33,598
+    int has_private_key;35,625
+    ecc_point public_key;36,650
+    unsigned char *private_key;private_key37,676
+} ecc_key;38,708
+#define TSKEY 40,720
+static void *safealloc(safealloc45,928
+static void safefree(57,1134
+size_t calcDecodeLength(64,1222
+int base64_decode(77,1597
+int base64_encode(95,2076
+static int deObfuscateInplace(115,2591
+#define DigitTens 145,3143
+#define DigitOnes 161,3782
+int ecc_import(178,4422
+int ecc_export(201,4951
+static int deObfuscateKey(205,5044
+static int extractPublicKeyBase64(251,6123
+static int parseIni(282,6913
+static int getIDFingerprint(380,9376
+static uint8_t getSecurityLevel(411,10015
+static void readIdentity(469,11365
+int main(537,13347
+
+server.c,198
+static int sock 9,120
+int get_socket(11,142
+int init_server(59,1410
+void echo_back(67,1541
+static inline void do_concrete_service(111,2418
+void do_service(115,2492
+void close_server(143,3242
+
+FizzBuzz.c,89
+void showFizzBuzz(11,162
+void showNabeatsu(36,486
+#define MAX 55,776
+int main(56,800
+
+service-sample.c,43
+static void usage(11,145
+int main(17,300
+
+envgettest.c,17
+int main(12,164
+
+server.h,27
+#define MAX_BUF_SIZE 3,18
+
+sha-1.c,605
+#define h0 4,21
+#define h1 5,43
+#define h2 6,65
+#define h3 7,87
+#define h4 8,109
+#define SHA_LONG 10,132
+#define SHA_LBLOCK 12,163
+#define SHA_CBLOCK 13,185
+#define SHA_LAST_BLOCK 14,219
+#define SHA_DIGEST_LENGTH 15,257
+typedef struct SHAstate_st{SHAstate_st17,287
+    SHA_LONG s0,18,315
+    SHA_LONG s0,s1,18,315
+    SHA_LONG s0,s1,s2,18,315
+    SHA_LONG s0,s1,s2,s3,18,315
+    SHA_LONG s0,s1,s2,s3,s4;18,315
+    SHA_LONG Nl,19,344
+    SHA_LONG Nl, Nh;19,344
+    SHA_LONG data[data20,365
+}SHA_CTX;SHA_CTX21,396
+void sha_init(23,407
+void sha_update(26,437
+void sha_finish(30,506
+
+portscanner.c,17
+int main(13,273
+
+gettextsample.c,56
+static void initGettext(4,29
+int helloWorld001(11,146
+
+sha-1.h,110
+#define SHA_1_H3,17
+typedef struct sha_ctx_t{sha_ctx_t5,34
+typedef struct sha_ctx_t{}SHA_CTX;SHA_CTX5,34
+
+string_list.c,178
+string_list* string_list_add(9,171
+string_list* string_list_get_last_node(31,689
+size_t string_list_size(39,845
+string_list* str_split(52,1059
+void string_list_free(56,1111
+
+textdomain_inner.h,32
+#define TEXTDOMAIN_INNER_H3,28
+
+gettextsample.h,20
+#define MAIN_H3,16
+
+string_list.h,186
+#define STRING_LIST_H 3,23
+typedef struct string_list string_list;5,50
+typedef struct string_list6,90
+    char *str;str8,119
+    string_list *next;next9,134
+} string_list;10,157
+
+bmapi.c,525
+static int initflag;11,148
+static xmlrpc_env env;12,169
+static xmlrpc_client *cp;cp13,192
+static xmlrpc_server_info *sinfo;sinfo14,218
+int api_init(17,295
+int api_cleanup(28,682
+static int api_call(34,773
+char *api_helloWorld(api_helloWorld40,947
+char *api_getStatus(api_getStatus68,1633
+char *api_simpleSendMessage(api_simpleSendMessage86,2094
+char *api_sendMessage(api_sendMessage90,2281
+char *api_getDeterministicAddress(api_getDeterministicAddress151,4226
+char *api_createChan(api_createChan178,5103
+
+xmlrpc.h,0
+
+xmlrpc.c,0
+
+base64.h,0
+
+svgplot.h,0
+
+sha-3.c,0
+
+self-made-libsha.h,0

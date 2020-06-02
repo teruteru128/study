@@ -1,0 +1,1916 @@
+
+gmo.h,1287
+#define _GETTEXT_H 18,815
+#define _MAGIC 25,944
+#define _MAGIC_SWAPPED 26,970
+#define MO_REVISION_NUMBER 29,1076
+#define MO_REVISION_NUMBER_WITH_SYSDEP_I 30,1105
+# define UINT_MAX_32_BITS 39,1473
+# define UINT_MAX_32_BITS 41,1517
+# define UINT_MAX 50,1834
+typedef unsigned nls_uint32;54,1910
+typedef unsigned short nls_uint32;57,1980
+typedef unsigned long nls_uint32;60,2058
+struct mo_file_header71,2318
+  nls_uint32 magic;74,2369
+  nls_uint32 revision;76,2438
+  nls_uint32 nstrings;81,2579
+  nls_uint32 orig_tab_offset;83,2667
+  nls_uint32 trans_tab_offset;85,2764
+  nls_uint32 hash_tab_size;87,2824
+  nls_uint32 hash_tab_offset;89,2895
+  nls_uint32 n_sysdep_segments;94,3053
+  nls_uint32 sysdep_segments_offset;96,3148
+  nls_uint32 n_sysdep_strings;98,3240
+  nls_uint32 orig_sysdep_tab_offset;100,3343
+  nls_uint32 trans_sysdep_tab_offset;102,3454
+struct string_desc106,3566
+  nls_uint32 length;109,3656
+  nls_uint32 offset;111,3712
+struct sysdep_segment117,3867
+  nls_uint32 length;120,3956
+  nls_uint32 offset;122,4012
+struct segment_pair126,4118
+  nls_uint32 segsize;129,4173
+  nls_uint32 sysdepref;131,4268
+struct sysdep_string135,4343
+  nls_uint32 offset;138,4417
+  struct segment_pair segments[segments141,4580
+#define SEGMENTS_END 146,4760
+
+gettextP.h,2284
+#define _GETTEXTP_H19,857
+# define gl_rwlock_define 34,1109
+extern void _nl_finddomain_subfreeres 62,2221
+# undef _INTL_REDIRECT_INLINE68,2506
+# undef _INTL_REDIRECT_MACROS69,2536
+# define _INTL_REDIRECT_MACROS70,2566
+# define internal_function93,3187
+# define attribute_hidden97,3247
+# define __builtin_expect(103,3424
+# define W(107,3486
+# define SWAP(113,3586
+struct sysdep_string_desc129,3879
+  size_t length;132,3972
+  const char *pointer;pointer134,4027
+struct converted_domain140,4204
+  const char *encoding;encoding143,4265
+  __gconv_t conv;147,4407
+  iconv_t conv;150,4447
+  char **conv_tab;conv_tab154,4545
+struct loaded_domain158,4624
+  const char *data;data161,4699
+  int use_mmap;163,4788
+  size_t mmap_size;165,4838
+  int must_swap;167,4932
+  void *malloced;malloced169,4999
+  nls_uint32 nstrings;172,5059
+  const struct string_desc *orig_tab;orig_tab174,5147
+  const struct string_desc *trans_tab;trans_tab176,5252
+  nls_uint32 n_sysdep_strings;179,5343
+  const struct sysdep_string_desc *orig_sysdep_tab;orig_sysdep_tab181,5434
+  const struct sysdep_string_desc *trans_sysdep_tab;trans_sysdep_tab183,5548
+  nls_uint32 hash_size;186,5631
+  const nls_uint32 *hash_tab;hash_tab188,5687
+  int must_swap_hash_tab;190,5793
+  struct converted_domain *conversions;conversions193,5885
+  size_t nconversions;194,5925
+  gl_rwlock_define 195,5948
+# define ZERO 204,6183
+# define ZERO 206,6205
+struct binding211,6361
+  struct binding *next;next213,6378
+  char *dirname;dirname214,6402
+  char *codeset;codeset215,6419
+  char domainname[domainname216,6436
+# define _nl_msg_cat_cntr 223,6664
+# define gl_locale_name_canonicalize 234,6962
+# define gl_locale_name_from_win32_LANGID 236,7083
+# define gl_locale_name_from_win32_LCID 238,7235
+# define gl_locale_name_thread_unsafe 240,7377
+# define gl_locale_name_thread 243,7544
+# define gl_locale_name_posix 246,7699
+# define gl_locale_name_environ 249,7841
+# define gl_locale_name_default 252,7991
+# define gl_locale_name 254,8098
+struct loaded_l10nfile *_nl_find_domain _nl_find_domain259,8240
+# define _nl_default_dirname 284,9147
+# define _nl_domain_bindings 285,9203
+# define _nl_default_default_domain 301,9737
+# define _nl_current_default_domain 302,9807
+
+hash-string.h,94
+#define HASHWORDBITS 20,901
+#  define __hash_string 25,960
+#  define __hash_string 27,1011
+
+loadinfo.h,554
+#define _LOADINFO_H	19,853
+# define internal_function34,1354
+# define LIBINTL_DLL_EXPORTED38,1418
+# define __builtin_expect(44,1599
+# define PATH_SEPARATOR 50,1833
+# define PATH_SEPARATOR 53,1880
+#define XPG_NORM_CODESET	57,1954
+#define XPG_CODESET	58,1981
+#define XPG_TERRITORY	59,2004
+#define XPG_MODIFIER	60,2029
+struct loaded_l10nfile63,2055
+  const char *filename;filename65,2080
+  int decided;66,2104
+  const void *data;data68,2120
+  struct loaded_l10nfile *next;next70,2141
+  struct loaded_l10nfile *successor[successor71,2173
+
+plural-exp.h,1281
+#define _PLURAL_EXP_H19,872
+# define internal_function22,921
+# define attribute_hidden26,981
+enum expression_operator34,1056
+  var,37,1111
+  num,38,1146
+  lnot,40,1205
+  mult,42,1263
+  divide,43,1297
+  module,44,1326
+  plus,45,1363
+  minus,46,1391
+  less_than,47,1422
+  greater_than,48,1456
+  less_or_equal,49,1493
+  greater_or_equal,50,1530
+  equal,51,1570
+  not_equal,52,1613
+  land,53,1662
+  lor,54,1693
+  qmop	56,1750
+struct expression61,1881
+  int nargs;63,1901
+  enum expression_operator operation;64,1944
+    unsigned long int num;67,1994
+    struct expression *args[args68,2052
+  } val;69,2114
+struct parse_args74,2239
+  const char *cp;cp76,2259
+  struct expression *res;res77,2277
+# define FREE_EXPRESSION 92,2881
+# define PLURAL_PARSE 93,2925
+# define GERMANIC_PLURAL 94,2962
+# define EXTRACT_PLURAL_EXPRESSION 95,3013
+# define FREE_EXPRESSION 97,3100
+# define PLURAL_PARSE 98,3150
+# define GERMANIC_PLURAL 99,3193
+# define EXTRACT_PLURAL_EXPRESSION 100,3250
+# define FREE_EXPRESSION 102,3322
+# define PLURAL_PARSE 103,3370
+# define GERMANIC_PLURAL 104,3416
+# define EXTRACT_PLURAL_EXPRESSION 105,3457
+# define HAVE_STRUCT_INITIALIZER 113,3855
+# define HAVE_STRUCT_INITIALIZER 115,3896
+extern void FREE_EXPRESSION 118,3939
+
+eval-plural.h,43
+#define STATIC 18,794
+plural_eval 25,932
+
+localcharset.h,31
+#define _LOCALCHARSET_H19,883
+
+lock.h,10137
+#define _LOCK_H79,3694
+#  define pthread_in_use(99,4062
+#   define pthread_in_use(148,5929
+#   define pthread_in_use(154,6037
+typedef pthread_mutex_t gl_lock_t;161,6166
+# define gl_lock_define(162,6201
+# define gl_lock_define_initialized(164,6286
+# define gl_lock_initializer 166,6405
+# define glthread_lock_init(168,6466
+# define glthread_lock_lock(170,6564
+# define glthread_lock_unlock(172,6656
+# define glthread_lock_destroy(174,6752
+typedef pthread_rwlock_t gl_rwlock_t;183,6994
+#   define gl_rwlock_define(184,7032
+#   define gl_rwlock_define_initialized(186,7124
+#   define gl_rwlock_initializer 188,7252
+#   define glthread_rwlock_init(190,7320
+#   define glthread_rwlock_rdlock(192,7425
+#   define glthread_rwlock_wrlock(194,7528
+#   define glthread_rwlock_unlock(196,7631
+#   define glthread_rwlock_destroy(198,7734
+          int initialized;205,7874
+          pthread_mutex_t guard;206,7901
+          pthread_rwlock_t rwlock;207,7970
+        gl_rwlock_t;209,8037
+#   define gl_rwlock_define(210,8058
+#   define gl_rwlock_define_initialized(212,8145
+#   define gl_rwlock_initializer 214,8268
+#   define glthread_rwlock_init(216,8342
+#   define glthread_rwlock_rdlock(218,8456
+#   define glthread_rwlock_wrlock(220,8574
+#   define glthread_rwlock_unlock(222,8692
+#   define glthread_rwlock_destroy(224,8810
+          pthread_mutex_t lock;238,9318
+          pthread_cond_t waiting_readers;239,9386
+          pthread_cond_t waiting_writers;240,9450
+          unsigned int waiting_writers_count;241,9514
+          int runcount;242,9592
+        gl_rwlock_t;244,9684
+# define gl_rwlock_define(245,9705
+# define gl_rwlock_define_initialized(247,9788
+# define gl_rwlock_initializer 249,9907
+# define glthread_rwlock_init(251,10032
+# define glthread_rwlock_rdlock(253,10142
+# define glthread_rwlock_wrlock(255,10256
+# define glthread_rwlock_unlock(257,10370
+# define glthread_rwlock_destroy(259,10484
+typedef pthread_mutex_t gl_recursive_lock_t;275,11170
+#   define gl_recursive_lock_define(276,11215
+#   define gl_recursive_lock_define_initialized(278,11314
+#    define gl_recursive_lock_initializer 281,11503
+#    define gl_recursive_lock_initializer 284,11599
+#   define glthread_recursive_lock_init(287,11699
+#   define glthread_recursive_lock_lock(289,11829
+#   define glthread_recursive_lock_unlock(291,11935
+#   define glthread_recursive_lock_destroy(293,12045
+          pthread_mutex_t recmutex;301,12275
+          pthread_mutex_t guard;302,12333
+          int initialized;303,12403
+        gl_recursive_lock_t;305,12440
+#   define gl_recursive_lock_define(306,12469
+#   define gl_recursive_lock_define_initialized(308,12572
+#   define gl_recursive_lock_initializer 310,12719
+#   define glthread_recursive_lock_init(312,12828
+#   define glthread_recursive_lock_lock(314,12958
+#   define glthread_recursive_lock_unlock(316,13088
+#   define glthread_recursive_lock_destroy(318,13222
+          pthread_mutex_t mutex;334,13858
+          pthread_t owner;335,13891
+          unsigned long depth;336,13918
+        gl_recursive_lock_t;338,13959
+#  define gl_recursive_lock_define(339,13988
+#  define gl_recursive_lock_define_initialized(341,14089
+#  define gl_recursive_lock_initializer 343,14234
+#  define glthread_recursive_lock_init(345,14329
+#  define glthread_recursive_lock_lock(347,14457
+#  define glthread_recursive_lock_unlock(349,14585
+#  define glthread_recursive_lock_destroy(351,14717
+typedef pthread_once_t gl_once_t;362,15278
+# define gl_once_define(363,15312
+# define glthread_once(365,15416
+#  define pth_in_use(402,16361
+#  define pth_in_use(406,16414
+typedef pth_mutex_t gl_lock_t;412,16529
+# define gl_lock_define(413,16560
+# define gl_lock_define_initialized(415,16641
+# define gl_lock_initializer 417,16756
+# define glthread_lock_init(419,16806
+# define glthread_lock_lock(421,16900
+# define glthread_lock_unlock(423,17006
+# define glthread_lock_destroy(425,17105
+typedef pth_rwlock_t gl_rwlock_t;430,17247
+#  define gl_rwlock_define(431,17281
+#  define gl_rwlock_define_initialized(433,17367
+#  define gl_rwlock_initializer 435,17489
+#  define glthread_rwlock_init(437,17544
+#  define glthread_rwlock_rdlock(439,17643
+#  define glthread_rwlock_wrlock(441,17771
+#  define glthread_rwlock_unlock(443,17899
+#  define glthread_rwlock_destroy(445,18003
+typedef pth_mutex_t gl_recursive_lock_t;451,18198
+#  define gl_recursive_lock_define(452,18239
+#  define gl_recursive_lock_define_initialized(454,18332
+#  define gl_recursive_lock_initializer 456,18469
+#  define glthread_recursive_lock_init(458,18531
+#  define glthread_recursive_lock_lock(460,18637
+#  define glthread_recursive_lock_unlock(462,18755
+#  define glthread_recursive_lock_destroy(464,18866
+typedef pth_once_t gl_once_t;469,19020
+# define gl_once_define(470,19050
+# define glthread_once(472,19146
+#  define thread_in_use(514,20269
+#  define thread_in_use(518,20326
+typedef mutex_t gl_lock_t;524,20444
+# define gl_lock_define(525,20471
+# define gl_lock_define_initialized(527,20548
+# define gl_lock_initializer 529,20659
+# define glthread_lock_init(531,20707
+# define glthread_lock_lock(533,20810
+# define glthread_lock_unlock(535,20893
+# define glthread_lock_destroy(537,20980
+typedef rwlock_t gl_rwlock_t;542,21150
+# define gl_rwlock_define(543,21180
+# define gl_rwlock_define_initialized(545,21260
+# define gl_rwlock_initializer 547,21376
+# define glthread_rwlock_init(549,21427
+# define glthread_rwlock_rdlock(551,21533
+# define glthread_rwlock_wrlock(553,21619
+# define glthread_rwlock_unlock(555,21705
+# define glthread_rwlock_destroy(557,21791
+          mutex_t mutex;567,22087
+          thread_t owner;568,22112
+          unsigned long depth;569,22138
+        gl_recursive_lock_t;571,22179
+# define gl_recursive_lock_define(572,22208
+# define gl_recursive_lock_define_initialized(574,22307
+# define gl_recursive_lock_initializer 576,22450
+# define glthread_recursive_lock_init(578,22529
+# define glthread_recursive_lock_lock(580,22654
+# define glthread_recursive_lock_unlock(582,22779
+# define glthread_recursive_lock_destroy(584,22908
+          volatile int inited;595,23482
+          mutex_t mutex;596,23513
+        gl_once_t;598,23548
+# define gl_once_define(599,23567
+# define glthread_once(601,23668
+# define WIN32_LEAN_AND_MEAN 618,24272
+typedef struct { volatile int done;636,24957
+typedef struct { volatile int done; volatile long started;636,24957
+typedef struct { volatile int done; volatile long started; } gl_spinlock_t;636,24957
+          gl_spinlock_t guard;642,25139
+          CRITICAL_SECTION lock;643,25204
+        gl_lock_t;645,25247
+# define gl_lock_define(646,25266
+# define gl_lock_define_initialized(648,25345
+# define gl_lock_initializer 650,25458
+# define glthread_lock_init(652,25507
+# define glthread_lock_lock(654,25583
+# define glthread_lock_unlock(656,25654
+# define glthread_lock_destroy(658,25729
+          HANDLE *array;array673,26346
+          unsigned int count;674,26432
+          unsigned int alloc;675,26494
+          unsigned int offset;676,26556
+        gl_carray_waitqueue_t;678,26642
+          gl_spinlock_t guard;681,26698
+          CRITICAL_SECTION lock;682,26763
+          gl_carray_waitqueue_t waiting_readers;683,26832
+          gl_carray_waitqueue_t waiting_writers;684,26903
+          int runcount;685,26974
+        gl_rwlock_t;687,27066
+# define gl_rwlock_define(688,27087
+# define gl_rwlock_define_initialized(690,27170
+# define gl_rwlock_initializer 692,27289
+# define glthread_rwlock_init(694,27340
+# define glthread_rwlock_rdlock(696,27420
+# define glthread_rwlock_wrlock(698,27499
+# define glthread_rwlock_unlock(700,27578
+# define glthread_rwlock_destroy(702,27657
+          gl_spinlock_t guard;718,28349
+          DWORD owner;719,28414
+          unsigned long depth;720,28437
+          CRITICAL_SECTION lock;721,28468
+        gl_recursive_lock_t;723,28511
+# define gl_recursive_lock_define(724,28540
+# define gl_recursive_lock_define_initialized(726,28639
+# define gl_recursive_lock_initializer 728,28782
+# define glthread_recursive_lock_init(730,28847
+# define glthread_recursive_lock_lock(732,28943
+# define glthread_recursive_lock_unlock(734,29034
+# define glthread_recursive_lock_destroy(736,29129
+          volatile int inited;747,29634
+          volatile long started;748,29665
+          CRITICAL_SECTION lock;749,29698
+        gl_once_t;751,29741
+# define gl_once_define(752,29760
+# define glthread_once(754,29852
+typedef int gl_lock_t;772,30408
+# define gl_lock_define(773,30431
+# define gl_lock_define_initialized(774,30475
+# define glthread_lock_init(775,30531
+# define glthread_lock_lock(776,30567
+# define glthread_lock_unlock(777,30603
+# define glthread_lock_destroy(778,30641
+typedef int gl_rwlock_t;782,30761
+# define gl_rwlock_define(783,30786
+# define gl_rwlock_define_initialized(784,30832
+# define glthread_rwlock_init(785,30890
+# define glthread_rwlock_rdlock(786,30928
+# define glthread_rwlock_wrlock(787,30968
+# define glthread_rwlock_unlock(788,31008
+# define glthread_rwlock_destroy(789,31048
+typedef int gl_recursive_lock_t;793,31170
+# define gl_recursive_lock_define(794,31203
+# define gl_recursive_lock_define_initialized(795,31257
+# define glthread_recursive_lock_init(796,31323
+# define glthread_recursive_lock_lock(797,31369
+# define glthread_recursive_lock_unlock(798,31415
+# define glthread_recursive_lock_destroy(799,31463
+typedef int gl_once_t;803,31593
+# define gl_once_define(804,31616
+# define glthread_once(806,31699
+#define gl_lock_init(817,32044
+#define gl_lock_lock(824,32291
+#define gl_lock_unlock(831,32538
+#define gl_lock_destroy(838,32797
+#define gl_rwlock_init(848,33143
+#define gl_rwlock_rdlock(855,33402
+#define gl_rwlock_wrlock(862,33673
+#define gl_rwlock_unlock(869,33944
+#define gl_rwlock_destroy(876,34215
+#define gl_recursive_lock_init(886,34573
+#define gl_recursive_lock_lock(893,34880
+#define gl_recursive_lock_unlock(900,35187
+#define gl_recursive_lock_destroy(907,35506
+#define gl_once(917,35912
+
+relocatable.h,184
+#define _RELOCATABLE_H19,855
+# define RELOCATABLE_DLL_EXPORTED 33,1225
+# define RELOCATABLE_DLL_EXPORTED 35,1341
+# define RELOCATABLE_DLL_EXPORTED37,1403
+#define relocate(72,3039
+
+tsearch.h,117
+#define _TSEARCH_H18,785
+  preorder,37,1105
+  postorder,38,1117
+  endorder,39,1131
+  leaf40,1143
+VISIT;42,1152
+
+tsearch.c,824
+typedef int (*__compar_fn_t)__compar_fn_t99,4508
+typedef void (*__action_fn_t)__action_fn_t100,4567
+# define __tsearch 103,4645
+# define __tfind 104,4672
+# define __tdelete 105,4695
+# define __twalk 106,4722
+# define internal_function112,4895
+typedef struct node_t115,4930
+  const void *key;key119,5044
+  struct node_t *left;left120,5063
+  struct node_t *right;right121,5086
+  unsigned int red:red122,5110
+} *node;node123,5132
+typedef const struct node_t *const_node;const_node124,5141
+#undef DEBUGGING126,5183
+#define CHECK_TREE(134,5283
+check_tree_recurse 137,5332
+check_tree 154,5755
+#define CHECK_TREE(169,5960
+maybe_split_for_insert 180,6429
+__tsearch 263,8958
+weak_alias 322,10472
+weak_alias 356,11099
+weak_alias 608,19682
+__twalk 640,20561
+weak_alias 650,20766
+__tdestroy 672,21270
+
+verify.h,959
+#define _GL_VERIFY_H21,862
+# define _GL_HAVE__STATIC_ASSERT 37,1579
+# define _GL_HAVE_STATIC_ASSERT 42,1789
+# undef _Static_assert50,2059
+#define _GL_CONCAT(154,6520
+#define _GL_CONCAT0(155,6564
+# define _GL_COUNTER 162,6866
+# define _GL_COUNTER 164,6905
+#define _GL_GENSYM(169,7024
+#define _GL_VERIFY_TRUE(175,7299
+  struct _gl_verify_type 181,7469
+    unsigned int _gl_verify_error_if_negative: w;_gl_verify_type::w182,7496
+#  define GNULIB_defined_struct__gl_verify_type 184,7551
+# define _GL_VERIFY_TYPE(186,7609
+# define _GL_VERIFY_TYPE(189,7723
+# define _GL_VERIFY_TYPE(195,7923
+# define _GL_VERIFY 207,8416
+# define _GL_VERIFY(209,8457
+#  define _Static_assert(217,8787
+#  define static_assert 220,8925
+#define verify_true(240,9675
+#define verify_expr(245,9831
+#define verify(251,10019
+# define __has_builtin(254,10094
+# define assume(263,10412
+# define assume(265,10498
+# define assume(272,10875
+# define assume(274,10937
+
+xsize.h,237
+#define _XSIZE_H19,780
+# define XSIZE_INLINE 35,1051
+#define xcast_size_t(55,1989
+xsum 63,2180
+xsum3 74,2411
+xsum4 84,2628
+xmax 94,2876
+#define xtimes(105,3341
+#define size_overflow_p(109,3465
+#define size_in_bounds_p(112,3551
+
+printf-args.h,2426
+#define _PRINTF_ARGS_H19,825
+# define PRINTF_FETCHARGS 28,1167
+  TYPE_NONE,51,1465
+  TYPE_SCHAR,52,1478
+  TYPE_UCHAR,53,1492
+  TYPE_SHORT,54,1506
+  TYPE_USHORT,55,1520
+  TYPE_INT,56,1535
+  TYPE_UINT,57,1547
+  TYPE_LONGINT,58,1560
+  TYPE_ULONGINT,59,1576
+  TYPE_LONGLONGINT,61,1616
+  TYPE_ULONGLONGINT,62,1636
+  TYPE_DOUBLE,64,1664
+  TYPE_LONGDOUBLE,65,1679
+  TYPE_CHAR,66,1698
+  TYPE_WIDE_CHAR,68,1727
+  TYPE_STRING,70,1752
+  TYPE_WIDE_STRING,72,1784
+  TYPE_POINTER,74,1811
+  TYPE_COUNT_SCHAR_POINTER,75,1827
+  TYPE_COUNT_SHORT_POINTER,76,1855
+  TYPE_COUNT_INT_POINTER,77,1883
+  TYPE_COUNT_LONGINT_POINTER78,1909
+, TYPE_COUNT_LONGLONGINT_POINTER80,1961
+, TYPE_U8_STRING84,2055
+, TYPE_U16_STRING85,2072
+, TYPE_U32_STRING86,2090
+} arg_type;88,2115
+  arg_type type;93,2172
+    signed char                 a_schar;96,2201
+    unsigned char               a_uchar;97,2242
+    short                       a_short;98,2283
+    unsigned short              a_ushort;99,2324
+    int                         a_int;100,2366
+    unsigned int                a_uint;101,2405
+    long int                    a_longint;102,2445
+    unsigned long int           a_ulongint;103,2488
+    long long int               a_longlongint;105,2555
+    unsigned long long int      a_ulonglongint;106,2602
+    float                       a_float;108,2657
+    double                      a_double;109,2698
+    long double                 a_longdouble;110,2740
+    int                         a_char;111,2786
+    wint_t                      a_wide_char;113,2842
+    const char*                 a_string;115,2894
+    const wchar_t*              a_wide_string;117,2953
+    void*                       a_pointer;119,3007
+    signed char *               a_count_schar_pointer;120,3050
+    short *                     a_count_short_pointer;121,3105
+    int *                       a_count_int_pointer;122,3160
+    long int *                  a_count_longint_pointer;123,3213
+    long long int *             a_count_longlongint_pointer;125,3293
+    const uint8_t *             a_u8_string;129,3417
+    const uint16_t *            a_u16_string;130,3462
+    const uint32_t *            a_u32_string;131,3508
+  a;134,3565
+argument;136,3572
+#define N_DIRECT_ALLOC_ARGUMENTS 139,3651
+  size_t count;143,3704
+  argument *arg;arg144,3720
+  argument direct_alloc_arg[direct_alloc_arg145,3737
+arguments;147,3794
+
+printf-args.c,26
+PRINTF_FETCHARGS 36,1228
+
+printf-parse.h,897
+#define _PRINTF_PARSE_H19,827
+#define FLAG_GROUP 29,974
+#define FLAG_LEFT 30,1019
+#define FLAG_SHOWSIGN 31,1064
+#define FLAG_SPACE 32,1109
+#define FLAG_ALT 33,1158
+#define FLAG_ZERO 34,1203
+# define FLAG_LOCALIZED 36,1272
+#define ARG_NONE 40,1412
+#define N_DIRECT_ALLOC_DIRECTIVES 43,1519
+  const char* dir_start;48,1600
+  const char* dir_end;49,1625
+  int flags;50,1648
+  const char* width_start;51,1661
+  const char* width_end;52,1688
+  size_t width_arg_index;53,1713
+  const char* precision_start;54,1739
+  const char* precision_end;55,1770
+  size_t precision_arg_index;56,1799
+  char conversion;57,1829
+  size_t arg_index;58,1900
+char_directive;60,1922
+  size_t count;65,1987
+  char_directive *dir;dir66,2003
+  size_t max_width_length;67,2026
+  size_t max_precision_length;68,2053
+  char_directive direct_alloc_dir[direct_alloc_dir69,2084
+char_directives;71,2148
+
+wprintf-parse.h,931
+#define _WPRINTF_PARSE_H19,828
+#define FLAG_GROUP 29,976
+#define FLAG_LEFT 30,1021
+#define FLAG_SHOWSIGN 31,1066
+#define FLAG_SPACE 32,1111
+#define FLAG_ALT 33,1160
+#define FLAG_ZERO 34,1205
+# define FLAG_LOCALIZED 36,1274
+#define ARG_NONE 40,1414
+#define N_DIRECT_ALLOC_DIRECTIVES 43,1521
+  const wchar_t* dir_start;48,1602
+  const wchar_t* dir_end;49,1630
+  int flags;50,1656
+  const wchar_t* width_start;51,1669
+  const wchar_t* width_end;52,1699
+  size_t width_arg_index;53,1727
+  const wchar_t* precision_start;54,1753
+  const wchar_t* precision_end;55,1787
+  size_t precision_arg_index;56,1819
+  wchar_t conversion;57,1849
+  size_t arg_index;58,1929
+wchar_t_directive;60,1951
+  size_t count;65,2019
+  wchar_t_directive *dir;dir66,2035
+  size_t max_width_length;67,2061
+  size_t max_precision_length;68,2088
+  wchar_t_directive direct_alloc_dir[direct_alloc_dir69,2119
+wchar_t_directives;71,2186
+
+printf-parse.c,310
+# define PRINTF_PARSE 42,1726
+# define CHAR_T 43,1761
+# define DIRECTIVE 44,1782
+# define DIRECTIVES 45,1816
+PRINTF_PARSE 84,2428
+#define REGISTER_ARG(101,3012
+#undef PRINTF_PARSE635,22099
+#undef DIRECTIVES636,22119
+#undef DIRECTIVE637,22137
+#undef CHAR_T_ONLY_ASCII638,22154
+#undef CHAR_T639,22179
+
+vasnprintf.h,156
+#define _VASNPRINTF_H18,814
+#  define __format__ 34,1327
+#  define __printf__ 35,1355
+extern char * asnprintf 67,2460
+extern char * vasnprintf 69,2600
+
+vasnwprintf.h,30
+#define _VASNWPRINTF_H18,810
+
+vasnprintf.c,3224
+# define _GNU_SOURCE 50,2843
+#  define VASNPRINTF 124,4534
+#  define FCHAR_T 125,4567
+#  define DCHAR_T 126,4593
+#  define TCHAR_T 127,4619
+#  define DCHAR_IS_TCHAR 128,4645
+#  define DIRECTIVE 129,4672
+#  define DIRECTIVES 130,4710
+#  define PRINTF_PARSE 131,4750
+#  define DCHAR_CPY 132,4787
+#  define DCHAR_SET 133,4815
+#  define VASNPRINTF 135,4850
+#  define FCHAR_T 136,4882
+#  define DCHAR_T 137,4905
+#  define TCHAR_T 138,4928
+#  define DCHAR_IS_TCHAR 139,4951
+#  define DIRECTIVE 140,4978
+#  define DIRECTIVES 141,5013
+#  define PRINTF_PARSE 142,5050
+#  define DCHAR_CPY 143,5086
+#  define DCHAR_SET 144,5113
+# define USE_SNPRINTF 149,5206
+#   define SNPRINTF 156,5558
+#   define SNPRINTF 158,5596
+#  define SNPRINTF 162,5659
+#  define USE_SNPRINTF 172,6136
+#  define USE_SNPRINTF 174,6168
+#   define SNPRINTF 180,6377
+#   undef snprintf182,6477
+#   define SNPRINTF 184,6504
+#  define SNPRINTF 188,6566
+#  undef snprintf190,6664
+#undef sprintf194,6762
+# define IF_LINT(199,6925
+# define IF_LINT(201,6959
+#undef exp206,7112
+#define exp 207,7123
+#undef remainder208,7140
+#define remainder 209,7157
+#  define local_strnlen 213,7288
+#   define local_strnlen_defined 216,7359
+local_strnlen 218,7408
+#  define local_wcslen 229,7837
+#   define local_wcslen_defined 236,8163
+local_wcslen 238,8211
+#  define local_wcsnlen 252,8467
+#   define local_wcsnlen_defined 255,8538
+local_wcsnlen 257,8587
+#  define decimal_point_char_defined 272,9062
+decimal_point_char 274,9113
+is_infinite_or_zero 300,10026
+is_infinite_or_zerol 311,10277
+typedef unsigned int mp_limb_t;324,10625
+# define GMP_LIMB_BITS 325,10657
+typedef unsigned long long mp_twolimb_t;328,10741
+# define GMP_TWOLIMB_BITS 329,10782
+  size_t nlimbs;335,10932
+  mp_limb_t *limbs;limbs336,10949
+} mpn_t;337,11030
+multiply 343,11199
+divide 415,13049
+#   define DBL_EXP_MASK 565,18463
+#   define DBL_EXP_BIAS 566,18521
+#   define NWORDS 567,18568
+#   undef NWORDS579,19003
+convert_to_decimal 846,28351
+decode_long_double 900,30046
+decode_double 988,32625
+scale10_round_decimal_decoded 1072,35151
+scale10_round_decimal_long_double 1294,41710
+scale10_round_decimal_double 1312,42266
+floorlog10l 1328,42676
+floorlog10 1419,44895
+is_borderline 1507,46990
+#  define MAX_ROOM_NEEDED 1526,47461
+#  define MAX_ROOM_NEEDED 1528,47511
+MAX_ROOM_NEEDED 1534,47720
+VASNPRINTF 1773,55888
+#define CLEANUP(1783,56112
+#define ENSURE_ALLOCATION(1847,57866
+#               define prec_ourselves 4604,180981
+#               define pad_ourselves 4607,181060
+#               define pad_ourselves 4611,181241
+# define TCHARS_PER_DCHAR 4917,193945
+# define SNPRINTF_BUF(4942,195019
+# define SNPRINTF_BUF(4965,196638
+#undef pad_ourselves5532,221783
+#undef prec_ourselves5533,221804
+#undef MAX_ROOM_NEEDED5585,223076
+#undef TCHARS_PER_DCHAR5586,223099
+#undef SNPRINTF5587,223123
+#undef USE_SNPRINTF5588,223139
+#undef DCHAR_SET5589,223159
+#undef DCHAR_CPY5590,223176
+#undef PRINTF_PARSE5591,223193
+#undef DIRECTIVES5592,223213
+#undef DIRECTIVE5593,223231
+#undef DCHAR_IS_TCHAR5594,223248
+#undef TCHAR_T5595,223270
+#undef DCHAR_T5596,223285
+#undef FCHAR_T5597,223300
+#undef VASNPRINTF5598,223315
+
+os2compat.h,344
+#undef LIBDIR21,918
+#define LIBDIR 22,932
+#undef LOCALEDIR25,990
+#define LOCALEDIR 26,1007
+#undef LOCALE_ALIAS_PATH29,1074
+#define LOCALE_ALIAS_PATH 30,1099
+#undef HAVE_STRCASECMP35,1194
+#define HAVE_STRCASECMP 36,1217
+#define strcasecmp 37,1243
+#define strncasecmp 38,1270
+#define getenv 41,1378
+#define LC_MESSAGES_COMPAT 44,1473
+
+libgnuintl.in.h,2354
+#define _LIBINTL_H 18,805
+# define LC_MESSAGES 33,1487
+#define __USE_GNU_GETTEXT 38,1619
+#define __GNU_GETTEXT_SUPPORTED_REVISION(42,1793
+# undef gettext48,2011
+#define LIBINTL_VERSION 57,2134
+#  define _INTL_REDIRECT_ASM93,4102
+#   define _INTL_REDIRECT_INLINE96,4159
+#   define _INTL_REDIRECT_MACROS98,4200
+# define _INTL_ASM(104,4308
+# define _INTL_ASMNAME(105,4390
+# define _INTL_STRINGIFY(106,4470
+# define _INTL_ASM(108,4517
+# define _INTL_MAY_RETURN_STRING_ARG(115,4849
+# define _INTL_MAY_RETURN_STRING_ARG(117,4932
+extern char *libintl_gettext libintl_gettext124,5167
+# define gettext 132,5383
+extern char *gettext gettext134,5423
+# define dgettext 150,5957
+extern char *dgettext dgettext152,5999
+# define dcgettext 170,6668
+extern char *dcgettext dcgettext172,6712
+# define ngettext 192,7447
+extern char *ngettext ngettext194,7489
+# define dngettext 213,8328
+extern char *dngettext dngettext215,8372
+# define dcngettext 237,9379
+extern char *dcngettext dcngettext239,9425
+# define textdomain 260,10157
+extern char *textdomain textdomain262,10203
+# define bindtextdomain 278,10796
+extern char *bindtextdomain bindtextdomain280,10850
+# define bind_textdomain_codeset 296,11513
+extern char *bind_textdomain_codeset bind_textdomain_codeset298,11585
+#undef fprintf327,12548
+#define fprintf 328,12563
+#undef vfprintf332,12725
+#define vfprintf 333,12741
+#undef printf338,12909
+# define libintl_printf 349,13552
+#define printf 351,13594
+#undef vprintf355,13744
+#define vprintf 356,13759
+#undef sprintf361,13917
+#define sprintf 362,13932
+#undef vsprintf366,14094
+#define vsprintf 367,14110
+#undef snprintf374,14301
+#define snprintf 375,14317
+#undef vsnprintf379,14491
+#define vsnprintf 380,14508
+#undef asprintf389,14718
+#define asprintf 390,14734
+#undef vasprintf394,14901
+#define vasprintf 395,14918
+#undef fwprintf403,15045
+#define fwprintf 404,15061
+#undef vfwprintf406,15147
+#define vfwprintf 407,15164
+#undef wprintf410,15258
+#define wprintf 411,15273
+#undef vwprintf413,15348
+#define vwprintf 414,15364
+#undef swprintf417,15447
+#define swprintf 418,15463
+#undef vswprintf420,15560
+#define vswprintf 421,15577
+#undef setlocale433,15916
+#define setlocale 434,15933
+#undef newlocale440,16043
+#define newlocale 441,16060
+#define libintl_set_relocation_prefix 456,16531
+
+bindtextdom.c,417
+# define gl_rwlock_define 35,1073
+# define gl_rwlock_wrlock 36,1120
+# define gl_rwlock_unlock 37,1167
+# define offsetof(44,1338
+# define BINDTEXTDOMAIN 58,1847
+# define BIND_TEXTDOMAIN_CODESET 59,1888
+#  define strdup(61,1963
+# define BINDTEXTDOMAIN 64,2014
+# define BIND_TEXTDOMAIN_CODESET 65,2061
+gl_rwlock_define BIND_TEXTDOMAIN_CODESET50,1513
+BINDTEXTDOMAIN 318,8233
+BIND_TEXTDOMAIN_CODESET 353,9216
+
+dcgettext.c,133
+# define DCGETTEXT 35,1223
+# define DCIGETTEXT 36,1254
+# define DCGETTEXT 38,1293
+# define DCIGETTEXT 39,1330
+DCGETTEXT 45,1475
+
+dgettext.c,128
+# define DGETTEXT 38,1244
+# define DCGETTEXT 39,1273
+# define DGETTEXT 41,1310
+# define DCGETTEXT 42,1345
+DGETTEXT 48,1490
+
+gettext.c,153
+# define __need_NULL22,834
+# define GETTEXT 42,1330
+# define DCGETTEXT 43,1357
+# define GETTEXT 45,1394
+# define DCGETTEXT 46,1427
+GETTEXT 53,1637
+
+finddomain.c,291
+# define gl_rwlock_define_initialized 41,1211
+# define gl_rwlock_rdlock 42,1282
+# define gl_rwlock_wrlock 43,1329
+# define gl_rwlock_unlock 44,1376
+static struct loaded_l10nfile *_nl_loaded_domains;_nl_loaded_domains51,1521
+_nl_find_domain 59,1789
+_nl_finddomain_subfreeres 196,5650
+
+hash-string.c,23
+__hash_string 31,1134
+
+loadmsgcat.c,5356
+# define _GNU_SOURCE 21,991
+# undef  alloca36,1214
+# define alloca 37,1230
+# define HAVE_ALLOCA 38,1263
+#  define alloca 42,1331
+# undef HAVE_MMAP73,1891
+# define HAVE_MMAP	74,1909
+# undef HAVE_MMAP76,1936
+# define PRI_MACROS_BROKEN 104,2423
+# undef PRId8111,2715
+# define PRId8 112,2729
+# undef PRIi8115,2795
+# define PRIi8 116,2809
+# undef PRIo8119,2875
+# define PRIo8 120,2889
+# undef PRIu8123,2955
+# define PRIu8 124,2969
+# undef PRIx8127,3035
+# define PRIx8 128,3049
+# undef PRIX8131,3115
+# define PRIX8 132,3129
+# undef PRId16135,3196
+# define PRId16 136,3211
+# undef PRIi16139,3279
+# define PRIi16 140,3294
+# undef PRIo16143,3362
+# define PRIo16 144,3377
+# undef PRIu16147,3445
+# define PRIu16 148,3460
+# undef PRIx16151,3528
+# define PRIx16 152,3543
+# undef PRIX16155,3611
+# define PRIX16 156,3626
+# undef PRId32159,3694
+# define PRId32 160,3709
+# undef PRIi32163,3777
+# define PRIi32 164,3792
+# undef PRIo32167,3860
+# define PRIo32 168,3875
+# undef PRIu32171,3943
+# define PRIu32 172,3958
+# undef PRIx32175,4026
+# define PRIx32 176,4041
+# undef PRIX32179,4109
+# define PRIX32 180,4124
+# undef PRId64183,4192
+# define PRId64 184,4207
+# undef PRIi64187,4307
+# define PRIi64 188,4322
+# undef PRIo64191,4422
+# define PRIo64 192,4437
+# undef PRIu64195,4537
+# define PRIu64 196,4552
+# undef PRIx64199,4652
+# define PRIx64 200,4667
+# undef PRIX64203,4767
+# define PRIX64 204,4782
+# undef PRIdLEAST8207,4886
+# define PRIdLEAST8 208,4905
+# undef PRIiLEAST8211,4981
+# define PRIiLEAST8 212,5000
+# undef PRIoLEAST8215,5076
+# define PRIoLEAST8 216,5095
+# undef PRIuLEAST8219,5171
+# define PRIuLEAST8 220,5190
+# undef PRIxLEAST8223,5266
+# define PRIxLEAST8 224,5285
+# undef PRIXLEAST8227,5361
+# define PRIXLEAST8 228,5380
+# undef PRIdLEAST16231,5457
+# define PRIdLEAST16 232,5477
+# undef PRIiLEAST16235,5555
+# define PRIiLEAST16 236,5575
+# undef PRIoLEAST16239,5653
+# define PRIoLEAST16 240,5673
+# undef PRIuLEAST16243,5751
+# define PRIuLEAST16 244,5771
+# undef PRIxLEAST16247,5849
+# define PRIxLEAST16 248,5869
+# undef PRIXLEAST16251,5947
+# define PRIXLEAST16 252,5967
+# undef PRIdLEAST32255,6045
+# define PRIdLEAST32 256,6065
+# undef PRIiLEAST32259,6143
+# define PRIiLEAST32 260,6163
+# undef PRIoLEAST32263,6241
+# define PRIoLEAST32 264,6261
+# undef PRIuLEAST32267,6339
+# define PRIuLEAST32 268,6359
+# undef PRIxLEAST32271,6437
+# define PRIxLEAST32 272,6457
+# undef PRIXLEAST32275,6535
+# define PRIXLEAST32 276,6555
+# undef PRIdLEAST64279,6633
+# define PRIdLEAST64 280,6653
+# undef PRIiLEAST64283,6734
+# define PRIiLEAST64 284,6754
+# undef PRIoLEAST64287,6835
+# define PRIoLEAST64 288,6855
+# undef PRIuLEAST64291,6936
+# define PRIuLEAST64 292,6956
+# undef PRIxLEAST64295,7037
+# define PRIxLEAST64 296,7057
+# undef PRIXLEAST64299,7138
+# define PRIXLEAST64 300,7158
+# undef PRIdFAST8303,7237
+# define PRIdFAST8 304,7255
+# undef PRIiFAST8307,7329
+# define PRIiFAST8 308,7347
+# undef PRIoFAST8311,7421
+# define PRIoFAST8 312,7439
+# undef PRIuFAST8315,7513
+# define PRIuFAST8 316,7531
+# undef PRIxFAST8319,7605
+# define PRIxFAST8 320,7623
+# undef PRIXFAST8323,7697
+# define PRIXFAST8 324,7715
+# undef PRIdFAST16327,7790
+# define PRIdFAST16 328,7809
+# undef PRIiFAST16331,7885
+# define PRIiFAST16 332,7904
+# undef PRIoFAST16335,7980
+# define PRIoFAST16 336,7999
+# undef PRIuFAST16339,8075
+# define PRIuFAST16 340,8094
+# undef PRIxFAST16343,8170
+# define PRIxFAST16 344,8189
+# undef PRIXFAST16347,8265
+# define PRIXFAST16 348,8284
+# undef PRIdFAST32351,8360
+# define PRIdFAST32 352,8379
+# undef PRIiFAST32355,8455
+# define PRIiFAST32 356,8474
+# undef PRIoFAST32359,8550
+# define PRIoFAST32 360,8569
+# undef PRIuFAST32363,8645
+# define PRIuFAST32 364,8664
+# undef PRIxFAST32367,8740
+# define PRIxFAST32 368,8759
+# undef PRIXFAST32371,8835
+# define PRIXFAST32 372,8854
+# undef PRIdFAST64375,8930
+# define PRIdFAST64 376,8949
+# undef PRIiFAST64379,9028
+# define PRIiFAST64 380,9047
+# undef PRIoFAST64383,9126
+# define PRIoFAST64 384,9145
+# undef PRIuFAST64387,9224
+# define PRIuFAST64 388,9243
+# undef PRIxFAST64391,9322
+# define PRIxFAST64 392,9341
+# undef PRIXFAST64395,9420
+# define PRIXFAST64 396,9439
+# undef PRIdMAX399,9515
+# define PRIdMAX 400,9531
+# undef PRIiMAX403,9650
+# define PRIiMAX 404,9666
+# undef PRIoMAX407,9785
+# define PRIoMAX 408,9801
+# undef PRIuMAX411,9920
+# define PRIuMAX 412,9936
+# undef PRIxMAX415,10055
+# define PRIxMAX 416,10071
+# undef PRIXMAX419,10190
+# define PRIXMAX 420,10206
+# undef PRIdPTR423,10325
+# define PRIdPTR 424,10341
+# undef PRIiPTR430,10511
+# define PRIiPTR 431,10527
+# undef PRIoPTR437,10697
+# define PRIoPTR 438,10713
+# undef PRIuPTR444,10883
+# define PRIuPTR 445,10899
+# undef PRIxPTR451,11069
+# define PRIxPTR 452,11085
+# undef PRIXPTR458,11255
+# define PRIXPTR 459,11271
+# define open(471,11632
+# define close(472,11691
+# define read(473,11743
+# define mmap(474,11798
+# define munmap(476,11896
+# define freea(482,12082
+# define alloca(484,12120
+# define freea(485,12150
+# define O_BINARY 492,12377
+# define O_TEXT 493,12405
+# undef O_BINARY497,12518
+# undef O_TEXT498,12535
+# define O_BINARY 502,12631
+int _nl_msg_cat_cntr;509,12846
+get_sysdep_segment_value 514,12968
+_nl_load_domain 785,19628
+_nl_unload_domain 1341,34126
+
+localealias.c,1021
+# define _GNU_SOURCE 21,994
+# undef alloca36,1235
+# define alloca 37,1250
+# define HAVE_ALLOCA 38,1283
+#  define alloca 42,1351
+# define relocate(66,1703
+# define strcasecmp(75,1984
+#  define mempcpy 78,2072
+# define HAVE_MEMPCPY	80,2108
+# define HAVE___FSETLOCKING	81,2132
+# define internal_function92,2314
+# define FEOF(97,2399
+# define FGETS(98,2437
+# define FEOF(100,2500
+# define FGETS(101,2529
+# define freea(107,2713
+# define alloca(109,2751
+# define freea(110,2781
+# undef fgets115,2914
+# define fgets(116,2928
+# undef feof120,3088
+# define feof(121,3101
+__libc_lock_define_initialized 125,3145
+struct alias_map128,3193
+  const char *alias;alias130,3212
+  const char *value;value131,3233
+# define libc_freeres_ptr(136,3273
+static size_t string_space_act;140,3364
+static size_t string_space_max;141,3396
+static size_t nmap;143,3477
+static size_t maxmap;144,3497
+static size_t read_alias_file 148,3560
+read_alias_file 218,5059
+extend_alias_table 393,9555
+alias_compare 412,9936
+
+textdomain.c,215
+# define gl_rwlock_define 34,1050
+# define gl_rwlock_wrlock 35,1097
+# define gl_rwlock_unlock 36,1144
+# define TEXTDOMAIN 49,1525
+#  define strdup(51,1574
+# define TEXTDOMAIN 54,1625
+gl_rwlock_define 58,1751
+
+l10nflist.c,801
+# define _GNU_SOURCE	21,1022
+#  define NULL 42,1400
+#  define NULL 44,1435
+#  define stpcpy(55,1718
+# define ISSLASH(70,2252
+# define HAS_DEVICE(71,2300
+# define IS_ABSOLUTE_PATH(74,2426
+# define ISSLASH(77,2511
+# define IS_ABSOLUTE_PATH(78,2544
+# undef __argz_count84,2683
+# define __argz_count 85,2704
+argz_count__ 89,2803
+# undef __argz_count101,3026
+# define __argz_count(102,3047
+# undef __argz_stringify106,3178
+# define __argz_stringify 107,3203
+argz_stringify__ 112,3386
+# undef __argz_stringify123,3596
+# define __argz_stringify(124,3621
+# undef __argz_next129,3784
+# define __argz_next 130,3804
+argz_next__ 133,3855
+# undef __argz_next148,4159
+# define __argz_next(149,4179
+pop 155,4363
+_nl_make_l10nflist 169,4628
+_nl_normalize_codeset 341,9712
+stpcpy 388,10772
+
+explodename.c,101
+#  define NULL 30,1054
+#  define NULL 32,1089
+_nl_find_language 44,1397
+_nl_explode_name 54,1561
+
+dcigettext.c,3078
+# define _GNU_SOURCE	21,1013
+# define alloca 31,1134
+# define HAVE_ALLOCA 32,1167
+#  define alloca 36,1235
+# define __set_errno(57,1543
+#  define INTDIV0_RAISES_SIGFPE 75,2007
+#  define INTDIV0_RAISES_SIGFPE 77,2048
+# define gl_rwlock_define_initialized 107,2568
+# define gl_rwlock_rdlock 108,2639
+# define gl_rwlock_wrlock 109,2686
+# define gl_rwlock_unlock 110,2733
+# define alignof(117,2878
+# define alignof(119,2926
+# define offsetof(125,3116
+# define getcwd 134,3419
+#  define stpcpy 136,3460
+# define tfind 138,3494
+#  define getcwd(142,3565
+#   define getcwd(145,3621
+# define tsearch 163,4053
+# define tfind 164,4086
+# define tdelete 165,4115
+# define twalk 166,4148
+# define tsearch 171,4220
+#define PATH_INCR 175,4309
+# define _POSIX_PATH_MAX 186,4686
+# define PATH_MAX 190,4769
+# define PATH_MAX 199,5074
+# define PATH_MAX 203,5128
+# define ISSLASH(214,5630
+# define HAS_DEVICE(215,5678
+# define IS_ABSOLUTE_PATH(218,5804
+# define IS_PATH_WITH_DIR(219,5870
+# define ISSLASH(223,5996
+# define IS_ABSOLUTE_PATH(224,6029
+# define IS_PATH_WITH_DIR(225,6075
+# define HAVE_PER_THREAD_LOCALE230,6265
+struct known_translation_t235,6394
+  const char *domainname;domainname238,6459
+  int category;241,6509
+  const char *localename;localename245,6632
+  const char *encoding;encoding250,6720
+  int counter;254,6825
+  struct loaded_l10nfile *domain;domain257,6886
+  const char *translation;translation260,6959
+  size_t translation_length;261,6986
+      char appended[appended266,7074
+      const char *ptr;ptr267,7131
+  msgid;269,7194
+gl_rwlock_define_initialized 272,7207
+const char _nl_default_default_domain[] attribute_hidden 317,8481
+const char *_nl_current_default_domain attribute_hidden321,8631
+libc_hidden_proto 331,8936
+# define category_to_name(364,9797
+# define freea(379,10302
+# define ADD_BLOCK(380,10334
+# define FREE_BLOCKS(381,10382
+struct block_list383,10429
+  void *address;address385,10449
+  struct block_list *next;next386,10466
+# define ADD_BLOCK(388,10496
+# define FREE_BLOCKS(399,10948
+# undef alloca408,11246
+# define alloca(409,11261
+# define freea(410,11299
+typedef struct transmem_list416,11416
+  struct transmem_list *next;next418,11447
+  char data[data419,11477
+} transmem_block_t;420,11496
+static struct transmem_list *transmem_list;transmem_list421,11516
+typedef unsigned char transmem_block_t;423,11566
+# define DCIGETTEXT 432,11888
+# define DCIGETTEXT 434,11927
+# define ENABLE_SECURE 443,12266
+# define DETERMINE_SECURE444,12310
+#  define getuid(447,12363
+#  define getgid(450,12413
+#  define geteuid(453,12464
+#  define getegid(456,12523
+gl_rwlock_define_initialized getegid438,12053
+# define ENABLE_SECURE 459,12586
+# define DETERMINE_SECURE 460,12630
+#   define CATEGORYNAME_INITIALIZED556,15445
+_nl_find_msg 886,24760
+# define INITIAL_BLOCK_SIZE	1255,35423
+plural_lookup 1418,39338
+category_to_name 1456,40401
+guess_category_value 1518,41513
+get_output_charset 1608,44751
+stpcpy 1665,46395
+mempcpy 1675,46566
+libc_freeres_fn 1689,46839
+
+dcngettext.c,136
+# define DCNGETTEXT 35,1224
+# define DCIGETTEXT 36,1257
+# define DCNGETTEXT 38,1296
+# define DCIGETTEXT 39,1335
+DCNGETTEXT 45,1480
+
+dngettext.c,133
+# define DNGETTEXT 38,1245
+# define DCNGETTEXT 39,1276
+# define DNGETTEXT 41,1315
+# define DCNGETTEXT 42,1352
+DNGETTEXT 48,1545
+
+ngettext.c,158
+# define __need_NULL22,835
+# define NGETTEXT 44,1352
+# define DCNGETTEXT 45,1381
+# define NGETTEXT 47,1420
+# define DCNGETTEXT 48,1455
+NGETTEXT 55,1667
+
+plural-exp.c,407
+static const struct expression plvar 32,1136
+static const struct expression plone 37,1214
+const struct expression GERMANIC_PLURAL 46,1322
+# define INIT_GERMANIC_PLURAL(60,1534
+static struct expression plvar;67,1683
+static struct expression plone;68,1715
+struct expression GERMANIC_PLURAL;69,1747
+init_germanic_plural 72,1795
+# define INIT_GERMANIC_PLURAL(90,2163
+EXTRACT_PLURAL_EXPRESSION 96,2251
+
+localcharset.c,513
+# define DARWIN7 32,1103
+# define WINDOWS_NATIVE36,1221
+#  define OS243,1375
+#  define WIN32_LEAN_AND_MEAN57,1603
+# define WIN32_LEAN_AND_MEAN61,1693
+# define INCL_DOS65,1767
+# define relocate(77,1939
+# define O_NOFOLLOW 87,2140
+# define ISSLASH(92,2314
+# define DIRECTORY_SEPARATOR 96,2398
+# define ISSLASH(100,2455
+# undef getc104,2540
+# define getc 105,2553
+# define volatile 115,3046
+static const char * volatile charset_aliases;120,3272
+get_charset_aliases 124,3406
+locale_charset 393,13428
+
+threadlib.c,79
+dummy_thread_func 34,1139
+glthread_in_use 40,1192
+typedef int dummy;73,1917
+
+lock.c,2172
+glthread_rwlock_init_multithreaded 38,1295
+glthread_rwlock_rdlock_multithreaded 50,1491
+glthread_rwlock_wrlock_multithreaded 76,2073
+glthread_rwlock_unlock_multithreaded 102,2655
+glthread_rwlock_destroy_multithreaded 110,2814
+glthread_rwlock_init_multithreaded 128,3073
+glthread_rwlock_rdlock_multithreaded 147,3478
+glthread_rwlock_wrlock_multithreaded 176,4411
+glthread_rwlock_unlock_multithreaded 203,5156
+glthread_rwlock_destroy_multithreaded 259,6518
+glthread_recursive_lock_init_multithreaded 284,7085
+glthread_recursive_lock_init_multithreaded 313,7699
+glthread_recursive_lock_lock_multithreaded 341,8340
+glthread_recursive_lock_unlock_multithreaded 367,8943
+glthread_recursive_lock_destroy_multithreaded 375,9119
+glthread_recursive_lock_init_multithreaded 393,9395
+glthread_recursive_lock_lock_multithreaded 406,9630
+glthread_recursive_lock_unlock_multithreaded 427,10026
+glthread_recursive_lock_destroy_multithreaded 443,10353
+static const pthread_once_t fresh_once 454,10622
+glthread_once_singlethreaded 457,10687
+glthread_once_call 489,11623
+glthread_once_multithreaded 497,11796
+glthread_once_singlethreaded 504,12003
+glthread_recursive_lock_init_multithreaded 532,12711
+glthread_recursive_lock_lock_multithreaded 545,12951
+glthread_recursive_lock_unlock_multithreaded 566,13334
+glthread_recursive_lock_destroy_multithreaded 582,13648
+glthread_once_multithreaded 592,13903
+glthread_once_singlethreaded 615,14474
+glthread_lock_init_func 637,14968
+glthread_lock_lock_func 644,15086
+glthread_lock_unlock_func 662,15571
+glthread_lock_destroy_func 671,15718
+#define gl_waitqueue_t 683,16039
+gl_waitqueue_init 686,16097
+gl_waitqueue_add 697,16370
+gl_waitqueue_notify_first 747,18004
+gl_waitqueue_notify_all 758,18277
+glthread_rwlock_init_func 774,18568
+glthread_rwlock_rdlock_func 784,18804
+glthread_rwlock_wrlock_func 838,20570
+glthread_rwlock_unlock_func 891,22309
+glthread_rwlock_destroy_func 935,23413
+glthread_recursive_lock_init_func 953,23882
+glthread_recursive_lock_lock_func 962,24058
+glthread_recursive_lock_unlock_func 992,24810
+glthread_recursive_lock_destroy_func 1007,25105
+glthread_once_func 1019,25377
+
+relocatable.c,1186
+# define _GNU_SOURCE 23,1054
+#define _GL_USE_STDLIB_ALLOC 26,1085
+# define xmalloc 40,1307
+# define WIN32_LEAN_AND_MEAN46,1431
+# define INCL_DOS51,1505
+# define strcmp 54,1542
+# define strncmp 55,1567
+#undef bool69,1818
+#undef false70,1830
+#undef true71,1843
+#define bool 72,1855
+#define false 73,1872
+#define true 74,1888
+# define ISSLASH(82,2222
+# define HAS_DEVICE(83,2270
+# define IS_PATH_WITH_DIR(86,2396
+# define FILE_SYSTEM_PREFIX_LEN(88,2503
+# define ISSLASH(91,2582
+# define IS_PATH_WITH_DIR(92,2615
+# define FILE_SYSTEM_PREFIX_LEN(93,2670
+#  define ENABLE_COSTLY_RELOCATABLE 103,3137
+#  define ENABLE_COSTLY_RELOCATABLE 105,3182
+static char *orig_prefix;orig_prefix110,3273
+static size_t orig_prefix_len;111,3299
+static char *curr_prefix;curr_prefix113,3366
+static size_t curr_prefix_len;114,3392
+set_this_relocation_prefix 124,3871
+set_relocation_prefix 162,5249
+#define compute_curr_prefix 186,6241
+compute_curr_prefix 190,6316
+static char *shared_library_fullname;shared_library_fullname311,9936
+DllMain 323,10397
+_DLL_InitTerm 354,11116
+find_shared_library_fullname 388,11809
+get_shared_library_fullname 446,13752
+relocate 467,14387
+
+langprefs.c,464
+# define WIN32_NATIVE36,1300
+# define WIN32_LEAN_AND_MEAN40,1350
+# define MUI_LANGUAGE_NAME 44,1429
+# define STATUS_BUFFER_OVERFLOW 47,1498
+_nl_language_preferences_win32_mui 57,1856
+  typedef DWORD (WINAPI 63,2171
+_nl_language_preferences_win32_ME 148,5475
+  typedef LANGID (WINAPI 151,5579
+_nl_language_preferences_win32_95 164,6049
+ret_first_language 208,7469
+_nl_language_preferences_win32_system 214,7661
+_nl_language_preferences_default 234,8394
+
+localename.c,14393
+# define WINDOWS_NATIVE63,1922
+# define WIN32_LEAN_AND_MEAN70,2096
+# define LANG_AFRIKAANS 208,5066
+# define LANG_ALBANIAN 211,5126
+# define LANG_ALSATIAN 214,5185
+# define LANG_AMHARIC 217,5243
+# define LANG_ARABIC 220,5299
+# define LANG_ARMENIAN 223,5356
+# define LANG_ASSAMESE 226,5415
+# define LANG_AZERI 229,5471
+# define LANG_BASHKIR 232,5526
+# define LANG_BASQUE 235,5582
+# define LANG_BELARUSIAN 238,5641
+# define LANG_BENGALI 241,5701
+# define LANG_BRETON 244,5757
+# define LANG_BURMESE 247,5813
+# define LANG_CAMBODIAN 250,5872
+# define LANG_CATALAN 253,5931
+# define LANG_CHEROKEE 256,5989
+# define LANG_CORSICAN 259,6048
+# define LANG_DARI 262,6103
+# define LANG_DIVEHI 265,6156
+# define LANG_EDO 268,6208
+# define LANG_ESTONIAN 271,6262
+# define LANG_FAEROESE 274,6321
+# define LANG_FARSI 277,6377
+# define LANG_FRISIAN 280,6432
+# define LANG_FULFULDE 283,6490
+# define LANG_GAELIC 286,6547
+# define LANG_GALICIAN 289,6604
+# define LANG_GEORGIAN 292,6663
+# define LANG_GREENLANDIC 295,6725
+# define LANG_GUARANI 298,6786
+# define LANG_GUJARATI 301,6844
+# define LANG_HAUSA 304,6900
+# define LANG_HAWAIIAN 307,6956
+# define LANG_HEBREW 310,7013
+# define LANG_HINDI 313,7067
+# define LANG_IBIBIO 316,7121
+# define LANG_IGBO 319,7174
+# define LANG_INDONESIAN 322,7231
+# define LANG_INUKTITUT 325,7293
+# define LANG_KANNADA 328,7352
+# define LANG_KANURI 331,7408
+# define LANG_KASHMIRI 334,7465
+# define LANG_KAZAK 337,7521
+# define LANG_KICHE 340,7574
+# define LANG_KINYARWANDA 343,7633
+# define LANG_KONKANI 346,7694
+# define LANG_KYRGYZ 349,7750
+# define LANG_LAO 352,7802
+# define LANG_LATIN 355,7853
+# define LANG_LATVIAN 358,7908
+# define LANG_LITHUANIAN 361,7968
+# define LANG_LUXEMBOURGISH 364,8034
+# define LANG_MACEDONIAN 367,8100
+# define LANG_MALAY 370,8158
+# define LANG_MALAYALAM 373,8215
+# define LANG_MALTESE 376,8274
+# define LANG_MANIPURI 379,8332
+# define LANG_MAORI 382,8388
+# define LANG_MAPUDUNGUN 385,8446
+# define LANG_MARATHI 388,8506
+# define LANG_MOHAWK 391,8562
+# define LANG_MONGOLIAN 394,8620
+# define LANG_NEPALI 397,8678
+# define LANG_OCCITAN 400,8734
+# define LANG_ORIYA 403,8789
+# define LANG_OROMO 406,8842
+# define LANG_PAPIAMENTU 409,8900
+# define LANG_PASHTO 412,8959
+# define LANG_PUNJABI 415,9015
+# define LANG_QUECHUA 418,9072
+# define LANG_ROMANSH 421,9129
+# define LANG_SAMI 424,9183
+# define LANG_SANSKRIT 427,9238
+# define LANG_SCOTTISH_GAELIC 430,9304
+# define LANG_SERBIAN 433,9369
+# define LANG_SINDHI 436,9425
+# define LANG_SINHALESE 439,9483
+# define LANG_SLOVAK 442,9541
+# define LANG_SOMALI 445,9596
+# define LANG_SORBIAN 448,9652
+# define LANG_SOTHO 451,9707
+# define LANG_SUTU 454,9759
+# define LANG_SWAHILI 457,9813
+# define LANG_SYRIAC 460,9869
+# define LANG_TAGALOG 463,9925
+# define LANG_TAJIK 466,9980
+# define LANG_TAMAZIGHT 469,10037
+# define LANG_TAMIL 472,10094
+# define LANG_TATAR 475,10147
+# define LANG_TELUGU 478,10201
+# define LANG_THAI 481,10254
+# define LANG_TIBETAN 484,10308
+# define LANG_TIGRINYA 487,10366
+# define LANG_TSONGA 490,10423
+# define LANG_TSWANA 493,10478
+# define LANG_TURKMEN 496,10534
+# define LANG_UIGHUR 499,10590
+# define LANG_UKRAINIAN 502,10648
+# define LANG_URDU 505,10704
+# define LANG_UZBEK 508,10756
+# define LANG_VENDA 511,10809
+# define LANG_VIETNAMESE 514,10867
+# define LANG_WELSH 517,10925
+# define LANG_WOLOF 520,10978
+# define LANG_XHOSA 523,11031
+# define LANG_YAKUT 526,11084
+# define LANG_YI 529,11134
+# define LANG_YIDDISH 532,11186
+# define LANG_YORUBA 535,11242
+# define LANG_ZULU 538,11295
+# define SUBLANG_AFRIKAANS_SOUTH_AFRICA 541,11367
+# define SUBLANG_ALBANIAN_ALBANIA 544,11454
+# define SUBLANG_ALSATIAN_FRANCE 547,11534
+# define SUBLANG_AMHARIC_ETHIOPIA 550,11614
+# define SUBLANG_ARABIC_SAUDI_ARABIA 553,11698
+# define SUBLANG_ARABIC_IRAQ 556,11777
+# define SUBLANG_ARABIC_EGYPT 559,11849
+# define SUBLANG_ARABIC_LIBYA 562,11922
+# define SUBLANG_ARABIC_ALGERIA 565,11997
+# define SUBLANG_ARABIC_MOROCCO 568,12074
+# define SUBLANG_ARABIC_TUNISIA 571,12151
+# define SUBLANG_ARABIC_OMAN 574,12225
+# define SUBLANG_ARABIC_YEMEN 577,12297
+# define SUBLANG_ARABIC_SYRIA 580,12370
+# define SUBLANG_ARABIC_JORDAN 583,12444
+# define SUBLANG_ARABIC_LEBANON 586,12520
+# define SUBLANG_ARABIC_KUWAIT 589,12596
+# define SUBLANG_ARABIC_UAE 592,12668
+# define SUBLANG_ARABIC_BAHRAIN 595,12741
+# define SUBLANG_ARABIC_QATAR 598,12816
+# define SUBLANG_ARMENIAN_ARMENIA 601,12893
+# define SUBLANG_ASSAMESE_INDIA 604,12972
+# define SUBLANG_AZERI_LATIN 607,13046
+# define SUBLANG_AZERI_CYRILLIC 610,13120
+# define SUBLANG_BASHKIR_RUSSIA 613,13197
+# define SUBLANG_BASQUE_BASQUE 616,13273
+# define SUBLANG_BELARUSIAN_BELARUS 619,13353
+# define SUBLANG_BENGALI_INDIA 622,13433
+# define SUBLANG_BENGALI_BANGLADESH 625,13513
+# define SUBLANG_BOSNIAN_BOSNIA_HERZEGOVINA_LATIN 628,13612
+# define SUBLANG_BOSNIAN_BOSNIA_HERZEGOVINA_CYRILLIC 631,13728
+# define SUBLANG_BRETON_FRANCE 634,13825
+# define SUBLANG_BULGARIAN_BULGARIA 637,13905
+# define SUBLANG_CAMBODIAN_CAMBODIA 640,13990
+# define SUBLANG_CATALAN_SPAIN 643,14070
+# define SUBLANG_CORSICAN_FRANCE 646,14147
+# define SUBLANG_CROATIAN_CROATIA 649,14227
+# define SUBLANG_CROATIAN_BOSNIA_HERZEGOVINA_LATIN 652,14325
+# define SUBLANG_CHINESE_MACAU 655,14420
+# define SUBLANG_CZECH_CZECH_REPUBLIC 658,14502
+# define SUBLANG_DANISH_DENMARK 661,14585
+# define SUBLANG_DARI_AFGHANISTAN 664,14664
+# define SUBLANG_DIVEHI_MALDIVES 667,14744
+# define SUBLANG_DUTCH_SURINAM 670,14821
+# define SUBLANG_ENGLISH_SOUTH_AFRICA 673,14903
+# define SUBLANG_ENGLISH_JAMAICA 676,14987
+# define SUBLANG_ENGLISH_CARIBBEAN 679,15068
+# define SUBLANG_ENGLISH_BELIZE 682,15148
+# define SUBLANG_ENGLISH_TRINIDAD 685,15227
+# define SUBLANG_ENGLISH_ZIMBABWE 688,15308
+# define SUBLANG_ENGLISH_PHILIPPINES 691,15392
+# define SUBLANG_ENGLISH_INDONESIA 694,15477
+# define SUBLANG_ENGLISH_HONGKONG 697,15559
+# define SUBLANG_ENGLISH_INDIA 700,15637
+# define SUBLANG_ENGLISH_MALAYSIA 703,15715
+# define SUBLANG_ENGLISH_SINGAPORE 706,15797
+# define SUBLANG_ESTONIAN_ESTONIA 709,15879
+# define SUBLANG_FAEROESE_FAROE_ISLANDS 712,15966
+# define SUBLANG_FARSI_IRAN 715,16047
+# define SUBLANG_FINNISH_FINLAND 718,16121
+# define SUBLANG_FRENCH_LUXEMBOURG 721,16202
+# define SUBLANG_FRENCH_MONACO 724,16281
+# define SUBLANG_FRENCH_WESTINDIES 727,16360
+# define SUBLANG_FRENCH_REUNION 730,16440
+# define SUBLANG_FRENCH_CONGO 733,16515
+# define SUBLANG_FRENCH_SENEGAL 736,16590
+# define SUBLANG_FRENCH_CAMEROON 739,16668
+# define SUBLANG_FRENCH_COTEDIVOIRE 742,16750
+# define SUBLANG_FRENCH_MALI 745,16828
+# define SUBLANG_FRENCH_MOROCCO 748,16902
+# define SUBLANG_FRENCH_HAITI 751,16977
+# define SUBLANG_FRISIAN_NETHERLANDS 754,17057
+# define SUBLANG_GALICIAN_SPAIN 757,17139
+# define SUBLANG_GEORGIAN_GEORGIA 760,17218
+# define SUBLANG_GERMAN_LUXEMBOURG 763,17300
+# define SUBLANG_GERMAN_LIECHTENSTEIN 766,17386
+# define SUBLANG_GREEK_GREECE 769,17467
+# define SUBLANG_GREENLANDIC_GREENLAND 772,17549
+# define SUBLANG_GUJARATI_INDIA 775,17633
+# define SUBLANG_HAUSA_NIGERIA_LATIN 778,17715
+# define SUBLANG_HEBREW_ISRAEL 781,17796
+# define SUBLANG_HINDI_INDIA 784,17869
+# define SUBLANG_HUNGARIAN_HUNGARY 787,17946
+# define SUBLANG_ICELANDIC_ICELAND 790,18029
+# define SUBLANG_IGBO_NIGERIA 793,18107
+# define SUBLANG_INDONESIAN_INDONESIA 796,18188
+# define SUBLANG_INUKTITUT_CANADA 799,18273
+# undef SUBLANG_INUKTITUT_CANADA_LATIN801,18320
+# define SUBLANG_INUKTITUT_CANADA_LATIN 802,18359
+# undef SUBLANG_IRISH_IRELAND803,18404
+# define SUBLANG_IRISH_IRELAND 804,18434
+# define SUBLANG_JAPANESE_JAPAN 806,18502
+# define SUBLANG_KANNADA_INDIA 809,18578
+# define SUBLANG_KASHMIRI_INDIA 812,18654
+# define SUBLANG_KAZAK_KAZAKHSTAN 815,18733
+# define SUBLANG_KICHE_GUATEMALA 818,18813
+# define SUBLANG_KINYARWANDA_RWANDA 821,18895
+# define SUBLANG_KONKANI_INDIA 824,18975
+# define SUBLANG_KYRGYZ_KYRGYZSTAN 827,19054
+# define SUBLANG_LAO_LAOS 830,19128
+# define SUBLANG_LATVIAN_LATVIA 833,19199
+# define SUBLANG_LITHUANIAN_LITHUANIA 836,19282
+# undef SUBLANG_LOWER_SORBIAN_GERMANY838,19333
+# define SUBLANG_LOWER_SORBIAN_GERMANY 839,19371
+# define SUBLANG_LUXEMBOURGISH_LUXEMBOURG 841,19457
+# define SUBLANG_MACEDONIAN_MACEDONIA 844,19550
+# define SUBLANG_MALAY_MALAYSIA 847,19633
+# define SUBLANG_MALAY_BRUNEI_DARUSSALAM 850,19719
+# define SUBLANG_MALAYALAM_INDIA 853,19806
+# define SUBLANG_MALTESE_MALTA 856,19883
+# define SUBLANG_MAORI_NEW_ZEALAND 859,19962
+# define SUBLANG_MAPUDUNGUN_CHILE 862,20044
+# define SUBLANG_MARATHI_INDIA 865,20122
+# define SUBLANG_MOHAWK_CANADA 868,20197
+# define SUBLANG_MONGOLIAN_CYRILLIC_MONGOLIA 871,20286
+# define SUBLANG_MONGOLIAN_PRC 874,20375
+# define SUBLANG_NEPALI_NEPAL 877,20449
+# define SUBLANG_NEPALI_INDIA 880,20522
+# define SUBLANG_OCCITAN_FRANCE 883,20597
+# define SUBLANG_ORIYA_INDIA 886,20671
+# define SUBLANG_PASHTO_AFGHANISTAN 889,20749
+# define SUBLANG_POLISH_POLAND 892,20829
+# define SUBLANG_PUNJABI_INDIA 895,20904
+# define SUBLANG_PUNJABI_PAKISTAN 898,20982
+# define SUBLANG_QUECHUA_BOLIVIA 901,21062
+# define SUBLANG_QUECHUA_ECUADOR 904,21141
+# define SUBLANG_QUECHUA_PERU 907,21217
+# define SUBLANG_ROMANIAN_ROMANIA 910,21294
+# define SUBLANG_ROMANIAN_MOLDOVA 913,21375
+# define SUBLANG_ROMANSH_SWITZERLAND 916,21459
+# define SUBLANG_RUSSIAN_RUSSIA 919,21541
+# define SUBLANG_RUSSIAN_MOLDAVIA 922,21620
+# define SUBLANG_SAMI_NORTHERN_NORWAY 925,21705
+# define SUBLANG_SAMI_NORTHERN_SWEDEN 928,21794
+# define SUBLANG_SAMI_NORTHERN_FINLAND 931,21884
+# define SUBLANG_SAMI_LULE_NORWAY 934,21970
+# define SUBLANG_SAMI_LULE_SWEDEN 937,22051
+# define SUBLANG_SAMI_SOUTHERN_NORWAY 940,22136
+# define SUBLANG_SAMI_SOUTHERN_SWEDEN 943,22225
+# undef SUBLANG_SAMI_SKOLT_FINLAND945,22276
+# define SUBLANG_SAMI_SKOLT_FINLAND 946,22311
+# undef SUBLANG_SAMI_INARI_FINLAND947,22352
+# define SUBLANG_SAMI_INARI_FINLAND 948,22387
+# define SUBLANG_SANSKRIT_INDIA 950,22460
+# define SUBLANG_SERBIAN_LATIN 953,22536
+# define SUBLANG_SERBIAN_CYRILLIC 956,22614
+# define SUBLANG_SINDHI_INDIA 959,22691
+# undef SUBLANG_SINDHI_PAKISTAN961,22734
+# define SUBLANG_SINDHI_PAKISTAN 962,22766
+# define SUBLANG_SINDHI_AFGHANISTAN 964,22840
+# define SUBLANG_SINHALESE_SRI_LANKA 967,22926
+# define SUBLANG_SLOVAK_SLOVAKIA 970,23009
+# define SUBLANG_SLOVENIAN_SLOVENIA 973,23091
+# define SUBLANG_SOTHO_SOUTH_AFRICA 976,23176
+# define SUBLANG_SPANISH_GUATEMALA 979,23260
+# define SUBLANG_SPANISH_COSTA_RICA 982,23344
+# define SUBLANG_SPANISH_PANAMA 985,23425
+# define SUBLANG_SPANISH_DOMINICAN_REPUBLIC 988,23514
+# define SUBLANG_SPANISH_VENEZUELA 991,23606
+# define SUBLANG_SPANISH_COLOMBIA 994,23688
+# define SUBLANG_SPANISH_PERU 997,23765
+# define SUBLANG_SPANISH_ARGENTINA 1000,23843
+# define SUBLANG_SPANISH_ECUADOR 1003,23924
+# define SUBLANG_SPANISH_CHILE 1006,24001
+# define SUBLANG_SPANISH_URUGUAY 1009,24078
+# define SUBLANG_SPANISH_PARAGUAY 1012,24158
+# define SUBLANG_SPANISH_BOLIVIA 1015,24238
+# define SUBLANG_SPANISH_EL_SALVADOR 1018,24321
+# define SUBLANG_SPANISH_HONDURAS 1021,24405
+# define SUBLANG_SPANISH_NICARAGUA 1024,24487
+# define SUBLANG_SPANISH_PUERTO_RICO 1027,24572
+# define SUBLANG_SPANISH_US 1030,24650
+# define SUBLANG_SWAHILI_KENYA 1033,24722
+# define SUBLANG_SWEDISH_SWEDEN 1036,24798
+# define SUBLANG_SWEDISH_FINLAND 1039,24876
+# define SUBLANG_SYRIAC_SYRIA 1042,24952
+# define SUBLANG_TAGALOG_PHILIPPINES 1045,25032
+# define SUBLANG_TAJIK_TAJIKISTAN 1048,25116
+# define SUBLANG_TAMAZIGHT_ARABIC 1051,25197
+# define SUBLANG_TAMAZIGHT_ALGERIA_LATIN 1054,25285
+# define SUBLANG_TAMIL_INDIA 1057,25368
+# define SUBLANG_TATAR_RUSSIA 1060,25440
+# define SUBLANG_TELUGU_INDIA 1063,25513
+# define SUBLANG_THAI_THAILAND 1066,25587
+# define SUBLANG_TIBETAN_PRC 1069,25660
+# undef SUBLANG_TIBETAN_BHUTAN1071,25702
+# define SUBLANG_TIBETAN_BHUTAN 1072,25733
+# define SUBLANG_TIGRINYA_ETHIOPIA 1074,25805
+# define SUBLANG_TIGRINYA_ERITREA 1077,25887
+# define SUBLANG_TSWANA_SOUTH_AFRICA 1080,25971
+# define SUBLANG_TURKISH_TURKEY 1083,26053
+# define SUBLANG_TURKMEN_TURKMENISTAN 1086,26136
+# define SUBLANG_UIGHUR_PRC 1089,26215
+# define SUBLANG_UKRAINIAN_UKRAINE 1092,26291
+# define SUBLANG_UPPER_SORBIAN_GERMANY 1095,26378
+# define SUBLANG_URDU_PAKISTAN 1098,26461
+# define SUBLANG_URDU_INDIA 1101,26533
+# define SUBLANG_UZBEK_LATIN 1104,26603
+# define SUBLANG_UZBEK_CYRILLIC 1107,26677
+# define SUBLANG_VIETNAMESE_VIETNAM 1110,26758
+# define SUBLANG_WELSH_UNITED_KINGDOM 1113,26845
+# define SUBLANG_WOLOF_SENEGAL 1116,26927
+# define SUBLANG_XHOSA_SOUTH_AFRICA 1119,27007
+# define SUBLANG_YAKUT_RUSSIA 1122,27086
+# define SUBLANG_YI_PRC 1125,27153
+# define SUBLANG_YORUBA_NIGERIA 1128,27222
+# define SUBLANG_ZULU_SOUTH_AFRICA 1131,27302
+# define LOCALE_SNAME 1135,27406
+# define LOCALE_NAME_MAX_LENGTH 1138,27473
+gl_locale_name_canonicalize 1154,27868
+  typedef struct { const char legacy[legacy1165,28415
+  typedef struct { const char legacy[21+1]; const char unixy[unixy1165,28415
+          legacy_entry;1166,28484
+  typedef struct { const char langtag[langtag1303,33919
+  typedef struct { const char langtag[7+1]; const char unixy[unixy1303,33919
+          langtag_entry;1304,33989
+  typedef struct { const char script[script1333,35179
+  typedef struct { const char script[4+1]; const char unixy[unixy1333,35179
+          script_entry;1334,35247
+gl_locale_name_canonicalize 1431,37965
+gl_locale_name_from_win32_LANGID 1460,38523
+gl_locale_name_from_win32_LCID 2508,70689
+static LCID found_lcid;2522,71032
+static char lname[lname2523,71056
+enum_locales_fn 2527,71182
+gl_lock_define_initialized(2555,72012
+# define SIZE_BITS 2598,73212
+string_hash 2604,73446
+struct hash_node2619,73814
+    struct hash_node * volatile next;2621,73835
+    char contents[contents2622,73873
+# define HASH_TABLE_SIZE 2625,73927
+static struct hash_node * volatile struniq_hash_table[struniq_hash_table2626,73956
+gl_lock_define_initialized(2631,74153
+gl_locale_name_thread_unsafe 2686,75848
+gl_locale_name_thread 2747,77648
+# define HAVE_LOCALE_NULL2785,79091
+gl_locale_name_posix 2789,79138
+gl_locale_name_environ 2818,80703
+gl_locale_name_default 2851,81642
+gl_locale_name 2956,85823
+
+log.c,233
+#define MSGCTXT_SEPARATOR 35,1103
+print_escaped 39,1236
+static char *last_logfilename last_logfilename59,1663
+static FILE *last_logfile last_logfile60,1701
+__libc_lock_define_initialized 61,1735
+_nl_log_untranslated 120,3569
+
+printf.c,1136
+# define alloca 24,957
+# define HAVE_ALLOCA 25,990
+#  define alloca 29,1058
+# define EOVERFLOW 56,1499
+# define DLL_EXPORTED 63,1774
+# define DLL_EXPORTED 65,1878
+# define DLL_EXPORTED67,1928
+#define STATIC 70,1958
+# define libintl_printf 77,2302
+#define vasnprintf 87,2577
+#define asnprintf 90,2662
+libintl_vfprintf 96,2746
+libintl_fprintf 123,3387
+libintl_vprintf 136,3609
+libintl_printf 143,3732
+libintl_vsprintf 156,3930
+libintl_sprintf 181,4485
+#   define system_vsnprintf 198,4893
+#   define system_vsnprintf 200,4939
+#  define system_vsnprintf 204,5010
+libintl_vsnprintf 209,5073
+libintl_snprintf 242,5921
+libintl_vasprintf 259,6201
+libintl_asprintf 277,6550
+#define WIDE_CHAR_VERSION 294,6807
+#define CHAR_T 298,6928
+#define DIRECTIVE 299,6951
+#define DIRECTIVES 300,6987
+#define PRINTF_PARSE 301,7025
+#define vasnwprintf 305,7139
+#define asnwprintf 308,7226
+#  define system_vswprintf 315,7455
+#  define system_vswprintf 318,7517
+libintl_vfwprintf 323,7580
+libintl_fwprintf 353,8293
+libintl_vwprintf 366,8520
+libintl_wprintf 373,8648
+libintl_vswprintf 386,8851
+libintl_swprintf 425,10076
+
+setlocale.c,831
+# define DLL_EXPORTED 36,1516
+# define DLL_EXPORTED 38,1620
+# define DLL_EXPORTED40,1670
+# undef setlocale47,1829
+# undef newlocale48,1847
+category_to_name 52,1951
+struct table_entry250,8401
+  const char *code;code252,8422
+  const char *english;english253,8442
+static const struct table_entry language_table[language_table255,8468
+static const struct table_entry country_table[country_table426,13217
+typedef struct { size_t lo;575,17235
+typedef struct { size_t lo; size_t hi;575,17235
+typedef struct { size_t lo; size_t hi; } range_t;575,17235
+search 577,17297
+setlocale_unixlike 637,18953
+#  define setlocale_unixlike 788,24177
+static char lc_messages_name[lc_messages_name794,24329
+setlocale_single 798,24437
+#  define setlocale_single 814,24821
+libintl_setlocale 819,24896
+libintl_newlocale 963,29615
+
+version.c,28
+int libintl_version 24,896
+
+xsize.c,27
+#define XSIZE_INLINE 2,20
+
+osdep.c,26
+typedef int dummy;23,962
+
+os2compat.c,292
+#define OS2_AWARE17,773
+_nl_getenv 30,1052
+char libintl_nl_default_dirname[libintl_nl_default_dirname40,1214
+char *_nlos2_libdir _nlos2_libdir42,1262
+char *_nlos2_localealiaspath _nlos2_localealiaspath43,1290
+char *_nlos2_localedir _nlos2_localedir44,1327
+nlos2_initialize 47,1400
+
+intl-exports.c,68
+# define IMP(20,929
+# define IMP(22,961
+#define VARIABLE(27,1112
+
+intl-compat.c,526
+#undef gettext37,1517
+#undef dgettext38,1532
+#undef dcgettext39,1548
+#undef ngettext40,1565
+#undef dngettext41,1581
+#undef dcngettext42,1598
+#undef textdomain43,1616
+#undef bindtextdomain44,1634
+#undef bind_textdomain_codeset45,1656
+# define DLL_EXPORTED 52,1931
+# define DLL_EXPORTED 54,2035
+# define DLL_EXPORTED56,2085
+gettext 62,2136
+dgettext 70,2224
+dcgettext 78,2350
+ngettext 86,2502
+dngettext 94,2646
+dcngettext 103,2839
+textdomain 113,3071
+bindtextdomain 121,3175
+bind_textdomain_codeset 129,3317
+
+plural.y,338
+# define __gettextparse 40,1535
+  unsigned long int num;50,1699
+  enum expression_operator op;51,1724
+  struct expression *exp;exp52,1755
+new_exp 63,2010
+new_exp_0 93,2679
+new_exp_1 99,2790
+new_exp_2 108,2970
+new_exp_3 119,3204
+start:start152,4090
+exp:exp160,4174
+FREE_EXPRESSION 211,4873
+yylex 237,5308
+yyerror 380,7404

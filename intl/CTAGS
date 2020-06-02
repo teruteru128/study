@@ -1,0 +1,1806 @@
+ADD_BLOCK	dcigettext.c	/^# define ADD_BLOCK(list, address) \/* nothing *\/$/
+ADD_BLOCK	dcigettext.c	/^# define ADD_BLOCK(list, addr)						      \\$/
+ARG_NONE	printf-parse.h	40
+ARG_NONE	wprintf-parse.h	40
+BINDTEXTDOMAIN	bindtextdom.c	58
+BINDTEXTDOMAIN	bindtextdom.c	64
+BINDTEXTDOMAIN	bindtextdom.c	/^BINDTEXTDOMAIN (const char *domainname, const char/
+BIND_TEXTDOMAIN_CODESET	bindtextdom.c	59
+BIND_TEXTDOMAIN_CODESET	bindtextdom.c	65
+BIND_TEXTDOMAIN_CODESET	bindtextdom.c	/^gl_rwlock_define (extern, _nl_state_lock attribute/
+BIND_TEXTDOMAIN_CODESET	bindtextdom.c	/^BIND_TEXTDOMAIN_CODESET (const char *domainname, c/
+CATEGORYNAME_INITIALIZED	dcigettext.c	556
+CHAR_T	printf-parse.c	43
+CHAR_T	printf-parse.c	639
+CHAR_T	printf.c	298
+CHAR_T_ONLY_ASCII	printf-parse.c	638
+CHECK_TREE	tsearch.c	/^#define CHECK_TREE(a) check_tree(a)$/
+CHECK_TREE	tsearch.c	/^#define CHECK_TREE(a)$/
+CLEANUP	vasnprintf.c	/^#define CLEANUP() \\$/
+DARWIN7	localcharset.c	32
+DBL_EXP_BIAS	vasnprintf.c	566
+DBL_EXP_MASK	vasnprintf.c	565
+DCGETTEXT	dcgettext.c	35
+DCGETTEXT	dcgettext.c	38
+DCGETTEXT	dcgettext.c	/^DCGETTEXT (const char *domainname, const char *msg/
+DCGETTEXT	dgettext.c	39
+DCGETTEXT	dgettext.c	42
+DCGETTEXT	gettext.c	43
+DCGETTEXT	gettext.c	46
+DCHAR_CPY	vasnprintf.c	132
+DCHAR_CPY	vasnprintf.c	143
+DCHAR_CPY	vasnprintf.c	5590
+DCHAR_IS_TCHAR	vasnprintf.c	128
+DCHAR_IS_TCHAR	vasnprintf.c	139
+DCHAR_IS_TCHAR	vasnprintf.c	5594
+DCHAR_SET	vasnprintf.c	133
+DCHAR_SET	vasnprintf.c	144
+DCHAR_SET	vasnprintf.c	5589
+DCHAR_T	vasnprintf.c	126
+DCHAR_T	vasnprintf.c	137
+DCHAR_T	vasnprintf.c	5596
+DCIGETTEXT	dcgettext.c	36
+DCIGETTEXT	dcgettext.c	39
+DCIGETTEXT	dcigettext.c	432
+DCIGETTEXT	dcigettext.c	434
+DCIGETTEXT	dcngettext.c	36
+DCIGETTEXT	dcngettext.c	39
+DCNGETTEXT	dcngettext.c	35
+DCNGETTEXT	dcngettext.c	38
+DCNGETTEXT	dcngettext.c	/^DCNGETTEXT (const char *domainname,$/
+DCNGETTEXT	dngettext.c	39
+DCNGETTEXT	dngettext.c	42
+DCNGETTEXT	ngettext.c	45
+DCNGETTEXT	ngettext.c	48
+DEBUGGING	tsearch.c	126
+DETERMINE_SECURE	dcigettext.c	444
+DETERMINE_SECURE	dcigettext.c	460
+DGETTEXT	dgettext.c	38
+DGETTEXT	dgettext.c	41
+DGETTEXT	dgettext.c	/^DGETTEXT (const char *domainname, const char *msgi/
+DIRECTIVE	printf-parse.c	44
+DIRECTIVE	printf-parse.c	637
+DIRECTIVE	vasnprintf.c	129
+DIRECTIVE	vasnprintf.c	140
+DIRECTIVE	vasnprintf.c	5593
+DIRECTIVE	printf.c	299
+DIRECTIVES	printf-parse.c	45
+DIRECTIVES	printf-parse.c	636
+DIRECTIVES	vasnprintf.c	130
+DIRECTIVES	vasnprintf.c	141
+DIRECTIVES	vasnprintf.c	5592
+DIRECTIVES	printf.c	300
+DIRECTORY_SEPARATOR	localcharset.c	96
+DLL_EXPORTED	printf.c	63
+DLL_EXPORTED	printf.c	65
+DLL_EXPORTED	printf.c	67
+DLL_EXPORTED	setlocale.c	36
+DLL_EXPORTED	setlocale.c	38
+DLL_EXPORTED	setlocale.c	40
+DLL_EXPORTED	intl-compat.c	52
+DLL_EXPORTED	intl-compat.c	54
+DLL_EXPORTED	intl-compat.c	56
+DNGETTEXT	dngettext.c	38
+DNGETTEXT	dngettext.c	41
+DNGETTEXT	dngettext.c	/^DNGETTEXT (const char *domainname,$/
+DllMain	relocatable.c	/^DllMain (HINSTANCE module_handle, DWORD event, LPV/
+ENABLE_COSTLY_RELOCATABLE	relocatable.c	103
+ENABLE_COSTLY_RELOCATABLE	relocatable.c	105
+ENABLE_SECURE	dcigettext.c	443
+ENABLE_SECURE	dcigettext.c	459
+ENSURE_ALLOCATION	vasnprintf.c	/^#define ENSURE_ALLOCATION(needed) \\$/
+EOVERFLOW	printf.c	56
+EXTRACT_PLURAL_EXPRESSION	plural-exp.h	95
+EXTRACT_PLURAL_EXPRESSION	plural-exp.h	100
+EXTRACT_PLURAL_EXPRESSION	plural-exp.h	105
+EXTRACT_PLURAL_EXPRESSION	plural-exp.c	/^EXTRACT_PLURAL_EXPRESSION (const char *nullentry,$/
+FCHAR_T	vasnprintf.c	125
+FCHAR_T	vasnprintf.c	136
+FCHAR_T	vasnprintf.c	5597
+FEOF	localealias.c	/^# define FEOF(fp)		feof_unlocked (fp)$/
+FEOF	localealias.c	/^# define FEOF(fp)		feof (fp)$/
+FGETS	localealias.c	/^# define FGETS(buf, n, fp)	__fgets_unlocked (buf, /
+FGETS	localealias.c	/^# define FGETS(buf, n, fp)	fgets (buf, n, fp)$/
+FILE_SYSTEM_PREFIX_LEN	relocatable.c	/^# define FILE_SYSTEM_PREFIX_LEN(P) (HAS_DEVICE (P)/
+FILE_SYSTEM_PREFIX_LEN	relocatable.c	/^# define FILE_SYSTEM_PREFIX_LEN(P) 0$/
+FLAG_ALT	printf-parse.h	33
+FLAG_ALT	wprintf-parse.h	33
+FLAG_GROUP	printf-parse.h	29
+FLAG_GROUP	wprintf-parse.h	29
+FLAG_LEFT	printf-parse.h	30
+FLAG_LEFT	wprintf-parse.h	30
+FLAG_LOCALIZED	printf-parse.h	36
+FLAG_LOCALIZED	wprintf-parse.h	36
+FLAG_SHOWSIGN	printf-parse.h	31
+FLAG_SHOWSIGN	wprintf-parse.h	31
+FLAG_SPACE	printf-parse.h	32
+FLAG_SPACE	wprintf-parse.h	32
+FLAG_ZERO	printf-parse.h	34
+FLAG_ZERO	wprintf-parse.h	34
+FREE_BLOCKS	dcigettext.c	/^# define FREE_BLOCKS(list) \/* nothing *\/$/
+FREE_BLOCKS	dcigettext.c	/^# define FREE_BLOCKS(list)						      \\$/
+FREE_EXPRESSION	plural-exp.h	92
+FREE_EXPRESSION	plural-exp.h	97
+FREE_EXPRESSION	plural-exp.h	102
+FREE_EXPRESSION	plural-exp.h	/^extern void FREE_EXPRESSION (struct expression *ex/
+FREE_EXPRESSION	plural.y	/^FREE_EXPRESSION (struct expression *exp)$/
+GERMANIC_PLURAL	plural-exp.h	94
+GERMANIC_PLURAL	plural-exp.h	99
+GERMANIC_PLURAL	plural-exp.h	104
+GERMANIC_PLURAL	plural-exp.c	46
+GERMANIC_PLURAL	plural-exp.c	69
+GETTEXT	gettext.c	42
+GETTEXT	gettext.c	45
+GETTEXT	gettext.c	/^GETTEXT (const char *msgid)$/
+GMP_LIMB_BITS	vasnprintf.c	325
+GMP_TWOLIMB_BITS	vasnprintf.c	329
+GNULIB_defined_struct__gl_verify_type	verify.h	184
+HASHWORDBITS	hash-string.h	20
+HASH_TABLE_SIZE	localename.c	2625
+HAS_DEVICE	l10nflist.c	/^# define HAS_DEVICE(P) \\$/
+HAS_DEVICE	dcigettext.c	/^# define HAS_DEVICE(P) \\$/
+HAS_DEVICE	relocatable.c	/^# define HAS_DEVICE(P) \\$/
+HAVE_ALLOCA	loadmsgcat.c	38
+HAVE_ALLOCA	localealias.c	38
+HAVE_ALLOCA	dcigettext.c	32
+HAVE_ALLOCA	printf.c	25
+HAVE_LOCALE_NULL	localename.c	2785
+HAVE_MEMPCPY	localealias.c	80
+HAVE_MMAP	loadmsgcat.c	73
+HAVE_MMAP	loadmsgcat.c	74
+HAVE_MMAP	loadmsgcat.c	76
+HAVE_PER_THREAD_LOCALE	dcigettext.c	230
+HAVE_STRCASECMP	os2compat.h	35
+HAVE_STRCASECMP	os2compat.h	36
+HAVE_STRUCT_INITIALIZER	plural-exp.h	113
+HAVE_STRUCT_INITIALIZER	plural-exp.h	115
+HAVE___FSETLOCKING	localealias.c	81
+IF_LINT	vasnprintf.c	/^# define IF_LINT(Code) Code$/
+IF_LINT	vasnprintf.c	/^# define IF_LINT(Code) \/* empty *\/$/
+IMP	intl-exports.c	/^# define IMP(x) _imp__##x$/
+IMP	intl-exports.c	/^# define IMP(x) __imp_##x$/
+INCL_DOS	localcharset.c	65
+INCL_DOS	relocatable.c	51
+INITIAL_BLOCK_SIZE	dcigettext.c	1255
+INIT_GERMANIC_PLURAL	plural-exp.c	/^# define INIT_GERMANIC_PLURAL()$/
+INIT_GERMANIC_PLURAL	plural-exp.c	/^# define INIT_GERMANIC_PLURAL() init_germanic_plur/
+INTDIV0_RAISES_SIGFPE	dcigettext.c	75
+INTDIV0_RAISES_SIGFPE	dcigettext.c	77
+ISSLASH	l10nflist.c	/^# define ISSLASH(C) ((C) == '\/' || (C) == '\\\\')$/
+ISSLASH	l10nflist.c	/^# define ISSLASH(C) ((C) == '\/')$/
+ISSLASH	dcigettext.c	/^# define ISSLASH(C) ((C) == '\/' || (C) == '\\\\')$/
+ISSLASH	dcigettext.c	/^# define ISSLASH(C) ((C) == '\/')$/
+ISSLASH	localcharset.c	/^# define ISSLASH(C) ((C) == '\/' || (C) == '\\\\')$/
+ISSLASH	localcharset.c	/^# define ISSLASH(C) ((C) == DIRECTORY_SEPARATOR)$/
+ISSLASH	relocatable.c	/^# define ISSLASH(C) ((C) == '\/' || (C) == '\\\\')$/
+ISSLASH	relocatable.c	/^# define ISSLASH(C) ((C) == '\/')$/
+IS_ABSOLUTE_PATH	l10nflist.c	/^# define IS_ABSOLUTE_PATH(P) (ISSLASH ((P)[0]) || /
+IS_ABSOLUTE_PATH	l10nflist.c	/^# define IS_ABSOLUTE_PATH(P) ISSLASH ((P)[0])$/
+IS_ABSOLUTE_PATH	dcigettext.c	/^# define IS_ABSOLUTE_PATH(P) (ISSLASH ((P)[0]) || /
+IS_ABSOLUTE_PATH	dcigettext.c	/^# define IS_ABSOLUTE_PATH(P) ISSLASH ((P)[0])$/
+IS_PATH_WITH_DIR	dcigettext.c	/^# define IS_PATH_WITH_DIR(P) \\$/
+IS_PATH_WITH_DIR	dcigettext.c	/^# define IS_PATH_WITH_DIR(P) (strchr (P, '\/') != N/
+IS_PATH_WITH_DIR	relocatable.c	/^# define IS_PATH_WITH_DIR(P) \\$/
+IS_PATH_WITH_DIR	relocatable.c	/^# define IS_PATH_WITH_DIR(P) (strchr (P, '\/') != N/
+LANG_AFRIKAANS	localename.c	208
+LANG_ALBANIAN	localename.c	211
+LANG_ALSATIAN	localename.c	214
+LANG_AMHARIC	localename.c	217
+LANG_ARABIC	localename.c	220
+LANG_ARMENIAN	localename.c	223
+LANG_ASSAMESE	localename.c	226
+LANG_AZERI	localename.c	229
+LANG_BASHKIR	localename.c	232
+LANG_BASQUE	localename.c	235
+LANG_BELARUSIAN	localename.c	238
+LANG_BENGALI	localename.c	241
+LANG_BRETON	localename.c	244
+LANG_BURMESE	localename.c	247
+LANG_CAMBODIAN	localename.c	250
+LANG_CATALAN	localename.c	253
+LANG_CHEROKEE	localename.c	256
+LANG_CORSICAN	localename.c	259
+LANG_DARI	localename.c	262
+LANG_DIVEHI	localename.c	265
+LANG_EDO	localename.c	268
+LANG_ESTONIAN	localename.c	271
+LANG_FAEROESE	localename.c	274
+LANG_FARSI	localename.c	277
+LANG_FRISIAN	localename.c	280
+LANG_FULFULDE	localename.c	283
+LANG_GAELIC	localename.c	286
+LANG_GALICIAN	localename.c	289
+LANG_GEORGIAN	localename.c	292
+LANG_GREENLANDIC	localename.c	295
+LANG_GUARANI	localename.c	298
+LANG_GUJARATI	localename.c	301
+LANG_HAUSA	localename.c	304
+LANG_HAWAIIAN	localename.c	307
+LANG_HEBREW	localename.c	310
+LANG_HINDI	localename.c	313
+LANG_IBIBIO	localename.c	316
+LANG_IGBO	localename.c	319
+LANG_INDONESIAN	localename.c	322
+LANG_INUKTITUT	localename.c	325
+LANG_KANNADA	localename.c	328
+LANG_KANURI	localename.c	331
+LANG_KASHMIRI	localename.c	334
+LANG_KAZAK	localename.c	337
+LANG_KICHE	localename.c	340
+LANG_KINYARWANDA	localename.c	343
+LANG_KONKANI	localename.c	346
+LANG_KYRGYZ	localename.c	349
+LANG_LAO	localename.c	352
+LANG_LATIN	localename.c	355
+LANG_LATVIAN	localename.c	358
+LANG_LITHUANIAN	localename.c	361
+LANG_LUXEMBOURGISH	localename.c	364
+LANG_MACEDONIAN	localename.c	367
+LANG_MALAY	localename.c	370
+LANG_MALAYALAM	localename.c	373
+LANG_MALTESE	localename.c	376
+LANG_MANIPURI	localename.c	379
+LANG_MAORI	localename.c	382
+LANG_MAPUDUNGUN	localename.c	385
+LANG_MARATHI	localename.c	388
+LANG_MOHAWK	localename.c	391
+LANG_MONGOLIAN	localename.c	394
+LANG_NEPALI	localename.c	397
+LANG_OCCITAN	localename.c	400
+LANG_ORIYA	localename.c	403
+LANG_OROMO	localename.c	406
+LANG_PAPIAMENTU	localename.c	409
+LANG_PASHTO	localename.c	412
+LANG_PUNJABI	localename.c	415
+LANG_QUECHUA	localename.c	418
+LANG_ROMANSH	localename.c	421
+LANG_SAMI	localename.c	424
+LANG_SANSKRIT	localename.c	427
+LANG_SCOTTISH_GAELIC	localename.c	430
+LANG_SERBIAN	localename.c	433
+LANG_SINDHI	localename.c	436
+LANG_SINHALESE	localename.c	439
+LANG_SLOVAK	localename.c	442
+LANG_SOMALI	localename.c	445
+LANG_SORBIAN	localename.c	448
+LANG_SOTHO	localename.c	451
+LANG_SUTU	localename.c	454
+LANG_SWAHILI	localename.c	457
+LANG_SYRIAC	localename.c	460
+LANG_TAGALOG	localename.c	463
+LANG_TAJIK	localename.c	466
+LANG_TAMAZIGHT	localename.c	469
+LANG_TAMIL	localename.c	472
+LANG_TATAR	localename.c	475
+LANG_TELUGU	localename.c	478
+LANG_THAI	localename.c	481
+LANG_TIBETAN	localename.c	484
+LANG_TIGRINYA	localename.c	487
+LANG_TSONGA	localename.c	490
+LANG_TSWANA	localename.c	493
+LANG_TURKMEN	localename.c	496
+LANG_UIGHUR	localename.c	499
+LANG_UKRAINIAN	localename.c	502
+LANG_URDU	localename.c	505
+LANG_UZBEK	localename.c	508
+LANG_VENDA	localename.c	511
+LANG_VIETNAMESE	localename.c	514
+LANG_WELSH	localename.c	517
+LANG_WOLOF	localename.c	520
+LANG_XHOSA	localename.c	523
+LANG_YAKUT	localename.c	526
+LANG_YI	localename.c	529
+LANG_YIDDISH	localename.c	532
+LANG_YORUBA	localename.c	535
+LANG_ZULU	localename.c	538
+LC_MESSAGES	libgnuintl.in.h	33
+LC_MESSAGES_COMPAT	os2compat.h	44
+LIBDIR	os2compat.h	21
+LIBDIR	os2compat.h	22
+LIBINTL_DLL_EXPORTED	loadinfo.h	38
+LIBINTL_VERSION	libgnuintl.in.h	57
+LOCALEDIR	os2compat.h	25
+LOCALEDIR	os2compat.h	26
+LOCALE_ALIAS_PATH	os2compat.h	29
+LOCALE_ALIAS_PATH	os2compat.h	30
+LOCALE_NAME_MAX_LENGTH	localename.c	1138
+LOCALE_SNAME	localename.c	1135
+MAX_ROOM_NEEDED	vasnprintf.c	1526
+MAX_ROOM_NEEDED	vasnprintf.c	1528
+MAX_ROOM_NEEDED	vasnprintf.c	/^MAX_ROOM_NEEDED (const arguments *ap, size_t arg_i/
+MAX_ROOM_NEEDED	vasnprintf.c	5585
+MO_REVISION_NUMBER	gmo.h	29
+MO_REVISION_NUMBER_WITH_SYSDEP_I	gmo.h	30
+MSGCTXT_SEPARATOR	log.c	35
+MUI_LANGUAGE_NAME	langprefs.c	44
+NGETTEXT	ngettext.c	44
+NGETTEXT	ngettext.c	47
+NGETTEXT	ngettext.c	/^NGETTEXT (const char *msgid1, const char *msgid2, /
+NULL	l10nflist.c	42
+NULL	l10nflist.c	44
+NULL	explodename.c	30
+NULL	explodename.c	32
+NWORDS	vasnprintf.c	567
+NWORDS	vasnprintf.c	579
+N_DIRECT_ALLOC_ARGUMENTS	printf-args.h	139
+N_DIRECT_ALLOC_DIRECTIVES	printf-parse.h	43
+N_DIRECT_ALLOC_DIRECTIVES	wprintf-parse.h	43
+OS2	localcharset.c	43
+OS2_AWARE	os2compat.c	17
+O_BINARY	loadmsgcat.c	492
+O_BINARY	loadmsgcat.c	497
+O_BINARY	loadmsgcat.c	502
+O_NOFOLLOW	localcharset.c	87
+O_TEXT	loadmsgcat.c	493
+O_TEXT	loadmsgcat.c	498
+PATH_INCR	dcigettext.c	175
+PATH_MAX	dcigettext.c	190
+PATH_MAX	dcigettext.c	199
+PATH_MAX	dcigettext.c	203
+PATH_SEPARATOR	loadinfo.h	50
+PATH_SEPARATOR	loadinfo.h	53
+PLURAL_PARSE	plural-exp.h	93
+PLURAL_PARSE	plural-exp.h	98
+PLURAL_PARSE	plural-exp.h	103
+PRINTF_FETCHARGS	printf-args.h	28
+PRINTF_FETCHARGS	printf-args.c	/^PRINTF_FETCHARGS (va_list args, arguments *a)$/
+PRINTF_PARSE	printf-parse.c	42
+PRINTF_PARSE	printf-parse.c	/^PRINTF_PARSE (const CHAR_T *format, DIRECTIVES *d,/
+PRINTF_PARSE	printf-parse.c	635
+PRINTF_PARSE	vasnprintf.c	131
+PRINTF_PARSE	vasnprintf.c	142
+PRINTF_PARSE	vasnprintf.c	5591
+PRINTF_PARSE	printf.c	301
+PRIX16	loadmsgcat.c	155
+PRIX16	loadmsgcat.c	156
+PRIX32	loadmsgcat.c	179
+PRIX32	loadmsgcat.c	180
+PRIX64	loadmsgcat.c	203
+PRIX64	loadmsgcat.c	204
+PRIX8	loadmsgcat.c	131
+PRIX8	loadmsgcat.c	132
+PRIXFAST16	loadmsgcat.c	347
+PRIXFAST16	loadmsgcat.c	348
+PRIXFAST32	loadmsgcat.c	371
+PRIXFAST32	loadmsgcat.c	372
+PRIXFAST64	loadmsgcat.c	395
+PRIXFAST64	loadmsgcat.c	396
+PRIXFAST8	loadmsgcat.c	323
+PRIXFAST8	loadmsgcat.c	324
+PRIXLEAST16	loadmsgcat.c	251
+PRIXLEAST16	loadmsgcat.c	252
+PRIXLEAST32	loadmsgcat.c	275
+PRIXLEAST32	loadmsgcat.c	276
+PRIXLEAST64	loadmsgcat.c	299
+PRIXLEAST64	loadmsgcat.c	300
+PRIXLEAST8	loadmsgcat.c	227
+PRIXLEAST8	loadmsgcat.c	228
+PRIXMAX	loadmsgcat.c	419
+PRIXMAX	loadmsgcat.c	420
+PRIXPTR	loadmsgcat.c	458
+PRIXPTR	loadmsgcat.c	459
+PRI_MACROS_BROKEN	loadmsgcat.c	104
+PRId16	loadmsgcat.c	135
+PRId16	loadmsgcat.c	136
+PRId32	loadmsgcat.c	159
+PRId32	loadmsgcat.c	160
+PRId64	loadmsgcat.c	183
+PRId64	loadmsgcat.c	184
+PRId8	loadmsgcat.c	111
+PRId8	loadmsgcat.c	112
+PRIdFAST16	loadmsgcat.c	327
+PRIdFAST16	loadmsgcat.c	328
+PRIdFAST32	loadmsgcat.c	351
+PRIdFAST32	loadmsgcat.c	352
+PRIdFAST64	loadmsgcat.c	375
+PRIdFAST64	loadmsgcat.c	376
+PRIdFAST8	loadmsgcat.c	303
+PRIdFAST8	loadmsgcat.c	304
+PRIdLEAST16	loadmsgcat.c	231
+PRIdLEAST16	loadmsgcat.c	232
+PRIdLEAST32	loadmsgcat.c	255
+PRIdLEAST32	loadmsgcat.c	256
+PRIdLEAST64	loadmsgcat.c	279
+PRIdLEAST64	loadmsgcat.c	280
+PRIdLEAST8	loadmsgcat.c	207
+PRIdLEAST8	loadmsgcat.c	208
+PRIdMAX	loadmsgcat.c	399
+PRIdMAX	loadmsgcat.c	400
+PRIdPTR	loadmsgcat.c	423
+PRIdPTR	loadmsgcat.c	424
+PRIi16	loadmsgcat.c	139
+PRIi16	loadmsgcat.c	140
+PRIi32	loadmsgcat.c	163
+PRIi32	loadmsgcat.c	164
+PRIi64	loadmsgcat.c	187
+PRIi64	loadmsgcat.c	188
+PRIi8	loadmsgcat.c	115
+PRIi8	loadmsgcat.c	116
+PRIiFAST16	loadmsgcat.c	331
+PRIiFAST16	loadmsgcat.c	332
+PRIiFAST32	loadmsgcat.c	355
+PRIiFAST32	loadmsgcat.c	356
+PRIiFAST64	loadmsgcat.c	379
+PRIiFAST64	loadmsgcat.c	380
+PRIiFAST8	loadmsgcat.c	307
+PRIiFAST8	loadmsgcat.c	308
+PRIiLEAST16	loadmsgcat.c	235
+PRIiLEAST16	loadmsgcat.c	236
+PRIiLEAST32	loadmsgcat.c	259
+PRIiLEAST32	loadmsgcat.c	260
+PRIiLEAST64	loadmsgcat.c	283
+PRIiLEAST64	loadmsgcat.c	284
+PRIiLEAST8	loadmsgcat.c	211
+PRIiLEAST8	loadmsgcat.c	212
+PRIiMAX	loadmsgcat.c	403
+PRIiMAX	loadmsgcat.c	404
+PRIiPTR	loadmsgcat.c	430
+PRIiPTR	loadmsgcat.c	431
+PRIo16	loadmsgcat.c	143
+PRIo16	loadmsgcat.c	144
+PRIo32	loadmsgcat.c	167
+PRIo32	loadmsgcat.c	168
+PRIo64	loadmsgcat.c	191
+PRIo64	loadmsgcat.c	192
+PRIo8	loadmsgcat.c	119
+PRIo8	loadmsgcat.c	120
+PRIoFAST16	loadmsgcat.c	335
+PRIoFAST16	loadmsgcat.c	336
+PRIoFAST32	loadmsgcat.c	359
+PRIoFAST32	loadmsgcat.c	360
+PRIoFAST64	loadmsgcat.c	383
+PRIoFAST64	loadmsgcat.c	384
+PRIoFAST8	loadmsgcat.c	311
+PRIoFAST8	loadmsgcat.c	312
+PRIoLEAST16	loadmsgcat.c	239
+PRIoLEAST16	loadmsgcat.c	240
+PRIoLEAST32	loadmsgcat.c	263
+PRIoLEAST32	loadmsgcat.c	264
+PRIoLEAST64	loadmsgcat.c	287
+PRIoLEAST64	loadmsgcat.c	288
+PRIoLEAST8	loadmsgcat.c	215
+PRIoLEAST8	loadmsgcat.c	216
+PRIoMAX	loadmsgcat.c	407
+PRIoMAX	loadmsgcat.c	408
+PRIoPTR	loadmsgcat.c	437
+PRIoPTR	loadmsgcat.c	438
+PRIu16	loadmsgcat.c	147
+PRIu16	loadmsgcat.c	148
+PRIu32	loadmsgcat.c	171
+PRIu32	loadmsgcat.c	172
+PRIu64	loadmsgcat.c	195
+PRIu64	loadmsgcat.c	196
+PRIu8	loadmsgcat.c	123
+PRIu8	loadmsgcat.c	124
+PRIuFAST16	loadmsgcat.c	339
+PRIuFAST16	loadmsgcat.c	340
+PRIuFAST32	loadmsgcat.c	363
+PRIuFAST32	loadmsgcat.c	364
+PRIuFAST64	loadmsgcat.c	387
+PRIuFAST64	loadmsgcat.c	388
+PRIuFAST8	loadmsgcat.c	315
+PRIuFAST8	loadmsgcat.c	316
+PRIuLEAST16	loadmsgcat.c	243
+PRIuLEAST16	loadmsgcat.c	244
+PRIuLEAST32	loadmsgcat.c	267
+PRIuLEAST32	loadmsgcat.c	268
+PRIuLEAST64	loadmsgcat.c	291
+PRIuLEAST64	loadmsgcat.c	292
+PRIuLEAST8	loadmsgcat.c	219
+PRIuLEAST8	loadmsgcat.c	220
+PRIuMAX	loadmsgcat.c	411
+PRIuMAX	loadmsgcat.c	412
+PRIuPTR	loadmsgcat.c	444
+PRIuPTR	loadmsgcat.c	445
+PRIx16	loadmsgcat.c	151
+PRIx16	loadmsgcat.c	152
+PRIx32	loadmsgcat.c	175
+PRIx32	loadmsgcat.c	176
+PRIx64	loadmsgcat.c	199
+PRIx64	loadmsgcat.c	200
+PRIx8	loadmsgcat.c	127
+PRIx8	loadmsgcat.c	128
+PRIxFAST16	loadmsgcat.c	343
+PRIxFAST16	loadmsgcat.c	344
+PRIxFAST32	loadmsgcat.c	367
+PRIxFAST32	loadmsgcat.c	368
+PRIxFAST64	loadmsgcat.c	391
+PRIxFAST64	loadmsgcat.c	392
+PRIxFAST8	loadmsgcat.c	319
+PRIxFAST8	loadmsgcat.c	320
+PRIxLEAST16	loadmsgcat.c	247
+PRIxLEAST16	loadmsgcat.c	248
+PRIxLEAST32	loadmsgcat.c	271
+PRIxLEAST32	loadmsgcat.c	272
+PRIxLEAST64	loadmsgcat.c	295
+PRIxLEAST64	loadmsgcat.c	296
+PRIxLEAST8	loadmsgcat.c	223
+PRIxLEAST8	loadmsgcat.c	224
+PRIxMAX	loadmsgcat.c	415
+PRIxMAX	loadmsgcat.c	416
+PRIxPTR	loadmsgcat.c	451
+PRIxPTR	loadmsgcat.c	452
+REGISTER_ARG	printf-parse.c	/^#define REGISTER_ARG(_index_,_type_) \\$/
+RELOCATABLE_DLL_EXPORTED	relocatable.h	33
+RELOCATABLE_DLL_EXPORTED	relocatable.h	35
+RELOCATABLE_DLL_EXPORTED	relocatable.h	37
+SEGMENTS_END	gmo.h	146
+SIZE_BITS	localename.c	2598
+SNPRINTF	vasnprintf.c	156
+SNPRINTF	vasnprintf.c	158
+SNPRINTF	vasnprintf.c	162
+SNPRINTF	vasnprintf.c	180
+SNPRINTF	vasnprintf.c	184
+SNPRINTF	vasnprintf.c	188
+SNPRINTF	vasnprintf.c	5587
+SNPRINTF_BUF	vasnprintf.c	/^# define SNPRINTF_BUF(arg) \\$/
+SNPRINTF_BUF	vasnprintf.c	/^# define SNPRINTF_BUF(arg) \\$/
+STATIC	eval-plural.h	18
+STATIC	printf.c	70
+STATUS_BUFFER_OVERFLOW	langprefs.c	47
+SUBLANG_AFRIKAANS_SOUTH_AFRICA	localename.c	541
+SUBLANG_ALBANIAN_ALBANIA	localename.c	544
+SUBLANG_ALSATIAN_FRANCE	localename.c	547
+SUBLANG_AMHARIC_ETHIOPIA	localename.c	550
+SUBLANG_ARABIC_ALGERIA	localename.c	565
+SUBLANG_ARABIC_BAHRAIN	localename.c	595
+SUBLANG_ARABIC_EGYPT	localename.c	559
+SUBLANG_ARABIC_IRAQ	localename.c	556
+SUBLANG_ARABIC_JORDAN	localename.c	583
+SUBLANG_ARABIC_KUWAIT	localename.c	589
+SUBLANG_ARABIC_LEBANON	localename.c	586
+SUBLANG_ARABIC_LIBYA	localename.c	562
+SUBLANG_ARABIC_MOROCCO	localename.c	568
+SUBLANG_ARABIC_OMAN	localename.c	574
+SUBLANG_ARABIC_QATAR	localename.c	598
+SUBLANG_ARABIC_SAUDI_ARABIA	localename.c	553
+SUBLANG_ARABIC_SYRIA	localename.c	580
+SUBLANG_ARABIC_TUNISIA	localename.c	571
+SUBLANG_ARABIC_UAE	localename.c	592
+SUBLANG_ARABIC_YEMEN	localename.c	577
+SUBLANG_ARMENIAN_ARMENIA	localename.c	601
+SUBLANG_ASSAMESE_INDIA	localename.c	604
+SUBLANG_AZERI_CYRILLIC	localename.c	610
+SUBLANG_AZERI_LATIN	localename.c	607
+SUBLANG_BASHKIR_RUSSIA	localename.c	613
+SUBLANG_BASQUE_BASQUE	localename.c	616
+SUBLANG_BELARUSIAN_BELARUS	localename.c	619
+SUBLANG_BENGALI_BANGLADESH	localename.c	625
+SUBLANG_BENGALI_INDIA	localename.c	622
+SUBLANG_BOSNIAN_BOSNIA_HERZEGOVINA_CYRILLIC	localename.c	631
+SUBLANG_BOSNIAN_BOSNIA_HERZEGOVINA_LATIN	localename.c	628
+SUBLANG_BRETON_FRANCE	localename.c	634
+SUBLANG_BULGARIAN_BULGARIA	localename.c	637
+SUBLANG_CAMBODIAN_CAMBODIA	localename.c	640
+SUBLANG_CATALAN_SPAIN	localename.c	643
+SUBLANG_CHINESE_MACAU	localename.c	655
+SUBLANG_CORSICAN_FRANCE	localename.c	646
+SUBLANG_CROATIAN_BOSNIA_HERZEGOVINA_LATIN	localename.c	652
+SUBLANG_CROATIAN_CROATIA	localename.c	649
+SUBLANG_CZECH_CZECH_REPUBLIC	localename.c	658
+SUBLANG_DANISH_DENMARK	localename.c	661
+SUBLANG_DARI_AFGHANISTAN	localename.c	664
+SUBLANG_DIVEHI_MALDIVES	localename.c	667
+SUBLANG_DUTCH_SURINAM	localename.c	670
+SUBLANG_ENGLISH_BELIZE	localename.c	682
+SUBLANG_ENGLISH_CARIBBEAN	localename.c	679
+SUBLANG_ENGLISH_HONGKONG	localename.c	697
+SUBLANG_ENGLISH_INDIA	localename.c	700
+SUBLANG_ENGLISH_INDONESIA	localename.c	694
+SUBLANG_ENGLISH_JAMAICA	localename.c	676
+SUBLANG_ENGLISH_MALAYSIA	localename.c	703
+SUBLANG_ENGLISH_PHILIPPINES	localename.c	691
+SUBLANG_ENGLISH_SINGAPORE	localename.c	706
+SUBLANG_ENGLISH_SOUTH_AFRICA	localename.c	673
+SUBLANG_ENGLISH_TRINIDAD	localename.c	685
+SUBLANG_ENGLISH_ZIMBABWE	localename.c	688
+SUBLANG_ESTONIAN_ESTONIA	localename.c	709
+SUBLANG_FAEROESE_FAROE_ISLANDS	localename.c	712
+SUBLANG_FARSI_IRAN	localename.c	715
+SUBLANG_FINNISH_FINLAND	localename.c	718
+SUBLANG_FRENCH_CAMEROON	localename.c	739
+SUBLANG_FRENCH_CONGO	localename.c	733
+SUBLANG_FRENCH_COTEDIVOIRE	localename.c	742
+SUBLANG_FRENCH_HAITI	localename.c	751
+SUBLANG_FRENCH_LUXEMBOURG	localename.c	721
+SUBLANG_FRENCH_MALI	localename.c	745
+SUBLANG_FRENCH_MONACO	localename.c	724
+SUBLANG_FRENCH_MOROCCO	localename.c	748
+SUBLANG_FRENCH_REUNION	localename.c	730
+SUBLANG_FRENCH_SENEGAL	localename.c	736
+SUBLANG_FRENCH_WESTINDIES	localename.c	727
+SUBLANG_FRISIAN_NETHERLANDS	localename.c	754
+SUBLANG_GALICIAN_SPAIN	localename.c	757
+SUBLANG_GEORGIAN_GEORGIA	localename.c	760
+SUBLANG_GERMAN_LIECHTENSTEIN	localename.c	766
+SUBLANG_GERMAN_LUXEMBOURG	localename.c	763
+SUBLANG_GREEK_GREECE	localename.c	769
+SUBLANG_GREENLANDIC_GREENLAND	localename.c	772
+SUBLANG_GUJARATI_INDIA	localename.c	775
+SUBLANG_HAUSA_NIGERIA_LATIN	localename.c	778
+SUBLANG_HEBREW_ISRAEL	localename.c	781
+SUBLANG_HINDI_INDIA	localename.c	784
+SUBLANG_HUNGARIAN_HUNGARY	localename.c	787
+SUBLANG_ICELANDIC_ICELAND	localename.c	790
+SUBLANG_IGBO_NIGERIA	localename.c	793
+SUBLANG_INDONESIAN_INDONESIA	localename.c	796
+SUBLANG_INUKTITUT_CANADA	localename.c	799
+SUBLANG_INUKTITUT_CANADA_LATIN	localename.c	801
+SUBLANG_INUKTITUT_CANADA_LATIN	localename.c	802
+SUBLANG_IRISH_IRELAND	localename.c	803
+SUBLANG_IRISH_IRELAND	localename.c	804
+SUBLANG_JAPANESE_JAPAN	localename.c	806
+SUBLANG_KANNADA_INDIA	localename.c	809
+SUBLANG_KASHMIRI_INDIA	localename.c	812
+SUBLANG_KAZAK_KAZAKHSTAN	localename.c	815
+SUBLANG_KICHE_GUATEMALA	localename.c	818
+SUBLANG_KINYARWANDA_RWANDA	localename.c	821
+SUBLANG_KONKANI_INDIA	localename.c	824
+SUBLANG_KYRGYZ_KYRGYZSTAN	localename.c	827
+SUBLANG_LAO_LAOS	localename.c	830
+SUBLANG_LATVIAN_LATVIA	localename.c	833
+SUBLANG_LITHUANIAN_LITHUANIA	localename.c	836
+SUBLANG_LOWER_SORBIAN_GERMANY	localename.c	838
+SUBLANG_LOWER_SORBIAN_GERMANY	localename.c	839
+SUBLANG_LUXEMBOURGISH_LUXEMBOURG	localename.c	841
+SUBLANG_MACEDONIAN_MACEDONIA	localename.c	844
+SUBLANG_MALAYALAM_INDIA	localename.c	853
+SUBLANG_MALAY_BRUNEI_DARUSSALAM	localename.c	850
+SUBLANG_MALAY_MALAYSIA	localename.c	847
+SUBLANG_MALTESE_MALTA	localename.c	856
+SUBLANG_MAORI_NEW_ZEALAND	localename.c	859
+SUBLANG_MAPUDUNGUN_CHILE	localename.c	862
+SUBLANG_MARATHI_INDIA	localename.c	865
+SUBLANG_MOHAWK_CANADA	localename.c	868
+SUBLANG_MONGOLIAN_CYRILLIC_MONGOLIA	localename.c	871
+SUBLANG_MONGOLIAN_PRC	localename.c	874
+SUBLANG_NEPALI_INDIA	localename.c	880
+SUBLANG_NEPALI_NEPAL	localename.c	877
+SUBLANG_OCCITAN_FRANCE	localename.c	883
+SUBLANG_ORIYA_INDIA	localename.c	886
+SUBLANG_PASHTO_AFGHANISTAN	localename.c	889
+SUBLANG_POLISH_POLAND	localename.c	892
+SUBLANG_PUNJABI_INDIA	localename.c	895
+SUBLANG_PUNJABI_PAKISTAN	localename.c	898
+SUBLANG_QUECHUA_BOLIVIA	localename.c	901
+SUBLANG_QUECHUA_ECUADOR	localename.c	904
+SUBLANG_QUECHUA_PERU	localename.c	907
+SUBLANG_ROMANIAN_MOLDOVA	localename.c	913
+SUBLANG_ROMANIAN_ROMANIA	localename.c	910
+SUBLANG_ROMANSH_SWITZERLAND	localename.c	916
+SUBLANG_RUSSIAN_MOLDAVIA	localename.c	922
+SUBLANG_RUSSIAN_RUSSIA	localename.c	919
+SUBLANG_SAMI_INARI_FINLAND	localename.c	947
+SUBLANG_SAMI_INARI_FINLAND	localename.c	948
+SUBLANG_SAMI_LULE_NORWAY	localename.c	934
+SUBLANG_SAMI_LULE_SWEDEN	localename.c	937
+SUBLANG_SAMI_NORTHERN_FINLAND	localename.c	931
+SUBLANG_SAMI_NORTHERN_NORWAY	localename.c	925
+SUBLANG_SAMI_NORTHERN_SWEDEN	localename.c	928
+SUBLANG_SAMI_SKOLT_FINLAND	localename.c	945
+SUBLANG_SAMI_SKOLT_FINLAND	localename.c	946
+SUBLANG_SAMI_SOUTHERN_NORWAY	localename.c	940
+SUBLANG_SAMI_SOUTHERN_SWEDEN	localename.c	943
+SUBLANG_SANSKRIT_INDIA	localename.c	950
+SUBLANG_SERBIAN_CYRILLIC	localename.c	956
+SUBLANG_SERBIAN_LATIN	localename.c	953
+SUBLANG_SINDHI_AFGHANISTAN	localename.c	964
+SUBLANG_SINDHI_INDIA	localename.c	959
+SUBLANG_SINDHI_PAKISTAN	localename.c	961
+SUBLANG_SINDHI_PAKISTAN	localename.c	962
+SUBLANG_SINHALESE_SRI_LANKA	localename.c	967
+SUBLANG_SLOVAK_SLOVAKIA	localename.c	970
+SUBLANG_SLOVENIAN_SLOVENIA	localename.c	973
+SUBLANG_SOTHO_SOUTH_AFRICA	localename.c	976
+SUBLANG_SPANISH_ARGENTINA	localename.c	1000
+SUBLANG_SPANISH_BOLIVIA	localename.c	1015
+SUBLANG_SPANISH_CHILE	localename.c	1006
+SUBLANG_SPANISH_COLOMBIA	localename.c	994
+SUBLANG_SPANISH_COSTA_RICA	localename.c	982
+SUBLANG_SPANISH_DOMINICAN_REPUBLIC	localename.c	988
+SUBLANG_SPANISH_ECUADOR	localename.c	1003
+SUBLANG_SPANISH_EL_SALVADOR	localename.c	1018
+SUBLANG_SPANISH_GUATEMALA	localename.c	979
+SUBLANG_SPANISH_HONDURAS	localename.c	1021
+SUBLANG_SPANISH_NICARAGUA	localename.c	1024
+SUBLANG_SPANISH_PANAMA	localename.c	985
+SUBLANG_SPANISH_PARAGUAY	localename.c	1012
+SUBLANG_SPANISH_PERU	localename.c	997
+SUBLANG_SPANISH_PUERTO_RICO	localename.c	1027
+SUBLANG_SPANISH_URUGUAY	localename.c	1009
+SUBLANG_SPANISH_US	localename.c	1030
+SUBLANG_SPANISH_VENEZUELA	localename.c	991
+SUBLANG_SWAHILI_KENYA	localename.c	1033
+SUBLANG_SWEDISH_FINLAND	localename.c	1039
+SUBLANG_SWEDISH_SWEDEN	localename.c	1036
+SUBLANG_SYRIAC_SYRIA	localename.c	1042
+SUBLANG_TAGALOG_PHILIPPINES	localename.c	1045
+SUBLANG_TAJIK_TAJIKISTAN	localename.c	1048
+SUBLANG_TAMAZIGHT_ALGERIA_LATIN	localename.c	1054
+SUBLANG_TAMAZIGHT_ARABIC	localename.c	1051
+SUBLANG_TAMIL_INDIA	localename.c	1057
+SUBLANG_TATAR_RUSSIA	localename.c	1060
+SUBLANG_TELUGU_INDIA	localename.c	1063
+SUBLANG_THAI_THAILAND	localename.c	1066
+SUBLANG_TIBETAN_BHUTAN	localename.c	1071
+SUBLANG_TIBETAN_BHUTAN	localename.c	1072
+SUBLANG_TIBETAN_PRC	localename.c	1069
+SUBLANG_TIGRINYA_ERITREA	localename.c	1077
+SUBLANG_TIGRINYA_ETHIOPIA	localename.c	1074
+SUBLANG_TSWANA_SOUTH_AFRICA	localename.c	1080
+SUBLANG_TURKISH_TURKEY	localename.c	1083
+SUBLANG_TURKMEN_TURKMENISTAN	localename.c	1086
+SUBLANG_UIGHUR_PRC	localename.c	1089
+SUBLANG_UKRAINIAN_UKRAINE	localename.c	1092
+SUBLANG_UPPER_SORBIAN_GERMANY	localename.c	1095
+SUBLANG_URDU_INDIA	localename.c	1101
+SUBLANG_URDU_PAKISTAN	localename.c	1098
+SUBLANG_UZBEK_CYRILLIC	localename.c	1107
+SUBLANG_UZBEK_LATIN	localename.c	1104
+SUBLANG_VIETNAMESE_VIETNAM	localename.c	1110
+SUBLANG_WELSH_UNITED_KINGDOM	localename.c	1113
+SUBLANG_WOLOF_SENEGAL	localename.c	1116
+SUBLANG_XHOSA_SOUTH_AFRICA	localename.c	1119
+SUBLANG_YAKUT_RUSSIA	localename.c	1122
+SUBLANG_YI_PRC	localename.c	1125
+SUBLANG_YORUBA_NIGERIA	localename.c	1128
+SUBLANG_ZULU_SOUTH_AFRICA	localename.c	1131
+SWAP	gettextP.h	/^# define SWAP(i) bswap_32 (i)$/
+TCHARS_PER_DCHAR	vasnprintf.c	4917
+TCHARS_PER_DCHAR	vasnprintf.c	5586
+TCHAR_T	vasnprintf.c	127
+TCHAR_T	vasnprintf.c	138
+TCHAR_T	vasnprintf.c	5595
+TEXTDOMAIN	textdomain.c	49
+TEXTDOMAIN	textdomain.c	54
+TYPE_CHAR	printf-args.h	66
+TYPE_COUNT_INT_POINTER	printf-args.h	77
+TYPE_COUNT_LONGINT_POINTER	printf-args.h	78
+TYPE_COUNT_LONGLONGINT_POINTER	printf-args.h	80
+TYPE_COUNT_SCHAR_POINTER	printf-args.h	75
+TYPE_COUNT_SHORT_POINTER	printf-args.h	76
+TYPE_DOUBLE	printf-args.h	64
+TYPE_INT	printf-args.h	56
+TYPE_LONGDOUBLE	printf-args.h	65
+TYPE_LONGINT	printf-args.h	58
+TYPE_LONGLONGINT	printf-args.h	61
+TYPE_NONE	printf-args.h	51
+TYPE_POINTER	printf-args.h	74
+TYPE_SCHAR	printf-args.h	52
+TYPE_SHORT	printf-args.h	54
+TYPE_STRING	printf-args.h	70
+TYPE_U16_STRING	printf-args.h	85
+TYPE_U32_STRING	printf-args.h	86
+TYPE_U8_STRING	printf-args.h	84
+TYPE_UCHAR	printf-args.h	53
+TYPE_UINT	printf-args.h	57
+TYPE_ULONGINT	printf-args.h	59
+TYPE_ULONGLONGINT	printf-args.h	62
+TYPE_USHORT	printf-args.h	55
+TYPE_WIDE_CHAR	printf-args.h	68
+TYPE_WIDE_STRING	printf-args.h	72
+UINT_MAX	gmo.h	50
+UINT_MAX_32_BITS	gmo.h	39
+UINT_MAX_32_BITS	gmo.h	41
+USE_SNPRINTF	vasnprintf.c	149
+USE_SNPRINTF	vasnprintf.c	172
+USE_SNPRINTF	vasnprintf.c	174
+USE_SNPRINTF	vasnprintf.c	5588
+VARIABLE	intl-exports.c	/^#define VARIABLE(x) \\$/
+VASNPRINTF	vasnprintf.c	124
+VASNPRINTF	vasnprintf.c	135
+VASNPRINTF	vasnprintf.c	/^VASNPRINTF (DCHAR_T *resultbuf, size_t *lengthp,$/
+VASNPRINTF	vasnprintf.c	5598
+VISIT	tsearch.h	42
+W	gettextP.h	/^# define W(flag, data) ((flag) ? SWAP (data) : (da/
+WIDE_CHAR_VERSION	printf.c	294
+WIN32_LEAN_AND_MEAN	lock.h	618
+WIN32_LEAN_AND_MEAN	localcharset.c	57
+WIN32_LEAN_AND_MEAN	localcharset.c	61
+WIN32_LEAN_AND_MEAN	relocatable.c	46
+WIN32_LEAN_AND_MEAN	langprefs.c	40
+WIN32_LEAN_AND_MEAN	localename.c	70
+WIN32_NATIVE	langprefs.c	36
+WINAPI	langprefs.c	63
+WINAPI	langprefs.c	151
+WINDOWS_NATIVE	localcharset.c	36
+WINDOWS_NATIVE	localename.c	63
+XPG_CODESET	loadinfo.h	58
+XPG_MODIFIER	loadinfo.h	60
+XPG_NORM_CODESET	loadinfo.h	57
+XPG_TERRITORY	loadinfo.h	59
+XSIZE_INLINE	xsize.h	35
+XSIZE_INLINE	xsize.c	2
+ZERO	gettextP.h	204
+ZERO	gettextP.h	206
+_DLL_InitTerm	relocatable.c	/^_DLL_InitTerm (unsigned long hModule, unsigned lon/
+_GETTEXTP_H	gettextP.h	19
+_GETTEXT_H	gmo.h	18
+_GL_CONCAT	verify.h	/^#define _GL_CONCAT(x, y) _GL_CONCAT0 (x, y)$/
+_GL_CONCAT0	verify.h	/^#define _GL_CONCAT0(x, y) x##y$/
+_GL_COUNTER	verify.h	162
+_GL_COUNTER	verify.h	164
+_GL_GENSYM	verify.h	/^#define _GL_GENSYM(prefix) _GL_CONCAT (prefix, _GL/
+_GL_HAVE_STATIC_ASSERT	verify.h	42
+_GL_HAVE__STATIC_ASSERT	verify.h	37
+_GL_USE_STDLIB_ALLOC	relocatable.c	26
+_GL_VERIFY	verify.h	207
+_GL_VERIFY	verify.h	/^# define _GL_VERIFY(R, DIAGNOSTIC)				       \\$/
+_GL_VERIFY_H	verify.h	21
+_GL_VERIFY_TRUE	verify.h	/^#define _GL_VERIFY_TRUE(R, DIAGNOSTIC) \\$/
+_GL_VERIFY_TYPE	verify.h	/^# define _GL_VERIFY_TYPE(R, DIAGNOSTIC) \\$/
+_GL_VERIFY_TYPE	verify.h	/^# define _GL_VERIFY_TYPE(R, DIAGNOSTIC) \\$/
+_GL_VERIFY_TYPE	verify.h	/^# define _GL_VERIFY_TYPE(R, DIAGNOSTIC) \\$/
+_GNU_SOURCE	vasnprintf.c	50
+_GNU_SOURCE	loadmsgcat.c	21
+_GNU_SOURCE	localealias.c	21
+_GNU_SOURCE	l10nflist.c	21
+_GNU_SOURCE	dcigettext.c	21
+_GNU_SOURCE	relocatable.c	23
+_INTL_ASM	libgnuintl.in.h	/^# define _INTL_ASM(cname) __asm__ (_INTL_ASMNAME (/
+_INTL_ASM	libgnuintl.in.h	/^# define _INTL_ASM(cname)$/
+_INTL_ASMNAME	libgnuintl.in.h	/^# define _INTL_ASMNAME(prefix,cnamestring) _INTL_S/
+_INTL_MAY_RETURN_STRING_ARG	libgnuintl.in.h	/^# define _INTL_MAY_RETURN_STRING_ARG(n) __attribut/
+_INTL_MAY_RETURN_STRING_ARG	libgnuintl.in.h	/^# define _INTL_MAY_RETURN_STRING_ARG(n)$/
+_INTL_REDIRECT_ASM	libgnuintl.in.h	93
+_INTL_REDIRECT_INLINE	gettextP.h	68
+_INTL_REDIRECT_INLINE	libgnuintl.in.h	96
+_INTL_REDIRECT_MACROS	gettextP.h	69
+_INTL_REDIRECT_MACROS	gettextP.h	70
+_INTL_REDIRECT_MACROS	libgnuintl.in.h	98
+_INTL_STRINGIFY	libgnuintl.in.h	/^# define _INTL_STRINGIFY(prefix) #prefix$/
+_LIBINTL_H	libgnuintl.in.h	18
+_LOADINFO_H	loadinfo.h	19
+_LOCALCHARSET_H	localcharset.h	19
+_LOCK_H	lock.h	79
+_MAGIC	gmo.h	25
+_MAGIC_SWAPPED	gmo.h	26
+_PLURAL_EXP_H	plural-exp.h	19
+_POSIX_PATH_MAX	dcigettext.c	186
+_PRINTF_ARGS_H	printf-args.h	19
+_PRINTF_PARSE_H	printf-parse.h	19
+_RELOCATABLE_H	relocatable.h	19
+_Static_assert	verify.h	50
+_Static_assert	verify.h	/^#  define _Static_assert(R, DIAGNOSTIC) _GL_VERIFY/
+_TSEARCH_H	tsearch.h	18
+_VASNPRINTF_H	vasnprintf.h	18
+_VASNWPRINTF_H	vasnwprintf.h	18
+_WPRINTF_PARSE_H	wprintf-parse.h	19
+_XSIZE_H	xsize.h	19
+__GNU_GETTEXT_SUPPORTED_REVISION	libgnuintl.in.h	/^#define __GNU_GETTEXT_SUPPORTED_REVISION(major) \\$/
+__USE_GNU_GETTEXT	libgnuintl.in.h	38
+__action_fn_t	tsearch.c	100
+__argz_count	l10nflist.c	84
+__argz_count	l10nflist.c	85
+__argz_count	l10nflist.c	101
+__argz_count	l10nflist.c	/^# define __argz_count(argz, len) argz_count__ (arg/
+__argz_next	l10nflist.c	129
+__argz_next	l10nflist.c	130
+__argz_next	l10nflist.c	148
+__argz_next	l10nflist.c	/^# define __argz_next(argz, len, entry) argz_next__/
+__argz_stringify	l10nflist.c	106
+__argz_stringify	l10nflist.c	107
+__argz_stringify	l10nflist.c	123
+__argz_stringify	l10nflist.c	/^# define __argz_stringify(argz, len, sep) argz_str/
+__builtin_expect	gettextP.h	/^# define __builtin_expect(expr, val) (expr)$/
+__builtin_expect	loadinfo.h	/^# define __builtin_expect(expr, val) (expr)$/
+__compar_fn_t	tsearch.c	99
+__format__	vasnprintf.h	34
+__gettextparse	plural.y	40
+__has_builtin	verify.h	/^# define __has_builtin(x) 0$/
+__hash_string	hash-string.h	25
+__hash_string	hash-string.h	27
+__hash_string	hash-string.c	/^__hash_string (const char *str_param)$/
+__libc_lock_define_initialized	localealias.c	/^__libc_lock_define_initialized (static, lock)$/
+__libc_lock_define_initialized	log.c	/^__libc_lock_define_initialized (static, lock)$/
+__need_NULL	gettext.c	22
+__need_NULL	ngettext.c	22
+__printf__	vasnprintf.h	35
+__set_errno	dcigettext.c	/^# define __set_errno(val) errno = (val)$/
+__tdelete	tsearch.c	105
+__tdestroy	tsearch.c	/^__tdestroy (void *vroot, __free_fn_t freefct)$/
+__tfind	tsearch.c	104
+__tsearch	tsearch.c	103
+__tsearch	tsearch.c	/^__tsearch (const void *key, void **vrootp, __compa/
+__twalk	tsearch.c	106
+__twalk	tsearch.c	/^__twalk (const void *vroot, __action_fn_t action)$/
+_gl_verify_type	verify.h	181
+_nl_current_default_domain	gettextP.h	302
+_nl_default_default_domain	gettextP.h	301
+_nl_default_dirname	gettextP.h	284
+_nl_domain_bindings	gettextP.h	285
+_nl_explode_name	explodename.c	/^_nl_explode_name (char *name,$/
+_nl_find_domain	gettextP.h	/^struct loaded_l10nfile *_nl_find_domain (const cha/
+_nl_find_domain	finddomain.c	/^_nl_find_domain (const char *dirname, char *locale/
+_nl_find_language	explodename.c	/^_nl_find_language (const char *name)$/
+_nl_find_msg	dcigettext.c	/^_nl_find_msg (struct loaded_l10nfile *domain_file,/
+_nl_finddomain_subfreeres	gettextP.h	/^extern void _nl_finddomain_subfreeres (void) attri/
+_nl_finddomain_subfreeres	finddomain.c	/^_nl_finddomain_subfreeres (void)$/
+_nl_getenv	os2compat.c	/^_nl_getenv (const char *name)$/
+_nl_language_preferences_default	langprefs.c	/^_nl_language_preferences_default (void)$/
+_nl_language_preferences_win32_95	langprefs.c	/^_nl_language_preferences_win32_95 ()$/
+_nl_language_preferences_win32_ME	langprefs.c	/^_nl_language_preferences_win32_ME (HMODULE kernel3/
+_nl_language_preferences_win32_mui	langprefs.c	/^_nl_language_preferences_win32_mui (HMODULE kernel/
+_nl_language_preferences_win32_system	langprefs.c	/^_nl_language_preferences_win32_system (HMODULE ker/
+_nl_load_domain	loadmsgcat.c	/^_nl_load_domain (struct loaded_l10nfile *domain_fi/
+_nl_loaded_domains	finddomain.c	51
+_nl_log_untranslated	log.c	/^_nl_log_untranslated (const char *logfilename, con/
+_nl_make_l10nflist	l10nflist.c	/^_nl_make_l10nflist (struct loaded_l10nfile **l10nf/
+_nl_msg_cat_cntr	gettextP.h	223
+_nl_msg_cat_cntr	loadmsgcat.c	509
+_nl_normalize_codeset	l10nflist.c	/^_nl_normalize_codeset (const char *codeset, size_t/
+_nl_unload_domain	loadmsgcat.c	/^_nl_unload_domain (struct loaded_domain *domain)$/
+_nlos2_libdir	os2compat.c	42
+_nlos2_localealiaspath	os2compat.c	43
+_nlos2_localedir	os2compat.c	44
+a	printf-args.h	134
+a_char	printf-args.h	111
+a_count_int_pointer	printf-args.h	122
+a_count_longint_pointer	printf-args.h	123
+a_count_longlongint_pointer	printf-args.h	125
+a_count_schar_pointer	printf-args.h	120
+a_count_short_pointer	printf-args.h	121
+a_double	printf-args.h	109
+a_float	printf-args.h	108
+a_int	printf-args.h	100
+a_longdouble	printf-args.h	110
+a_longint	printf-args.h	102
+a_longlongint	printf-args.h	105
+a_pointer	printf-args.h	119
+a_schar	printf-args.h	96
+a_short	printf-args.h	98
+a_string	printf-args.h	115
+a_u16_string	printf-args.h	130
+a_u32_string	printf-args.h	131
+a_u8_string	printf-args.h	129
+a_uchar	printf-args.h	97
+a_uint	printf-args.h	101
+a_ulongint	printf-args.h	103
+a_ulonglongint	printf-args.h	106
+a_ushort	printf-args.h	99
+a_wide_char	printf-args.h	113
+a_wide_string	printf-args.h	117
+address	dcigettext.c	385
+alias	localealias.c	130
+alias_compare	localealias.c	/^alias_compare (const struct alias_map *map1, const/
+alias_map	localealias.c	128
+alignof	dcigettext.c	/^# define alignof(TYPE) __alignof__ (TYPE)$/
+alignof	dcigettext.c	/^# define alignof(TYPE) \\$/
+alloc	lock.h	675
+alloca	loadmsgcat.c	36
+alloca	loadmsgcat.c	37
+alloca	loadmsgcat.c	42
+alloca	loadmsgcat.c	/^# define alloca(n) malloc (n)$/
+alloca	localealias.c	36
+alloca	localealias.c	37
+alloca	localealias.c	42
+alloca	localealias.c	/^# define alloca(n) malloc (n)$/
+alloca	dcigettext.c	31
+alloca	dcigettext.c	36
+alloca	dcigettext.c	408
+alloca	dcigettext.c	/^# define alloca(size) (malloc (size))$/
+alloca	printf.c	24
+alloca	printf.c	29
+appended	dcigettext.c	266
+arg	printf-args.h	144
+arg_index	printf-parse.h	58
+arg_index	wprintf-parse.h	58
+arg_type	printf-args.h	88
+args	plural-exp.h	68
+argument	printf-args.h	136
+arguments	printf-args.h	147
+argz_count__	l10nflist.c	/^argz_count__ (const char *argz, size_t len)$/
+argz_next__	l10nflist.c	/^argz_next__ (char *argz, size_t argz_len, const ch/
+argz_stringify__	l10nflist.c	/^argz_stringify__ (char *argz, size_t len, int sep)/
+array	lock.h	673
+asnprintf	vasnprintf.h	/^extern char * asnprintf (char *resultbuf, size_t */
+asnprintf	printf.c	90
+asnwprintf	printf.c	308
+asprintf	libgnuintl.in.h	389
+asprintf	libgnuintl.in.h	390
+assume	verify.h	/^# define assume(R) ((R) ? (void) 0 : __builtin_unr/
+assume	verify.h	/^# define assume(R) __assume (R)$/
+assume	verify.h	/^# define assume(R) ((R) ? (void) 0 : __builtin_tra/
+assume	verify.h	/^# define assume(R) ((void) (0 && (R)))$/
+attribute_hidden	gettextP.h	97
+attribute_hidden	plural-exp.h	26
+attribute_hidden	dcigettext.c	317
+attribute_hidden	dcigettext.c	321
+bind_textdomain_codeset	libgnuintl.in.h	296
+bind_textdomain_codeset	libgnuintl.in.h	/^extern char *bind_textdomain_codeset (const char */
+bind_textdomain_codeset	intl-compat.c	45
+bind_textdomain_codeset	intl-compat.c	/^bind_textdomain_codeset (const char *domainname, c/
+binding	gettextP.h	211
+bindtextdomain	libgnuintl.in.h	278
+bindtextdomain	libgnuintl.in.h	/^extern char *bindtextdomain (const char *__domainn/
+bindtextdomain	intl-compat.c	44
+bindtextdomain	intl-compat.c	/^bindtextdomain (const char *domainname, const char/
+block_list	dcigettext.c	383
+bool	relocatable.c	69
+bool	relocatable.c	72
+category	dcigettext.c	241
+category_to_name	dcigettext.c	/^# define category_to_name(category) \\$/
+category_to_name	dcigettext.c	/^category_to_name (int category)$/
+category_to_name	setlocale.c	/^category_to_name (int category)$/
+char_directive	printf-parse.h	60
+char_directives	printf-parse.h	71
+charset_aliases	localcharset.c	120
+check_tree	tsearch.c	/^check_tree (node root)$/
+check_tree_recurse	tsearch.c	/^check_tree_recurse (node p, int d_sofar, int d_tot/
+close	loadmsgcat.c	/^# define close(fd)		close_not_cancel_no_status (fd/
+code	setlocale.c	252
+codeset	gettextP.h	215
+compute_curr_prefix	relocatable.c	186
+compute_curr_prefix	relocatable.c	/^compute_curr_prefix (const char *orig_installprefi/
+const_node	tsearch.c	124
+contents	localename.c	2622
+conv	gettextP.h	147
+conv	gettextP.h	150
+conv_tab	gettextP.h	154
+conversion	printf-parse.h	57
+conversion	wprintf-parse.h	57
+conversions	gettextP.h	193
+convert_to_decimal	vasnprintf.c	/^convert_to_decimal (mpn_t a, size_t extra_zeroes)$/
+converted_domain	gettextP.h	140
+count	lock.h	674
+count	printf-args.h	143
+count	printf-parse.h	65
+count	wprintf-parse.h	65
+counter	dcigettext.c	254
+country_table	setlocale.c	426
+cp	plural-exp.h	76
+curr_prefix	relocatable.c	113
+curr_prefix_len	relocatable.c	114
+data	gettextP.h	161
+data	loadinfo.h	68
+data	dcigettext.c	419
+dcgettext	libgnuintl.in.h	170
+dcgettext	libgnuintl.in.h	/^extern char *dcgettext (const char *__domainname, /
+dcgettext	intl-compat.c	39
+dcgettext	intl-compat.c	/^dcgettext (const char *domainname, const char *msg/
+dcngettext	libgnuintl.in.h	237
+dcngettext	libgnuintl.in.h	/^extern char *dcngettext (const char *__domainname,/
+dcngettext	intl-compat.c	42
+dcngettext	intl-compat.c	/^dcngettext (const char *domainname,$/
+decided	loadinfo.h	66
+decimal_point_char	vasnprintf.c	/^decimal_point_char (void)$/
+decimal_point_char_defined	vasnprintf.c	272
+decode_double	vasnprintf.c	/^decode_double (double x, int *ep, mpn_t *mp)$/
+decode_long_double	vasnprintf.c	/^decode_long_double (long double x, int *ep, mpn_t /
+depth	lock.h	336
+depth	lock.h	569
+depth	lock.h	720
+dgettext	libgnuintl.in.h	150
+dgettext	libgnuintl.in.h	/^extern char *dgettext (const char *__domainname, c/
+dgettext	intl-compat.c	38
+dgettext	intl-compat.c	/^dgettext (const char *domainname, const char *msgi/
+dir	printf-parse.h	66
+dir	wprintf-parse.h	66
+dir_end	printf-parse.h	49
+dir_end	wprintf-parse.h	49
+dir_start	printf-parse.h	48
+dir_start	wprintf-parse.h	48
+direct_alloc_arg	printf-args.h	145
+direct_alloc_dir	printf-parse.h	69
+direct_alloc_dir	wprintf-parse.h	69
+dirname	gettextP.h	214
+divide	plural-exp.h	43
+divide	vasnprintf.c	/^divide (mpn_t a, mpn_t b, mpn_t *q)$/
+dngettext	libgnuintl.in.h	213
+dngettext	libgnuintl.in.h	/^extern char *dngettext (const char *__domainname,$/
+dngettext	intl-compat.c	41
+dngettext	intl-compat.c	/^dngettext (const char *domainname,$/
+domain	dcigettext.c	257
+domainname	gettextP.h	216
+domainname	dcigettext.c	238
+done	lock.h	636
+dummy	threadlib.c	73
+dummy	osdep.c	23
+dummy_thread_func	threadlib.c	/^dummy_thread_func (void *arg)$/
+encoding	gettextP.h	143
+encoding	dcigettext.c	250
+endorder	tsearch.h	39
+english	setlocale.c	253
+enum_locales_fn	localename.c	/^enum_locales_fn (LPTSTR locale_num_str)$/
+equal	plural-exp.h	51
+exp	vasnprintf.c	206
+exp	vasnprintf.c	207
+exp	plural.y	52
+exp	plural.y	160
+expression	plural-exp.h	61
+expression_operator	plural-exp.h	34
+extend_alias_table	localealias.c	/^extend_alias_table (void)$/
+false	relocatable.c	70
+false	relocatable.c	73
+feof	localealias.c	120
+feof	localealias.c	/^# define feof(s) feof_unlocked (s)$/
+fgets	localealias.c	115
+fgets	localealias.c	/^# define fgets(buf, len, s) fgets_unlocked (buf, l/
+filename	loadinfo.h	65
+find_shared_library_fullname	relocatable.c	/^find_shared_library_fullname ()$/
+flags	printf-parse.h	50
+flags	wprintf-parse.h	50
+floorlog10	vasnprintf.c	/^floorlog10 (double x)$/
+floorlog10l	vasnprintf.c	/^floorlog10l (long double x)$/
+found_lcid	localename.c	2522
+fprintf	libgnuintl.in.h	327
+fprintf	libgnuintl.in.h	328
+freea	loadmsgcat.c	/^# define freea(p) \/* nothing *\/$/
+freea	loadmsgcat.c	/^# define freea(p) free (p)$/
+freea	localealias.c	/^# define freea(p) \/* nothing *\/$/
+freea	localealias.c	/^# define freea(p) free (p)$/
+freea	dcigettext.c	/^# define freea(p) \/* nothing *\/$/
+freea	dcigettext.c	/^# define freea(p) free (p)$/
+fresh_once	lock.c	454
+fwprintf	libgnuintl.in.h	403
+fwprintf	libgnuintl.in.h	404
+get_charset_aliases	localcharset.c	/^get_charset_aliases (void)$/
+get_output_charset	dcigettext.c	/^get_output_charset (struct binding *domainbinding)/
+get_shared_library_fullname	relocatable.c	/^get_shared_library_fullname ()$/
+get_sysdep_segment_value	loadmsgcat.c	/^get_sysdep_segment_value (const char *name)$/
+getc	localcharset.c	104
+getc	localcharset.c	105
+getcwd	dcigettext.c	134
+getcwd	dcigettext.c	/^#  define getcwd(buf, max) getwd (buf)$/
+getcwd	dcigettext.c	/^#   define getcwd(buf, max) (getcwd) (buf, max, 0)/
+getegid	dcigettext.c	/^#  define getegid() getgid()$/
+getegid	dcigettext.c	/^gl_rwlock_define_initialized (, _nl_state_lock att/
+getenv	os2compat.h	41
+geteuid	dcigettext.c	/^#  define geteuid() getuid()$/
+getgid	dcigettext.c	/^#  define getgid() 0$/
+gettext	libgnuintl.in.h	48
+gettext	libgnuintl.in.h	132
+gettext	libgnuintl.in.h	/^extern char *gettext (const char *__msgid)$/
+gettext	intl-compat.c	37
+gettext	intl-compat.c	/^gettext (const char *msgid)$/
+getuid	dcigettext.c	/^#  define getuid() 0$/
+gl_carray_waitqueue_t	lock.h	678
+gl_locale_name	gettextP.h	254
+gl_locale_name	localename.c	/^gl_locale_name (int category, const char *category/
+gl_locale_name_canonicalize	gettextP.h	234
+gl_locale_name_canonicalize	localename.c	/^gl_locale_name_canonicalize (char *name)$/
+gl_locale_name_canonicalize	localename.c	/^gl_locale_name_canonicalize (char *name)$/
+gl_locale_name_default	gettextP.h	252
+gl_locale_name_default	localename.c	/^gl_locale_name_default (void)$/
+gl_locale_name_environ	gettextP.h	249
+gl_locale_name_environ	localename.c	/^gl_locale_name_environ (int category, const char */
+gl_locale_name_from_win32_LANGID	gettextP.h	236
+gl_locale_name_from_win32_LANGID	localename.c	/^gl_locale_name_from_win32_LANGID (LANGID langid)$/
+gl_locale_name_from_win32_LCID	gettextP.h	238
+gl_locale_name_from_win32_LCID	localename.c	/^gl_locale_name_from_win32_LCID (LCID lcid)$/
+gl_locale_name_posix	gettextP.h	246
+gl_locale_name_posix	localename.c	/^gl_locale_name_posix (int category, const char *ca/
+gl_locale_name_thread	gettextP.h	243
+gl_locale_name_thread	localename.c	/^gl_locale_name_thread (int category, const char *c/
+gl_locale_name_thread_unsafe	gettextP.h	240
+gl_locale_name_thread_unsafe	localename.c	/^gl_locale_name_thread_unsafe (int category, const /
+gl_lock_define	lock.h	/^# define gl_lock_define(STORAGECLASS, NAME) \\$/
+gl_lock_define	lock.h	/^# define gl_lock_define(STORAGECLASS, NAME) \\$/
+gl_lock_define	lock.h	/^# define gl_lock_define(STORAGECLASS, NAME) \\$/
+gl_lock_define	lock.h	/^# define gl_lock_define(STORAGECLASS, NAME) \\$/
+gl_lock_define	lock.h	/^# define gl_lock_define(STORAGECLASS, NAME)$/
+gl_lock_define_initialized	lock.h	/^# define gl_lock_define_initialized(STORAGECLASS, /
+gl_lock_define_initialized	lock.h	/^# define gl_lock_define_initialized(STORAGECLASS, /
+gl_lock_define_initialized	lock.h	/^# define gl_lock_define_initialized(STORAGECLASS, /
+gl_lock_define_initialized	lock.h	/^# define gl_lock_define_initialized(STORAGECLASS, /
+gl_lock_define_initialized	lock.h	/^# define gl_lock_define_initialized(STORAGECLASS, /
+gl_lock_define_initialized	localename.c	/^gl_lock_define_initialized(static, get_lcid_lock)$/
+gl_lock_define_initialized	localename.c	/^gl_lock_define_initialized(static, struniq_lock)$/
+gl_lock_destroy	lock.h	/^#define gl_lock_destroy(NAME) \\$/
+gl_lock_init	lock.h	/^#define gl_lock_init(NAME) \\$/
+gl_lock_initializer	lock.h	166
+gl_lock_initializer	lock.h	417
+gl_lock_initializer	lock.h	529
+gl_lock_initializer	lock.h	650
+gl_lock_lock	lock.h	/^#define gl_lock_lock(NAME) \\$/
+gl_lock_t	lock.h	161
+gl_lock_t	lock.h	412
+gl_lock_t	lock.h	524
+gl_lock_t	lock.h	645
+gl_lock_t	lock.h	772
+gl_lock_unlock	lock.h	/^#define gl_lock_unlock(NAME) \\$/
+gl_once	lock.h	/^#define gl_once(NAME, INITFUNCTION) \\$/
+gl_once_define	lock.h	/^# define gl_once_define(STORAGECLASS, NAME) \\$/
+gl_once_define	lock.h	/^# define gl_once_define(STORAGECLASS, NAME) \\$/
+gl_once_define	lock.h	/^# define gl_once_define(STORAGECLASS, NAME) \\$/
+gl_once_define	lock.h	/^# define gl_once_define(STORAGECLASS, NAME) \\$/
+gl_once_define	lock.h	/^# define gl_once_define(STORAGECLASS, NAME) \\$/
+gl_once_t	lock.h	362
+gl_once_t	lock.h	469
+gl_once_t	lock.h	598
+gl_once_t	lock.h	751
+gl_once_t	lock.h	803
+gl_recursive_lock_define	lock.h	/^#   define gl_recursive_lock_define(STORAGECLASS, /
+gl_recursive_lock_define	lock.h	/^#   define gl_recursive_lock_define(STORAGECLASS, /
+gl_recursive_lock_define	lock.h	/^#  define gl_recursive_lock_define(STORAGECLASS, N/
+gl_recursive_lock_define	lock.h	/^#  define gl_recursive_lock_define(STORAGECLASS, N/
+gl_recursive_lock_define	lock.h	/^# define gl_recursive_lock_define(STORAGECLASS, NA/
+gl_recursive_lock_define	lock.h	/^# define gl_recursive_lock_define(STORAGECLASS, NA/
+gl_recursive_lock_define	lock.h	/^# define gl_recursive_lock_define(STORAGECLASS, NA/
+gl_recursive_lock_define_initialized	lock.h	/^#   define gl_recursive_lock_define_initialized(ST/
+gl_recursive_lock_define_initialized	lock.h	/^#   define gl_recursive_lock_define_initialized(ST/
+gl_recursive_lock_define_initialized	lock.h	/^#  define gl_recursive_lock_define_initialized(STO/
+gl_recursive_lock_define_initialized	lock.h	/^#  define gl_recursive_lock_define_initialized(STO/
+gl_recursive_lock_define_initialized	lock.h	/^# define gl_recursive_lock_define_initialized(STOR/
+gl_recursive_lock_define_initialized	lock.h	/^# define gl_recursive_lock_define_initialized(STOR/
+gl_recursive_lock_define_initialized	lock.h	/^# define gl_recursive_lock_define_initialized(STOR/
+gl_recursive_lock_destroy	lock.h	/^#define gl_recursive_lock_destroy(NAME) \\$/
+gl_recursive_lock_init	lock.h	/^#define gl_recursive_lock_init(NAME) \\$/
+gl_recursive_lock_initializer	lock.h	281
+gl_recursive_lock_initializer	lock.h	284
+gl_recursive_lock_initializer	lock.h	310
+gl_recursive_lock_initializer	lock.h	343
+gl_recursive_lock_initializer	lock.h	456
+gl_recursive_lock_initializer	lock.h	576
+gl_recursive_lock_initializer	lock.h	728
+gl_recursive_lock_lock	lock.h	/^#define gl_recursive_lock_lock(NAME) \\$/
+gl_recursive_lock_t	lock.h	275
+gl_recursive_lock_t	lock.h	305
+gl_recursive_lock_t	lock.h	338
+gl_recursive_lock_t	lock.h	451
+gl_recursive_lock_t	lock.h	571
+gl_recursive_lock_t	lock.h	723
+gl_recursive_lock_t	lock.h	793
+gl_recursive_lock_unlock	lock.h	/^#define gl_recursive_lock_unlock(NAME) \\$/
+gl_rwlock_define	gettextP.h	34
+gl_rwlock_define	gettextP.h	/^  gl_rwlock_define (, conversions_lock)$/
+gl_rwlock_define	lock.h	/^#   define gl_rwlock_define(STORAGECLASS, NAME) \\$/
+gl_rwlock_define	lock.h	/^#   define gl_rwlock_define(STORAGECLASS, NAME) \\$/
+gl_rwlock_define	lock.h	/^# define gl_rwlock_define(STORAGECLASS, NAME) \\$/
+gl_rwlock_define	lock.h	/^#  define gl_rwlock_define(STORAGECLASS, NAME) \\$/
+gl_rwlock_define	lock.h	/^# define gl_rwlock_define(STORAGECLASS, NAME) \\$/
+gl_rwlock_define	lock.h	/^# define gl_rwlock_define(STORAGECLASS, NAME) \\$/
+gl_rwlock_define	lock.h	/^# define gl_rwlock_define(STORAGECLASS, NAME)$/
+gl_rwlock_define	bindtextdom.c	35
+gl_rwlock_define	textdomain.c	34
+gl_rwlock_define	textdomain.c	/^gl_rwlock_define (extern, _nl_state_lock attribute/
+gl_rwlock_define_initialized	lock.h	/^#   define gl_rwlock_define_initialized(STORAGECLA/
+gl_rwlock_define_initialized	lock.h	/^#   define gl_rwlock_define_initialized(STORAGECLA/
+gl_rwlock_define_initialized	lock.h	/^# define gl_rwlock_define_initialized(STORAGECLASS/
+gl_rwlock_define_initialized	lock.h	/^#  define gl_rwlock_define_initialized(STORAGECLAS/
+gl_rwlock_define_initialized	lock.h	/^# define gl_rwlock_define_initialized(STORAGECLASS/
+gl_rwlock_define_initialized	lock.h	/^# define gl_rwlock_define_initialized(STORAGECLASS/
+gl_rwlock_define_initialized	lock.h	/^# define gl_rwlock_define_initialized(STORAGECLASS/
+gl_rwlock_define_initialized	finddomain.c	41
+gl_rwlock_define_initialized	dcigettext.c	107
+gl_rwlock_define_initialized	dcigettext.c	/^gl_rwlock_define_initialized (static, tree_lock)$/
+gl_rwlock_destroy	lock.h	/^#define gl_rwlock_destroy(NAME) \\$/
+gl_rwlock_init	lock.h	/^#define gl_rwlock_init(NAME) \\$/
+gl_rwlock_initializer	lock.h	188
+gl_rwlock_initializer	lock.h	214
+gl_rwlock_initializer	lock.h	249
+gl_rwlock_initializer	lock.h	435
+gl_rwlock_initializer	lock.h	547
+gl_rwlock_initializer	lock.h	692
+gl_rwlock_rdlock	lock.h	/^#define gl_rwlock_rdlock(NAME) \\$/
+gl_rwlock_rdlock	finddomain.c	42
+gl_rwlock_rdlock	dcigettext.c	108
+gl_rwlock_t	lock.h	183
+gl_rwlock_t	lock.h	209
+gl_rwlock_t	lock.h	244
+gl_rwlock_t	lock.h	430
+gl_rwlock_t	lock.h	542
+gl_rwlock_t	lock.h	687
+gl_rwlock_t	lock.h	782
+gl_rwlock_unlock	lock.h	/^#define gl_rwlock_unlock(NAME) \\$/
+gl_rwlock_unlock	bindtextdom.c	37
+gl_rwlock_unlock	finddomain.c	44
+gl_rwlock_unlock	textdomain.c	36
+gl_rwlock_unlock	dcigettext.c	110
+gl_rwlock_wrlock	lock.h	/^#define gl_rwlock_wrlock(NAME) \\$/
+gl_rwlock_wrlock	bindtextdom.c	36
+gl_rwlock_wrlock	finddomain.c	43
+gl_rwlock_wrlock	textdomain.c	35
+gl_rwlock_wrlock	dcigettext.c	109
+gl_spinlock_t	lock.h	636
+gl_waitqueue_add	lock.c	/^gl_waitqueue_add (gl_waitqueue_t *wq)$/
+gl_waitqueue_init	lock.c	/^gl_waitqueue_init (gl_waitqueue_t *wq)$/
+gl_waitqueue_notify_all	lock.c	/^gl_waitqueue_notify_all (gl_waitqueue_t *wq)$/
+gl_waitqueue_notify_first	lock.c	/^gl_waitqueue_notify_first (gl_waitqueue_t *wq)$/
+gl_waitqueue_t	lock.c	683
+glthread_in_use	threadlib.c	/^glthread_in_use (void)$/
+glthread_lock_destroy	lock.h	/^# define glthread_lock_destroy(LOCK) \\$/
+glthread_lock_destroy	lock.h	/^# define glthread_lock_destroy(LOCK) \\$/
+glthread_lock_destroy	lock.h	/^# define glthread_lock_destroy(LOCK) \\$/
+glthread_lock_destroy	lock.h	/^# define glthread_lock_destroy(LOCK) \\$/
+glthread_lock_destroy	lock.h	/^# define glthread_lock_destroy(NAME) 0$/
+glthread_lock_destroy_func	lock.c	/^glthread_lock_destroy_func (gl_lock_t *lock)$/
+glthread_lock_init	lock.h	/^# define glthread_lock_init(LOCK) \\$/
+glthread_lock_init	lock.h	/^# define glthread_lock_init(LOCK) \\$/
+glthread_lock_init	lock.h	/^# define glthread_lock_init(LOCK) \\$/
+glthread_lock_init	lock.h	/^# define glthread_lock_init(LOCK) \\$/
+glthread_lock_init	lock.h	/^# define glthread_lock_init(NAME) 0$/
+glthread_lock_init_func	lock.c	/^glthread_lock_init_func (gl_lock_t *lock)$/
+glthread_lock_lock	lock.h	/^# define glthread_lock_lock(LOCK) \\$/
+glthread_lock_lock	lock.h	/^# define glthread_lock_lock(LOCK) \\$/
+glthread_lock_lock	lock.h	/^# define glthread_lock_lock(LOCK) \\$/
+glthread_lock_lock	lock.h	/^# define glthread_lock_lock(LOCK) \\$/
+glthread_lock_lock	lock.h	/^# define glthread_lock_lock(NAME) 0$/
+glthread_lock_lock_func	lock.c	/^glthread_lock_lock_func (gl_lock_t *lock)$/
+glthread_lock_unlock	lock.h	/^# define glthread_lock_unlock(LOCK) \\$/
+glthread_lock_unlock	lock.h	/^# define glthread_lock_unlock(LOCK) \\$/
+glthread_lock_unlock	lock.h	/^# define glthread_lock_unlock(LOCK) \\$/
+glthread_lock_unlock	lock.h	/^# define glthread_lock_unlock(LOCK) \\$/
+glthread_lock_unlock	lock.h	/^# define glthread_lock_unlock(NAME) 0$/
+glthread_lock_unlock_func	lock.c	/^glthread_lock_unlock_func (gl_lock_t *lock)$/
+glthread_once	lock.h	/^# define glthread_once(ONCE_CONTROL, INITFUNCTION)/
+glthread_once	lock.h	/^# define glthread_once(ONCE_CONTROL, INITFUNCTION)/
+glthread_once	lock.h	/^# define glthread_once(ONCE_CONTROL, INITFUNCTION)/
+glthread_once	lock.h	/^# define glthread_once(ONCE_CONTROL, INITFUNCTION)/
+glthread_once	lock.h	/^# define glthread_once(ONCE_CONTROL, INITFUNCTION)/
+glthread_once_call	lock.c	/^glthread_once_call (void *arg)$/
+glthread_once_func	lock.c	/^glthread_once_func (gl_once_t *once_control, void /
+glthread_once_multithreaded	lock.c	/^glthread_once_multithreaded (pth_once_t *once_cont/
+glthread_once_multithreaded	lock.c	/^glthread_once_multithreaded (gl_once_t *once_contr/
+glthread_once_singlethreaded	lock.c	/^glthread_once_singlethreaded (pthread_once_t *once/
+glthread_once_singlethreaded	lock.c	/^glthread_once_singlethreaded (pth_once_t *once_con/
+glthread_once_singlethreaded	lock.c	/^glthread_once_singlethreaded (gl_once_t *once_cont/
+glthread_recursive_lock_destroy	lock.h	/^#   define glthread_recursive_lock_destroy(LOCK) \\/
+glthread_recursive_lock_destroy	lock.h	/^#   define glthread_recursive_lock_destroy(LOCK) \\/
+glthread_recursive_lock_destroy	lock.h	/^#  define glthread_recursive_lock_destroy(LOCK) \\$/
+glthread_recursive_lock_destroy	lock.h	/^#  define glthread_recursive_lock_destroy(LOCK) \\$/
+glthread_recursive_lock_destroy	lock.h	/^# define glthread_recursive_lock_destroy(LOCK) \\$/
+glthread_recursive_lock_destroy	lock.h	/^# define glthread_recursive_lock_destroy(LOCK) \\$/
+glthread_recursive_lock_destroy	lock.h	/^# define glthread_recursive_lock_destroy(NAME) 0$/
+glthread_recursive_lock_destroy_func	lock.c	/^glthread_recursive_lock_destroy_func (gl_recursive/
+glthread_recursive_lock_destroy_multithreaded	lock.c	/^glthread_recursive_lock_destroy_multithreaded (gl_/
+glthread_recursive_lock_destroy_multithreaded	lock.c	/^glthread_recursive_lock_destroy_multithreaded (gl_/
+glthread_recursive_lock_destroy_multithreaded	lock.c	/^glthread_recursive_lock_destroy_multithreaded (gl_/
+glthread_recursive_lock_init	lock.h	/^#   define glthread_recursive_lock_init(LOCK) \\$/
+glthread_recursive_lock_init	lock.h	/^#   define glthread_recursive_lock_init(LOCK) \\$/
+glthread_recursive_lock_init	lock.h	/^#  define glthread_recursive_lock_init(LOCK) \\$/
+glthread_recursive_lock_init	lock.h	/^#  define glthread_recursive_lock_init(LOCK) \\$/
+glthread_recursive_lock_init	lock.h	/^# define glthread_recursive_lock_init(LOCK) \\$/
+glthread_recursive_lock_init	lock.h	/^# define glthread_recursive_lock_init(LOCK) \\$/
+glthread_recursive_lock_init	lock.h	/^# define glthread_recursive_lock_init(NAME) 0$/
+glthread_recursive_lock_init_func	lock.c	/^glthread_recursive_lock_init_func (gl_recursive_lo/
+glthread_recursive_lock_init_multithreaded	lock.c	/^glthread_recursive_lock_init_multithreaded (gl_rec/
+glthread_recursive_lock_init_multithreaded	lock.c	/^glthread_recursive_lock_init_multithreaded (gl_rec/
+glthread_recursive_lock_init_multithreaded	lock.c	/^glthread_recursive_lock_init_multithreaded (gl_rec/
+glthread_recursive_lock_init_multithreaded	lock.c	/^glthread_recursive_lock_init_multithreaded (gl_rec/
+glthread_recursive_lock_lock	lock.h	/^#   define glthread_recursive_lock_lock(LOCK) \\$/
+glthread_recursive_lock_lock	lock.h	/^#   define glthread_recursive_lock_lock(LOCK) \\$/
+glthread_recursive_lock_lock	lock.h	/^#  define glthread_recursive_lock_lock(LOCK) \\$/
+glthread_recursive_lock_lock	lock.h	/^#  define glthread_recursive_lock_lock(LOCK) \\$/
+glthread_recursive_lock_lock	lock.h	/^# define glthread_recursive_lock_lock(LOCK) \\$/
+glthread_recursive_lock_lock	lock.h	/^# define glthread_recursive_lock_lock(LOCK) \\$/
+glthread_recursive_lock_lock	lock.h	/^# define glthread_recursive_lock_lock(NAME) 0$/
+glthread_recursive_lock_lock_func	lock.c	/^glthread_recursive_lock_lock_func (gl_recursive_lo/
+glthread_recursive_lock_lock_multithreaded	lock.c	/^glthread_recursive_lock_lock_multithreaded (gl_rec/
+glthread_recursive_lock_lock_multithreaded	lock.c	/^glthread_recursive_lock_lock_multithreaded (gl_rec/
+glthread_recursive_lock_lock_multithreaded	lock.c	/^glthread_recursive_lock_lock_multithreaded (gl_rec/
+glthread_recursive_lock_unlock	lock.h	/^#   define glthread_recursive_lock_unlock(LOCK) \\$/
+glthread_recursive_lock_unlock	lock.h	/^#   define glthread_recursive_lock_unlock(LOCK) \\$/
+glthread_recursive_lock_unlock	lock.h	/^#  define glthread_recursive_lock_unlock(LOCK) \\$/
+glthread_recursive_lock_unlock	lock.h	/^#  define glthread_recursive_lock_unlock(LOCK) \\$/
+glthread_recursive_lock_unlock	lock.h	/^# define glthread_recursive_lock_unlock(LOCK) \\$/
+glthread_recursive_lock_unlock	lock.h	/^# define glthread_recursive_lock_unlock(LOCK) \\$/
+glthread_recursive_lock_unlock	lock.h	/^# define glthread_recursive_lock_unlock(NAME) 0$/
+glthread_recursive_lock_unlock_func	lock.c	/^glthread_recursive_lock_unlock_func (gl_recursive_/
+glthread_recursive_lock_unlock_multithreaded	lock.c	/^glthread_recursive_lock_unlock_multithreaded (gl_r/
+glthread_recursive_lock_unlock_multithreaded	lock.c	/^glthread_recursive_lock_unlock_multithreaded (gl_r/
+glthread_recursive_lock_unlock_multithreaded	lock.c	/^glthread_recursive_lock_unlock_multithreaded (gl_r/
+glthread_rwlock_destroy	lock.h	/^#   define glthread_rwlock_destroy(LOCK) \\$/
+glthread_rwlock_destroy	lock.h	/^#   define glthread_rwlock_destroy(LOCK) \\$/
+glthread_rwlock_destroy	lock.h	/^# define glthread_rwlock_destroy(LOCK) \\$/
+glthread_rwlock_destroy	lock.h	/^#  define glthread_rwlock_destroy(LOCK) \\$/
+glthread_rwlock_destroy	lock.h	/^# define glthread_rwlock_destroy(LOCK) \\$/
+glthread_rwlock_destroy	lock.h	/^# define glthread_rwlock_destroy(LOCK) \\$/
+glthread_rwlock_destroy	lock.h	/^# define glthread_rwlock_destroy(NAME) 0$/
+glthread_rwlock_destroy_func	lock.c	/^glthread_rwlock_destroy_func (gl_rwlock_t *lock)$/
+glthread_rwlock_destroy_multithreaded	lock.c	/^glthread_rwlock_destroy_multithreaded (gl_rwlock_t/
+glthread_rwlock_destroy_multithreaded	lock.c	/^glthread_rwlock_destroy_multithreaded (gl_rwlock_t/
+glthread_rwlock_init	lock.h	/^#   define glthread_rwlock_init(LOCK) \\$/
+glthread_rwlock_init	lock.h	/^#   define glthread_rwlock_init(LOCK) \\$/
+glthread_rwlock_init	lock.h	/^# define glthread_rwlock_init(LOCK) \\$/
+glthread_rwlock_init	lock.h	/^#  define glthread_rwlock_init(LOCK) \\$/
+glthread_rwlock_init	lock.h	/^# define glthread_rwlock_init(LOCK) \\$/
+glthread_rwlock_init	lock.h	/^# define glthread_rwlock_init(LOCK) \\$/
+glthread_rwlock_init	lock.h	/^# define glthread_rwlock_init(NAME) 0$/
+glthread_rwlock_init_func	lock.c	/^glthread_rwlock_init_func (gl_rwlock_t *lock)$/
+glthread_rwlock_init_multithreaded	lock.c	/^glthread_rwlock_init_multithreaded (gl_rwlock_t *l/
+glthread_rwlock_init_multithreaded	lock.c	/^glthread_rwlock_init_multithreaded (gl_rwlock_t *l/
+glthread_rwlock_rdlock	lock.h	/^#   define glthread_rwlock_rdlock(LOCK) \\$/
+glthread_rwlock_rdlock	lock.h	/^#   define glthread_rwlock_rdlock(LOCK) \\$/
+glthread_rwlock_rdlock	lock.h	/^# define glthread_rwlock_rdlock(LOCK) \\$/
+glthread_rwlock_rdlock	lock.h	/^#  define glthread_rwlock_rdlock(LOCK) \\$/
+glthread_rwlock_rdlock	lock.h	/^# define glthread_rwlock_rdlock(LOCK) \\$/
+glthread_rwlock_rdlock	lock.h	/^# define glthread_rwlock_rdlock(LOCK) \\$/
+glthread_rwlock_rdlock	lock.h	/^# define glthread_rwlock_rdlock(NAME) 0$/
+glthread_rwlock_rdlock_func	lock.c	/^glthread_rwlock_rdlock_func (gl_rwlock_t *lock)$/
+glthread_rwlock_rdlock_multithreaded	lock.c	/^glthread_rwlock_rdlock_multithreaded (gl_rwlock_t /
+glthread_rwlock_rdlock_multithreaded	lock.c	/^glthread_rwlock_rdlock_multithreaded (gl_rwlock_t /
+glthread_rwlock_unlock	lock.h	/^#   define glthread_rwlock_unlock(LOCK) \\$/
+glthread_rwlock_unlock	lock.h	/^#   define glthread_rwlock_unlock(LOCK) \\$/
+glthread_rwlock_unlock	lock.h	/^# define glthread_rwlock_unlock(LOCK) \\$/
+glthread_rwlock_unlock	lock.h	/^#  define glthread_rwlock_unlock(LOCK) \\$/
+glthread_rwlock_unlock	lock.h	/^# define glthread_rwlock_unlock(LOCK) \\$/
+glthread_rwlock_unlock	lock.h	/^# define glthread_rwlock_unlock(LOCK) \\$/
+glthread_rwlock_unlock	lock.h	/^# define glthread_rwlock_unlock(NAME) 0$/
+glthread_rwlock_unlock_func	lock.c	/^glthread_rwlock_unlock_func (gl_rwlock_t *lock)$/
+glthread_rwlock_unlock_multithreaded	lock.c	/^glthread_rwlock_unlock_multithreaded (gl_rwlock_t /
+glthread_rwlock_unlock_multithreaded	lock.c	/^glthread_rwlock_unlock_multithreaded (gl_rwlock_t /
+glthread_rwlock_wrlock	lock.h	/^#   define glthread_rwlock_wrlock(LOCK) \\$/
+glthread_rwlock_wrlock	lock.h	/^#   define glthread_rwlock_wrlock(LOCK) \\$/
+glthread_rwlock_wrlock	lock.h	/^# define glthread_rwlock_wrlock(LOCK) \\$/
+glthread_rwlock_wrlock	lock.h	/^#  define glthread_rwlock_wrlock(LOCK) \\$/
+glthread_rwlock_wrlock	lock.h	/^# define glthread_rwlock_wrlock(LOCK) \\$/
+glthread_rwlock_wrlock	lock.h	/^# define glthread_rwlock_wrlock(LOCK) \\$/
+glthread_rwlock_wrlock	lock.h	/^# define glthread_rwlock_wrlock(NAME) 0$/
+glthread_rwlock_wrlock_func	lock.c	/^glthread_rwlock_wrlock_func (gl_rwlock_t *lock)$/
+glthread_rwlock_wrlock_multithreaded	lock.c	/^glthread_rwlock_wrlock_multithreaded (gl_rwlock_t /
+glthread_rwlock_wrlock_multithreaded	lock.c	/^glthread_rwlock_wrlock_multithreaded (gl_rwlock_t /
+greater_or_equal	plural-exp.h	50
+greater_than	plural-exp.h	48
+guard	lock.h	206
+guard	lock.h	302
+guard	lock.h	642
+guard	lock.h	681
+guard	lock.h	718
+guess_category_value	dcigettext.c	/^guess_category_value (int category, const char *ca/
+hash_node	localename.c	2619
+hash_size	gettextP.h	186
+hash_tab	gettextP.h	188
+hash_tab_offset	gmo.h	89
+hash_tab_size	gmo.h	87
+hi	setlocale.c	575
+init_germanic_plural	plural-exp.c	/^init_germanic_plural (void)$/
+inited	lock.h	595
+inited	lock.h	747
+initialized	lock.h	205
+initialized	lock.h	303
+internal_function	gettextP.h	93
+internal_function	loadinfo.h	34
+internal_function	plural-exp.h	22
+internal_function	tsearch.c	112
+internal_function	localealias.c	92
+is_borderline	vasnprintf.c	/^is_borderline (const char *digits, size_t precisio/
+is_infinite_or_zero	vasnprintf.c	/^is_infinite_or_zero (double x)$/
+is_infinite_or_zerol	vasnprintf.c	/^is_infinite_or_zerol (long double x)$/
+key	tsearch.c	119
+known_translation_t	dcigettext.c	235
+land	plural-exp.h	53
+langtag	localename.c	1303
+langtag_entry	localename.c	1304
+language_table	setlocale.c	255
+last_logfile	log.c	60
+last_logfilename	log.c	59
+lc_messages_name	setlocale.c	794
+leaf	tsearch.h	40
+left	tsearch.c	120
+legacy	localename.c	1165
+legacy_entry	localename.c	1166
+length	gmo.h	109
+length	gmo.h	120
+length	gettextP.h	132
+less_or_equal	plural-exp.h	49
+less_than	plural-exp.h	47
+libc_freeres_fn	dcigettext.c	/^libc_freeres_fn (free_mem)$/
+libc_freeres_ptr	localealias.c	/^# define libc_freeres_ptr(decl) decl$/
+libc_hidden_proto	dcigettext.c	/^libc_hidden_proto (_nl_default_dirname)$/
+libintl_asprintf	printf.c	/^libintl_asprintf (char **resultp, const char *form/
+libintl_fprintf	printf.c	/^libintl_fprintf (FILE *stream, const char *format,/
+libintl_fwprintf	printf.c	/^libintl_fwprintf (FILE *stream, const wchar_t *for/
+libintl_gettext	libgnuintl.in.h	/^extern char *libintl_gettext (const char *__msgid)/
+libintl_newlocale	setlocale.c	/^libintl_newlocale (int category_mask, const char */
+libintl_nl_default_dirname	os2compat.c	40
+libintl_printf	libgnuintl.in.h	349
+libintl_printf	printf.c	77
+libintl_printf	printf.c	/^libintl_printf (const char *format, ...)$/
+libintl_set_relocation_prefix	libgnuintl.in.h	456
+libintl_setlocale	setlocale.c	/^libintl_setlocale (int category, const char *local/
+libintl_snprintf	printf.c	/^libintl_snprintf (char *resultbuf, size_t length, /
+libintl_sprintf	printf.c	/^libintl_sprintf (char *resultbuf, const char *form/
+libintl_swprintf	printf.c	/^libintl_swprintf (wchar_t *resultbuf, size_t lengt/
+libintl_vasprintf	printf.c	/^libintl_vasprintf (char **resultp, const char *for/
+libintl_version	version.c	24
+libintl_vfprintf	printf.c	/^libintl_vfprintf (FILE *stream, const char *format/
+libintl_vfwprintf	printf.c	/^libintl_vfwprintf (FILE *stream, const wchar_t *fo/
+libintl_vprintf	printf.c	/^libintl_vprintf (const char *format, va_list args)/
+libintl_vsnprintf	printf.c	/^libintl_vsnprintf (char *resultbuf, size_t length,/
+libintl_vsprintf	printf.c	/^libintl_vsprintf (char *resultbuf, const char *for/
+libintl_vswprintf	printf.c	/^libintl_vswprintf (wchar_t *resultbuf, size_t leng/
+libintl_vwprintf	printf.c	/^libintl_vwprintf (const wchar_t *format, va_list a/
+libintl_wprintf	printf.c	/^libintl_wprintf (const wchar_t *format, ...)$/
+limbs	vasnprintf.c	336
+lname	localename.c	2523
+lnot	plural-exp.h	40
+lo	setlocale.c	575
+loaded_domain	gettextP.h	158
+loaded_l10nfile	loadinfo.h	63
+local_strnlen	vasnprintf.c	213
+local_strnlen	vasnprintf.c	/^local_strnlen (const char *string, size_t maxlen)$/
+local_strnlen_defined	vasnprintf.c	216
+local_wcslen	vasnprintf.c	229
+local_wcslen	vasnprintf.c	/^local_wcslen (const wchar_t *s)$/
+local_wcslen_defined	vasnprintf.c	236
+local_wcsnlen	vasnprintf.c	252
+local_wcsnlen	vasnprintf.c	/^local_wcsnlen (const wchar_t *s, size_t maxlen)$/
+local_wcsnlen_defined	vasnprintf.c	255
+locale_charset	localcharset.c	/^locale_charset (void)$/
+localename	dcigettext.c	245
+lock	lock.h	238
+lock	lock.h	643
+lock	lock.h	682
+lock	lock.h	721
+lock	lock.h	749
+lor	plural-exp.h	54
+magic	gmo.h	74
+malloced	gettextP.h	169
+max_precision_length	printf-parse.h	68
+max_precision_length	wprintf-parse.h	68
+max_width_length	printf-parse.h	67
+max_width_length	wprintf-parse.h	67
+maxmap	localealias.c	144
+maybe_split_for_insert	tsearch.c	/^maybe_split_for_insert (node *rootp, node *parentp/
+mempcpy	localealias.c	78
+mempcpy	dcigettext.c	/^mempcpy (void *dest, const void *src, size_t n)$/
+minus	plural-exp.h	46
+mmap	loadmsgcat.c	/^# define mmap(addr, len, prot, flags, fd, offset) /
+mmap_size	gettextP.h	165
+mo_file_header	gmo.h	71
+module	plural-exp.h	44
+mp_limb_t	vasnprintf.c	324
+mp_twolimb_t	vasnprintf.c	328
+mpn_t	vasnprintf.c	337
+msgid	dcigettext.c	269
+mult	plural-exp.h	42
+multiply	vasnprintf.c	/^multiply (mpn_t src1, mpn_t src2, mpn_t *dest)$/
+munmap	loadmsgcat.c	/^# define munmap(addr, len)	__munmap (addr, len)$/
+must_swap	gettextP.h	167
+must_swap_hash_tab	gettextP.h	190
+mutex	lock.h	334
+mutex	lock.h	567
+mutex	lock.h	596
+n_sysdep_segments	gmo.h	94
+n_sysdep_strings	gmo.h	98
+n_sysdep_strings	gettextP.h	179
+nargs	plural-exp.h	63
+nconversions	gettextP.h	194
+new_exp	plural.y	/^new_exp (int nargs, enum expression_operator op,$/
+new_exp_0	plural.y	/^new_exp_0 (enum expression_operator op)$/
+new_exp_1	plural.y	/^new_exp_1 (enum expression_operator op, struct exp/
+new_exp_2	plural.y	/^new_exp_2 (enum expression_operator op, struct exp/
+new_exp_3	plural.y	/^new_exp_3 (enum expression_operator op, struct exp/
+newlocale	libgnuintl.in.h	440
+newlocale	libgnuintl.in.h	441
+newlocale	setlocale.c	48
+next	gettextP.h	213
+next	loadinfo.h	70
+next	dcigettext.c	386
+next	dcigettext.c	418
+next	localename.c	2621
+ngettext	libgnuintl.in.h	192
+ngettext	libgnuintl.in.h	/^extern char *ngettext (const char *__msgid1, const/
+ngettext	intl-compat.c	40
+ngettext	intl-compat.c	/^ngettext (const char *msgid1, const char *msgid2, /
+nlimbs	vasnprintf.c	335
+nlos2_initialize	os2compat.c	/^nlos2_initialize ()$/
+nls_uint32	gmo.h	54
+nls_uint32	gmo.h	57
+nls_uint32	gmo.h	60
+nmap	localealias.c	143
+node	tsearch.c	123
+node_t	tsearch.c	115
+not_equal	plural-exp.h	52
+nstrings	gmo.h	81
+nstrings	gettextP.h	172
+num	plural-exp.h	38
+num	plural-exp.h	67
+num	plural.y	50
+offset	gmo.h	111
+offset	gmo.h	122
+offset	gmo.h	138
+offset	lock.h	676
+offsetof	bindtextdom.c	/^# define offsetof(type,ident) ((size_t)&(((type*)0/
+offsetof	dcigettext.c	/^# define offsetof(type,ident) ((size_t)&(((type*)0/
+op	plural.y	51
+open	loadmsgcat.c	/^# define open(name, flags)	open_not_cancel_2 (name/
+operation	plural-exp.h	64
+orig_prefix	relocatable.c	110
+orig_prefix_len	relocatable.c	111
+orig_sysdep_tab	gettextP.h	181
+orig_sysdep_tab_offset	gmo.h	100
+orig_tab	gettextP.h	174
+orig_tab_offset	gmo.h	83
+owner	lock.h	335
+owner	lock.h	568
+owner	lock.h	719
+pad_ourselves	vasnprintf.c	4607
+pad_ourselves	vasnprintf.c	4611
+pad_ourselves	vasnprintf.c	5532
+parse_args	plural-exp.h	74
+plone	plural-exp.c	37
+plone	plural-exp.c	68
+plural_eval	eval-plural.h	/^plural_eval (const struct expression *pexp, unsign/
+plural_lookup	dcigettext.c	/^plural_lookup (struct loaded_l10nfile *domain, uns/
+plus	plural-exp.h	45
+plvar	plural-exp.c	32
+plvar	plural-exp.c	67
+pointer	gettextP.h	134
+pop	l10nflist.c	/^pop (int x)$/
+postorder	tsearch.h	38
+prec_ourselves	vasnprintf.c	4604
+prec_ourselves	vasnprintf.c	5533
+precision_arg_index	printf-parse.h	56
+precision_arg_index	wprintf-parse.h	56
+precision_end	printf-parse.h	55
+precision_end	wprintf-parse.h	55
+precision_start	printf-parse.h	54
+precision_start	wprintf-parse.h	54
+preorder	tsearch.h	37
+print_escaped	log.c	/^print_escaped (FILE *stream, const char *str, cons/
+printf	libgnuintl.in.h	338
+printf	libgnuintl.in.h	351
+pth_in_use	lock.h	/^#  define pth_in_use() (pth_cancel != NULL)$/
+pth_in_use	lock.h	/^#  define pth_in_use() 1$/
+pthread_in_use	lock.h	/^#  define pthread_in_use() \\$/
+pthread_in_use	lock.h	/^#   define pthread_in_use() (pthread_cancel != NUL/
+pthread_in_use	lock.h	/^#   define pthread_in_use() 1$/
+ptr	dcigettext.c	267
+qmop	plural-exp.h	56
+range_t	setlocale.c	575
+read	loadmsgcat.c	/^# define read(fd, buf, n)	read_not_cancel (fd, buf/
+read_alias_file	localealias.c	/^static size_t read_alias_file (const char *fname, /
+read_alias_file	localealias.c	/^read_alias_file (const char *fname, int fname_len)/
+recmutex	lock.h	301
+red	tsearch.c	122
+relocate	relocatable.h	/^#define relocate(pathname) (pathname)$/
+relocate	localealias.c	/^# define relocate(pathname) (pathname)$/
+relocate	localcharset.c	/^# define relocate(pathname) (pathname)$/
+relocate	relocatable.c	/^relocate (const char *pathname)$/
+remainder	vasnprintf.c	208
+remainder	vasnprintf.c	209
+res	plural-exp.h	77
+ret_first_language	langprefs.c	/^ret_first_language (HMODULE h, LPCSTR type, LPCSTR/
+revision	gmo.h	76
+right	tsearch.c	121
+runcount	lock.h	242
+runcount	lock.h	685
+rwlock	lock.h	207
+scale10_round_decimal_decoded	vasnprintf.c	/^scale10_round_decimal_decoded (int e, mpn_t m, voi/
+scale10_round_decimal_double	vasnprintf.c	/^scale10_round_decimal_double (double x, int n)$/
+scale10_round_decimal_long_double	vasnprintf.c	/^scale10_round_decimal_long_double (long double x, /
+script	localename.c	1333
+script_entry	localename.c	1334
+search	setlocale.c	/^search (const struct table_entry *table, size_t ta/
+segment_pair	gmo.h	126
+segments	gmo.h	141
+segsize	gmo.h	129
+set_relocation_prefix	relocatable.c	/^set_relocation_prefix (const char *orig_prefix_arg/
+set_this_relocation_prefix	relocatable.c	/^set_this_relocation_prefix (const char *orig_prefi/
+setlocale	libgnuintl.in.h	433
+setlocale	libgnuintl.in.h	434
+setlocale	setlocale.c	47
+setlocale_single	setlocale.c	/^setlocale_single (int category, const char *locale/
+setlocale_single	setlocale.c	814
+setlocale_unixlike	setlocale.c	/^setlocale_unixlike (int category, const char *loca/
+setlocale_unixlike	setlocale.c	788
+shared_library_fullname	relocatable.c	311
+size_in_bounds_p	xsize.h	/^#define size_in_bounds_p(SIZE) \\$/
+size_overflow_p	xsize.h	/^#define size_overflow_p(SIZE) \\$/
+snprintf	vasnprintf.c	182
+snprintf	vasnprintf.c	190
+snprintf	libgnuintl.in.h	374
+snprintf	libgnuintl.in.h	375
+sprintf	vasnprintf.c	194
+sprintf	libgnuintl.in.h	361
+sprintf	libgnuintl.in.h	362
+start	plural.y	152
+started	lock.h	636
+started	lock.h	748
+static_assert	verify.h	220
+stpcpy	l10nflist.c	/^#  define stpcpy(dest, src) __stpcpy(dest, src)$/
+stpcpy	l10nflist.c	/^stpcpy (char *dest, const char *src)$/
+stpcpy	dcigettext.c	136
+stpcpy	dcigettext.c	/^stpcpy (char *dest, const char *src)$/
+strcasecmp	os2compat.h	37
+strcasecmp	localealias.c	/^# define strcasecmp(s1, s2) __strcasecmp_l (s1, s2/
+strcmp	relocatable.c	54
+strdup	bindtextdom.c	/^#  define strdup(str) __strdup (str)$/
+strdup	textdomain.c	/^#  define strdup(str) __strdup (str)$/
+string_desc	gmo.h	106
+string_hash	localename.c	/^string_hash (const void *x)$/
+string_space_act	localealias.c	140
+string_space_max	localealias.c	141
+strncasecmp	os2compat.h	38
+strncmp	relocatable.c	55
+struniq_hash_table	localename.c	2626
+successor	loadinfo.h	71
+swprintf	libgnuintl.in.h	417
+swprintf	libgnuintl.in.h	418
+sysdep_segment	gmo.h	117
+sysdep_segments_offset	gmo.h	96
+sysdep_string	gmo.h	135
+sysdep_string_desc	gettextP.h	129
+sysdepref	gmo.h	131
+system_vsnprintf	printf.c	198
+system_vsnprintf	printf.c	200
+system_vsnprintf	printf.c	204
+system_vswprintf	printf.c	315
+system_vswprintf	printf.c	318
+table_entry	setlocale.c	250
+tdelete	dcigettext.c	165
+textdomain	libgnuintl.in.h	260
+textdomain	libgnuintl.in.h	/^extern char *textdomain (const char *__domainname)/
+textdomain	intl-compat.c	43
+textdomain	intl-compat.c	/^textdomain (const char *domainname)$/
+tfind	dcigettext.c	138
+tfind	dcigettext.c	164
+thread_in_use	lock.h	/^#  define thread_in_use() (thr_suspend != NULL)$/
+thread_in_use	lock.h	/^#  define thread_in_use() 1$/
+trans_sysdep_tab	gettextP.h	183
+trans_sysdep_tab_offset	gmo.h	102
+trans_tab	gettextP.h	176
+trans_tab_offset	gmo.h	85
+translation	dcigettext.c	260
+translation_length	dcigettext.c	261
+transmem_block_t	dcigettext.c	420
+transmem_block_t	dcigettext.c	423
+transmem_list	dcigettext.c	416
+transmem_list	dcigettext.c	421
+true	relocatable.c	71
+true	relocatable.c	74
+tsearch	dcigettext.c	163
+tsearch	dcigettext.c	171
+twalk	dcigettext.c	166
+type	printf-args.h	93
+unixy	localename.c	1165
+unixy	localename.c	1303
+unixy	localename.c	1333
+use_mmap	gettextP.h	163
+val	plural-exp.h	69
+value	localealias.c	131
+var	plural-exp.h	37
+vasnprintf	vasnprintf.h	/^extern char * vasnprintf (char *resultbuf, size_t /
+vasnprintf	printf.c	87
+vasnwprintf	printf.c	305
+vasprintf	libgnuintl.in.h	394
+vasprintf	libgnuintl.in.h	395
+verify	verify.h	/^#define verify(R) _GL_VERIFY (R, "verify (" #R ")"/
+verify_expr	verify.h	/^#define verify_expr(R, E) \\$/
+verify_true	verify.h	/^#define verify_true(R) _GL_VERIFY_TRUE (R, "verify/
+vfprintf	libgnuintl.in.h	332
+vfprintf	libgnuintl.in.h	333
+vfwprintf	libgnuintl.in.h	406
+vfwprintf	libgnuintl.in.h	407
+volatile	localcharset.c	115
+vprintf	libgnuintl.in.h	355
+vprintf	libgnuintl.in.h	356
+vsnprintf	libgnuintl.in.h	379
+vsnprintf	libgnuintl.in.h	380
+vsprintf	libgnuintl.in.h	366
+vsprintf	libgnuintl.in.h	367
+vswprintf	libgnuintl.in.h	420
+vswprintf	libgnuintl.in.h	421
+vwprintf	libgnuintl.in.h	413
+vwprintf	libgnuintl.in.h	414
+w	verify.h	182
+waiting_readers	lock.h	239
+waiting_readers	lock.h	683
+waiting_writers	lock.h	240
+waiting_writers	lock.h	684
+waiting_writers_count	lock.h	241
+wchar_t_directive	wprintf-parse.h	60
+wchar_t_directives	wprintf-parse.h	71
+weak_alias	tsearch.c	/^weak_alias (__tsearch, tsearch)$/
+weak_alias	tsearch.c	/^weak_alias (__tfind, tfind)$/
+weak_alias	tsearch.c	/^weak_alias (__tdelete, tdelete)$/
+weak_alias	tsearch.c	/^weak_alias (__twalk, twalk)$/
+width_arg_index	printf-parse.h	53
+width_arg_index	wprintf-parse.h	53
+width_end	printf-parse.h	52
+width_end	wprintf-parse.h	52
+width_start	printf-parse.h	51
+width_start	wprintf-parse.h	51
+wprintf	libgnuintl.in.h	410
+wprintf	libgnuintl.in.h	411
+xcast_size_t	xsize.h	/^#define xcast_size_t(N) \\$/
+xmalloc	relocatable.c	40
+xmax	xsize.h	/^xmax (size_t size1, size_t size2)$/
+xsum	xsize.h	/^xsum (size_t size1, size_t size2)$/
+xsum3	xsize.h	/^xsum3 (size_t size1, size_t size2, size_t size3)$/
+xsum4	xsize.h	/^xsum4 (size_t size1, size_t size2, size_t size3, s/
+xtimes	xsize.h	/^#define xtimes(N, ELSIZE) \\$/
+yyerror	plural.y	/^yyerror (struct parse_args *arg, const char *str)$/
+yylex	plural.y	/^yylex (YYSTYPE *lval, struct parse_args *arg)$/
