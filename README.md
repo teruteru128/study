@@ -8,4 +8,4 @@
 - libxmlrpc-core-c3-dev 1.33.14-8build1
 - uuid-dev 2.31.1-0.4ubuntu3.6
 - cuda-10-2 10.2.89-1
-- libupnp-dev
+- libupnp-dev 1:1.6.24-4
