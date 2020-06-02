@@ -189,9 +189,9 @@ int main(int argc, char *argv[])
     size_t nlz = 0;
     while (true)
     {
-        fprintf(stderr, "秘密鍵を初期化しています...\n");
+        fprintf(stderr, _("Initializing private key...\n"));
         nextBytes(privateKeys, KEY_CACHE_SIZE * PRIVATE_KEY_LENGTH);
-        fprintf(stderr, "秘密鍵を初期化しました。公開鍵を初期化します。\n");
+        fprintf(stderr, _("Initialized the private key. Initialize the public key.\n"));
         // 公開鍵の生成に非常に時間がかかるので注意。秒速9000鍵で30分程度
         for (i = 0; i < KEY_CACHE_SIZE; i++)
         {
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
             r = EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH, ctx);
             errchk(r, EC_POINT_point2oct);
         }
-        fprintf(stderr, "公開鍵の初期化が完了しました。\n");
+        fprintf(stderr, _("The public key initialization is complete.\n"));
         // iのキャッシュサイズは一つ
         // jのキャッシュサイズは4つ
         for (i = 0; i < KEY_CACHE_SIZE; i++)
