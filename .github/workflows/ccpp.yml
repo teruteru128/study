@@ -29,8 +29,8 @@ jobs:
         run: PATH=/usr/local/cuda-10.2/bin:${PATH} make -j
       - name: make check
         run: PATH=/usr/local/cuda-10.2/bin:${PATH} make check -j
-      - name: make install
-        run: PATH=/usr/local/cuda-10.2/bin:${PATH} make install -j
+      - name: sudo make install
+        run: PATH=/usr/local/cuda-10.2/bin:${PATH} sudo make install -j
       - name: eckeygentest bench
         run: LANG=ja_JP.UTF-8 eckeygentest
       - name: make distcheck
