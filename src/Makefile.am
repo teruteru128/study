@@ -103,6 +103,7 @@ bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
 bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
 bm_SOURCES = bitmessage.c base64.c base64.h bmapi.c bmapi.h xmlrpc.c xmlrpc.h bm.c bitmessage.h config.h
 bmkeygen_SOURCES=bmkeygen.c config.h
+bmkeygen_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 bouyomi_CFLAGS=
 bouyomi_LDFLAGS=
 bouyomi_SOURCES= print_addrinfo.c print_addrinfo.h charset-convert.c charset-convert.h bouyomi.c bouyomi.h config.h

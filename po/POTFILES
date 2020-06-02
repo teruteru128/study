@@ -1,3 +1,4 @@
+     ../src/bmkeygen.c \
      ../src/eckeygentest.c \
      ../src/FizzBuzz.c \
      ../src/gettextsample.c \

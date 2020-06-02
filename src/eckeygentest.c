@@ -6,9 +6,8 @@
 #include <openssl/ec.h>
 #include <openssl/objects.h>
 #include <libintl.h>
-#define _(str) gettext(str)
 #include <locale.h>
-#include <stdio.h>
+#define _(str) gettext(str)
 
 #define MAX (9000)
 int main(int argc, char **argv)

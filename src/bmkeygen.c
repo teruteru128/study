@@ -13,6 +13,9 @@
 #include <openssl/objects.h>
 #include <openssl/ripemd.h>
 #include <openssl/sha.h>
+#include <libintl.h>
+#include <locale.h>
+#define _(str) gettext(str)
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
@@ -143,6 +146,9 @@ int exportAddress(unsigned char *privateSigningKey, unsigned char *publicSigning
 */
 int main(int argc, char *argv[])
 {
+    setlocale(LC_ALL, "");
+    bindtextdomain(PACKAGE, LOCALEDIR);
+    textdomain(PACKAGE);
     OpenSSL_add_all_digests();
     unsigned char *privateKeys = calloc(KEY_CACHE_SIZE, PRIVATE_KEY_LENGTH);
     if (!privateKeys)
