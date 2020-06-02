@@ -7,6 +7,10 @@
 #include <time.h>
 #include <string.h>
 #include "printint.h"
+#include <libintl.h>
+#define _(str) gettext(str)
+#include <locale.h>
+#include <stdio.h>
 
 void showFizzBuzz()
 {
@@ -55,6 +59,9 @@ void showNabeatsu()
 #define MAX (100000000)
 int main(int argc, char *argv[])
 {
+  setlocale(LC_ALL, "");
+  bindtextdomain(PACKAGE, LOCALEDIR);
+  textdomain(PACKAGE);
   if (strstr(argv[0], "Nabeatsu"))
   {
     showNabeatsu();
@@ -81,8 +88,8 @@ int main(int argc, char *argv[])
     long nsec = end.tv_nsec - start.tv_nsec;
     double passed = (sec * 1e9) + nsec;
     double seconds = passed / 1e9;
-    fprintf(stderr, "%.8f秒かかりました\n", seconds);
-    fprintf(stderr, "1秒あたり %.1f回\n", MAX / seconds);
-    fprintf(stderr, "1回あたり %.12f秒\n", seconds / MAX);
+    fprintf(stderr, _("It took %.8f seconds.\n"), seconds);
+    fprintf(stderr, _("%.1f times per second\n"), MAX / seconds);
+    fprintf(stderr, _("%.12f seconds per time\n"), seconds / MAX);
   }
 }

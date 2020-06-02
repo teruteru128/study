@@ -15,11 +15,10 @@
 #endif
 
 /**
- * locale test
  * */
 int main(int argc, char **argv)
 {
-  //https://libsodium.gitbook.io/doc/usage
+  // https://libsodium.gitbook.io/doc/usage
 #if defined(__linux__) && defined(RNDGETENTCNT)
   int fd;
   int c;
@@ -35,6 +34,7 @@ int main(int argc, char **argv)
             stderr);
     }
     (void)close(fd);
+    printf("%d\n", c);
   }
 #endif
   if (sodium_init() < 0)

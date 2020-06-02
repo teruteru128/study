@@ -1,3 +1,5 @@
+     ../src/eckeygentest.c \
+     ../src/FizzBuzz.c \
      ../src/gettextsample.c \
      ../src/gettextsample2.c \
      ../src/gettextsample3.c \

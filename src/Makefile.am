@@ -22,6 +22,7 @@ bin_PROGRAMS+=dappun
 bin_PROGRAMS+=doublerandom
 bin_PROGRAMS+=dragon
 bin_PROGRAMS+=dragon
+bin_PROGRAMS+=eckeygentest
 bin_PROGRAMS+=encodersa
 bin_PROGRAMS+=envgettest
 bin_PROGRAMS+=epsp-parser-test
@@ -92,7 +93,9 @@ cudamalloctest: cudamalloctest.o
 019_SOURCES= 019.c config.h
 019_LDFLAGS=-lm
 CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h
+FizzBuzz_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 FizzBuzz_SOURCES=FizzBuzz.c printint.c printint.h config.h
+Nabeatsu_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 Nabeatsu_SOURCES=FizzBuzz.c printint.c printint.h config.h
 argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c config.h
@@ -113,6 +116,9 @@ cudamalloctest_SOURCES=cudamalloctest.cu config.h
 curltest_LDFLAGS=-lcurl
 curltest_SOURCES=curltest.c config.h
 dragon_SOURCES=dragon.c svgplot.c svgplot.h
+eckeygentest_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+eckeygentest_LDFLAGS=-lcrypto -lssl
+eckeygentest_SOURCES=eckeygentest.c config.h
 encodersa_LDFLAGS=-lcrypto -lssl
 epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h string_array.c string_array.h string_list.c string_list.h
 falcon_SOURCES=falcon.c random.c random.h internal_random.h

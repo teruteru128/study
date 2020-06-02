@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc4\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-06-01 11:17+0900\n"
+"POT-Creation-Date: 2020-06-03 01:38+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,21 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: src/eckeygentest.c:46 src/FizzBuzz.c:91
+#, c-format
+msgid "It took %.8f seconds.\n"
+msgstr ""
+
+#: src/eckeygentest.c:47 src/FizzBuzz.c:92
+#, c-format
+msgid "%.1f times per second\n"
+msgstr ""
+
+#: src/eckeygentest.c:48 src/FizzBuzz.c:93
+#, c-format
+msgid "%.12f seconds per time\n"
+msgstr ""
 
 #: src/gettextsample.c:14 src/gettextsample2.c:9 src/localetest1.c:12
 #, c-format
