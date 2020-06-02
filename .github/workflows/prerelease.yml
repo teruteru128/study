@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2.2.0
     - name: Install dependents
       run: |
         wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
@@ -38,7 +38,7 @@ jobs:
       run: PATH=/usr/local/cuda-10.2/bin:${PATH} make dist -j
     - name: Create a Release
       id: create_release
-      uses: actions/create-release@v1.0.1
+      uses: actions/create-release@v1.1.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
