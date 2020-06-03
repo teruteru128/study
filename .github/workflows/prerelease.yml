@@ -3,9 +3,9 @@ name: Pre Release
 on:
   push:
     tags:
-      - "**-rc*" 
-      - "**-beta*" 
-      - "**-alpha*" 
+      - "**-rc*"
+      - "**-beta*"
+      - "**-alpha*"
     branches-ignore:
       - "**"
 
