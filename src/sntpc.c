@@ -11,13 +11,16 @@
 #include <unistd.h> //close()
 #include <errno.h>
 #include <time.h>
+#include <libintl.h>
+#include <locale.h>
+#define _(str) gettext(str)
 #include "random.h"
 #include "print_addrinfo.h"
 
 #define SERVER_NAME "ntp.nict.jp"
 #define SERVER_PORT "ntp"
 
-/* NTPパケット */
+/* _("NTP packet") */
 struct NTP_Packet
 {
   int Control_Word;
@@ -36,6 +39,9 @@ https://www.nakka.com/lib/inet/sntpcex.html
 */
 int main(int argc, char *argv[])
 {
+  setlocale(LC_ALL, "");
+  bindtextdomain(PACKAGE, LOCALEDIR);
+  textdomain(PACKAGE);
   uint64_t seed[312];
   read_random(seed, sizeof(uint64_t), 312, 0);
   init_by_array64(seed, 312);
@@ -189,7 +195,7 @@ int main(int argc, char *argv[])
     perror("localtime");
     return EXIT_FAILURE;
   }
-  printf("ローカル時刻 : %s", ctime(&machine_time));
-  printf("NTPサーバ時刻 : %s", ctime(&ntp_time));
+  printf(_("Local time : %s"), ctime(&machine_time));
+  printf(_("NTP server time : %s"), ctime(&ntp_time));
   return EXIT_SUCCESS;
 }

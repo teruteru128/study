@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-06-03 08:45+0900\n"
+"POT-Creation-Date: 2020-06-03 09:11+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -33,6 +33,11 @@ msgstr "秘密鍵を初期化しました。公開鍵を初期化します。\n"
 msgid "The public key initialization is complete.\n"
 msgstr "公開鍵の初期化が完了しました。\n"
 
+#: src/bouyomi.c:139
+#, c-format
+msgid "Sent!\n"
+msgstr "送信しました！\n"
+
 #: src/eckeygentest.c:45 src/FizzBuzz.c:91
 #, c-format
 msgid "It took %.8f seconds.\n"
@@ -47,6 +52,16 @@ msgstr "1秒あたり %.1f回\n"
 #, c-format
 msgid "%.12f seconds per time\n"
 msgstr "1回あたり %.12f秒\n"
+
+#: src/encodersa.c:104
+#, c-format
+msgid "q is larger\n"
+msgstr "qのほうが大きい\n"
+
+#: src/encodersa.c:109
+#, c-format
+msgid "p is larger\n"
+msgstr "pのほうが大きい\n"
 
 #: src/gettextsample.c:14 src/gettextsample2.c:9 src/localetest1.c:12
 #, c-format
@@ -63,15 +78,25 @@ msgstr "%dマイクロ秒停止します。\n"
 msgid "%dmicro seconds stoped.\n"
 msgstr "%dマイクロ秒停止しました。\n"
 
-#: src/teamspeakcalc.c:51
+#: src/sntpc.c:198
 #, c-format
-msgid "verifier : %<PRIu64>\n"
-msgstr "検証子 : %<PRIu64>\n"
+msgid "Local time : %s"
+msgstr "ローカル時刻 : %s"
+
+#: src/sntpc.c:199
+#, c-format
+msgid "NTP server time : %s"
+msgstr "NTPサーバ時刻 : %s"
 
 #: src/study.c:12
 #, c-format
 msgid "Help me!\n"
 msgstr "助けて！\n"
+
+#: src/teamspeakcalc.c:51
+#, c-format
+msgid "verifier : %<PRIu64>\n"
+msgstr "検証子 : %<PRIu64>\n"
 
 #~ msgid "It's shit!\n"
 #~ msgstr "うんちー！\n"

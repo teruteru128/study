@@ -11,9 +11,15 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <libintl.h>
+#include <locale.h>
+#define _(str) gettext(str)
 
 int main(int argc, char *argv[])
 {
+  setlocale(LC_ALL, "");
+  bindtextdomain(PACKAGE, LOCALEDIR);
+  textdomain(PACKAGE);
   char *cwd = getcwd(NULL, 0);
   printf("cwd is %s\n", cwd);
   free(cwd);
@@ -95,12 +101,12 @@ int main(int argc, char *argv[])
   }
   if (BN_cmp(p, q) < 0)
   {
-    printf("qのほうが大きい\n");
+    printf(_("q is larger\n"));
     BN_swap(p, q);
   }
   else
   {
-    printf("pのほうが大きい\n");
+    printf(_("p is larger\n"));
   }
   BN_mul(n, p, q, ctx);
   // 計算

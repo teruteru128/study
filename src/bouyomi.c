@@ -44,6 +44,10 @@
 #include <unistd.h> //close()
 #endif
 
+#include <libintl.h>
+#include <locale.h>
+#define _(str) gettext(str)
+
 #define MSGSIZE 1024
 #define BUFSIZE (MSGSIZE + 1)
 #define DEFAULT_PORT 50001
@@ -132,7 +136,7 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
   ssize_t w = 0;
   // 送信
   w = write(sock, data, len);
-  fprintf(stderr, "送信しました！\n");
+  fprintf(stderr, _("Sent!\n"));
   // ソケットを閉じる
   rc = close(sock);
   if (rc != 0)
@@ -158,11 +162,14 @@ int main(int argc, char *argv[])
   int rc = 0;
   int ignore_errors = 0;
 
+  //setlocale(LC_ALL, "");
   if (setlocale(LC_ALL, "ja_JP.UTF-8") == NULL)
   {
     perror("setlocale");
     return EXIT_FAILURE;
   }
+  bindtextdomain(PACKAGE, LOCALEDIR);
+  textdomain(PACKAGE);
   /*
 https://github.com/torproject/tor/blob/03867b3dd71f765e5adb620095692cb41798c273/src/app/config/config.c#L2537
 parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_errors)

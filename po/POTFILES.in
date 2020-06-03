@@ -1,10 +1,13 @@
 # List of source files which contain translatable strings.
 src/bmkeygen.c
+src/bouyomi.c
 src/eckeygentest.c
+src/encodersa.c
 src/FizzBuzz.c
 src/gettextsample.c
 src/gettextsample2.c
 src/gettextsample3.c
 src/localetest1.c
-src/teamspeakcalc.c
+src/sntpc.c
 src/study.c
+src/teamspeakcalc.c
