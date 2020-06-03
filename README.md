@@ -1,5 +1,7 @@
 # study ![C/C++ CI](https://github.com/teruteru128/study/workflows/C/C++%20CI/badge.svg)
 
+A garbage dump repository created for studying Teruteru.
+
 ## Dependencies
 
 - libcurl4-gnutls-dev 7.58.0-2ubuntu3.8
