@@ -4,10 +4,9 @@ on:
   push:
     tags:
       - "**"
-    tags-ignore:
-      - "**-rc*"
-      - "**-beta*"
-      - "**-alpha*"
+      - "!**-rc*"
+      - "!**-beta*"
+      - "!**-alpha*"
     branches-ignore:
       - "**"
 
