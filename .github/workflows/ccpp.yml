@@ -21,6 +21,8 @@ jobs:
           sudo add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
           sudo apt-get update
           sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev cuda-10-2 libupnp-dev
+      - name: sudo shutdown -r now
+        run: sudo shutdown -r now
       - name: autogen.sh
         run: ./autogen.sh
       - name: configure
@@ -29,10 +31,6 @@ jobs:
         run: PATH=/usr/local/cuda-10.2/bin:${PATH} make -j
       - name: make check
         run: PATH=/usr/local/cuda-10.2/bin:${PATH} make check -j
-      - name: sudo make install
-        run: PATH=/usr/local/cuda-10.2/bin:${PATH} sudo make install -j
-      - name: eckeygentest bench
-        run: LANG=ja_JP.UTF-8 eckeygentest
       - name: make distcheck
         run: PATH=/usr/local/cuda-10.2/bin:${PATH} make distcheck -j
       - name: make dist
