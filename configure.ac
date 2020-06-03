@@ -3,7 +3,7 @@
 # https://www.glamenv-septzen.net/view/488
 
 AC_PREREQ([2.69])
-AC_INIT([STUDY], [1.0.0-rc4], [teruterubouzu1024@gmail.com])
+AC_INIT([STUDY], [1.0.0-rc5], [teruterubouzu1024@gmail.com])
 AC_CONFIG_SRCDIR([src/study.c])
 AC_CONFIG_HEADERS([src/config.h])
 AM_INIT_AUTOMAKE([foreign])
@@ -76,5 +76,8 @@ AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify getcwd gettimeofday lo
 AC_CONFIG_FILES([Makefile
                  intl/Makefile
                  po/Makefile.in
+                 .github/workflows/ccpp.yml
+                 .github/workflows/prerelease.yml
+                 .github/workflows/release.yml
                  src/Makefile])
 AC_OUTPUT
