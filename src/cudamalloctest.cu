@@ -43,27 +43,27 @@ int main(void)
   initialize_array(arr2, n_byte);
   initialize_array(arr3, n_byte);
 
-  printf("start cudaMalloc\n");
+  fputs("start cudaMalloc\n", stderr);
   cudaMalloc((void**)&d_arr1, n_byte);
-  printf("d_arr1\n");
+  fputs("d_arr1\n", stderr);
   cudaMalloc((void**)&d_arr2, n_byte);
-  printf("d_arr2\n");
+  fputs("d_arr2\n", stderr);
   cudaMalloc((void**)&d_arr3, n_byte);
-  printf("finish cudaMalloc\n");
+  fputs("finish cudaMalloc\n", stderr);
 
-  printf("start cudaMemcpy\n");
+  fputs("start cudaMemcpy\n", stderr);
   cudaMemcpy(d_arr1, arr1, n_byte, cudaMemcpyHostToDevice);
   cudaMemcpy(d_arr2, arr2, n_byte, cudaMemcpyHostToDevice);
   cudaMemcpy(d_arr3, arr3, n_byte, cudaMemcpyHostToDevice);
-  printf("finish cudaMemcpy\n");
+  fputs("finish cudaMemcpy\n", stderr);
 
-  printf("start kernel function\n");
+  fputs("start kernel function\n", stderr);
   sum_of_array<<<(N+255)/256, 256>>>(d_arr1, d_arr2, d_arr3, n_byte);
-  printf("finish kernel function\n");
+  fputs("finish kernel function\n", stderr);
   cudaMemcpy(arr3, d_arr3, n_byte, cudaMemcpyDeviceToHost);
   size_t i = 0;
   for(; i < 100; i++){
-    printf("%f\n", arr3[i]);
+    fprintf(stderr, "%f\n", arr3[i]);
   }
   return EXIT_SUCCESS;
 }

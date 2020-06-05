@@ -79,10 +79,10 @@ NVCC=nvcc
 	$(NVCC) $(CFLAGS) -ccbin $(CC) -c $^ -o $@
 
 cudahello: cudahello.o
-	$(NVCC) -ccbin $(CC) $^ -o $@
+	$(NVCC) $(LDFLAGS) -ccbin $(CC) $^ -o $@
 
 cudamalloctest: cudamalloctest.o
-	$(NVCC) -ccbin $(CC) $^ -o $@
+	$(NVCC) $(LDFLAGS) -ccbin $(CC) $^ -o $@
 
 014_SOURCES= 014.c
 015_LDFLAGS= -lcrypto
