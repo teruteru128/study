@@ -92,7 +92,7 @@ cudamalloctest: cudamalloctest.o
 017_SOURCES= 017.c printint.c printint.h config.h
 019_SOURCES= 019.c config.h
 019_LDFLAGS=-lm
-CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h
+CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h config.h
 FizzBuzz_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 FizzBuzz_SOURCES=FizzBuzz.c printint.c printint.h config.h
 Nabeatsu_CFLAGS=-DLOCALEDIR='"$(localedir)"'

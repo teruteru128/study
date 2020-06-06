@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-06-03 10:07+0900\n"
+"POT-Creation-Date: 2020-06-06 13:19+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -33,10 +33,15 @@ msgstr "秘密鍵を初期化しました。公開鍵を初期化します。\n"
 msgid "The public key initialization is complete.\n"
 msgstr "公開鍵の初期化が完了しました。\n"
 
-#: src/bouyomi.c:139
+#: src/bouyomi.c:142
 #, c-format
 msgid "Sent!\n"
 msgstr "送信しました！\n"
+
+#: src/cudahello.cu:13
+#, c-format
+msgid "Hello World!\n"
+msgstr "こんにちは世界！\n"
 
 #: src/eckeygentest.c:45 src/FizzBuzz.c:91
 #, c-format
