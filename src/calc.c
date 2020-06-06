@@ -53,7 +53,6 @@ int main(int argc, char **argv)
         mpz_set_str(num[i], f, 10);
         i++;
       }
-      mpz_inp_str(num[i], fp, 10);
     }
     fclose(fp);
     free(buf);
