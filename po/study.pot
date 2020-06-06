@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc5\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-06-03 10:07+0900\n"
+"POT-Creation-Date: 2020-06-06 13:19+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,9 +32,14 @@ msgstr ""
 msgid "The public key initialization is complete.\n"
 msgstr ""
 
-#: src/bouyomi.c:139
+#: src/bouyomi.c:142
 #, c-format
 msgid "Sent!\n"
+msgstr ""
+
+#: src/cudahello.cu:13
+#, c-format
+msgid "Hello World!\n"
 msgstr ""
 
 #: src/eckeygentest.c:45 src/FizzBuzz.c:91
