@@ -1,6 +1,7 @@
 # List of source files which contain translatable strings.
 src/bmkeygen.c
 src/bouyomi.c
+src/cudahello.cu
 src/eckeygentest.c
 src/encodersa.c
 src/FizzBuzz.c

@@ -69,6 +69,7 @@ typedef struct bouyomi_header_t
   char empty; // alignment
   int32_t length;
 } bouyomi_header;
+
 typedef struct bouyomi_conf_t
 {
   short command;
@@ -80,6 +81,7 @@ typedef struct bouyomi_conf_t
   size_t length;
   char *msg;
 } bouyomi_conf;
+
 typedef struct config_line_t
 {
   char *key;
@@ -94,6 +96,7 @@ typedef enum charset_t
   SHIFT_JIS = 2
 } charset;
 
+/**/
 int send_to_server(char *hostname, char *servicename, char *data, size_t len)
 {
   struct addrinfo hints, *res = NULL;
@@ -162,18 +165,20 @@ int main(int argc, char *argv[])
   int rc = 0;
   int ignore_errors = 0;
 
-  //setlocale(LC_ALL, "");
+  setlocale(LC_ALL, "");
+  /*
   if (setlocale(LC_ALL, "ja_JP.UTF-8") == NULL)
   {
     perror("setlocale");
     return EXIT_FAILURE;
   }
+  */
   bindtextdomain(PACKAGE, LOCALEDIR);
   textdomain(PACKAGE);
   /*
-https://github.com/torproject/tor/blob/03867b3dd71f765e5adb620095692cb41798c273/src/app/config/config.c#L2537
-parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_errors)
-*/
+   * https://github.com/torproject/tor/blob/03867b3dd71f765e5adb620095692cb41798c273/src/app/config/config.c#L2537
+   * parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_errors)
+   */
   /*
      {
      char *s, *arg;
@@ -236,22 +241,31 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
   }
   charset charset = UTF_8;
   char *out = NULL;
+  char encode = 0;
 
-  if (charset == UTF_8)
+  switch (charset)
   {
+  case UTF_8:
     //  エンコード用変数にそのまま代入
     // freeするために複製を入れる
     out = strdup(in);
-  }
-  else if (charset == UNICODE)
-  {
+    encode = 0;
+    break;
+  case UNICODE:
     //  文字コードを変換してから代入
     encode_utf8_2_unicode(&out, in);
-  }
-  else if (charset == SHIFT_JIS)
-  {
+    encode = 1;
+    break;
+  case SHIFT_JIS:
     //  文字コードを変換してから代入
     encode_utf8_2_sjis(&out, in);
+    encode = 2;
+    break;
+  default:
+    //  エンコード用変数にそのまま代入
+    // freeするために複製を入れる
+    out = strdup(in);
+    break;
   }
 
   if (out == NULL)
@@ -268,19 +282,6 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
   short tone = -1;
   short volume = 200;
   short voice = 0;
-  char encode;
-  if (charset == UTF_8)
-  {
-    encode = 0;
-  }
-  else if (charset == UNICODE)
-  {
-    encode = 1;
-  }
-  else if (charset == SHIFT_JIS)
-  {
-    encode = 2;
-  }
   size_t length = strlen(out);
   fprintf(stderr, "length : %ld\n", length);
 
@@ -303,7 +304,7 @@ parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_err
 
   char *servAddr = ONION_SERV_ADDRESS;
   char *servPortStr = DEFAULT_PORT_STR;
-  int use_onion = 1;
+  int use_onion = 0;
   if (use_onion == 1)
   {
     servAddr = ONION_SERV_ADDRESS;

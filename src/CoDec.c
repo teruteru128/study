@@ -15,13 +15,14 @@
 int encode(char **out, const char *in)
 {
   size_t len = strlen(in);
-  char *work = malloc(len * 8 + 1);
+  size_t outlen = (len << 3) + 1;
+  char *work = malloc(outlen);
   if (work == NULL)
   {
     perror("malloc");
-    return -1;
+    return 1;
   }
-  memset(work, 0, len * 8 + 1);
+  memset(work, 0, outlen);
   size_t i = 0, j = 0;
   for (i = 0; i < len; i++)
   {
@@ -35,15 +36,36 @@ int encode(char **out, const char *in)
   return 0;
 }
 
+int decode(char **out, char *in)
+{
+  size_t len = strlen(in);
+  size_t outlen = ((len + 7) >> 3) + 1;
+  char *work = malloc(outlen);
+  if (work == NULL)
+  {
+    perror("malloc");
+    return 1;
+  }
+  memset(work, 0, outlen);
+  size_t i = 0, j = 0;
+  for (i = 0; i < len; i++)
+  {
+    work[i / 8] |= (in[i] & 0x01) << (i % 8);
+  }
+  work[outlen] = 0;
+  *out = work;
+  return 0;
+}
+
 int main(int argc, char *argv[])
 {
-  char *out = NULL;
   if (argc < 2)
   {
     fputs("", stdout);
     return EXIT_SUCCESS;
   }
   char *in = argv[1];
+  char *out = NULL;
   if (encode_utf8_2_sjis(&out, in) != 0)
   {
     return EXIT_FAILURE;
@@ -51,6 +73,10 @@ int main(int argc, char *argv[])
   char *catch = NULL;
   int err = encode(&catch, out);
   fputs(catch, stdout);
+  fputc('\n', stdout);
+  free(out);
+  err = decode(&out, catch);
+  fputs(out, stdout);
   fputc('\n', stdout);
   free(out);
   free(catch);
