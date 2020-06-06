@@ -37,5 +37,5 @@ jobs:
       - name: Save artifact
         uses: actions/upload-artifact@v2.0.1
         with:
-          name: study-1.0.0-rc5.tar.gz
-          path: study-1.0.0-rc5.tar.gz
+          name: study-1.0.0-rc6.tar.gz
+          path: study-1.0.0-rc6.tar.gz
