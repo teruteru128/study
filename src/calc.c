@@ -17,7 +17,6 @@ int main(int argc, char **argv)
     fprintf(stderr, "usage:%s [path]\n", argv[0]);
     return EXIT_FAILURE;
   }
-  #if 1
   char *fname = argv[1];
 
   size_t i;
@@ -127,6 +126,5 @@ int main(int argc, char **argv)
   fputs("\n", stdout);
 
   mpz_clears(n, e, d, p, q, exponent1, exponent2, coefficient, NULL);
-#endif
   return EXIT_SUCCESS;
 }
