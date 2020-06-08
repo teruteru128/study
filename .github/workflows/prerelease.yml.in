@@ -35,8 +35,6 @@ jobs:
       run: PATH=/usr/local/cuda-10.2/bin:${PATH} make check -j
     - name: make distcheck
       run: PATH=/usr/local/cuda-10.2/bin:${PATH} make distcheck -j
-    - name: make dist
-      run: PATH=/usr/local/cuda-10.2/bin:${PATH} make dist -j
     - name: Create a Release
       id: create_release
       uses: actions/create-release@v1.1.0
