@@ -88,12 +88,35 @@ int main(int argc, char **argv)
   }
   int i = 0;
   char ctxstr[65];
-  printf("client_tx : ");
+  printf("client_pk : ");
+  for (i = 0; i < crypto_kx_PUBLICKEYBYTES; i++)
+  {
+    printf("%02x", client_pk[i]);
+  }
+  printf("\n");
+  printf("client_sk : ");
+  for (i = 0; i < crypto_kx_SECRETKEYBYTES; i++)
+  {
+    printf("%02x", client_sk[i]);
+  }
+  printf("\n");
+  printf("server_pk : ");
+  for (i = 0; i < crypto_kx_PUBLICKEYBYTES; i++)
+  {
+    printf("%02x", server_pk[i]);
+  }
+  printf("\n");
+  printf("server_sk : ");
+  for (i = 0; i < crypto_kx_SECRETKEYBYTES; i++)
+  {
+    printf("%02x", server_sk[i]);
+  }
+  printf("\n");
   for (i = 0; i < crypto_kx_SESSIONKEYBYTES; i++)
   {
     snprintf(&ctxstr[i * 2], 3, "%02x", client_tx[i]);
   }
-  printf("%s\n", ctxstr);
+  printf("client_tx : %s\n", ctxstr);
   printf("server_rx : ");
   for (i = 0; i < crypto_kx_SESSIONKEYBYTES; i++)
   {
