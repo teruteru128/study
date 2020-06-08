@@ -28,8 +28,6 @@ jobs:
         run: ./configure
       - name: make
         run: PATH=/usr/local/cuda-10.2/bin:${PATH} make -j
-      - name: dragon
-        run: ./src/dragon
       - name: make check
         run: PATH=/usr/local/cuda-10.2/bin:${PATH} make check -j
       - name: make distcheck
