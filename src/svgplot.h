@@ -1,5 +1,5 @@
 
-void plot_start(double, double);
+void plot_start(long, long);
 void plot_end(int);
 void move(double, double);
 void move_rel(double, double);

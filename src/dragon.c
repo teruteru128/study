@@ -22,10 +22,10 @@ void dragon(int i, double dx, double dy, int sign)
 
 int main(int argc, char *argv[])
 {
-  int order = 32;
+  int order = 64;
   plot_start(40000, 25000);
   move(100, 100);
-  dragon(order, 65536, 0, 1);
+  dragon(order, 1L << 32, 0, 1);
   plot_end(0);
   return EXIT_SUCCESS;
 }

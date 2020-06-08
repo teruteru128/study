@@ -3,7 +3,7 @@
 #include <stdlib.h>
 static double ymax = 0;
 
-void plot_start(double x, double y)
+void plot_start(long x, long y)
 {
   printf("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
   printf("<svg xmlns=\"http://www.w3.org/2000/svg\" ");
@@ -37,5 +37,5 @@ void draw(double x, double y)
 
 void draw_rel(double dx, double dy)
 {
-  printf("l %lf %lf \n", dx, -dy);
+  printf("l %lf %lf\n", dx, -dy);
 }
