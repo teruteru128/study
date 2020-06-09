@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <err.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define URANDOM_PATH "/dev/urandom"
@@ -26,26 +27,22 @@ static void hex_dump(const void *pt, const size_t len)
   }
 }
 
-int main(int argc, char **argv)
+int orz(int num)
 {
-  char buf[BUF_SIZE];
-  uint32_t n[BUF_SIZE / sizeof(uint32_t)];
-  int len = 4;
-  // /dev/urandom から8192バイトも読み込むことないよね？
-  if (read_file(URANDOM_PATH, buf, sizeof(char), BUF_SIZE) != 0)
+  int count = num > 0 ? num : 334;
+  uint32_t seed;
+  if (read_file(URANDOM_PATH, &seed, sizeof(uint32_t), 1) != 0)
   {
     warnx("failed");
-    return -1;
+    return EXIT_FAILURE;
   }
-  //hex_dump(buf, sizeof(buf));
-  // byte配列を整数に変換する
-  memcpy(n, (char *)buf, BUF_SIZE);
-  //hex_dump(n, sizeof(n));
-  size_t max = BUF_SIZE / sizeof(uint32_t), i = 0;
+  size_t i = 0;
 
-  uint32_t seed = n[0];
   char *messages[] = {
     "orz",
+    "申し訳ございませんでした",
+    "ごめんなさい",
+    "すみませんでした",
     NULL};
   size_t messages_size = 0;
   char **tmp = messages;
@@ -53,10 +50,10 @@ int main(int argc, char **argv)
   {
     messages_size++;
   }
-  for (i = 0; i < 334; i++)
+  for (i = 0; i < count; i++)
   {
     printf("%s\n", messages[(seed = xorshift(seed)) % messages_size]);
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }

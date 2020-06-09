@@ -42,7 +42,6 @@ bin_PROGRAMS+=log-sample
 bin_PROGRAMS+=loop-bench
 bin_PROGRAMS+=maxmovingsum
 bin_PROGRAMS+=mysqlfast
-bin_PROGRAMS+=orz
 bin_PROGRAMS+=portscanner
 bin_PROGRAMS+=prime
 bin_PROGRAMS+=prime2
@@ -141,7 +140,7 @@ localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
 localetest1_SOURCES = localetest1.c localetest1.h
 maxmovingsum_LDFLAGS=-lm
 maxmovingsum_SOURCES=maxmovingsum.c config.h
-orz_SOURCES= orz.c random.c random.h internal_random.h config.h
+orz_SOURCES= orz.c orz.h random.c random.h internal_random.h config.h
 portscanner_SOURCES=portscanner.c config.h
 prime2_SOURCES=prime2.c config.h
 prime3_SOURCES=prime3.c config.h
@@ -163,7 +162,7 @@ sntpc_SOURCES=sntpc.c random.c random.h internal_random.h print_addrinfo.c print
 string_list_test_SOURCES=string_list.c string_list_test.c
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 study_LDFLAGS= -lcrypto
-study_SOURCES=study.c gettextsample.c gettextsample.h printint.c printint.h random.c random.h internal_random.h bitset.c bitset.h study-config.h config.h gettextsample.h
+study_SOURCES=study.c gettextsample.c gettextsample.h printint.c printint.h random.c random.h internal_random.h bitset.c bitset.h study-config.h config.h gettextsample.h orz.c orz.h
 sum_LDFLAGS=-lm
 sum_SOURCES= sum.c random.c random.h internal_random.h config.h
 teamspeakIdUpgrader_CFLAGS=
