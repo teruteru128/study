@@ -96,6 +96,7 @@ FizzBuzz_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 FizzBuzz_SOURCES=FizzBuzz.c printint.c printint.h config.h
 Nabeatsu_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 Nabeatsu_SOURCES=FizzBuzz.c printint.c printint.h study-config.h config.h
+ankokudan_decode_SOURCES=ankokudan_decode.c
 argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c config.h
 bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`

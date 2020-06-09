@@ -10,13 +10,14 @@
 #include <uuid/uuid.h>
 #include "bitmessage.h"
 #include "base64.h"
+#include "bm.h"
 #include "bmapi.h"
 #define localhost_ip "127.0.0.1"
 #define bitmessage_port 8442
 #define NAME "TR BM TEST CLIENT"
 #define SERVER_URL "http://127.0.0.1:8442/"
 
-void die_if_fault_occurred(xmlrpc_env *env)
+static void die_if_fault_occurred(xmlrpc_env *env)
 {
   /* Check our error-handling environment for an XML-RPC fault. */
   if (env->fault_occurred)
@@ -26,17 +27,7 @@ void die_if_fault_occurred(xmlrpc_env *env)
     exit(1);
   }
 }
-typedef struct clientinfo_t
-{
-} clientinfo;
-typedef struct serverinfo_t
-{
-} serverinfo;
-typedef struct connectioninfo_t
-{
-  clientinfo client;
-  serverinfo server;
-} connectioninfo;
+
 /**
  * int main(int argc, char* argv[]){
  *   // グローバル定数初期化
@@ -54,6 +45,7 @@ typedef struct connectioninfo_t
 char buf[BUFSIZ];
 int main(int const argc, const char **const argv)
 {
+  char buf[BUFSIZ];
   char *sendmsg = "";
   char chan_name[64];
   char *msg = NULL;
