@@ -1,12 +1,12 @@
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#include <stdio.h>
 #include "bmapi.h"
 #include "xmlrpc.h"
 #include "base64.h"
 #include <stdlib.h>
-#include <stdio.h>
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 
 static int initflag;
 static xmlrpc_env env;

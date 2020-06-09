@@ -1,5 +1,5 @@
 
-#include "config.h"
+#include "study-config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -7,10 +7,6 @@
 #include <time.h>
 #include <string.h>
 #include "printint.h"
-#include <libintl.h>
-#define _(str) gettext(str)
-#include <locale.h>
-#include <stdio.h>
 
 void showFizzBuzz()
 {

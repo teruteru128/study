@@ -1,5 +1,5 @@
 
-#include "config.h"
+#include "study-config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,9 +11,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <libintl.h>
-#include <locale.h>
-#define _(str) gettext(str)
 
 int main(int argc, char *argv[])
 {

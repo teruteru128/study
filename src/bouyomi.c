@@ -3,9 +3,7 @@
     前回: https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
 */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "study-config.h"
 #include "bouyomi.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,10 +41,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h> //close()
 #endif
-
-#include <libintl.h>
-#include <locale.h>
-#define _(str) gettext(str)
 
 #define MSGSIZE 1024
 #define BUFSIZE (MSGSIZE + 1)

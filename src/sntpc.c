@@ -1,5 +1,5 @@
 
-#include "config.h"
+#include "study-config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
@@ -11,9 +11,6 @@
 #include <unistd.h> //close()
 #include <errno.h>
 #include <time.h>
-#include <libintl.h>
-#include <locale.h>
-#define _(str) gettext(str)
 #include "random.h"
 #include "print_addrinfo.h"
 

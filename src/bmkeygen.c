@@ -1,5 +1,5 @@
 
-#include "config.h"
+#include "study-config.h"
 #include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -13,9 +13,6 @@
 #include <openssl/objects.h>
 #include <openssl/ripemd.h>
 #include <openssl/sha.h>
-#include <libintl.h>
-#include <locale.h>
-#define _(str) gettext(str)
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65

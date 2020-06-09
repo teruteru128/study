@@ -1,10 +1,13 @@
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <netdb.h>
 
 #include <stdio.h>
+#include "print_addrinfo.h"
 
 /**
  * アドレスとポート番号を表示する。

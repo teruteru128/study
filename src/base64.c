@@ -1,5 +1,7 @@
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 #include "base64.h"
 #include <stdio.h>
 static const char BASE64_TABLE[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";

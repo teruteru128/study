@@ -76,13 +76,13 @@ bin_PROGRAMS+=yattaze
 NVCC=nvcc
 
 .cu.o:
-	$(NVCC) $(CFLAGS) -ccbin $(CC) -c $^ -o $@
+	$(NVCC) $(CFLAGS) -ccbin $(CC) -c $< -o $@
 
 cudahello: cudahello.o
-	$(NVCC) $(LDFLAGS) -ccbin $(CC) $^ -o $@
+	$(NVCC) $(LDFLAGS) -ccbin $(CC) $< -o $@
 
 cudamalloctest: cudamalloctest.o
-	$(NVCC) $(LDFLAGS) -ccbin $(CC) $^ -o $@
+	$(NVCC) $(LDFLAGS) -ccbin $(CC) $< -o $@
 
 014_SOURCES= 014.c
 015_LDFLAGS= -lcrypto
@@ -96,17 +96,17 @@ CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h config.h
 FizzBuzz_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 FizzBuzz_SOURCES=FizzBuzz.c printint.c printint.h config.h
 Nabeatsu_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-Nabeatsu_SOURCES=FizzBuzz.c printint.c printint.h config.h
+Nabeatsu_SOURCES=FizzBuzz.c printint.c printint.h study-config.h config.h
 argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c config.h
 bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
 bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
 bm_SOURCES = bitmessage.c base64.c base64.h bmapi.c bmapi.h xmlrpc.c xmlrpc.h bm.c bitmessage.h config.h
-bmkeygen_SOURCES=bmkeygen.c config.h
+bmkeygen_SOURCES=bmkeygen.c study-config.h config.h
 bmkeygen_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 bouyomi_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 bouyomi_LDFLAGS=
-bouyomi_SOURCES= print_addrinfo.c print_addrinfo.h charset-convert.c charset-convert.h bouyomi.c bouyomi.h config.h
+bouyomi_SOURCES= print_addrinfo.c print_addrinfo.h charset-convert.c charset-convert.h bouyomi.c bouyomi.h study-config.h config.h
 calc_SOURCES=calc.c config.h
 cl_SOURCES=cl.c config.h print_addrinfo.c print_addrinfo.h config.h
 cudahello_CC=$(NVCC)
@@ -119,9 +119,10 @@ curltest_SOURCES=curltest.c config.h
 dragon_SOURCES=dragon.c svgplot.c svgplot.h
 eckeygentest_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 eckeygentest_LDFLAGS=-lcrypto -lssl
-eckeygentest_SOURCES=eckeygentest.c config.h
+eckeygentest_SOURCES=eckeygentest.c study-config.h config.h
 encodersa_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 encodersa_LDFLAGS=-lcrypto -lssl
+encodersa_SOURCES=encodersa.c study-config.h config.h
 epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h string_array.c string_array.h string_list.c string_list.h
 falcon_SOURCES=falcon.c random.c random.h internal_random.h
 firstThread2_LDFLAGS=-lpthread
@@ -158,7 +159,7 @@ seq_LDFLAGS=-lm
 seq_SOURCES=seq.c config.h
 service_sample_SOURCES= service-sample.c server.c server.h
 sntpc_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-sntpc_SOURCES=sntpc.c random.c random.h internal_random.h print_addrinfo.c print_addrinfo.h config.h
+sntpc_SOURCES=sntpc.c random.c random.h internal_random.h print_addrinfo.c print_addrinfo.h study-config.h config.h
 string_list_test_SOURCES=string_list.c string_list_test.c
 study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 study_LDFLAGS= -lcrypto

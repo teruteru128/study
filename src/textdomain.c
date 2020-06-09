@@ -1,7 +1,7 @@
 
 #include "textdomain_inner.h"
 #include "mytextdomain.h"
-#include <libintl.h>
+#include "study-config.h"
 
 void inittextdomain(void)
 {

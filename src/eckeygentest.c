@@ -5,9 +5,7 @@
 #include <stdlib.h>
 #include <openssl/ec.h>
 #include <openssl/objects.h>
-#include <libintl.h>
-#include <locale.h>
-#define _(str) gettext(str)
+#include "study-config.h"
 
 #define MAX (9000)
 int main(int argc, char **argv)

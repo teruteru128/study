@@ -3,7 +3,9 @@
  * http://www.koutou-software.net/misc/howto-independ-addfamilysock.php
  */
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/select.h>
