@@ -17,7 +17,7 @@
 #define NAME "TR BM TEST CLIENT"
 #define SERVER_URL "http://127.0.0.1:8442/"
 
-static void die_if_fault_occurred(xmlrpc_env *env)
+void die_if_fault_occurred(xmlrpc_env *env)
 {
   /* Check our error-handling environment for an XML-RPC fault. */
   if (env->fault_occurred)
@@ -42,7 +42,6 @@ static void die_if_fault_occurred(xmlrpc_env *env)
  *   global_cleanup();
  * }
  * */
-char buf[BUFSIZ];
 int main(int const argc, const char **const argv)
 {
   char buf[BUFSIZ];
@@ -51,7 +50,7 @@ int main(int const argc, const char **const argv)
   char *msg = NULL;
   char *generaladdress = "BM-2cW67GEKkHGonXKZLCzouLLxnLym3azS8r";
   uuid_t uuid;
-  api_init();
+  bmapi_init();
   if (argc < 2)
   {
     return EXIT_FAILURE;
@@ -69,16 +68,16 @@ int main(int const argc, const char **const argv)
   do
   {
     tmp = fgets(chan_name, 64, infile);
-    api_simpleSendMessage(generaladdress, chan_name, "HAPPY NEW YEAR!", message);
+    bmapi_simpleSendMessage(generaladdress, chan_name, "HAPPY NEW YEAR!", message);
   } while (tmp != NULL);
 
   uuid_generate_random(uuid);
   uuid_unparse(uuid, buf);
   buf[strlen(buf)] = '\n';
 
-  char *uuid_address = api_createChan(buf);
+  char *uuid_address = bmapi_createChan(buf);
   printf("%s, %s\n", buf, uuid_address);
-  msg = api_simpleSendMessage(uuid_address, uuid_address, buf, buf);
+  msg = bmapi_simpleSendMessage(uuid_address, uuid_address, buf, buf);
   printf("%s\n", msg);
   free(msg);
 

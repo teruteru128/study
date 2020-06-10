@@ -95,13 +95,13 @@ CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h config.h
 FizzBuzz_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 FizzBuzz_SOURCES=FizzBuzz.c printint.c printint.h config.h
 Nabeatsu_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-Nabeatsu_SOURCES=FizzBuzz.c printint.c printint.h study-config.h config.h
+Nabeatsu_SOURCES=Nabeatsu.c printint.c printint.h study-config.h config.h
 ankokudan_decode_SOURCES=ankokudan_decode.c
 argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c config.h
 bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
 bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
-bm_SOURCES = bitmessage.c base64.c base64.h bmapi.c bmapi.h xmlrpc.c xmlrpc.h bm.c bitmessage.h config.h
+bm_SOURCES = bitmessage.c base64.c base64.h bmapi.c bmapi.h xmlrpc.c xmlrpc.h bm.c bm.h bitmessage.h config.h
 bmkeygen_SOURCES=bmkeygen.c study-config.h config.h
 bmkeygen_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 bouyomi_CFLAGS=-DLOCALEDIR='"$(localedir)"'
