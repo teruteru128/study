@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "gettextsample.h"
+#include "printint.h"
+#include "random.h"
+#include "bitset.h"
 #include "orz.h"
 
 /**
