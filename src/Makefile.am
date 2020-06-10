@@ -95,7 +95,7 @@ CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h config.h
 FizzBuzz_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 FizzBuzz_SOURCES=FizzBuzz.c printint.c printint.h config.h
 Nabeatsu_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-Nabeatsu_SOURCES=FizzBuzz.c printint.c printint.h study-config.h config.h
+Nabeatsu_SOURCES=Nabeatsu.c printint.c printint.h study-config.h config.h
 ankokudan_decode_SOURCES=ankokudan_decode.c
 argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c config.h

@@ -8,41 +8,37 @@
 #include <string.h>
 #include "printint.h"
 
-void showFizzBuzz()
+void showNabeatsu()
 {
   int n;
-  int tmp;
+  char txt[64];
   for (n = 1; n <= 40; n++)
   {
-    if (n % 3 == 0 && n % 5 == 0)
+    memset(txt, 0, 64);
+    itoa(n, txt, 10);
+    if (n % 3 == 0 || strchr(txt, '3'))
     {
-      printf("Fizz Buzz\n");
-    }
-    else if (n % 3 == 0)
-    {
-      printf("Fizz\n");
-    }
-    else if (n % 5 == 0)
-    {
-      printf("Buzz\n");
+      fputs("アホ\n", stdout);
     }
     else
     {
-      printf("%d\n", n);
+      fputs(txt, stdout);
+      fputs("\n", stdout);
     }
   }
 }
-
 #define MAX (100000000)
 int main(int argc, char *argv[])
 {
   setlocale(LC_ALL, "");
   bindtextdomain(PACKAGE, LOCALEDIR);
   textdomain(PACKAGE);
-  if (strstr(argv[0], "FizzBuzz"))
+  if (strstr(argv[0], "Nabeatsu"))
   {
-    showFizzBuzz();
-  } else {
+    showNabeatsu();
+  }
+  else
+  {
     int a = 334;
     char b[64];
     itoa(a, b, 10);
