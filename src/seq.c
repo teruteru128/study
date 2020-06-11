@@ -9,7 +9,7 @@
 #include <inttypes.h>
 
 #define A0 1e0L
-#define A1 1.57885731355863L
+#define A1 1.57885731355862L
 #define P 3e0L
 
 /* https://twitter.com/teruteru128/status/1108266625352892416 */
@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
   int i = 0;
   for (i = 0; i < 100; i++)
   {
-    a = (powl(an2, P) + an) / P;
+    a = (an2 * an2 * an2 + an) / P;
     if (a >= 1000000)
     {
       printf("over!\n");
