@@ -8,22 +8,24 @@
 #include <math.h>
 #include <inttypes.h>
 
+#define A0 1e0L
+#define A1 1.57885731355863L
+#define P 3e0L
+
+/* https://twitter.com/teruteru128/status/1108266625352892416 */
 int main(int argc, char *argv[])
 {
-  const double a0 = 1;
-  const double a1 = 1.5788573135586235762772844282153529;
-  const double p = 3;
-  double a = 0;
-  double an2 = a0;
-  double an = a1;
+  long double a = 0;
+  long double an2 = A0;
+  long double an = A1;
 
-  printf("%lf\n", a0);
-  printf("%lf\n", a1);
+  printf("a_0 = %Lf\n", A0);
+  printf("a_1 = %.52Lf\n", A1);
 
   int i = 0;
   for (i = 0; i < 100; i++)
   {
-    a = (pow(an2, p) + an) / p;
+    a = (powl(an2, P) + an) / P;
     if (a >= 1000000)
     {
       printf("over!\n");
@@ -31,7 +33,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-      printf("%lf\n", a);
+      printf("a_%d = %.52Lf\n", i + 2, a);
     }
     an2 = an;
     an = a;
