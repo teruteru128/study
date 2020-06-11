@@ -35,6 +35,7 @@ bin_PROGRAMS+=firstThread4-1
 bin_PROGRAMS+=gettextsample2
 bin_PROGRAMS+=gettextsample3
 bin_PROGRAMS+=gettime
+bin_PROGRAMS+=itoabench
 bin_PROGRAMS+=kxsample
 bin_PROGRAMS+=list2
 bin_PROGRAMS+=localetest1
@@ -136,6 +137,8 @@ gettextsample3_CFLAGS= -DLOCALEDIR='"$(localedir)"'
 gettextsample3_LDFLAGS=
 gettextsample3_SOURCES= gettextsample3.c gettextsample3.h study-config.h config.h textdomain.c textdomain_inner.h mytextdomain.h
 gettime_SOURCES= gettime.c gettime.h
+itoabench_SOURCES=printint.c itoabench.c printint.h config.h
+itoabench_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 kxsample_LDFLAGS= -lsodium
 localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
 localetest1_SOURCES = localetest1.c localetest1.h
