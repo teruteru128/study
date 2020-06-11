@@ -30,33 +30,6 @@
         return EXIT_FAILURE;                                        \
     }
 
-int nextBytes(char *buf, size_t len)
-{
-    char *inf = "/dev/urandom";
-    FILE *in = fopen(inf, "rb");
-    if (in == NULL)
-    {
-        return EXIT_FAILURE;
-    }
-
-    size_t r = fread(buf, 1, len, in);
-
-    if (len != r)
-    {
-        perror("fread");
-        fclose(in);
-        return EXIT_FAILURE;
-    }
-    int i = fclose(in);
-
-    if (i != 0)
-    {
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
-}
-
 #if 0
 char *encodeVarint(unsigned long u)
 {

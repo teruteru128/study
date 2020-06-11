@@ -10,6 +10,7 @@
 #include <inttypes.h>
 #include <sys/time.h>
 #include "printint.h"
+#include "random.h"
 
 #define IN2_SIZE 20
 #define CTX_SIZE 1
@@ -92,8 +93,9 @@ int main(int argc, char **argv)
     int64_t maxSecurityLevel = 0;
 
     initRandom();
+    nextBytes((char *)&counter, sizeof(uint64_t));
 
-    for (counter = getRandomU64(); ; counter++)
+    for (;; counter++)
     {
         securityLevel = calcSecurityLevel(md, IN1, in1Length, counter, &ctx);
         if (maxSecurityLevel < securityLevel)
