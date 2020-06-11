@@ -1,13 +1,18 @@
 
+#include <float.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <limits.h>
 
 int main(int argc, char **argv)
 {
-    double a = log(1 << 18);
-    double b = log(10);
-    printf("%.24lf\n", a / b);
-    printf("%.24lf\n", pow(10, a / b));
+    long double a = 1e+300L;
+    a = logl(a);
+    long double b = logl(2);
+    printf("%.24Lf\n", a);
+    printf("%.24Lf\n", b);
+    printf("%.24Lf\n", a / b);
+    printf("%.24Lf\n", powl(10, a / b));
     return EXIT_SUCCESS;
 }
