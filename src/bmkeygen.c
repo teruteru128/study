@@ -13,6 +13,7 @@
 #include <openssl/objects.h>
 #include <openssl/ripemd.h>
 #include <openssl/sha.h>
+#include "random.h"
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
