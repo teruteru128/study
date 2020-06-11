@@ -1,4 +1,5 @@
 
+#include "study-config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,8 +10,6 @@
 
 #include "printint.h"
 #define IN2_SIZE 21
-
-#include "study-config.h"
 
 int main(int argc, char **argv)
 {
