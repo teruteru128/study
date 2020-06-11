@@ -60,14 +60,14 @@ static int numberOfTrailingZeros(unsigned int i)
     return n + (i >> 1);
 }
 
-static int calcSecurityLevel(unsigned char *md, char *id, uint64_t counter, SHA_CTX *ctx)
+static int calcSecurityLevel(unsigned char *md, char *id, size_t idlen, uint64_t counter, SHA_CTX *ctx)
 {
     char buf[22];
     size_t counterLength = 0;
     int i = 0;
     int j = 0;
     SHA1_Init(ctx);
-    SHA1_Update(ctx, id, strlen(id));
+    SHA1_Update(ctx, id, idlen);
     counterLength = snprintUInt64(buf, 25, counter);
     SHA1_Update(ctx, buf, counterLength);
     SHA1_Final(md, ctx);
@@ -85,8 +85,7 @@ int main(int argc, char **argv)
     char buf[25];
     unsigned char md[SHA_DIGEST_LENGTH];
     uint64_t counter;
-    size_t in1Length = strlen(IN1);
-    size_t counterLength;
+    const size_t in1Length = strlen(IN1);
     size_t i = 0;
     size_t j = 0;
     int64_t securityLevel = 0;
@@ -94,15 +93,15 @@ int main(int argc, char **argv)
 
     initRandom();
 
-    for (counter = getRandomU64(); maxSecurityLevel < 160; counter++)
+    for (counter = getRandomU64(); ; counter++)
     {
-        securityLevel = calcSecurityLevel(md, IN1, counter, &ctx);
+        securityLevel = calcSecurityLevel(md, IN1, in1Length, counter, &ctx);
         if (maxSecurityLevel < securityLevel)
         {
             printf("Max update: %" PRId64 " -> %" PRId64 "\n", maxSecurityLevel, securityLevel);
             maxSecurityLevel = securityLevel;
         }
-        if (securityLevel >= 32)
+        if (securityLevel >= 36)
         {
             printf("verifier(%" PRIu64 ") : %24" PRIu64 ", ", securityLevel, counter);
             for (j = 0; j < SHA_DIGEST_LENGTH; j++)
