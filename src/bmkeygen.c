@@ -136,7 +136,6 @@ int main(int argc, char *argv[])
     }
     unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
     unsigned char jPublicKey[PUBLIC_KEY_LENGTH * J_CACHE_SIZE];
-    unsigned char cache64[SHA512_DIGEST_LENGTH];
     size_t i = 0;
     size_t j = 0;
     size_t jj_max = 0;
@@ -182,70 +181,25 @@ int main(int argc, char *argv[])
         {
             // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
             memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-            // i = jの時に同じ鍵の組み合わせを2回計算していた分を削減
             nlz = ripe(&ripectx, iPublicKey, iPublicKey);
             if (nlz > 5)
             {
-                exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
-            }
-            r = SHA512_Init(&sha512ctx);
-            errchk(r, SHA512_Init);
-            r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-            errchk(r, SHA512_Update);
-            r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-            errchk(r, SHA512_Update);
-            r = SHA512_Final(cache64, &sha512ctx);
-            errchk(r, SHA512_Final);
-            r = RIPEMD160_Init(&ripemd160ctx);
-            errchk(r, RIPEMD160_Init);
-            r = RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
-            errchk(r, RIPEMD160_Update);
-            r = RIPEMD160_Final(cache64, &ripemd160ctx);
-            errchk(r, RIPEMD160_Final);
-            if (!(cache64[0] || cache64[1] || cache64[2] || cache64[3] || cache64[4]))
-            {
-                exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+                exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, ripectx.cache64);
             }
             for (j = 0; j < i; j += J_CACHE_SIZE)
             {
                 memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH * J_CACHE_SIZE);
                 for (jj = 0; jj < J_CACHE_SIZE && (j + jj) < i; jj++)
                 {
-                    r = SHA512_Init(&sha512ctx);
-                    errchk(r, SHA512_Init);
-                    r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                    errchk(r, SHA512_Update);
-                    r = SHA512_Update(&sha512ctx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
-                    errchk(r, SHA512_Update);
-                    r = SHA512_Final(cache64, &sha512ctx);
-                    errchk(r, SHA512_Final);
-                    r = RIPEMD160_Init(&ripemd160ctx);
-                    errchk(r, RIPEMD160_Init);
-                    r = RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
-                    errchk(r, RIPEMD160_Update);
-                    r = RIPEMD160_Final(cache64, &ripemd160ctx);
-                    errchk(r, RIPEMD160_Final);
-                    if (!(cache64[0] || cache64[1] || cache64[2] || cache64[3] || cache64[4]))
+                    nlz = ripe(&ripectx, iPublicKey, &jPublicKey[jj * PUBLIC_KEY_LENGTH]);
+                    if (nlz > 5)
                     {
-                        exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], cache64);
+                        exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], ripectx.cache64);
                     }
-                    r = SHA512_Init(&sha512ctx);
-                    errchk(r, SHA512_Init);
-                    r = SHA512_Update(&sha512ctx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
-                    errchk(r, SHA512_Update);
-                    r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                    errchk(r, SHA512_Update);
-                    r = SHA512_Final(cache64, &sha512ctx);
-                    errchk(r, SHA512_Final);
-                    r = RIPEMD160_Init(&ripemd160ctx);
-                    errchk(r, RIPEMD160_Init);
-                    r = RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
-                    errchk(r, RIPEMD160_Update);
-                    r = RIPEMD160_Final(cache64, &ripemd160ctx);
-                    errchk(r, RIPEMD160_Final);
-                    if (!(cache64[0] || cache64[1] || cache64[2] || cache64[3] || cache64[4]))
+                    nlz = ripe(&ripectx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], iPublicKey);
+                    if (nlz > 5)
                     {
-                        exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+                        exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, ripectx.cache64);
                     }
                 } // jj
             }

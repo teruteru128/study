@@ -11,8 +11,9 @@
 
 typedef struct
 {
-    SHA512_CTX sha512ctx;
-    RIPEMD160_CTX ripemd160ctx;
+  SHA512_CTX sha512ctx;
+  RIPEMD160_CTX ripemd160ctx;
+  unsigned char cache64[SHA512_DIGEST_LENGTH];
 } RIPE_CTX;
 
 typedef struct clientinfo_t

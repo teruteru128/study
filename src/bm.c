@@ -30,14 +30,13 @@ void die_if_fault_occurred(xmlrpc_env *env)
 
 size_t ripe(RIPE_CTX *ctx, unsigned char *signpubkey, unsigned char *encpubkey)
 {
-    unsigned char cache64[SHA512_DIGEST_LENGTH];
     SHA512_Init(&ctx->sha512ctx);
     SHA512_Update(&ctx->sha512ctx, signpubkey, PUBLIC_KEY_LENGTH);
     SHA512_Update(&ctx->sha512ctx, encpubkey, PUBLIC_KEY_LENGTH);
-    SHA512_Final(cache64, &ctx->sha512ctx);
+    SHA512_Final(ctx->cache64, &ctx->sha512ctx);
     RIPEMD160_Init(&ctx->ripemd160ctx);
-    RIPEMD160_Update(&ctx->ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
-    RIPEMD160_Final(cache64, &ctx->ripemd160ctx);
+    RIPEMD160_Update(&ctx->ripemd160ctx, ctx->cache64, SHA512_DIGEST_LENGTH);
+    RIPEMD160_Final(ctx->cache64, &ctx->ripemd160ctx);
     size_t nlz = 0;
     for(;nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
     return nlz;
