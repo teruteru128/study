@@ -73,6 +73,8 @@ bin_PROGRAMS+=variables3
 bin_PROGRAMS+=variables4
 bin_PROGRAMS+=yattaze
 
+# https://tschoonj.github.io/blog/2014/05/10/building-a-cuda-device-function-library-with-autotools/
+# :thinking:?
 NVCC=nvcc
 
 .cu.o:
