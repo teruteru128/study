@@ -4,6 +4,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include <time.h>
+#include <limits.h>
 #include "printint.h"
 
 #define BUF_SIZE 21
@@ -15,7 +16,7 @@
 int main(int argc, char **argv)
 {
     char buf[BUF_SIZE];
-    uint64_t t = 10000000000000000000ULL;
+    uint64_t t = 0;
     size_t i;
     size_t len;
     setlocale(LC_ALL, "");
@@ -35,8 +36,8 @@ int main(int argc, char **argv)
     long nsec = end.tv_nsec - start.tv_nsec;
     double passed = (sec * 1e9) + nsec;
     double seconds = passed / 1e9;
-    fprintf(stderr, _("It took %.8f seconds.\n"), seconds);
-    fprintf(stderr, _("%.1f times per second\n"), LOOP_COUNT / seconds);
-    fprintf(stderr, _("%.12f seconds per time\n"), seconds / LOOP_COUNT);
+    fprintf(stderr, _("It took %g seconds.\n"), seconds);
+    fprintf(stderr, _("%g times per second\n"), LOOP_COUNT / seconds);
+    fprintf(stderr, _("%e seconds per time\n"), seconds / LOOP_COUNT);
     printf("%" PRIu64 "\n", len);
 }

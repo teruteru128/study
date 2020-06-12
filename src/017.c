@@ -9,6 +9,7 @@
 #include <time.h>
 #include <inttypes.h>
 #include <sys/time.h>
+#include <limits.h>
 #include "printint.h"
 #include "random.h"
 
@@ -83,9 +84,7 @@ static int calcSecurityLevel(unsigned char *md, char *id, size_t idlen, uint64_t
 int main(int argc, char **argv)
 {
     SHA_CTX ctx;
-    char buf[25];
     unsigned char md[SHA_DIGEST_LENGTH];
-    uint64_t counter;
     const size_t in1Length = strlen(IN1);
     size_t i = 0;
     size_t j = 0;
@@ -93,9 +92,10 @@ int main(int argc, char **argv)
     int64_t maxSecurityLevel = 0;
 
     initRandom();
-    nextBytes((char *)&counter, sizeof(uint64_t));
+    //nextBytes((char *)&counter, sizeof(uint64_t));
+    //counter = counter & 0xffffffffffffUL;
 
-    for (;; counter++)
+    for (uint64_t counter = 27579080; counter <= UINT_MAX; counter++)
     {
         securityLevel = calcSecurityLevel(md, IN1, in1Length, counter, &ctx);
         if (maxSecurityLevel < securityLevel)
@@ -103,7 +103,7 @@ int main(int argc, char **argv)
             printf("Max update: %" PRId64 " -> %" PRId64 "\n", maxSecurityLevel, securityLevel);
             maxSecurityLevel = securityLevel;
         }
-        if (securityLevel >= 36)
+        if (securityLevel >= 28)
         {
             printf("verifier(%" PRIu64 ") : %24" PRIu64 ", ", securityLevel, counter);
             for (j = 0; j < SHA_DIGEST_LENGTH; j++)
