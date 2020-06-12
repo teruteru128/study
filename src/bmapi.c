@@ -9,13 +9,23 @@
 #include "base64.h"
 #include <stdlib.h>
 
-static int initflag;
+static int initflag = 0;
 static xmlrpc_env env;
 static xmlrpc_client *cp;
 static xmlrpc_server_info *sinfo;
-void die_if_fault_occurred(xmlrpc_env *);
 
 typedef struct bm_client_t bm_client;
+
+static void die_if_fault_occurred(xmlrpc_env *env)
+{
+  /* Check our error-handling environment for an XML-RPC fault. */
+  if (env->fault_occurred)
+  {
+    fprintf(stderr, "XML-RPC Fault: %s (%d)\n",
+            env->fault_string, env->fault_code);
+    exit(1);
+  }
+}
 
 bm_client *bm_client_new()
 {

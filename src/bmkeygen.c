@@ -19,7 +19,7 @@
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
 #define KEY_CACHE_SIZE 65536ULL
-#define REQUIRE_NLZ 5
+#define REQUIRE_NLZ 2
 #define ADDRESS_VERSION 4
 #define STREAM_NUMBER 1
 #define J_CACHE_SIZE 8
@@ -134,14 +134,15 @@ int main(int argc, char *argv[])
         perror("calloc(publicKeys)");
         return EXIT_FAILURE;
     }
+    RIPE_CTX ripectx;
     unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
     unsigned char jPublicKey[PUBLIC_KEY_LENGTH * J_CACHE_SIZE];
+    unsigned char *cache64 = ripectx.cache64;
     size_t i = 0;
     size_t j = 0;
     size_t jj_max = 0;
     size_t jj = 0;
     int r = 0;
-    RIPE_CTX ripectx;
 
     // curve 生成
     EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
@@ -182,9 +183,9 @@ int main(int argc, char *argv[])
             // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
             memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
             nlz = ripe(&ripectx, iPublicKey, iPublicKey);
-            if (nlz > 5)
+            if (nlz > REQUIRE_NLZ)
             {
-                exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, ripectx.cache64);
+                exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
             }
             for (j = 0; j < i; j += J_CACHE_SIZE)
             {
@@ -192,14 +193,14 @@ int main(int argc, char *argv[])
                 for (jj = 0; jj < J_CACHE_SIZE && (j + jj) < i; jj++)
                 {
                     nlz = ripe(&ripectx, iPublicKey, &jPublicKey[jj * PUBLIC_KEY_LENGTH]);
-                    if (nlz > 5)
+                    if (nlz > REQUIRE_NLZ)
                     {
-                        exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], ripectx.cache64);
+                        exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], cache64);
                     }
                     nlz = ripe(&ripectx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], iPublicKey);
-                    if (nlz > 5)
+                    if (nlz > REQUIRE_NLZ)
                     {
-                        exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, ripectx.cache64);
+                        exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
                     }
                 } // jj
             }

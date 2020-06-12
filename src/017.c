@@ -66,13 +66,13 @@ int main(int argc, char **argv)
     size_t i = 0;
     size_t j = 0;
     int64_t securityLevel = 0;
-    int64_t maxSecurityLevel = 0;
+    int64_t maxSecurityLevel = 36;
 
     initRandom();
     //nextBytes((char *)&counter, sizeof(uint64_t));
     //counter = counter & 0xffffffffffffUL;
 
-    for (uint64_t counter = 9502758227UL;; counter++)
+    for (uint64_t counter = 0x400000000UL; counter < 0x800000000UL; counter++)
     {
         securityLevel = calcSecurityLevel(md, IN1, in1Length, counter, &ctx);
         if (maxSecurityLevel <= securityLevel)
