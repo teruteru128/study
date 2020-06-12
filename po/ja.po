@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-06-12 12:03+0900\n"
+"POT-Creation-Date: 2020-06-12 14:01+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -44,19 +44,16 @@ msgid "Hello World!\n"
 msgstr "こんにちは世界！\n"
 
 #: src/eckeygentest.c:42 src/itoabench.c:39 src/itoabench.c:55
-#: src/printBench.c:38
 #, c-format
 msgid "It took %.8f seconds.\n"
 msgstr "%.8f秒かかりました。\n"
 
 #: src/eckeygentest.c:43 src/itoabench.c:40 src/itoabench.c:56
-#: src/printBench.c:39
 #, c-format
 msgid "%.1f times per second\n"
 msgstr "1秒あたり %.1f回\n"
 
 #: src/eckeygentest.c:44 src/itoabench.c:41 src/itoabench.c:57
-#: src/printBench.c:40
 #, c-format
 msgid "%.12f seconds per time\n"
 msgstr "1回あたり %.12f秒\n"
@@ -85,6 +82,21 @@ msgstr "%dマイクロ秒停止します。\n"
 #, c-format
 msgid "%dmicro seconds stoped.\n"
 msgstr "%dマイクロ秒停止しました。\n"
+
+#: src/printBench.c:39
+#, fuzzy, c-format
+msgid "It took %g seconds.\n"
+msgstr "%g秒かかりました。\n"
+
+#: src/printBench.c:40
+#, fuzzy, c-format
+msgid "%g times per second\n"
+msgstr "1秒あたり %g回\n"
+
+#: src/printBench.c:41
+#, fuzzy, c-format
+msgid "%e seconds per time\n"
+msgstr "1回あたり %e秒\n"
 
 #: src/sntpc.c:195
 #, c-format
