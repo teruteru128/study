@@ -13,12 +13,11 @@
 int main()
 {
     struct sockaddr_in addr = {
-        AF_INET, htons(12345), INADDR_ANY
-    };
+        AF_INET, htons(12345), INADDR_ANY};
 
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
 
-    if(sock == -1)
+    if (sock == -1)
     {
         perror("socket");
         return EXIT_FAILURE;
@@ -26,19 +25,21 @@ int main()
 
     int r = bind(sock, (struct sockaddr *)&addr, sizeof(addr));
 
-    if(r == -1)
+    if (r == -1)
     {
         perror("bind");
         return EXIT_FAILURE;
     }
 
     char buf[2048];
-    memset(buf, 0, sizeof(buf));
-    ssize_t len = recv(sock, buf, sizeof(buf), 0);
+    do
+    {
+        memset(buf, 0, sizeof(buf));
+        ssize_t len = recv(sock, buf, sizeof(buf), 0);
 
-    printf("%s\n", buf);
-    printf("%ld\n", len);
-
+        printf("%s\n", buf);
+        printf("%ld\n", len);
+    } while (strcmp(buf, "end") != 0);
     close(sock);
 
     return 0;
