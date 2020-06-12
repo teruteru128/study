@@ -28,61 +28,17 @@ void die_if_fault_occurred(xmlrpc_env *env)
   }
 }
 
-/**
- * int main(int argc, char* argv[]){
- *   // グローバル定数初期化
- *   global_init();
- *   // 設定ファイルパース
- *   configfile_parse();
- *   // コマンドライン引数パース
- *   arg_parse();
- *   // メイン処理
- *   do_main();
- *   // 後片付け
- *   global_cleanup();
- * }
- * */
-int main(int const argc, const char **const argv)
+size_t ripe(RIPE_CTX *ctx, unsigned char *signpubkey, unsigned char *encpubkey)
 {
-  char buf[BUFSIZ];
-  char *sendmsg = "";
-  char chan_name[64];
-  char *msg = NULL;
-  char *generaladdress = "BM-2cW67GEKkHGonXKZLCzouLLxnLym3azS8r";
-  uuid_t uuid;
-  bmapi_init();
-  if (argc < 2)
-  {
-    return EXIT_FAILURE;
-  }
-  FILE *infile = NULL;
-  infile = fopen(argv[1], "r");
-  if (infile == NULL)
-  {
-    perror("fopen");
-    return EXIT_FAILURE;
-  }
-
-  char *tmp = NULL;
-  char *message = "";
-  do
-  {
-    tmp = fgets(chan_name, 64, infile);
-    bmapi_simpleSendMessage(generaladdress, chan_name, "HAPPY NEW YEAR!", message);
-  } while (tmp != NULL);
-
-  uuid_generate_random(uuid);
-  uuid_unparse(uuid, buf);
-  buf[strlen(buf)] = '\n';
-
-  char *uuid_address = bmapi_createChan(buf);
-  printf("%s, %s\n", buf, uuid_address);
-  msg = bmapi_simpleSendMessage(uuid_address, uuid_address, buf, buf);
-  printf("%s\n", msg);
-  free(msg);
-
-  xmlrpc_client_teardown_global_const();
-
-  free(uuid_address);
-  return EXIT_SUCCESS;
+    unsigned char cache64[SHA512_DIGEST_LENGTH];
+    SHA512_Init(&ctx->sha512ctx);
+    SHA512_Update(&ctx->sha512ctx, signpubkey, PUBLIC_KEY_LENGTH);
+    SHA512_Update(&ctx->sha512ctx, encpubkey, PUBLIC_KEY_LENGTH);
+    SHA512_Final(cache64, &ctx->sha512ctx);
+    RIPEMD160_Init(&ctx->ripemd160ctx);
+    RIPEMD160_Update(&ctx->ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+    RIPEMD160_Final(cache64, &ctx->ripemd160ctx);
+    size_t nlz = 0;
+    for(;nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
+    return nlz;
 }

@@ -7,6 +7,8 @@
 #include <xmlrpc.h>
 #include <xmlrpc_client.h>
 
+#define PUBLIC_KEY_LENGTH 65
+
 typedef struct
 {
     SHA512_CTX sha512ctx;
@@ -35,6 +37,6 @@ typedef struct bm_client_t
 } bm_client_t;
 
 /* int ripe(ripectx, signpub, encpub) */
-int ripe(RIPE_CTX *, char *signpub, size_t offsetsingpub, size_t lengthsignpub, char *encpub, size_t offsetencpub, size_t lengthencpub);
+size_t ripe(RIPE_CTX *, unsigned char *signpub, unsigned char *encpub);
 
 #endif

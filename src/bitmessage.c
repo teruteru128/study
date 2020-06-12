@@ -1,5 +1,9 @@
 
+#include "config.h"
+#include <stdio.h>
+
 #include "bitmessage.h"
+#include "bm.h"
 
 int BM_init(void)
 {

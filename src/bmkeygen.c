@@ -14,6 +14,7 @@
 #include <openssl/ripemd.h>
 #include <openssl/sha.h>
 #include "random.h"
+#include "bm.h"
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
@@ -141,6 +142,7 @@ int main(int argc, char *argv[])
     size_t jj_max = 0;
     size_t jj = 0;
     int r = 0;
+    RIPE_CTX ripectx;
 
     // curve 生成
     EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
@@ -181,6 +183,11 @@ int main(int argc, char *argv[])
             // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
             memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
             // i = jの時に同じ鍵の組み合わせを2回計算していた分を削減
+            nlz = ripe(&ripectx, iPublicKey, iPublicKey);
+            if (nlz > 5)
+            {
+                exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+            }
             r = SHA512_Init(&sha512ctx);
             errchk(r, SHA512_Init);
             r = SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);

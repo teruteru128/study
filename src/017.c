@@ -14,6 +14,7 @@
 #include <netinet/in.h>
 #include "printint.h"
 #include "random.h"
+#include "numsys.h"
 
 #define IN2_SIZE 20
 #define CTX_SIZE 1
@@ -37,33 +38,6 @@ static uint64_t getRandomU64()
 // new id : MEwDAgcAAgEgAiEA+i4ptdb7Q5ldNJjyJTd/+hC+ac2YoPoIXYLgPRJE6egCIBcdWTjBr/iW3QjAAl389HYDZF/0GwuxH+MpXdDBrpl0
 
 #define IN1 "MEwDAgcAAgEgAiBK4dcDZUSLCxmvRfMWMAQf1JzSrLzZakLqDsULzT28OwIhAILbBS66JoN1Xo2YsC1xDPDhukJjVO2guoeL+AM27Vfn"
-
-static int numberOfLeadingZeros(unsigned int i)
-{
-    if(i <= 0)
-    {
-        return i == 0 ? 32 : 0;
-    }
-    int n = 32;
-    if (i >= 1 << 16) { n -= 16; i >>= 16; }
-    if (i >= 1 <<  8) { n -=  8; i >>=  8; }
-    if (i >= 1 <<  4) { n -=  4; i >>=  4; }
-    if (i >= 1 <<  2) { n -=  2; i >>=  2; }
-    return n - (i >> 1);
-}
-
-static int numberOfTrailingZeros(unsigned int i)
-{
-    i = ~i & (i - 1);
-    if (i <= 0)
-        return i & 32;
-    int n = 1;
-    if (i > 1 << 16) { n += 16; i >>= 16; }
-    if (i > 1 <<  8) { n +=  8; i >>=  8; }
-    if (i > 1 <<  4) { n +=  4; i >>=  4; }
-    if (i > 1 <<  2) { n +=  2; i >>=  2; }
-    return n + (i >> 1);
-}
 
 static int calcSecurityLevel(unsigned char *md, char *id, size_t idlen, uint64_t counter, SHA_CTX *ctx)
 {
@@ -98,7 +72,7 @@ int main(int argc, char **argv)
     //nextBytes((char *)&counter, sizeof(uint64_t));
     //counter = counter & 0xffffffffffffUL;
 
-    for (uint64_t counter = 572128944UL;; counter++)
+    for (uint64_t counter = 9502758227UL;; counter++)
     {
         securityLevel = calcSecurityLevel(md, IN1, in1Length, counter, &ctx);
         if (maxSecurityLevel <= securityLevel)
@@ -108,7 +82,7 @@ int main(int argc, char **argv)
         }
         if (securityLevel >= 40)
         {
-            printf("verifier(%" PRIu64 ") : %24" PRIu64 ", ", securityLevel, counter);
+            printf("counter(%" PRIu64 ") : %24" PRIu64 ", ", securityLevel, counter);
             for (j = 0; j < SHA_DIGEST_LENGTH; j++)
             {
                 printf("%02x", md[j]);

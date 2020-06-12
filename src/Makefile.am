@@ -10,8 +10,8 @@ bin_PROGRAMS+=Nabeatsu
 bin_PROGRAMS+=ankokudan_decode
 bin_PROGRAMS+=argparsesample
 bin_PROGRAMS+=bcasttest
-bin_PROGRAMS+=bm
 bin_PROGRAMS+=bmkeygen
+bin_PROGRAMS+=bmspam
 bin_PROGRAMS+=bouyomi
 bin_PROGRAMS+=calc
 bin_PROGRAMS+=cl
@@ -91,7 +91,7 @@ cudamalloctest: cudamalloctest.o
 016_LDFLAGS=-lssl -lcrypto
 016_SOURCES=016.c config.h
 017_LDFLAGS=-lssl -lcrypto
-017_SOURCES=017.c printint.c printint.h config.h random.h random.c
+017_SOURCES=017.c printint.c printint.h config.h random.h random.c numsys.c numsys.h
 019_SOURCES=019.c config.h
 019_LDFLAGS=-lm
 CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h config.h
@@ -102,11 +102,11 @@ Nabeatsu_SOURCES=Nabeatsu.c printint.c printint.h study-config.h config.h
 ankokudan_decode_SOURCES=ankokudan_decode.c
 argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c config.h
-bm_CFLAGS=`xmlrpc-c-config libwww-client --cflags`
-bm_LDFLAGS=`xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
-bm_SOURCES=bitmessage.c base64.c base64.h bmapi.c bmapi.h xmlrpc.c xmlrpc.h bm.c bm.h bitmessage.h config.h
-bmkeygen_SOURCES=bmkeygen.c study-config.h config.h random.h random.c
+bmkeygen_SOURCES=bmkeygen.c study-config.h config.h random.h random.c numsys.c numsys.h bm.h bm.c
 bmkeygen_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+bmspam_CFLAGS=`xmlrpc-c-config libwww-client --cflags`
+bmspam_LDFLAGS=`xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
+bmspam_SOURCES=bitmessage.c base64.c base64.h bmapi.c bmapi.h xmlrpc.c xmlrpc.h bm.c bm.h bitmessage.h config.h bmspam.c
 bouyomi_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 bouyomi_LDFLAGS=
 bouyomi_SOURCES=print_addrinfo.c print_addrinfo.h charset-convert.c charset-convert.h bouyomi.c bouyomi.h study-config.h config.h
