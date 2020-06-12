@@ -10,6 +10,8 @@
 #include <inttypes.h>
 #include <sys/time.h>
 #include <limits.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 #include "printint.h"
 #include "random.h"
 
@@ -29,31 +31,32 @@ static uint64_t getRandomU64()
     return ((uint64_t)mrand48() << 33) ^ (((uint64_t)mrand48() << 16) & 0xffffffffULL) ^ (((uint64_t)mrand48()) & 0xffffffffULL);
 }
 
-// 3rd id : MEsDAgcAAgEgAiAoQPNcS7L4k+q2qf3U7uyujtwRQNS3pLKN/zrRGERGagIgFjdV1JlqHF8BiIQne0/E3jVM7hWda/USrFI58per45s=
 // main id : MEwDAgcAAgEgAiEA7Vo1+Orf2xuuu6hTPAPldSfrUZZ7WYAzpRcO5DoYFLoCIF1JKVBctOGvMOy495O/BWFuFEYH4i1f6vU0b9+a64RD
 // android id : MEwDAgcAAgEgAiBK4dcDZUSLCxmvRfMWMAQf1JzSrLzZakLqDsULzT28OwIhAILbBS66JoN1Xo2YsC1xDPDhukJjVO2guoeL+AM27Vfn
+// 3rd id : MEsDAgcAAgEgAiAoQPNcS7L4k+q2qf3U7uyujtwRQNS3pLKN/zrRGERGagIgFjdV1JlqHF8BiIQne0/E3jVM7hWda/USrFI58per45s=
 // new id : MEwDAgcAAgEgAiEA+i4ptdb7Q5ldNJjyJTd/+hC+ac2YoPoIXYLgPRJE6egCIBcdWTjBr/iW3QjAAl389HYDZF/0GwuxH+MpXdDBrpl0
 
-#define IN1 "MEwDAgcAAgEgAiEA+i4ptdb7Q5ldNJjyJTd/+hC+ac2YoPoIXYLgPRJE6egCIBcdWTjBr/iW3QjAAl389HYDZF/0GwuxH+MpXdDBrpl0"
+#define IN1 "MEwDAgcAAgEgAiBK4dcDZUSLCxmvRfMWMAQf1JzSrLzZakLqDsULzT28OwIhAILbBS66JoN1Xo2YsC1xDPDhukJjVO2guoeL+AM27Vfn"
 
 static int numberOfLeadingZeros(unsigned int i)
 {
     if(i <= 0)
     {
-        return i == 0 ? 32:0;
+        return i == 0 ? 32 : 0;
     }
     int n = 32;
-        if (i >= 1 << 16) { n -= 16; i >>= 16; }
-        if (i >= 1 <<  8) { n -=  8; i >>=  8; }
-        if (i >= 1 <<  4) { n -=  4; i >>=  4; }
-        if (i >= 1 <<  2) { n -=  2; i >>=  2; }
-        return n - (i >> 1);
+    if (i >= 1 << 16) { n -= 16; i >>= 16; }
+    if (i >= 1 <<  8) { n -=  8; i >>=  8; }
+    if (i >= 1 <<  4) { n -=  4; i >>=  4; }
+    if (i >= 1 <<  2) { n -=  2; i >>=  2; }
+    return n - (i >> 1);
 }
 
 static int numberOfTrailingZeros(unsigned int i)
 {
     i = ~i & (i - 1);
-    if(i <= 0) return i & 32;
+    if (i <= 0)
+        return i & 32;
     int n = 1;
     if (i > 1 << 16) { n += 16; i >>= 16; }
     if (i > 1 <<  8) { n +=  8; i >>=  8; }
@@ -76,8 +79,8 @@ static int calcSecurityLevel(unsigned char *md, char *id, size_t idlen, uint64_t
     for (i = 0; md[i] == 0 && i < SHA_DIGEST_LENGTH; i++)
     {
     }
-    if(i < SHA_DIGEST_LENGTH)
-    j = numberOfTrailingZeros(md[i] & 0xff);
+    if (i < SHA_DIGEST_LENGTH)
+        j = numberOfTrailingZeros(md[i] & 0xff);
     return (i << 3) + j;
 }
 
@@ -95,15 +98,15 @@ int main(int argc, char **argv)
     //nextBytes((char *)&counter, sizeof(uint64_t));
     //counter = counter & 0xffffffffffffUL;
 
-    for (uint64_t counter = 27579080; counter <= UINT_MAX; counter++)
+    for (uint64_t counter = 572128944UL;; counter++)
     {
         securityLevel = calcSecurityLevel(md, IN1, in1Length, counter, &ctx);
-        if (maxSecurityLevel < securityLevel)
+        if (maxSecurityLevel <= securityLevel)
         {
-            printf("Max update: %" PRId64 " -> %" PRId64 "\n", maxSecurityLevel, securityLevel);
+            printf("Max update: %ld -> %ld, counter : %lu\n", maxSecurityLevel, securityLevel, counter);
             maxSecurityLevel = securityLevel;
         }
-        if (securityLevel >= 28)
+        if (securityLevel >= 40)
         {
             printf("verifier(%" PRIu64 ") : %24" PRIu64 ", ", securityLevel, counter);
             for (j = 0; j < SHA_DIGEST_LENGTH; j++)
@@ -113,6 +116,5 @@ int main(int argc, char **argv)
             printf("\n");
         }
     }
-out:
     return EXIT_SUCCESS;
 }
