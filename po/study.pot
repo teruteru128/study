@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc6\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-06-11 15:03+0900\n"
+"POT-Creation-Date: 2020-06-12 12:03+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,17 +17,17 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/bmkeygen.c:189
+#: src/bmkeygen.c:163
 #, c-format
 msgid "Initializing private key...\n"
 msgstr ""
 
-#: src/bmkeygen.c:191
+#: src/bmkeygen.c:165
 #, c-format
 msgid "Initialized the private key. Initialize the public key.\n"
 msgstr ""
 
-#: src/bmkeygen.c:202
+#: src/bmkeygen.c:176
 #, c-format
 msgid "The public key initialization is complete.\n"
 msgstr ""
@@ -42,17 +42,20 @@ msgstr ""
 msgid "Hello World!\n"
 msgstr ""
 
-#: src/eckeygentest.c:43 src/itoabench.c:35
+#: src/eckeygentest.c:42 src/itoabench.c:39 src/itoabench.c:55
+#: src/printBench.c:38
 #, c-format
 msgid "It took %.8f seconds.\n"
 msgstr ""
 
-#: src/eckeygentest.c:44 src/itoabench.c:36
+#: src/eckeygentest.c:43 src/itoabench.c:40 src/itoabench.c:56
+#: src/printBench.c:39
 #, c-format
 msgid "%.1f times per second\n"
 msgstr ""
 
-#: src/eckeygentest.c:45 src/itoabench.c:37
+#: src/eckeygentest.c:44 src/itoabench.c:41 src/itoabench.c:57
+#: src/printBench.c:40
 #, c-format
 msgid "%.12f seconds per time\n"
 msgstr ""
@@ -97,7 +100,7 @@ msgstr ""
 msgid "Help me!\n"
 msgstr ""
 
-#: src/teamspeakcalc.c:51
+#: src/teamspeakcalc.c:50
 #, c-format
 msgid "verifier : %<PRIu64>\n"
 msgstr ""

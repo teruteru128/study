@@ -1,11 +1,10 @@
 
-#include "config.h"
+#include "study-config.h"
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <openssl/ec.h>
 #include <openssl/objects.h>
-#include "study-config.h"
 
 #define MAX (9000)
 int main(int argc, char **argv)

@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-typedef struct a
+typedef struct chunk_pos
 {
     int64_t seed;
     int32_t x;

@@ -84,13 +84,13 @@ cudahello: cudahello.o
 cudamalloctest: cudamalloctest.o
 	$(NVCC) $(LDFLAGS) -ccbin $(CC) $< -o $@
 
-014_SOURCES= 014.c
-015_LDFLAGS= -lcrypto
-016_LDFLAGS= -lssl -lcrypto
-016_SOURCES= 016.c config.h
-017_LDFLAGS= -lssl -lcrypto
-017_SOURCES= 017.c printint.c printint.h config.h random.h random.c
-019_SOURCES= 019.c config.h
+014_SOURCES=014.c
+015_LDFLAGS=-lcrypto
+016_LDFLAGS=-lssl -lcrypto
+016_SOURCES=016.c config.h
+017_LDFLAGS=-lssl -lcrypto
+017_SOURCES=017.c printint.c printint.h config.h random.h random.c
+019_SOURCES=019.c config.h
 019_LDFLAGS=-lm
 CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h config.h
 FizzBuzz_CFLAGS=-DLOCALEDIR='"$(localedir)"'
@@ -100,14 +100,14 @@ Nabeatsu_SOURCES=Nabeatsu.c printint.c printint.h study-config.h config.h
 ankokudan_decode_SOURCES=ankokudan_decode.c
 argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c config.h
-bm_CFLAGS = `xmlrpc-c-config libwww-client --cflags`
-bm_LDFLAGS = `xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
-bm_SOURCES = bitmessage.c base64.c base64.h bmapi.c bmapi.h xmlrpc.c xmlrpc.h bm.c bm.h bitmessage.h config.h
+bm_CFLAGS=`xmlrpc-c-config libwww-client --cflags`
+bm_LDFLAGS=`xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
+bm_SOURCES=bitmessage.c base64.c base64.h bmapi.c bmapi.h xmlrpc.c xmlrpc.h bm.c bm.h bitmessage.h config.h
 bmkeygen_SOURCES=bmkeygen.c study-config.h config.h random.h random.c
 bmkeygen_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 bouyomi_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 bouyomi_LDFLAGS=
-bouyomi_SOURCES= print_addrinfo.c print_addrinfo.h charset-convert.c charset-convert.h bouyomi.c bouyomi.h study-config.h config.h
+bouyomi_SOURCES=print_addrinfo.c print_addrinfo.h charset-convert.c charset-convert.h bouyomi.c bouyomi.h study-config.h config.h
 calc_SOURCES=calc.c config.h
 cl_SOURCES=cl.c config.h print_addrinfo.c print_addrinfo.h config.h
 cudahello_CC=$(NVCC)
@@ -131,52 +131,52 @@ firstThread3_LDFLAGS=-lpthread
 firstThread4_1_LDFLAGS=-lpthread
 firstThread4_LDFLAGS=-lpthread
 firstThread_LDFLAGS=-lpthread
-gettextsample2_CFLAGS= -DLOCALEDIR='"$(localedir)"'
-gettextsample2_SOURCES= gettextsample2.c gettextsample2.h study-config.h config.h
-gettextsample3_CFLAGS= -DLOCALEDIR='"$(localedir)"'
+gettextsample2_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+gettextsample2_SOURCES=gettextsample2.c gettextsample2.h study-config.h config.h
+gettextsample3_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 gettextsample3_LDFLAGS=
-gettextsample3_SOURCES= gettextsample3.c gettextsample3.h study-config.h config.h textdomain.c textdomain_inner.h mytextdomain.h
-gettime_SOURCES= gettime.c gettime.h
+gettextsample3_SOURCES=gettextsample3.c gettextsample3.h study-config.h config.h textdomain.c textdomain_inner.h mytextdomain.h
+gettime_SOURCES=gettime.c gettime.h
 itoabench_SOURCES=printint.c itoabench.c printint.h config.h
 itoabench_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-kxsample_LDFLAGS= -lsodium
-localetest1_CFLAGS = -DLOCALEDIR='"$(localedir)"'
-localetest1_SOURCES = localetest1.c localetest1.h
+kxsample_LDFLAGS=-lsodium
+localetest1_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+localetest1_SOURCES=localetest1.c localetest1.h
 maxmovingsum_LDFLAGS=-lm
 maxmovingsum_SOURCES=maxmovingsum.c config.h
-orz_SOURCES= orz.c orz.h random.c random.h internal_random.h config.h
+orz_SOURCES=orz.c orz.h random.c random.h internal_random.h config.h
 portscanner_SOURCES=portscanner.c config.h
 prime2_SOURCES=prime2.c config.h
 prime3_SOURCES=prime3.c config.h
 prime_SOURCES=prime.c config.h
 primesearch_SOURCES=primesearch.c config.h
-printBench_CFLAGS=
-printBench_LDFLAGS= -lssl -lcrypto
-printBench_SOURCES= printBench.c printint.c printint.h config.h
+printBench_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+printBench_LDFLAGS=-lssl -lcrypto
+printBench_SOURCES=printBench.c printint.c printint.h config.h
 read_random_SOURCES=read_random.c random.c random.h internal_random.h base64.c base64.h
 rsa1024_SOURCES=rsa1024.c config.h
-selfmadelibsha_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
-selfmadelibsha_SOURCES = self-made-libsha.c sha-1.c sha-1.h sha-2.c sha-2.h sha-3.c sha-3.h self-made-libsha.h
+selfmadelibsha_CPPFLAGS=-DLOCALEDIR='"$(localedir)"'
+selfmadelibsha_SOURCES=self-made-libsha.c sha-1.c sha-1.h sha-2.c sha-2.h sha-3.c sha-3.h self-made-libsha.h
 seq_CFLAGS=
 seq_LDFLAGS=-lm
 seq_SOURCES=seq.c config.h
-service_sample_SOURCES= service-sample.c server.c server.h
+service_sample_SOURCES=service-sample.c server.c server.h
 sntpc_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 sntpc_SOURCES=sntpc.c random.c random.h internal_random.h print_addrinfo.c print_addrinfo.h study-config.h config.h
 string_list_test_SOURCES=string_list.c string_list_test.c
-study_CFLAGS= -DLOCALEDIR='"$(localedir)"'
-study_LDFLAGS= -lcrypto
+study_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+study_LDFLAGS=-lcrypto
 study_SOURCES=study.c gettextsample.c gettextsample.h printint.c printint.h random.c random.h internal_random.h bitset.c bitset.h study-config.h config.h orz.c orz.h
 sum_LDFLAGS=-lm
-sum_SOURCES= sum.c random.c random.h internal_random.h config.h
+sum_SOURCES=sum.c random.c random.h internal_random.h config.h
 teamspeakIdUpgrader_CFLAGS=
-teamspeakIdUpgrader_LDFLAGS= -lssl -lcrypto
-teamspeakIdUpgrader_SOURCES= teamspeakIdUpgrader.c printint.c printint.h  config.h
+teamspeakIdUpgrader_LDFLAGS=-lssl -lcrypto
+teamspeakIdUpgrader_SOURCES=teamspeakIdUpgrader.c printint.c printint.h  config.h
 teamspeakcalc_CFLAGS=
-teamspeakcalc_LDFLAGS= -lcrypto
-teamspeakcalc_SOURCES= teamspeakcalc.c printint.c printint.h config.h
+teamspeakcalc_LDFLAGS=-lcrypto
+teamspeakcalc_SOURCES=teamspeakcalc.c printint.c printint.h config.h
 threadAttr_LDFLAGS=-pthread
 udpsender_SOURCES=udpsender.c config.h
-uuidtest_LDFLAGS= -luuid
+uuidtest_LDFLAGS=-luuid
 variables3_LDFLAGS=-lpthread
 variables_LDFLAGS=-lpthread

@@ -7,6 +7,7 @@
 
 #include <gmp.h>
 
+// 階乗素数
 int main(int argc, char *argv[])
 {
   mpz_t n, nfac, nfacadd1, nfacsub1;
@@ -30,5 +31,6 @@ int main(int argc, char *argv[])
     isPrime = mpz_probab_prime_p(nfacsub1, 20);
     printf("%d! - 1 is %s\n", i, msg[isPrime]);
   }
+  mpz_clears(n, nfac, nfacadd1, nfacsub1, NULL);
   return EXIT_SUCCESS;
 }
