@@ -6,7 +6,8 @@
         "*.h": "c",
         "*.cu": "cuda",
         "chrono": "c",
-        "sstream": "c"
+        "sstream": "c",
+        "*.yml.in": "yaml"
     }
 }
 
