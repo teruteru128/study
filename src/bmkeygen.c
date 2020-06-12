@@ -19,7 +19,7 @@
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
 #define KEY_CACHE_SIZE 65536ULL
-#define REQUIRE_NLZ 2
+#define REQUIRE_NLZ 3
 #define ADDRESS_VERSION 4
 #define STREAM_NUMBER 1
 #define J_CACHE_SIZE 8
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
             // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
             memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
             nlz = ripe(&ripectx, iPublicKey, iPublicKey);
-            if (nlz > REQUIRE_NLZ)
+            if (nlz >= REQUIRE_NLZ)
             {
                 exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
             }
@@ -193,12 +193,12 @@ int main(int argc, char *argv[])
                 for (jj = 0; jj < J_CACHE_SIZE && (j + jj) < i; jj++)
                 {
                     nlz = ripe(&ripectx, iPublicKey, &jPublicKey[jj * PUBLIC_KEY_LENGTH]);
-                    if (nlz > REQUIRE_NLZ)
+                    if (nlz >= REQUIRE_NLZ)
                     {
                         exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], cache64);
                     }
                     nlz = ripe(&ripectx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], iPublicKey);
-                    if (nlz > REQUIRE_NLZ)
+                    if (nlz >= REQUIRE_NLZ)
                     {
                         exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
                     }
