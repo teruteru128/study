@@ -39,9 +39,8 @@ static uint64_t getRandomU64()
 
 #define IN1 "MEwDAgcAAgEgAiBK4dcDZUSLCxmvRfMWMAQf1JzSrLzZakLqDsULzT28OwIhAILbBS66JoN1Xo2YsC1xDPDhukJjVO2guoeL+AM27Vfn"
 
-static int calcSecurityLevel(unsigned char *md, char *id, size_t idlen, uint64_t counter, SHA_CTX *ctx)
+static int calcSecurityLevel(SHA_CTX *ctx, unsigned char *md, char *buf, char *id, size_t idlen, uint64_t counter)
 {
-    char buf[22];
     size_t counterLength = 0;
     int i = 0;
     int j = 0;
@@ -62,9 +61,9 @@ int main(int argc, char **argv)
 {
     SHA_CTX ctx;
     unsigned char md[SHA_DIGEST_LENGTH];
+    char buf[25];
     const size_t in1Length = strlen(IN1);
     size_t i = 0;
-    size_t j = 0;
     int64_t securityLevel = 0;
     int64_t maxSecurityLevel = 36;
 
@@ -72,9 +71,9 @@ int main(int argc, char **argv)
     //nextBytes((char *)&counter, sizeof(uint64_t));
     //counter = counter & 0xffffffffffffUL;
 
-    for (uint64_t counter = 0x400000000UL; counter < 0x800000000UL; counter++)
+    for (uint64_t counter = 310269759527UL;; counter++)
     {
-        securityLevel = calcSecurityLevel(md, IN1, in1Length, counter, &ctx);
+        securityLevel = calcSecurityLevel(&ctx, md, buf, IN1, in1Length, counter);
         if (maxSecurityLevel <= securityLevel)
         {
             printf("Max update: %ld -> %ld, counter : %lu\n", maxSecurityLevel, securityLevel, counter);
@@ -83,9 +82,9 @@ int main(int argc, char **argv)
         if (securityLevel >= 40)
         {
             printf("counter(%" PRIu64 ") : %24" PRIu64 ", ", securityLevel, counter);
-            for (j = 0; j < SHA_DIGEST_LENGTH; j++)
+            for (i = 0; i < SHA_DIGEST_LENGTH; i++)
             {
-                printf("%02x", md[j]);
+                printf("%02x", md[i]);
             }
             printf("\n");
         }

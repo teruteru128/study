@@ -157,8 +157,6 @@ int main(int argc, char *argv[])
     BN_CTX *ctx = BN_CTX_new();
     errchk(ctx, BN_CTX_new);
     BIGNUM *tmp = NULL;
-    SHA512_CTX sha512ctx;
-    RIPEMD160_CTX ripemd160ctx;
     size_t nlz = 0;
     while (true)
     {
