@@ -84,17 +84,17 @@ msgid "%dmicro seconds stoped.\n"
 msgstr "%dマイクロ秒停止しました。\n"
 
 #: src/printBench.c:39
-#, fuzzy, c-format
+#, c-format
 msgid "It took %g seconds.\n"
 msgstr "%g秒かかりました。\n"
 
 #: src/printBench.c:40
-#, fuzzy, c-format
+#, c-format
 msgid "%g times per second\n"
 msgstr "1秒あたり %g回\n"
 
 #: src/printBench.c:41
-#, fuzzy, c-format
+#, c-format
 msgid "%e seconds per time\n"
 msgstr "1回あたり %e秒\n"
 
