@@ -65,13 +65,13 @@ int main(int argc, char **argv)
     const size_t in1Length = strlen(IN1);
     size_t i = 0;
     int64_t securityLevel = 0;
-    int64_t maxSecurityLevel = 36;
+    int64_t maxSecurityLevel = 39;
 
     initRandom();
     //nextBytes((char *)&counter, sizeof(uint64_t));
     //counter = counter & 0xffffffffffffUL;
 
-    for (uint64_t counter = 310269759527UL;; counter++)
+    for (uint64_t counter = 0x8000000000UL; counter < 0x10000000000UL; counter++)
     {
         securityLevel = calcSecurityLevel(&ctx, md, buf, IN1, in1Length, counter);
         if (maxSecurityLevel <= securityLevel)
