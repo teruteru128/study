@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "charset-convert.h"
+#include "CoDec.h"
 
 /*
   http://projectseven.jp/seven/7key.htm
@@ -12,7 +13,7 @@
   1バイト=8桁で2進数変換文字列に変換する
   1バイト単位でビットを逆順に並び替える
 */
-int encode(char **out, const char *in)
+int codec_encode(char **out, const char *in)
 {
   size_t len = strlen(in);
   size_t outlen = (len << 3) + 1;
@@ -36,7 +37,7 @@ int encode(char **out, const char *in)
   return 0;
 }
 
-int decode(char **out, char *in)
+int codec_decode(char **out, char *in)
 {
   size_t len = strlen(in);
   size_t outlen = ((len + 7) >> 3) + 1;
@@ -71,11 +72,11 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
   char *catch = NULL;
-  int err = encode(&catch, out);
+  int err = codec_encode(&catch, out);
   fputs(catch, stdout);
   fputc('\n', stdout);
   free(out);
-  err = decode(&out, catch);
+  err = codec_decode(&out, catch);
   fputs(out, stdout);
   fputc('\n', stdout);
   free(out);
