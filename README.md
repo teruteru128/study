@@ -12,7 +12,7 @@ A garbage dump repository created for studying Teruteru.
 - cuda-10-2 10.2.89-1
 - libupnp-dev 1:1.6.24-4
 
-## このリポジトリに含む機能
+## このリポジトリに含む~~クソ~~機能
 
 - ロケールに関するテスト実装。i18nテスト実装的な？
 - teamspeakのID セキュリティレベル改善ツール。今後使う予定なし。
