@@ -78,9 +78,15 @@ A garbage dump repository created for studying Teruteru.
 - unix signalのテスト。
 - stdoutとstderrに書き込むユーティリティシェルスクリプト。
 - 可変長文字列リスト/配列を作ろうとした残骸。
-- 文字列連結を作ろうとした残骸。strcat/strncatで十分。→区切り文字付き文字列連結は？
+- 文字列連結を作ろうとした残骸。strcat/strncatで十分。
+    - →区切り文字付き文字列連結は？
+    - JavaのStringJoiner的なライブラリを目指そうとしてたんだっけ？
 - 3立方数の和(Sum of three cubes)の検算ツール
 - TeXのHello World。あれがTeXなのかLaTeXなのかよくわかってない。~~ﾌﾌﾌ……TeX!~~
 - Tweetクライアントを作ろうとした残骸ファイル。main関数すら書いてない。
 - UPNPを実装しようとした残骸。このファイルいつから触ってないんだっけ？
 - NicoNamaCommentViewerのUserSettingを変換するために作ろうとしたXSLファイルの残骸。
+
+## かつて存在したクソ
+
+- Fork爆弾
