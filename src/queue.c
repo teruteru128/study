@@ -1,20 +1,7 @@
+
 #include <stdint.h>
 #include <stdio.h>
-
-typedef struct chunk_pos
-{
-    int64_t seed;
-    int32_t x;
-    int32_t z;
-} chunk_pos;
-// TODO chunk_pos* を void* にする
-typedef struct seedqueue
-{
-    chunk_pos *data;
-    size_t size;
-    size_t head;
-    size_t tail;
-} seedqueue;
+#include "queue.h"
 
 //リングバッファ
 int enq(seedqueue *queue, chunk_pos *pos) {}
