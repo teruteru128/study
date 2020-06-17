@@ -1,5 +1,4 @@
 bin_PROGRAMS=
-bin_PROGRAMS+=015
 bin_PROGRAMS+=016
 bin_PROGRAMS+=017
 bin_PROGRAMS+=019
@@ -36,6 +35,7 @@ bin_PROGRAMS+=firstThread4-1
 bin_PROGRAMS+=gettextsample2
 bin_PROGRAMS+=gettextsample3
 bin_PROGRAMS+=gettime
+bin_PROGRAMS+=hugecollatztest
 bin_PROGRAMS+=itoabench
 bin_PROGRAMS+=kxsample
 bin_PROGRAMS+=list2
@@ -92,7 +92,7 @@ cudamalloctest: cudamalloctest.o
 	$(NVCC) $(LDFLAGS) -ccbin $(CC) $< -o $@
 
 localetest2_SOURCES=localetest2.c
-015_LDFLAGS=-lcrypto
+hugecollatztest_LDFLAGS=-lcrypto
 016_LDFLAGS=-lssl -lcrypto
 016_SOURCES=016.c config.h
 017_LDFLAGS=-lssl -lcrypto

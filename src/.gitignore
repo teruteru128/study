@@ -1,4 +1,3 @@
-015
 016
 017
 019
@@ -34,6 +33,7 @@ firstThread4-1
 gettextsample2
 gettextsample3
 gettime
+hugecollatztest
 iconv_Chk
 itoabench
 kxsample
