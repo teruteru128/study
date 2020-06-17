@@ -17,8 +17,8 @@
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
-#define KEY_CACHE_SIZE 1048576ULL
-#define REQUIRE_NLZ 5
+#define KEY_CACHE_SIZE 256ULL
+#define REQUIRE_NLZ 2
 #define ADDRESS_VERSION 4
 #define STREAM_NUMBER 1
 #define J_CACHE_SIZE 8
@@ -120,6 +120,7 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "");
     bindtextdomain(PACKAGE, LOCALEDIR);
     textdomain(PACKAGE);
+    OpenSSL_add_all_digests();
     unsigned char *privateKeys = calloc(KEY_CACHE_SIZE, PRIVATE_KEY_LENGTH);
     if (!privateKeys)
     {
@@ -132,11 +133,13 @@ int main(int argc, char *argv[])
         perror("calloc(publicKeys)");
         return EXIT_FAILURE;
     }
-    SHA512_CTX sha512ctx;
-    RIPEMD160_CTX ripemd160ctx;
+    EVP_MD_CTX *sha512ctx1 = EVP_MD_CTX_create();
+    EVP_MD_CTX *ripemd160ctx1 = EVP_MD_CTX_create();
+    const EVP_MD *sha512md = EVP_get_digestbynid(NID_sha512);
+    const EVP_MD *ripemd160md = EVP_get_digestbynid(NID_ripemd160);
     unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
     unsigned char jPublicKey[PUBLIC_KEY_LENGTH * J_CACHE_SIZE];
-    unsigned char cache64[SHA512_DIGEST_LENGTH];
+    unsigned char cache64[EVP_MAX_MD_SIZE];
     size_t i = 0;
     size_t j = 0;
     size_t jj_max = 0;
@@ -179,13 +182,13 @@ int main(int argc, char *argv[])
         {
             // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
             memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-            SHA512_Init(&sha512ctx);
-            SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-            SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-            SHA512_Final(cache64, &sha512ctx);
-            RIPEMD160_Init(&ripemd160ctx);
-            RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
-            RIPEMD160_Final(cache64, &ripemd160ctx);
+            EVP_DigestInit(sha512ctx1, sha512md);
+            EVP_DigestUpdate(sha512ctx1, iPublicKey, PUBLIC_KEY_LENGTH);
+            EVP_DigestUpdate(sha512ctx1, iPublicKey, PUBLIC_KEY_LENGTH);
+            EVP_DigestFinal(sha512ctx1, cache64, NULL);
+            EVP_DigestInit(ripemd160ctx1, ripemd160md);
+            EVP_DigestUpdate(ripemd160ctx1, cache64, SHA512_DIGEST_LENGTH);
+            EVP_DigestFinal(ripemd160ctx1, cache64, NULL);
             for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
             if (nlz >= REQUIRE_NLZ)
             {
@@ -196,25 +199,25 @@ int main(int argc, char *argv[])
                 memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH * J_CACHE_SIZE);
                 for (jj = 0; jj < J_CACHE_SIZE && (j + jj) < i; jj++)
                 {
-                    SHA512_Init(&sha512ctx);
-                    SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                    SHA512_Update(&sha512ctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-                    SHA512_Final(cache64, &sha512ctx);
-                    RIPEMD160_Init(&ripemd160ctx);
-                    RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
-                    RIPEMD160_Final(cache64, &ripemd160ctx);
+                    EVP_DigestInit(sha512ctx1, sha512md);
+                    EVP_DigestUpdate(sha512ctx1, iPublicKey, PUBLIC_KEY_LENGTH);
+                    EVP_DigestUpdate(sha512ctx1, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
+                    EVP_DigestFinal(sha512ctx1, cache64, NULL);
+                    EVP_DigestInit(ripemd160ctx1, ripemd160md);
+                    EVP_DigestUpdate(ripemd160ctx1, cache64, SHA512_DIGEST_LENGTH);
+                    EVP_DigestFinal(ripemd160ctx1, cache64, NULL);
                     for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
                     if (nlz >= REQUIRE_NLZ)
                     {
                         exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), cache64);
                     }
-                    SHA512_Init(&sha512ctx);
-                    SHA512_Update(&sha512ctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-                    SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                    SHA512_Final(cache64, &sha512ctx);
-                    RIPEMD160_Init(&ripemd160ctx);
-                    RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
-                    RIPEMD160_Final(cache64, &ripemd160ctx);
+                    EVP_DigestInit(sha512ctx1, sha512md);
+                    EVP_DigestUpdate(sha512ctx1, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
+                    EVP_DigestUpdate(sha512ctx1, iPublicKey, PUBLIC_KEY_LENGTH);
+                    EVP_DigestFinal(sha512ctx1, cache64, NULL);
+                    EVP_DigestInit(ripemd160ctx1, ripemd160md);
+                    EVP_DigestUpdate(ripemd160ctx1, cache64, SHA512_DIGEST_LENGTH);
+                    EVP_DigestFinal(ripemd160ctx1, cache64, NULL);
                     for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
                     if (nlz >= REQUIRE_NLZ)
                     {
@@ -232,5 +235,8 @@ shutdown:
     BN_CTX_free(ctx);
     EC_POINT_free(pubkey);
     EC_GROUP_free(secp256k1);
+    EVP_MD_CTX_free(ripemd160ctx1);
+    EVP_MD_CTX_free(sha512ctx1);
+    EVP_cleanup();
     return EXIT_SUCCESS;
 }
