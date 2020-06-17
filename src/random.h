@@ -32,6 +32,6 @@ int64_t genrand64_int63(void);
 double genrand64_real1(void);
 double genrand64_real2(void);
 double genrand64_real3(void);
-int nextBytes(char *buf, size_t len);
+int nextBytes(unsigned char *buf, size_t len);
 
 #endif

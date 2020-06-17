@@ -53,7 +53,7 @@ int bm_client_set_user(bm_client *c, const char *const username, const char *con
 
 void bm_client_free(bm_client *c)
 {
-  return 0;
+  return;
 }
 
 int bmapi_init()

@@ -28,7 +28,6 @@ envgettest
 epsp-parser-test
 evptest
 falcon
-fb
 firstThread
 firstThread2
 firstThread3
@@ -47,7 +46,6 @@ loop-bench
 main
 maxmovingsum
 mysqlfast
-orz
 portscanner
 prime
 prime2

@@ -13,6 +13,8 @@
 #include "random.h"
 
 static const char *hexchars = "0123456789abcdef";
+
+// TODO: ライブラリ化
 static void hex_dump(const void *pt, const size_t len)
 {
   char *p = (char *)pt;

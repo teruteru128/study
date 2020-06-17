@@ -77,12 +77,13 @@ bin_PROGRAMS+=variables4
 bin_PROGRAMS+=variables5
 bin_PROGRAMS+=yattaze
 
+# TODO: *.cuをコンパイルするときだけNVCCを使いたい
 # https://tschoonj.github.io/blog/2014/05/10/building-a-cuda-device-function-library-with-autotools/
 # :thinking:?
 NVCC=nvcc
 
 .cu.o:
-	$(NVCC) $(CFLAGS) -ccbin $(CC) -c $< -o $@
+	$(NVCC) -ccbin $(CC) -c $< -o $@
 
 cudahello: cudahello.o
 	$(NVCC) $(LDFLAGS) -ccbin $(CC) $< -o $@
@@ -98,6 +99,7 @@ cudamalloctest: cudamalloctest.o
 017_SOURCES=017.c printint.c printint.h config.h random.h random.c numsys.c numsys.h
 019_SOURCES=019.c config.h
 019_LDFLAGS=-lm
+AM_CPPFLAGS=-Wall
 CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h config.h CoDec.h
 FizzBuzz_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 FizzBuzz_SOURCES=FizzBuzz.c printint.c printint.h config.h
@@ -150,7 +152,6 @@ localetest1_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 localetest1_SOURCES=localetest1.c localetest1.h
 maxmovingsum_LDFLAGS=-lm
 maxmovingsum_SOURCES=maxmovingsum.c config.h
-orz_SOURCES=orz.c orz.h random.c random.h internal_random.h config.h
 portscanner_SOURCES=portscanner.c config.h
 prime2_SOURCES=prime2.c config.h
 prime3_SOURCES=prime3.c config.h

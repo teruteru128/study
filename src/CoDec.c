@@ -48,7 +48,7 @@ int codec_decode(char **out, char *in)
     return 1;
   }
   memset(work, 0, outlen);
-  size_t i = 0, j = 0;
+  size_t i = 0;
   for (i = 0; i < len; i++)
   {
     work[i / 8] |= (in[i] & 0x01) << (i % 8);
@@ -73,10 +73,18 @@ int main(int argc, char *argv[])
   }
   char *catch = NULL;
   int err = codec_encode(&catch, out);
+  if(!err)
+  {
+    return EXIT_FAILURE;
+  }
   fputs(catch, stdout);
   fputc('\n', stdout);
   free(out);
   err = codec_decode(&out, catch);
+  if(!err)
+  {
+    return EXIT_FAILURE;
+  }
   fputs(out, stdout);
   fputc('\n', stdout);
   free(out);

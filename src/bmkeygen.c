@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <openssl/bn.h>
 #include <openssl/ec.h>
 #include <openssl/err.h>
@@ -21,7 +20,7 @@
 #define REQUIRE_NLZ 5
 #define ADDRESS_VERSION 4
 #define STREAM_NUMBER 1
-#define J_CACHE_SIZE 8
+#define J_CACHE_SIZE 126
 
 #define errchk(v, f)                                                \
     if (!v)                                                         \
@@ -43,9 +42,8 @@ char *encodeBase58()
 
 char *encodeAddress0(int version, int stream, char *ripe, int max)
 {
+    max = 1 <= max ? max : 1;
     max = max <= 20 ? max : 20;
-    max = max >= 1 ? max : 1;
-    size_t ripelen = 20;
     if (version >= 2 && version < 4)
     {
         int i = 0;
@@ -56,10 +54,11 @@ char *encodeAddress0(int version, int stream, char *ripe, int max)
     else if (version == 4)
     {
         int i = 0;
-        for (; ripe[i] == 0 && i < 2; i++)
+        for (; ripe[i] == 0 && i < RIPEMD160_DIGEST_LENGTH; i++)
         {
         }
     }
+    return NULL;
 }
 
 char *encodeAddress(int version, int stream, char *ripe)
@@ -142,14 +141,12 @@ int main(int argc, char *argv[])
     unsigned char cache64[EVP_MAX_MD_SIZE];
     size_t i = 0;
     size_t j = 0;
-    size_t jj_max = 0;
     size_t jj = 0;
     int r = 0;
 
     // curve 生成
     EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
     errchk(secp256k1, EC_GROUP_new_by_curve_name);
-    const EC_POINT *g = EC_GROUP_get0_generator(secp256k1);
     // private key working area
     BIGNUM *prikey = BN_new();
     errchk(prikey, BN_new);
@@ -234,7 +231,7 @@ int main(int argc, char *argv[])
         }
     }
     /* DEAD CODE ***********************/
-shutdown:
+//shutdown:
     free(privateKeys);
     free(publicKeys);
     BN_free(prikey);

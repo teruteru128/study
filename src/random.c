@@ -130,7 +130,9 @@ double nextDouble(Random *rnd)
 double nextDoubleXor()
 {
   static uint32_t y = 2463534242;
-  return (((int64_t)((y = xorshift(y)) & 0x3ffffff) << 27) + ((y = xorshift(y)) & 0x7ffffff)) * DOUBLE_UNIT;
+  uint32_t z1 = y = xorshift(y);
+  uint32_t z2 = y = xorshift(y);
+  return (((int64_t)(z1 & 0x3ffffff) << 27) + (z2 & 0x7ffffff)) * DOUBLE_UNIT;
 }
 
 #define NN 312
@@ -253,7 +255,7 @@ double genrand64_real3(void)
   return ((genrand64_int64() >> 12) + 0.5) * (1.0 / 4503599627370496.0);
 }
 
-int nextBytes(char *buf, size_t len)
+int nextBytes(unsigned char *buf, size_t len)
 {
     char *inf = "/dev/urandom";
     FILE *in = fopen(inf, "rb");
