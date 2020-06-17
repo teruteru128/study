@@ -14,12 +14,11 @@
 #include <openssl/ripemd.h>
 #include <openssl/sha.h>
 #include "random.h"
-#include "bm.h"
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
 #define KEY_CACHE_SIZE 65536ULL
-#define REQUIRE_NLZ 3
+#define REQUIRE_NLZ 5
 #define ADDRESS_VERSION 4
 #define STREAM_NUMBER 1
 #define J_CACHE_SIZE 8
@@ -134,10 +133,11 @@ int main(int argc, char *argv[])
         perror("calloc(publicKeys)");
         return EXIT_FAILURE;
     }
-    RIPE_CTX ripectx;
+    SHA512_CTX sha512ctx;
+    RIPEMD160_CTX ripemd160ctx;
     unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
     unsigned char jPublicKey[PUBLIC_KEY_LENGTH * J_CACHE_SIZE];
-    unsigned char *cache64 = ripectx.cache64;
+    unsigned char cache64[SHA512_DIGEST_LENGTH];
     size_t i = 0;
     size_t j = 0;
     size_t jj_max = 0;
@@ -180,7 +180,14 @@ int main(int argc, char *argv[])
         {
             // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
             memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-            nlz = ripe(&ripectx, iPublicKey, iPublicKey);
+            SHA512_Init(&sha512ctx);
+            SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+            SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+            SHA512_Final(cache64, &sha512ctx);
+            RIPEMD160_Init(&ripemd160ctx);
+            RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+            RIPEMD160_Final(cache64, &ripemd160ctx);
+            for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
             if (nlz >= REQUIRE_NLZ)
             {
                 exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
@@ -190,12 +197,26 @@ int main(int argc, char *argv[])
                 memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH * J_CACHE_SIZE);
                 for (jj = 0; jj < J_CACHE_SIZE && (j + jj) < i; jj++)
                 {
-                    nlz = ripe(&ripectx, iPublicKey, &jPublicKey[jj * PUBLIC_KEY_LENGTH]);
+                    SHA512_Init(&sha512ctx);
+                    SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+                    SHA512_Update(&sha512ctx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
+                    SHA512_Final(cache64, &sha512ctx);
+                    RIPEMD160_Init(&ripemd160ctx);
+                    RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+                    RIPEMD160_Final(cache64, &ripemd160ctx);
+                    for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
                     if (nlz >= REQUIRE_NLZ)
                     {
                         exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], cache64);
                     }
-                    nlz = ripe(&ripectx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], iPublicKey);
+                    SHA512_Init(&sha512ctx);
+                    SHA512_Update(&sha512ctx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
+                    SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+                    SHA512_Final(cache64, &sha512ctx);
+                    RIPEMD160_Init(&ripemd160ctx);
+                    RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+                    RIPEMD160_Final(cache64, &ripemd160ctx);
+                    for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
                     if (nlz >= REQUIRE_NLZ)
                     {
                         exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
