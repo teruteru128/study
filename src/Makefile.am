@@ -1,5 +1,4 @@
 bin_PROGRAMS=
-bin_PROGRAMS+=019
 bin_PROGRAMS+=CoDec
 bin_PROGRAMS+=FizzBuzz
 bin_PROGRAMS+=Nabeatsu
@@ -41,6 +40,7 @@ bin_PROGRAMS+=localetest1
 bin_PROGRAMS+=localetest2
 bin_PROGRAMS+=log-sample
 bin_PROGRAMS+=loop-bench
+bin_PROGRAMS+=mappingsample
 bin_PROGRAMS+=maxmovingsum
 bin_PROGRAMS+=mysqlfast
 bin_PROGRAMS+=portscanner
@@ -91,14 +91,6 @@ cudahello: cudahello.o
 cudamalloctest: cudamalloctest.o
 	$(NVCC) $(LDFLAGS) -ccbin $(CC) $< -o $@
 
-localetest2_SOURCES=localetest2.c
-hugecollatztest_LDFLAGS=-lcrypto
-tsidshowsample_LDFLAGS=-lssl -lcrypto
-tsidshowsample_SOURCES=tsidshowsample.c config.h
-tsidimprover_LDFLAGS=-lssl -lcrypto
-tsidimprover_SOURCES=tsidimprover.c printint.c printint.h config.h random.h random.c numsys.c numsys.h
-019_SOURCES=019.c config.h
-019_LDFLAGS=-lm
 AM_CPPFLAGS=-Wall
 CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h config.h CoDec.h
 FizzBuzz_CFLAGS=-DLOCALEDIR='"$(localedir)"'
@@ -145,11 +137,15 @@ gettextsample3_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 gettextsample3_LDFLAGS=
 gettextsample3_SOURCES=gettextsample3.c gettextsample3.h study-config.h config.h textdomain.c textdomain_inner.h mytextdomain.h
 gettime_SOURCES=gettime.c gettime.h
+hugecollatztest_LDFLAGS=-lcrypto
 itoabench_SOURCES=printint.c itoabench.c printint.h config.h
 itoabench_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 kxsample_LDFLAGS=-lsodium
 localetest1_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 localetest1_SOURCES=localetest1.c localetest1.h
+localetest2_SOURCES=localetest2.c
+mappingsample_SOURCES=mappingsample.c config.h
+mappingsample_LDFLAGS=-lm
 maxmovingsum_LDFLAGS=-lm
 maxmovingsum_SOURCES=maxmovingsum.c config.h
 portscanner_SOURCES=portscanner.c config.h
@@ -182,6 +178,10 @@ teamspeakIdUpgrader_SOURCES=teamspeakIdUpgrader.c printint.c printint.h  config.
 teamspeakcalc_CFLAGS=
 teamspeakcalc_LDFLAGS=-lcrypto
 teamspeakcalc_SOURCES=teamspeakcalc.c printint.c printint.h config.h
+tsidimprover_LDFLAGS=-lssl -lcrypto
+tsidimprover_SOURCES=tsidimprover.c printint.c printint.h config.h random.h random.c numsys.c numsys.h
+tsidshowsample_LDFLAGS=-lssl -lcrypto
+tsidshowsample_SOURCES=tsidshowsample.c config.h
 threadAttr_LDFLAGS=-pthread
 udpsender_SOURCES=udpsender.c config.h
 uuidtest_LDFLAGS=-luuid

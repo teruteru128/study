@@ -23,7 +23,7 @@ y = 2 sqrt(x - x^2)
 */
 int main(int argc, char **argv)
 {
-    double a = 0x1.14514p-1;
+    double a = 0.125;
     printf("%.18lf\n", a);
     while(0 < a && a < 1)
     {
