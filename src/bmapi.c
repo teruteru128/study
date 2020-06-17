@@ -34,16 +34,29 @@ bm_client *bm_client_new()
     return NULL;
   }
   bm_client *c = malloc(sizeof(bm_client));
-  c->env = &env;
   xmlrpc_client_create(&env, XMLRPC_CLIENT_NO_FLAGS, PACKAGE_NAME, PACKAGE_VERSION, NULL, 0, &c->cp);
   c->sinfo = xmlrpc_server_info_new(&env, "http://localhost:8442/");
   xmlrpc_server_info_set_user(&env, c->sinfo, "teruteru128", "testpassword");
   xmlrpc_server_info_allow_auth_basic(&env, c->sinfo);
   return c;
 }
-void bm_client_free(bm_client *);
 
-void bmapi_init()
+int bm_client_set_server(bm_client *c, const char *const url)
+{
+  c->sinfo = xmlrpc_server_info_new(&env, url);
+}
+
+int bm_client_set_user(bm_client *c, const char *const username, const char *const password)
+{
+  xmlrpc_server_info_set_user(&env, c->sinfo, "teruteru128", "testpassword");
+}
+
+void bm_client_free(bm_client *c)
+{
+  return 0;
+}
+
+int bmapi_init()
 {
   if(initflag == 0)
   {
@@ -52,13 +65,19 @@ void bmapi_init()
     xmlrpc_client_setup_global_const(&env);
     initflag = 1;
   }
+  return 0;
 }
 
 int bmapi_cleanup()
 {
-  xmlrpc_client_setup_global_const(&env);
-  xmlrpc_env_clean(&env);
-  xmlrpc_term();
+  if(initflag == 1)
+  {
+    xmlrpc_client_setup_global_const(&env);
+    xmlrpc_env_clean(&env);
+    xmlrpc_term();
+    initflag = 0;
+  }
+  return 0;
 }
 
 static int bmapi_call(char *methodName, xmlrpc_value *paramArray, xmlrpc_value **resultPP)

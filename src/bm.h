@@ -30,13 +30,6 @@ typedef struct connectioninfo_t
   serverinfo server;
 } connectioninfo;
 
-typedef struct bm_client_t
-{
-  xmlrpc_env *env;
-  xmlrpc_client *cp;
-  xmlrpc_server_info *sinfo;
-} bm_client_t;
-
 /* int ripe(ripectx, signpub, encpub) */
 size_t ripe(RIPE_CTX *, unsigned char *signpub, unsigned char *encpub);
 

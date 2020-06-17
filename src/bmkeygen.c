@@ -17,8 +17,8 @@
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
-#define KEY_CACHE_SIZE 256ULL
-#define REQUIRE_NLZ 2
+#define KEY_CACHE_SIZE 16777216ULL
+#define REQUIRE_NLZ 5
 #define ADDRESS_VERSION 4
 #define STREAM_NUMBER 1
 #define J_CACHE_SIZE 8
@@ -31,7 +31,6 @@
         return EXIT_FAILURE;                                        \
     }
 
-#if 0
 char *encodeVarint(unsigned long u)
 {
     return NULL;
@@ -47,14 +46,19 @@ char *encodeAddress0(int version, int stream, char *ripe, int max)
     max = max <= 20 ? max : 20;
     max = max >= 1 ? max : 1;
     size_t ripelen = 20;
-    if(version >= 2 && version < 4)
+    if (version >= 2 && version < 4)
     {
         int i = 0;
-        for(;ripe[i] == 0 && i < 2; i++){}
-    } else if(version == 4)
+        for (; ripe[i] == 0 && i < 2; i++)
+        {
+        }
+    }
+    else if (version == 4)
     {
         int i = 0;
-        for(;ripe[i] == 0 && i < 2; i++){}
+        for (; ripe[i] == 0 && i < 2; i++)
+        {
+        }
     }
 }
 
@@ -75,7 +79,6 @@ char *formatKey(char *address, char *privateSigningKeyWIF, char *privateEncrypti
     snprintf(buf, 300, "[%s]]\nlabel = relpace this label\nenabled = true\ndecoy = false\nnoncetrialsperbyte = 1000\npayloadlengthextrabytes = 1000\nprivsigningkey = %s\nprivencryptionkey = %s\n", address, privateSigningKeyWIF, privateEncryptionKeyWIF);
     return buf;
 }
-#endif
 
 int exportAddress(unsigned char *privateSigningKey, unsigned char *publicSigningKey, unsigned char *privateEncryptionKey, unsigned char *publicEncryptionKey, unsigned char *ripe)
 {
@@ -86,23 +89,20 @@ int exportAddress(unsigned char *privateSigningKey, unsigned char *publicSigning
     char *formated = formatKey(address4, privateSigningKeyWIF, privateEncryptionKeyWIF);
     printf("%s\n", formated);
     */
-    size_t i = 0;
-    fputs("ripe = ", stdout);
-    for (i = 0; i < RIPEMD160_DIGEST_LENGTH; i++)
-    {
-        fprintf(stdout, "%02x", ripe[i]);
-    }
-    fputs("\nprivate signing key = ", stdout);
-    for (i = 0; i < PRIVATE_KEY_LENGTH; i++)
-    {
-        fprintf(stdout, "%02x", privateSigningKey[i]);
-    }
-    fputs("\nprivate encryption key = ", stdout);
-    for (i = 0; i < PRIVATE_KEY_LENGTH; i++)
-    {
-        fprintf(stdout, "%02x", privateEncryptionKey[i]);
-    }
-    fputs("\n\n", stdout);
+    char buf[227];
+    snprintf(buf, 227, "ripe = %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n"
+                       "private signing key = %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n"
+                       "private encryption key = %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n\n",
+             ripe[0], ripe[1], ripe[2], ripe[3], ripe[4], ripe[5], ripe[6], ripe[7], ripe[8], ripe[9], ripe[10], ripe[11], ripe[12], ripe[13], ripe[14], ripe[15], ripe[16], ripe[17], ripe[18], ripe[19],
+             privateSigningKey[0], privateSigningKey[1], privateSigningKey[2], privateSigningKey[3], privateSigningKey[4], privateSigningKey[5], privateSigningKey[6], privateSigningKey[7],
+             privateSigningKey[8], privateSigningKey[9], privateSigningKey[10], privateSigningKey[11], privateSigningKey[12], privateSigningKey[13], privateSigningKey[14], privateSigningKey[15],
+             privateSigningKey[16], privateSigningKey[17], privateSigningKey[18], privateSigningKey[19], privateSigningKey[20], privateSigningKey[21], privateSigningKey[22], privateSigningKey[23],
+             privateSigningKey[24], privateSigningKey[25], privateSigningKey[26], privateSigningKey[27], privateSigningKey[28], privateSigningKey[29], privateSigningKey[30], privateSigningKey[31],
+             privateEncryptionKey[0], privateEncryptionKey[1], privateEncryptionKey[2], privateEncryptionKey[3], privateEncryptionKey[4], privateEncryptionKey[5], privateEncryptionKey[6], privateEncryptionKey[7],
+             privateEncryptionKey[8], privateEncryptionKey[9], privateEncryptionKey[10], privateEncryptionKey[11], privateEncryptionKey[12], privateEncryptionKey[13], privateEncryptionKey[14], privateEncryptionKey[15],
+             privateEncryptionKey[16], privateEncryptionKey[17], privateEncryptionKey[18], privateEncryptionKey[19], privateEncryptionKey[20], privateEncryptionKey[21], privateEncryptionKey[22], privateEncryptionKey[23], privateEncryptionKey[24],
+             privateEncryptionKey[25], privateEncryptionKey[26], privateEncryptionKey[27], privateEncryptionKey[28], privateEncryptionKey[29], privateEncryptionKey[30], privateEncryptionKey[31]);
+    fputs(buf, stdout);
     /*
     free(formated);
     free(privateEncryptionKeyWIF);
@@ -133,8 +133,8 @@ int main(int argc, char *argv[])
         perror("calloc(publicKeys)");
         return EXIT_FAILURE;
     }
-    EVP_MD_CTX *sha512ctx1 = EVP_MD_CTX_create();
-    EVP_MD_CTX *ripemd160ctx1 = EVP_MD_CTX_create();
+    EVP_MD_CTX *sha512ctx = EVP_MD_CTX_new();
+    EVP_MD_CTX *ripemd160ctx = EVP_MD_CTX_new();
     const EVP_MD *sha512md = EVP_get_digestbynid(NID_sha512);
     const EVP_MD *ripemd160md = EVP_get_digestbynid(NID_ripemd160);
     unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
@@ -182,14 +182,16 @@ int main(int argc, char *argv[])
         {
             // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
             memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-            EVP_DigestInit(sha512ctx1, sha512md);
-            EVP_DigestUpdate(sha512ctx1, iPublicKey, PUBLIC_KEY_LENGTH);
-            EVP_DigestUpdate(sha512ctx1, iPublicKey, PUBLIC_KEY_LENGTH);
-            EVP_DigestFinal(sha512ctx1, cache64, NULL);
-            EVP_DigestInit(ripemd160ctx1, ripemd160md);
-            EVP_DigestUpdate(ripemd160ctx1, cache64, SHA512_DIGEST_LENGTH);
-            EVP_DigestFinal(ripemd160ctx1, cache64, NULL);
-            for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
+            EVP_DigestInit(sha512ctx, sha512md);
+            EVP_DigestUpdate(sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+            EVP_DigestUpdate(sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+            EVP_DigestFinal(sha512ctx, cache64, NULL);
+            EVP_DigestInit(ripemd160ctx, ripemd160md);
+            EVP_DigestUpdate(ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+            EVP_DigestFinal(ripemd160ctx, cache64, NULL);
+            for (nlz = 0; !cache64[nlz] && nlz < RIPEMD160_DIGEST_LENGTH; nlz++)
+            {
+            }
             if (nlz >= REQUIRE_NLZ)
             {
                 exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
@@ -199,26 +201,30 @@ int main(int argc, char *argv[])
                 memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH * J_CACHE_SIZE);
                 for (jj = 0; jj < J_CACHE_SIZE && (j + jj) < i; jj++)
                 {
-                    EVP_DigestInit(sha512ctx1, sha512md);
-                    EVP_DigestUpdate(sha512ctx1, iPublicKey, PUBLIC_KEY_LENGTH);
-                    EVP_DigestUpdate(sha512ctx1, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-                    EVP_DigestFinal(sha512ctx1, cache64, NULL);
-                    EVP_DigestInit(ripemd160ctx1, ripemd160md);
-                    EVP_DigestUpdate(ripemd160ctx1, cache64, SHA512_DIGEST_LENGTH);
-                    EVP_DigestFinal(ripemd160ctx1, cache64, NULL);
-                    for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
+                    EVP_DigestInit(sha512ctx, sha512md);
+                    EVP_DigestUpdate(sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+                    EVP_DigestUpdate(sha512ctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
+                    EVP_DigestFinal(sha512ctx, cache64, NULL);
+                    EVP_DigestInit(ripemd160ctx, ripemd160md);
+                    EVP_DigestUpdate(ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+                    EVP_DigestFinal(ripemd160ctx, cache64, NULL);
+                    for (nlz = 0; !cache64[nlz] && nlz < RIPEMD160_DIGEST_LENGTH; nlz++)
+                    {
+                    }
                     if (nlz >= REQUIRE_NLZ)
                     {
                         exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), cache64);
                     }
-                    EVP_DigestInit(sha512ctx1, sha512md);
-                    EVP_DigestUpdate(sha512ctx1, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-                    EVP_DigestUpdate(sha512ctx1, iPublicKey, PUBLIC_KEY_LENGTH);
-                    EVP_DigestFinal(sha512ctx1, cache64, NULL);
-                    EVP_DigestInit(ripemd160ctx1, ripemd160md);
-                    EVP_DigestUpdate(ripemd160ctx1, cache64, SHA512_DIGEST_LENGTH);
-                    EVP_DigestFinal(ripemd160ctx1, cache64, NULL);
-                    for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
+                    EVP_DigestInit(sha512ctx, sha512md);
+                    EVP_DigestUpdate(sha512ctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
+                    EVP_DigestUpdate(sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
+                    EVP_DigestFinal(sha512ctx, cache64, NULL);
+                    EVP_DigestInit(ripemd160ctx, ripemd160md);
+                    EVP_DigestUpdate(ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+                    EVP_DigestFinal(ripemd160ctx, cache64, NULL);
+                    for (nlz = 0; !cache64[nlz] && nlz < RIPEMD160_DIGEST_LENGTH; nlz++)
+                    {
+                    }
                     if (nlz >= REQUIRE_NLZ)
                     {
                         exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
@@ -235,8 +241,8 @@ shutdown:
     BN_CTX_free(ctx);
     EC_POINT_free(pubkey);
     EC_GROUP_free(secp256k1);
-    EVP_MD_CTX_free(ripemd160ctx1);
-    EVP_MD_CTX_free(sha512ctx1);
+    EVP_MD_CTX_free(ripemd160ctx);
+    EVP_MD_CTX_free(sha512ctx);
     EVP_cleanup();
     return EXIT_SUCCESS;
 }

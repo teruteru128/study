@@ -53,6 +53,8 @@ int main(int const argc, const char **const argv)
     return EXIT_FAILURE;
   }
 
+  bm_client *c = bm_client_new();
+
   char *tmp = NULL;
   char *message = "";
   do

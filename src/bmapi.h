@@ -6,7 +6,13 @@
 #include <xmlrpc.h>
 #include <xmlrpc_client.h>
 
-void bmapi_init(void);
+typedef struct bm_client_t
+{
+  xmlrpc_client *cp;
+  xmlrpc_server_info *sinfo;
+} bm_client;
+
+int bmapi_init(void);
 int bmapi_cleanup();
 char *bmapi_helloWorld(char*, char*);
 int bmapi_add(int, int);

@@ -24,6 +24,7 @@ bin_PROGRAMS+=dragon
 bin_PROGRAMS+=dragon
 bin_PROGRAMS+=eckeygentest
 bin_PROGRAMS+=encodersa
+bin_PROGRAMS+=enginetest
 bin_PROGRAMS+=envgettest
 bin_PROGRAMS+=epsp-parser-test
 bin_PROGRAMS+=evptest
