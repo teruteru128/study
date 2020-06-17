@@ -26,6 +26,7 @@ bin_PROGRAMS+=eckeygentest
 bin_PROGRAMS+=encodersa
 bin_PROGRAMS+=envgettest
 bin_PROGRAMS+=epsp-parser-test
+bin_PROGRAMS+=evptest
 bin_PROGRAMS+=falcon
 bin_PROGRAMS+=firstThread
 bin_PROGRAMS+=firstThread2
