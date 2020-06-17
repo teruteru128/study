@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
                 {
                     SHA512_Init(&sha512ctx);
                     SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                    SHA512_Update(&sha512ctx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
+                    SHA512_Update(&sha512ctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
                     SHA512_Final(cache64, &sha512ctx);
                     RIPEMD160_Init(&ripemd160ctx);
                     RIPEMD160_Update(&ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
@@ -207,10 +207,10 @@ int main(int argc, char *argv[])
                     for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
                     if (nlz >= REQUIRE_NLZ)
                     {
-                        exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], cache64);
+                        exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), cache64);
                     }
                     SHA512_Init(&sha512ctx);
-                    SHA512_Update(&sha512ctx, &jPublicKey[jj * PUBLIC_KEY_LENGTH], PUBLIC_KEY_LENGTH);
+                    SHA512_Update(&sha512ctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
                     SHA512_Update(&sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
                     SHA512_Final(cache64, &sha512ctx);
                     RIPEMD160_Init(&ripemd160ctx);
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
                     for (nlz = 0; cache64[nlz] == 0 && nlz < RIPEMD160_DIGEST_LENGTH; nlz++){}
                     if (nlz >= REQUIRE_NLZ)
                     {
-                        exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), &jPublicKey[jj * PUBLIC_KEY_LENGTH], privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+                        exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
                     }
                 } // jj
             }
