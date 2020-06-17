@@ -1,5 +1,4 @@
 bin_PROGRAMS=
-bin_PROGRAMS+=016
 bin_PROGRAMS+=017
 bin_PROGRAMS+=019
 bin_PROGRAMS+=CoDec
@@ -67,6 +66,7 @@ bin_PROGRAMS+=sum
 bin_PROGRAMS+=teamspeakIdUpgrader
 bin_PROGRAMS+=teamspeakcalc
 bin_PROGRAMS+=threadAttr
+bin_PROGRAMS+=tsidshowsample
 bin_PROGRAMS+=tweet
 bin_PROGRAMS+=udpreciever
 bin_PROGRAMS+=udpsender
@@ -93,8 +93,8 @@ cudamalloctest: cudamalloctest.o
 
 localetest2_SOURCES=localetest2.c
 hugecollatztest_LDFLAGS=-lcrypto
-016_LDFLAGS=-lssl -lcrypto
-016_SOURCES=016.c config.h
+tsidshowsample_LDFLAGS=-lssl -lcrypto
+tsidshowsample_SOURCES=tsidshowsample.c config.h
 017_LDFLAGS=-lssl -lcrypto
 017_SOURCES=017.c printint.c printint.h config.h random.h random.c numsys.c numsys.h
 019_SOURCES=019.c config.h
