@@ -120,7 +120,6 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "");
     bindtextdomain(PACKAGE, LOCALEDIR);
     textdomain(PACKAGE);
-    OpenSSL_add_all_digests();
     unsigned char *privateKeys = calloc(KEY_CACHE_SIZE, PRIVATE_KEY_LENGTH);
     if (!privateKeys)
     {
@@ -233,6 +232,5 @@ shutdown:
     BN_CTX_free(ctx);
     EC_POINT_free(pubkey);
     EC_GROUP_free(secp256k1);
-    EVP_cleanup();
     return EXIT_SUCCESS;
 }
