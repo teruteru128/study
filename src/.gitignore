@@ -1,5 +1,3 @@
-013
-014
 015
 016
 017
@@ -41,6 +39,7 @@ itoabench
 kxsample
 list2
 localetest1
+localetest2
 log-sample
 loop-bench
 main

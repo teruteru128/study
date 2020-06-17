@@ -1,5 +1,4 @@
 bin_PROGRAMS=
-bin_PROGRAMS+=014
 bin_PROGRAMS+=015
 bin_PROGRAMS+=016
 bin_PROGRAMS+=017
@@ -41,6 +40,7 @@ bin_PROGRAMS+=itoabench
 bin_PROGRAMS+=kxsample
 bin_PROGRAMS+=list2
 bin_PROGRAMS+=localetest1
+bin_PROGRAMS+=localetest2
 bin_PROGRAMS+=log-sample
 bin_PROGRAMS+=loop-bench
 bin_PROGRAMS+=maxmovingsum
@@ -91,7 +91,7 @@ cudahello: cudahello.o
 cudamalloctest: cudamalloctest.o
 	$(NVCC) $(LDFLAGS) -ccbin $(CC) $< -o $@
 
-014_SOURCES=014.c
+localetest2_SOURCES=localetest2.c
 015_LDFLAGS=-lcrypto
 016_LDFLAGS=-lssl -lcrypto
 016_SOURCES=016.c config.h
