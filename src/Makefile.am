@@ -65,6 +65,7 @@ bin_PROGRAMS+=sum
 bin_PROGRAMS+=teamspeakIdUpgrader
 bin_PROGRAMS+=teamspeakcalc
 bin_PROGRAMS+=threadAttr
+bin_PROGRAMS+=tweet
 bin_PROGRAMS+=udpreciever
 bin_PROGRAMS+=udpsender
 bin_PROGRAMS+=uuidtest
