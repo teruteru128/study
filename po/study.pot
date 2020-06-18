@@ -3,12 +3,12 @@
 # This file is distributed under the same license as the study package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#,
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc6\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-06-12 14:01+0900\n"
+"POT-Creation-Date: 2020-06-19 08:54+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,17 +17,17 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/bmkeygen.c:163
+#: src/bmkeygen.c:164
 #, c-format
 msgid "Initializing private key...\n"
 msgstr ""
 
-#: src/bmkeygen.c:165
+#: src/bmkeygen.c:166
 #, c-format
 msgid "Initialized the private key. Initialize the public key.\n"
 msgstr ""
 
-#: src/bmkeygen.c:176
+#: src/bmkeygen.c:177
 #, c-format
 msgid "The public key initialization is complete.\n"
 msgstr ""
@@ -35,11 +35,6 @@ msgstr ""
 #: src/bouyomi.c:136
 #, c-format
 msgid "Sent!\n"
-msgstr ""
-
-#: src/cudahello.cu:13
-#, c-format
-msgid "Hello World!\n"
 msgstr ""
 
 #: src/eckeygentest.c:42 src/itoabench.c:39 src/itoabench.c:55

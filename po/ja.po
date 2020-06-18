@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-06-12 14:01+0900\n"
+"POT-Creation-Date: 2020-06-19 08:54+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -18,17 +18,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/bmkeygen.c:163
+#: src/bmkeygen.c:164
 #, c-format
 msgid "Initializing private key...\n"
 msgstr "秘密鍵を初期化しています...\n"
 
-#: src/bmkeygen.c:165
+#: src/bmkeygen.c:166
 #, c-format
 msgid "Initialized the private key. Initialize the public key.\n"
 msgstr "秘密鍵を初期化しました。公開鍵を初期化します。\n"
 
-#: src/bmkeygen.c:176
+#: src/bmkeygen.c:177
 #, c-format
 msgid "The public key initialization is complete.\n"
 msgstr "公開鍵の初期化が完了しました。\n"
@@ -37,11 +37,6 @@ msgstr "公開鍵の初期化が完了しました。\n"
 #, c-format
 msgid "Sent!\n"
 msgstr "送信しました！\n"
-
-#: src/cudahello.cu:13
-#, c-format
-msgid "Hello World!\n"
-msgstr "こんにちは世界！\n"
 
 #: src/eckeygentest.c:42 src/itoabench.c:39 src/itoabench.c:55
 #, c-format
@@ -117,6 +112,9 @@ msgstr "助けて！\n"
 #, c-format
 msgid "verifier : %<PRIu64>\n"
 msgstr "検証子 : %<PRIu64>\n"
+
+#~ msgid "Hello World!\n"
+#~ msgstr "こんにちは世界！\n"
 
 #~ msgid "It's shit!\n"
 #~ msgstr "うんちー！\n"
