@@ -25,6 +25,7 @@ A garbage dump repository created for studying Teruteru.
     - MD-5
 - コマンドライン引数解析ライブラリを作ろうとした残骸。未完成。
 - Base64 encoder/decoder。確か2箇所に実装があった気がする。
+- 16進数文字列パーサに至ってはもう何箇所にあるのか
 - ネットワーク関係の実験コマンド。
     - ブロードキャスト送信ツール
     - UDPパケット送信ツール
