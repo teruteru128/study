@@ -86,10 +86,10 @@ NVCC=nvcc
 	$(NVCC) -ccbin $(CC) -c $< -o $@
 
 cudahello: cudahello.o
-	$(NVCC) $(LDFLAGS) -ccbin $(CC) $< -o $@
+	$(NVCC) $(cudahello_LDFLAGS) -ccbin $(CC) $< -o $@
 
 cudamalloctest: cudamalloctest.o
-	$(NVCC) $(LDFLAGS) -ccbin $(CC) $< -o $@
+	$(NVCC) $(cudamalloctest_LDFLAGS) -ccbin $(CC) $< -o $@
 
 AM_CPPFLAGS=-Wall
 CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h config.h CoDec.h
