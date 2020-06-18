@@ -9,6 +9,8 @@ int main(int argc, char **argv)
   char *buttippa = "ブッチッパ！";
   for (; i; i--)
   {
+    puts(riko);
     puts(paka);
+    puts(buttippa);
   }
 }
