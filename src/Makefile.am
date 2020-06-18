@@ -10,8 +10,8 @@ bin_PROGRAMS+=bmspam
 bin_PROGRAMS+=bouyomi
 bin_PROGRAMS+=calc
 bin_PROGRAMS+=cl
-bin_PROGRAMS+=cudahello
-bin_PROGRAMS+=cudamalloctest
+#bin_PROGRAMS+=cudahello
+#bin_PROGRAMS+=cudamalloctest
 bin_PROGRAMS+=curltest
 bin_PROGRAMS+=dappun
 bin_PROGRAMS+=doublerandom
@@ -82,14 +82,14 @@ bin_PROGRAMS+=yattaze
 # :thinking:?
 NVCC=nvcc
 
-.cu.o:
-	$(NVCC) -ccbin $(CC) -c $< -o $@
+#.cu.o:
+#	$(NVCC) -ccbin $(CC) -c $< -o $@
 
-cudahello: cudahello.o
-	$(NVCC) $(cudahello_LDFLAGS) -ccbin $(CC) $< -o $@
+#cudahello: cudahello.o
+#	$(NVCC) $(cudahello_LDFLAGS) -ccbin $(CC) $< -o $@
 
-cudamalloctest: cudamalloctest.o
-	$(NVCC) $(cudamalloctest_LDFLAGS) -ccbin $(CC) $< -o $@
+#cudamalloctest: cudamalloctest.o
+#	$(NVCC) $(cudamalloctest_LDFLAGS) -ccbin $(CC) $< -o $@
 
 AM_CPPFLAGS=-Wall
 CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h config.h CoDec.h
@@ -110,7 +110,7 @@ bouyomi_LDFLAGS=
 bouyomi_SOURCES=print_addrinfo.c print_addrinfo.h charset-convert.c charset-convert.h bouyomi.c bouyomi.h study-config.h config.h
 calc_SOURCES=calc.c config.h
 cl_SOURCES=cl.c config.h print_addrinfo.c print_addrinfo.h config.h
-cudahello_LINK=$(NVCC)
+#cudahello_LINK=$(NVCC)
 cudahello_CFLAGS=-fPIC
 cudahello_SOURCES=cudahello.cu config.h
 cudamalloctest_CFLAGS=-fPIC
