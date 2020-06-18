@@ -112,8 +112,10 @@ int exportAddress(unsigned char *privateSigningKey, unsigned char *publicSigning
 }
 
 /*
-    TODO: 鍵キャッシュサーバー
-*/
+ * TODO: リファクタリング
+ * TODO: 鍵キャッシュサーバー
+ * TODO: 既存鍵を使ってアドレス探索
+ */
 int main(int argc, char *argv[])
 {
     setlocale(LC_ALL, "");
