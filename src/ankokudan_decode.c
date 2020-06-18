@@ -39,7 +39,11 @@ const static char *one = "0123456789ABCDEF"
                          "0123456789ABCDEF"
                          "0123456789ABCDEF"
                          "0123456789ABCDEF";
-static size_t parseHex(char **out, char *str)
+
+/*
+ * strを16進数文字列としてパースします。
+ */
+static size_t parseHex(char **out, const char *str)
 {
     size_t length = strlen(str) / 2;
     size_t i = 0;
@@ -68,11 +72,12 @@ static size_t parseHex(char **out, char *str)
     }
     for (i = 0; i < length; i++)
     {
-        data[i] = table[str[2 * i]]*16 | table[str[2 * i + 1]];
+        data[i] = (table[str[2 * i]] << 4) | (table[str[2 * i + 1]]);
     }
     *out = data;
     return length;
 }
+
 static size_t parseHexArray(char **out, char **data)
 {
     char *string = NULL;
@@ -99,11 +104,12 @@ static size_t parseHexArray(char **out, char **data)
     free(string);
     return len;
 }
+
 int main(int argc, char **argv)
 {
     char *filename = "FF.lzh";
     FILE *file = NULL;
-    char *content[33] = {
+    char content[20][33] = {
         "4E002D6C68302DDE000000DE0000003E", // 00
         "06143F2002A0064D0F000189F090E04C", // 01
         "4953542E54585405004021001B004160", // 02
@@ -135,7 +141,7 @@ int main(int argc, char **argv)
     size_t i = 0;
     for (i = 0; i < writelen; i++)
     {
-        printf("%02x", *(data + i)&0xff);
+        printf("%02x", *(data + i) & 0xff);
         if (i % 16 == 15)
         {
             printf("\n");
@@ -143,5 +149,5 @@ int main(int argc, char **argv)
     }
     fwrite(data, writelen, sizeof(char), file);
     fclose(file);
-    return 0;
+    return EXIT_SUCCESS;
 }
