@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  int recv_sock;
+  int recv_sock = 0;
   struct addrinfo *ptr;
   int sock_ai_family;
   int sock_ai_protocol;
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
   for (; i < 48; i++)
   {
     printf("%02x", a[i] & 0xff);
-    if (i > 0 && (i % 16) == 15)
+    if ((i % 16) == 15)
     {
       printf("\n");
     }
