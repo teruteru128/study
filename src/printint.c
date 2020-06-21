@@ -193,3 +193,20 @@ char *itoa(int value, char *str, int radix)
   reverse(str, i - 1);
   return str;
 }
+
+#define hexchars "0123456789abcdef"
+
+// TODO: ライブラリ化
+void hex_dump(const void *pt, const size_t len)
+{
+  char *p = (char *)pt;
+  int i = 0;
+  for (i = 0; i < len; i++)
+  {
+    printf("%c%c", hexchars[(p[i] >> 4) & 0x0F], hexchars[(p[i] >> 0) & 0x0F]);
+    if (i % 16 == 15)
+    {
+      printf("\n");
+    }
+  }
+}

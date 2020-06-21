@@ -12,23 +12,6 @@
 #define BUF_SIZE 8
 #include "random.h"
 
-static const char *hexchars = "0123456789abcdef";
-
-// TODO: ライブラリ化
-static void hex_dump(const void *pt, const size_t len)
-{
-  char *p = (char *)pt;
-  int i = 0;
-  for (i = 0; i < len; i++)
-  {
-    printf("%c%c", hexchars[(p[i] >> 4) & 0x0F], hexchars[(p[i] >> 0) & 0x0F]);
-    if (i % 16 == 15)
-    {
-      printf("\n");
-    }
-  }
-}
-
 int orz(int num)
 {
   int count = num > 0 ? num : 334;

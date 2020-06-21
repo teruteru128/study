@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <malloc.h>
 #include "gettextsample.h"
 #include "printint.h"
 #include "random.h"
@@ -23,13 +24,8 @@ int main(int argc, char *argv[])
   //printf(_("Help me!\n"));
   //orz(1);
 
-  int i = 0;
-  int under = 62;
-  double topsubunder = 0;
-  for(; i < 95; i++)
-  {
-    topsubunder = 10 + 2.5 * i;
-    printf("%c : %.1fcm ( + %.1f cm)\n", i >= 26 ? '?' : i + 'A', under + topsubunder, topsubunder);
-  }
+  char *data = malloc(100);
+  printf("%lu\n", malloc_usable_size(data));
+  free(data);
   return EXIT_SUCCESS;
 }
