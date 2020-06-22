@@ -1,4 +1,5 @@
 SUBDIRS  =
+SUBDIRS += include
 SUBDIRS += intl
 SUBDIRS += po
 SUBDIRS += src
