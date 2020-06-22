@@ -10,20 +10,6 @@
 #include "bitset.h"
 #include "orz.h"
 
-// 
-// nextもrandomも使われているので適当にpとする
-int64_t p(int64_t seed) {
-  return (seed * 0x5DEECE66DL + 0xBL) & 0xFFFFFFFFFFFFL;
-}
-
-int64_t pInverse(int64_t seed) {
-  return (seed - 0xBL) * 0xDFE05BCB1365L & 0xFFFFFFFFFFFFL;
-}
-
-int64_t initializeSeed(int64_t seed) {
-  return (seed ^ 0x5DEECE66DL) & 0xFFFFFFFFFFFFL;
-}
-
 /**
  * --version
  * --help
