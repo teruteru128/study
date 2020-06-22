@@ -41,12 +41,24 @@ int main(int argc, char *argv[])
   char *data = malloc(100);
   printf("%lu\n", malloc_usable_size(data));
   free(data);
-  int64_t seed = 0x0;
+  int64_t seed = initializeSeed(74803317123181L);
   seed = pInverse(seed);
   printf("%ld\n", initializeSeed(seed));
   seed = pInverse(seed);
   printf("%ld\n", initializeSeed(seed));
   seed = pInverse(seed);
   printf("%ld\n", initializeSeed(seed));
+  seed = pInverse(seed);
+  printf("%ld\n", initializeSeed(seed));
+  seed = pInverse(seed);
+  printf("%ld\n", initializeSeed(seed));
+
+  printf("--\n");
+  seed = 74803317123181L;
+  for (long i = 0; i <= 20; i++)
+  {
+    printf("%ld\n", seed + (i << 48));
+  }
+
   return EXIT_SUCCESS;
 }
