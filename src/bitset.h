@@ -16,7 +16,7 @@ typedef struct bitset_t
   uint64_t *words;
 } bitset;
 void checkInvariants(bitset *set);
-static size_t wordIndex(size_t bitIndex);
+//static size_t wordIndex(size_t bitIndex);
 bool bitset_get(bitset *set, size_t bitIndex);
 void bitset_init(bitset *set);
 void bitset_init2(bitset *set, size_t nbits);

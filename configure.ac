@@ -3,13 +3,12 @@
 # https://www.glamenv-septzen.net/view/488
 
 AC_PREREQ([2.69])
-AC_INIT([study], [1.0.0-rc7], [teruterubouzu1024@gmail.com])
+AC_INIT([study], [1.0.0-rc8], [teruterubouzu1024@gmail.com])
 AC_CONFIG_SRCDIR([src/study.c])
-AC_CONFIG_HEADERS([src/config.h])
+AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign])
 AC_CANONICAL_HOST
 AC_CONFIG_MACRO_DIRS([m4])
-AM_GNU_GETTEXT_INTL_SUBDIR
 AM_PROG_LIBTOOL
 LT_INIT
 AM_PROG_AR
@@ -18,7 +17,6 @@ AM_PROG_AR
 AC_PROG_CXX
 AC_PROG_AWK
 AC_PROG_CC
-AC_GNU_SOURCE
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -26,13 +24,12 @@ AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PROG_MKDIR_P
 AC_PROG_YACC
-AC_ENABLE_SHARED
 
 # Checks for libraries.
 AC_CHECK_LIB([crypto], [main], [], [AC_MSG_FAILURE([could not find lib crypto])])
 AC_CHECK_LIB([curl], [main], [], [AC_MSG_FAILURE([could not find lib curl])])
 AC_CHECK_LIB([m], [main], [], [AC_MSG_FAILURE([could not find lib m])])
-#AC_CHECK_LIB([pthread], [main], [], [AC_MSG_FAILURE([could not find lib pthread])])
+AC_CHECK_LIB([pthread], [main], [], [AC_MSG_FAILURE([could not find lib pthread])])
 AC_CHECK_LIB([sodium], [main], [], [AC_MSG_FAILURE([could not find lib sodium])])
 AC_CHECK_LIB([ssl], [main], [], [AC_MSG_FAILURE([could not find lib ssl])])
 AC_CHECK_LIB([uuid], [main], [], [AC_MSG_FAILURE([could not find lib uuid])])
@@ -48,37 +45,37 @@ AC_CHECK_LIB([xmlrpc_xmltok], [main], [], [AC_MSG_FAILURE([could not find lib xm
 
 # Checks for header files.
 AC_FUNC_ALLOCA
-AC_CHECK_HEADERS([argz.h arpa/inet.h fcntl.h float.h inttypes.h langinfo.h libintl.h limits.h locale.h malloc.h netdb.h netinet/in.h stddef.h stdint.h stdio_ext.h stdlib.h string.h sys/param.h sys/socket.h sys/time.h unistd.h wchar.h])
+AC_CHECK_HEADERS([argz.h arpa/inet.h fcntl.h float.h inttypes.h langinfo.h libintl.h limits.h locale.h malloc.h netdb.h netinet/in.h stddef.h stdint.h stdio_ext.h stdlib.h string.h strings.h sys/ioctl.h sys/param.h sys/socket.h sys/time.h unistd.h wchar.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
 AC_C_INLINE
-AC_TYPE_INT8_T
-AC_TYPE_INT16_T
 AC_TYPE_INT32_T
 AC_TYPE_INT64_T
-AC_TYPE_UINT8_T
-AC_TYPE_UINT16_T
-AC_TYPE_UINT32_T
-AC_TYPE_UINT64_T
 AC_C_RESTRICT
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_TYPE_UINT8_T
 AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
-m4_ifdef([AM_GNU_GETTEXT], [AM_GNU_GETTEXT([external])],[AC_MSG_FAILURE([could not find lib gettext])])
+AM_GNU_GETTEXT_VERSION([0.19.8])
+AM_GNU_GETTEXT([external])
 AC_FUNC_MALLOC
 AC_FUNC_MBRTOWC
 AC_FUNC_MMAP
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify getcwd gettimeofday localeconv mblen mbrlen memchr mempcpy memset munmap nl_langinfo pow regcomp select setlocale socket sqrt stpcpy strcasecmp strchr strcspn strdup strerror strrchr strstr strtol strtoul strtoull])
+AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify clock_gettime getcwd gettimeofday localeconv mblen mbrlen memchr mempcpy memset munmap nl_langinfo regcomp select setlocale socket sqrt stpcpy strcasecmp strchr strcspn strdup strerror strrchr strstr strtol strtoul strtoull])
 
 AC_CONFIG_FILES([Makefile
-                 intl/Makefile
+                 include/Makefile
                  po/Makefile.in
                  .github/workflows/ccpp.yml
                  .github/workflows/prerelease.yml
                  .github/workflows/release.yml
                  src/Makefile])
+AC_CONFIG_SUBDIRS([libstudy])
 AC_OUTPUT

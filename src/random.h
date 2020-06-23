@@ -34,4 +34,9 @@ double genrand64_real2(void);
 double genrand64_real3(void);
 int nextBytes(unsigned char *buf, size_t len);
 
+// java.util.Random 内部状態計算ユーティリティ
+int64_t p(int64_t);
+int64_t pInverse(int64_t);
+int64_t initializeSeed(int64_t);
+
 #endif

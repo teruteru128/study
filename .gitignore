@@ -72,13 +72,13 @@ autom4te.cache
 /aclocal.m4
 /compile
 /config.guess
-/src/config.h.in
+/config.h
+/config.h.in
 /config.log
 /config.status
 /config.sub
 /configure
 /configure.scan
-config.h
 /depcomp
 /install-sh
 /missing

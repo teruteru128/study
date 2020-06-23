@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2.2.0
+    - name: submodule update
+      run: git submodule update --init --recursive
     - name: Install dependents
       run: |
         wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
@@ -23,7 +25,7 @@ jobs:
         sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
         sudo add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
         sudo apt update
-        sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev cuda-10-2 libupnp-dev
+        sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev cuda-10-2 libupnp-dev autopoint
     - name: autogen.sh
       run: ./autogen.sh
     - name: configure
@@ -54,8 +56,8 @@ jobs:
         # The URL for uploading assets to the release
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         # The path to the asset you want to upload
-        asset_path: study-1.0.0-rc7.tar.gz
+        asset_path: study-1.0.0-rc8.tar.gz
         # The name of the asset you want to upload
-        asset_name: study-1.0.0-rc7.tar.gz
+        asset_name: study-1.0.0-rc8.tar.gz
         # The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information
         asset_content_type: application/gzip
