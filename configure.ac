@@ -9,7 +9,6 @@ AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign])
 AC_CANONICAL_HOST
 AC_CONFIG_MACRO_DIRS([m4])
-AM_GNU_GETTEXT_INTL_SUBDIR
 AM_PROG_LIBTOOL
 LT_INIT
 AM_PROG_AR
@@ -63,7 +62,8 @@ AC_TYPE_UINT8_T
 AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
-AM_GNU_GETTEXT
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.19.8.1])
 AC_FUNC_MALLOC
 AC_FUNC_MBRTOWC
 AC_FUNC_MMAP
@@ -72,7 +72,6 @@ AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify clock_gettime getcwd g
 
 AC_CONFIG_FILES([Makefile
                  include/Makefile
-                 intl/Makefile
                  po/Makefile.in
                  .github/workflows/ccpp.yml
                  .github/workflows/prerelease.yml

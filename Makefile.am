@@ -1,7 +1,6 @@
 SUBDIRS  =
-#SUBDIRS += libstudy
+SUBDIRS += libstudy
 SUBDIRS += include
-SUBDIRS += intl
 SUBDIRS += po
 SUBDIRS += src
 
