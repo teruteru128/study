@@ -56,8 +56,8 @@ jobs:
         # The URL for uploading assets to the release
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         # The path to the asset you want to upload
-        asset_path: study-1.0.0-rc7.tar.gz
+        asset_path: study-1.0.0-rc8.tar.gz
         # The name of the asset you want to upload
-        asset_name: study-1.0.0-rc7.tar.gz
+        asset_name: study-1.0.0-rc8.tar.gz
         # The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information
         asset_content_type: application/gzip
