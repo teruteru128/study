@@ -25,17 +25,9 @@ jobs:
           sudo apt install libcurl4-gnutls-dev libgmp-dev libsodium-dev libxmlrpc-core-c3-dev uuid-dev cuda-10-2 libupnp-dev
       - name: autogen.sh libstudy
         working-directory: libstudy
-        run: |
-          aclocal
-          autoheader
-          autoconf
-          automake --add-missing --copy
+        run: ./autogen.sh
       - name: autogen.sh
-        run: |
-          aclocal
-          autoheader
-          autoconf
-          automake --add-missing --copy
+        run: ./autogen.sh
       - name: configure libstudy
         working-directory: libstudy
         run: ./configure
