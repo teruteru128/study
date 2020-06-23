@@ -3,11 +3,12 @@ name: Pre Release
 on:
   push:
     tags:
-      - "**-rc*"
-      - "**-beta*"
-      - "**-alpha*"
-    branches-ignore:
-      - "**"
+      - '**-rc'
+      - '**-beta'
+      - '**-alpha'
+      - '**-rc[0-9]+'
+      - '**-beta[0-9]+'
+      - '**-alpha[0-9]+'
 
 jobs:
   release:
