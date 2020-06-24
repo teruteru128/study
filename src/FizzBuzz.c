@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
-#include "printint.h"
+#include <printint.h>
 
 void showFizzBuzz()
 {

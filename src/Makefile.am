@@ -91,62 +91,60 @@ NVCC=nvcc
 #cudamalloctest: cudamalloctest.o
 #	$(NVCC) $(cudamalloctest_LDFLAGS) -ccbin $(CC) $< -o $@
 
-AM_CPPFLAGS=-Wall
-CoDec_SOURCES=CoDec.c charset-convert.c charset-convert.h CoDec.h
+# see https://www.gnu.org/software/automake/manual/html_node/Subpackages.html
+AM_CPPFLAGS=-Wall -I$(top_srcdir)/libstudy/include
+CoDec_LDADD=../libstudy/src/libstudy.la
+CoDec_SOURCES=CoDec.c CoDec.h
 FizzBuzz_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-FizzBuzz_SOURCES=FizzBuzz.c printint.c printint.h
+FizzBuzz_LDADD=../libstudy/src/libstudy.la
+FizzBuzz_SOURCES=FizzBuzz.c
 Nabeatsu_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-Nabeatsu_SOURCES=Nabeatsu.c printint.c printint.h study-config.h
+Nabeatsu_LDADD=../libstudy/src/libstudy.la
+Nabeatsu_SOURCES=Nabeatsu.c study-config.h
 ankokudan_decode_SOURCES=ankokudan_decode.c
 argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c
-bmkeygen_SOURCES=bmkeygen.c study-config.h random.h random.c numsys.c numsys.h bm.h bm.c
 bmkeygen_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+bmkeygen_LDADD=../libstudy/src/libstudy.la
+bmkeygen_SOURCES=bmkeygen.c study-config.h
 bmspam_CFLAGS=`xmlrpc-c-config libwww-client --cflags`
+bmspam_LDADD=../libstudy/src/libstudy.la
 bmspam_LDFLAGS=`xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
-bmspam_SOURCES=bitmessage.c base64.c base64.h bmapi.c bmapi.h xmlrpc.c xmlrpc.h bm.c bm.h bitmessage.h bmspam.c
+bmspam_SOURCES=bmspam.c
 bouyomi_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-bouyomi_LDFLAGS=
-bouyomi_SOURCES=print_addrinfo.c print_addrinfo.h charset-convert.c charset-convert.h bouyomi.c bouyomi.h study-config.h
+bouyomi_LDADD=../libstudy/src/libstudy.la
+bouyomi_SOURCES=bouyomi.c bouyomi.h study-config.h
 calc_SOURCES=calc.c
-cl_SOURCES=cl.c print_addrinfo.c print_addrinfo.h
-#cudahello_LINK=$(NVCC)
+cl_LDADD=../libstudy/src/libstudy.la
+cl_SOURCES=cl.c
 cudahello_CFLAGS=-fPIC
+#cudahello_LINK=$(NVCC)
 cudahello_SOURCES=cudahello.cu
 cudamalloctest_CFLAGS=-fPIC
 cudamalloctest_SOURCES=cudamalloctest.cu
-curltest_LDFLAGS=-lcurl
 curltest_SOURCES=curltest.c
-dragon_SOURCES=dragon.c svgplot.c svgplot.h
+dragon_LDADD=../libstudy/src/libstudy.la
+dragon_SOURCES=dragon.c
 eckeygentest_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-eckeygentest_LDFLAGS=-lcrypto -lssl
 eckeygentest_SOURCES=eckeygentest.c study-config.h
 encodersa_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-encodersa_LDFLAGS=-lcrypto -lssl
 encodersa_SOURCES=encodersa.c study-config.h
-epsp_parser_test_SOURCES=epsp-parser-test.c epsp-parser.c epsp-parser.h string_array.c string_array.h string_list.c string_list.h
-falcon_SOURCES=falcon.c random.c random.h internal_random.h
-firstThread2_LDFLAGS=-lpthread
-firstThread3_LDFLAGS=-lpthread
-firstThread4_1_LDFLAGS=-lpthread
-firstThread4_LDFLAGS=-lpthread
-firstThread_LDFLAGS=-lpthread
+epsp_parser_test_LDADD=../libstudy/src/libstudy.la
+epsp_parser_test_SOURCES=epsp-parser-test.c
+falcon_LDADD=../libstudy/src/libstudy.la
+falcon_SOURCES=falcon.c
 gettextsample2_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 gettextsample2_SOURCES=gettextsample2.c gettextsample2.h study-config.h
 gettextsample3_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-gettextsample3_LDFLAGS=
 gettextsample3_SOURCES=gettextsample3.c gettextsample3.h study-config.h textdomain.c textdomain_inner.h mytextdomain.h
 gettime_SOURCES=gettime.c gettime.h
-hugecollatztest_LDFLAGS=-lcrypto
-itoabench_SOURCES=printint.c itoabench.c printint.h
 itoabench_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-kxsample_LDFLAGS=-lsodium
+itoabench_LDADD=../libstudy/src/libstudy.la
+itoabench_SOURCES=itoabench.c
 localetest1_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 localetest1_SOURCES=localetest1.c localetest1.h
 localetest2_SOURCES=localetest2.c
 mappingsample_SOURCES=mappingsample.c
-mappingsample_LDFLAGS=-lm
-maxmovingsum_LDFLAGS=-lm
 maxmovingsum_SOURCES=maxmovingsum.c
 portscanner_SOURCES=portscanner.c
 prime2_SOURCES=prime2.c
@@ -154,36 +152,34 @@ prime3_SOURCES=prime3.c
 prime_SOURCES=prime.c
 primesearch_SOURCES=primesearch.c
 printBench_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-printBench_LDFLAGS=-lssl -lcrypto
-printBench_SOURCES=printBench.c printint.c printint.h
-read_random_SOURCES=read_random.c random.c random.h internal_random.h base64.c base64.h
+printBench_LDADD=../libstudy/src/libstudy.la
+printBench_SOURCES=printBench.c
+read_random_LDADD=../libstudy/src/libstudy.la
+read_random_SOURCES=read_random.c
 rsa1024_SOURCES=rsa1024.c
 selfmadelibsha_CPPFLAGS=-DLOCALEDIR='"$(localedir)"'
-selfmadelibsha_SOURCES=self-made-libsha.c sha-1.c sha-1.h sha-2.c sha-2.h sha-3.c sha-3.h self-made-libsha.h
+selfmadelibsha_LDADD=../libstudy/src/libstudy.la
+selfmadelibsha_SOURCES=self-made-libsha.c self-made-libsha.h
 seq_CFLAGS=
-seq_LDFLAGS=-lm
 seq_SOURCES=seq.c
 service_sample_SOURCES=service-sample.c server.c server.h
 sntpc_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-sntpc_SOURCES=sntpc.c random.c random.h internal_random.h print_addrinfo.c print_addrinfo.h study-config.h
-string_list_test_SOURCES=string_list.c string_list_test.c
+sntpc_LDADD=../libstudy/src/libstudy.la
+sntpc_SOURCES=sntpc.c study-config.h
+string_list_test_LDADD=../libstudy/src/libstudy.la
+string_list_test_SOURCES=string_list_test.c
 study_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-study_LDFLAGS=-lcrypto
-study_SOURCES=study.c gettextsample.c gettextsample.h printint.c printint.h random.c random.h internal_random.h bitset.c bitset.h study-config.h orz.c orz.h
-sum_LDFLAGS=-lm
-sum_SOURCES=sum.c random.c random.h internal_random.h
+study_LDADD=../libstudy/src/libstudy.la
+study_SOURCES=study.c gettextsample.c gettextsample.h study-config.h
+sum_LDADD=../libstudy/src/libstudy.la
+sum_SOURCES=sum.c
 teamspeakIdUpgrader_CFLAGS=
-teamspeakIdUpgrader_LDFLAGS=-lssl -lcrypto
-teamspeakIdUpgrader_SOURCES=teamspeakIdUpgrader.c printint.c printint.h
+teamspeakIdUpgrader_LDADD=../libstudy/src/libstudy.la
+teamspeakIdUpgrader_SOURCES=teamspeakIdUpgrader.c
 teamspeakcalc_CFLAGS=
-teamspeakcalc_LDFLAGS=-lcrypto
-teamspeakcalc_SOURCES=teamspeakcalc.c printint.c printint.h
-tsidimprover_LDFLAGS=-lssl -lcrypto
-tsidimprover_SOURCES=tsidimprover.c printint.c printint.h random.h random.c numsys.c numsys.h
-tsidshowsample_LDFLAGS=-lssl -lcrypto
+teamspeakcalc_LDADD=../libstudy/src/libstudy.la
+teamspeakcalc_SOURCES=teamspeakcalc.c
+tsidimprover_LDADD=../libstudy/src/libstudy.la
+tsidimprover_SOURCES=tsidimprover.c
 tsidshowsample_SOURCES=tsidshowsample.c
-threadAttr_LDFLAGS=-pthread
 udpsender_SOURCES=udpsender.c
-uuidtest_LDFLAGS=-luuid
-variables3_LDFLAGS=-lpthread
-variables_LDFLAGS=-lpthread
