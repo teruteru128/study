@@ -73,7 +73,7 @@ AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify clock_gettime getcwd g
 AC_CONFIG_FILES([Makefile
                  include/Makefile
                  po/Makefile.in
-                 .github/workflows/ccpp.yml
+                 .github/workflows/c-cpp.yml
                  .github/workflows/prerelease.yml
                  .github/workflows/release.yml
                  src/Makefile])
