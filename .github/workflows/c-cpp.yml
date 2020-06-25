@@ -29,8 +29,6 @@ jobs:
         run: ./configure
       - name: make
         run: PATH=/usr/local/cuda-10.2/bin:${PATH} make -j
-      - name: CUDA execute test
-        run: ./src/cudahello
       - name: make check
         run: PATH=/usr/local/cuda-10.2/bin:${PATH} make check -j
       - name: make distcheck
