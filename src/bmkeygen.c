@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "");
     bindtextdomain(PACKAGE, LOCALEDIR);
     textdomain(PACKAGE);
-    OpenSSL_add_all_digests();
     unsigned char *privateKeys = calloc(KEY_CACHE_SIZE, PRIVATE_KEY_LENGTH);
     if (!privateKeys)
     {
@@ -56,8 +55,8 @@ int main(int argc, char *argv[])
     }
     EVP_MD_CTX *sha512ctx = EVP_MD_CTX_new();
     EVP_MD_CTX *ripemd160ctx = EVP_MD_CTX_new();
-    const EVP_MD *sha512md = EVP_get_digestbynid(NID_sha512);
-    const EVP_MD *ripemd160md = EVP_get_digestbynid(NID_ripemd160);
+    const EVP_MD *sha512md = EVP_sha512();
+    const EVP_MD *ripemd160md = EVP_ripemd160();
     unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
     unsigned char jPublicKey[PUBLIC_KEY_LENGTH * J_CACHE_SIZE];
     unsigned char cache64[EVP_MAX_MD_SIZE];
@@ -162,6 +161,5 @@ int main(int argc, char *argv[])
     EC_GROUP_free(secp256k1);
     EVP_MD_CTX_free(ripemd160ctx);
     EVP_MD_CTX_free(sha512ctx);
-    EVP_cleanup();
     return EXIT_SUCCESS;
 }
