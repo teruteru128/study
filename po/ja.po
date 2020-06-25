@@ -112,9 +112,3 @@ msgstr "助けて！\n"
 #, c-format
 msgid "verifier : %<PRIu64>\n"
 msgstr "検証子 : %<PRIu64>\n"
-
-#~ msgid "Hello World!\n"
-#~ msgstr "こんにちは世界！\n"
-
-#~ msgid "It's shit!\n"
-#~ msgstr "うんちー！\n"
