@@ -10,8 +10,8 @@ bin_PROGRAMS+=bmspam
 bin_PROGRAMS+=bouyomi
 bin_PROGRAMS+=calc
 bin_PROGRAMS+=cl
-#bin_PROGRAMS+=cudahello
-#bin_PROGRAMS+=cudamalloctest
+bin_PROGRAMS+=cudahello
+bin_PROGRAMS+=cudamalloctest
 bin_PROGRAMS+=curltest
 bin_PROGRAMS+=dappun
 bin_PROGRAMS+=doublerandom
@@ -82,14 +82,14 @@ bin_PROGRAMS+=yattaze
 # :thinking:?
 NVCC=nvcc
 
-#.cu.o:
-#	$(NVCC) -ccbin $(CC) -c $< -o $@
+.cu.o:
+	$(NVCC) $(DEFAULT_INCLUDES) $(INCLUDES) -I$(top_srcdir)/libstudy/include -ccbin $(CC) -c $< -o $@
 
-#cudahello: cudahello.o
-#	$(NVCC) $(cudahello_LDFLAGS) -ccbin $(CC) $< -o $@
+cudahello: cudahello.o
+	$(NVCC) $(cudahello_LDFLAGS) -ccbin $(CC) $< -o $@
 
-#cudamalloctest: cudamalloctest.o
-#	$(NVCC) $(cudamalloctest_LDFLAGS) -ccbin $(CC) $< -o $@
+cudamalloctest: cudamalloctest.o
+	$(NVCC) $(cudamalloctest_LDFLAGS) -ccbin $(CC) $< -o $@
 
 # see https://www.gnu.org/software/automake/manual/html_node/Subpackages.html
 AM_CPPFLAGS=-Wall -I$(top_srcdir)/libstudy/include

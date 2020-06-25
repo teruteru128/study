@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #define N 200
+#define DEVICE 0
 
 __global__
 void sum_of_array(float *arr1, float *arr2, float *arr3, int size)
@@ -34,6 +35,28 @@ int main(void)
   float *arr1, *arr2, *arr3;
   float *d_arr1 = NULL, *d_arr2 = NULL, *d_arr3 = NULL;
   size_t n_byte = N * sizeof(float);
+  int device = 0;
+  cudaError_t error = cudaSuccess;
+  error = cudaGetDeviceCount(&device);
+  if(error)
+  {
+    printf("Error : %s\n%s\n", cudaGetErrorName(error), cudaGetErrorString(error));
+    return EXIT_FAILURE;
+  }
+  else
+  {
+    printf("Success : %d cuda device(s)\n", device);
+  }
+	cudaDeviceProp prop;
+	for (int dev = 0; dev < device; dev++) {
+		cudaGetDeviceProperties(&prop, dev);
+		printf("%s compute capability ", prop.name);
+		printf("%d.%d\n", prop.major, prop.minor);
+	}
+	device = DEVICE;
+	cudaGetDeviceProperties(&prop, device);
+	printf("Using %s\n\n", prop.name);
+	cudaSetDevice(device);
 
   arr1 = (float *)malloc(n_byte);
   arr2 = (float *)malloc(n_byte);
