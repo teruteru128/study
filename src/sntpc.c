@@ -11,8 +11,8 @@
 #include <unistd.h> //close()
 #include <errno.h>
 #include <time.h>
-#include "random.h"
-#include "print_addrinfo.h"
+#include <random.h>
+#include <print_addrinfo.h>
 
 #define SERVER_NAME "ntp.nict.jp"
 #define SERVER_PORT "ntp"

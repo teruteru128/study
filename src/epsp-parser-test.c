@@ -4,8 +4,8 @@
 #include <string.h>
 #include <regex.h>
 #include <errno.h>
-#include "epsp-parser.h"
-#include "string_array.h"
+#include <epsp-parser.h>
+#include <string_array.h>
 
 /*
  * https://p2pquake.github.io/epsp-specifications/epsp-specifications.html

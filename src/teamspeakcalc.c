@@ -8,7 +8,7 @@
 #include <sys/time.h>
 #include <openssl/sha.h>
 
-#include "printint.h"
+#include <printint.h>
 #define IN2_SIZE 21
 
 int main(int argc, char **argv)

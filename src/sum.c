@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <gmp.h>
-#include "random.h"
+#include <random.h>
 
 #define FILENAME "/dev/urandom"
 uint64_t readSeed()

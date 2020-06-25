@@ -4,11 +4,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <malloc.h>
-#include "gettextsample.h"
-#include "printint.h"
-#include "random.h"
-#include "bitset.h"
-#include "orz.h"
+#include <gettextsample.h>
+#include <printint.h>
+#include <random.h>
+#include <bitset.h>
+#include <orz.h>
 
 /**
  * --version
@@ -22,5 +22,6 @@ int main(int argc, char *argv[])
   bindtextdomain(PACKAGE, LOCALEDIR);
   textdomain(PACKAGE);
   printf(_("Help me!\n"));
+  orz(1);
   return EXIT_SUCCESS;
 }

@@ -4,7 +4,7 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
-#include "svgplot.h"
+#include <svgplot.h>
 
 /*
 http://utthi-fumi.hatenablog.com/entry/2019/04/09/135235

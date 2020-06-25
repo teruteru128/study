@@ -16,8 +16,8 @@
 #include <wchar.h>
 #endif
 #include <errno.h>
-#include "charset-convert.h"
-#include "print_addrinfo.h"
+#include <charset-convert.h>
+#include <print_addrinfo.h>
 
 #ifdef _WIN32
 #include <winsock2.h>

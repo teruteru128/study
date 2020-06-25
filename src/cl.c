@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "print_addrinfo.h"
+#include <print_addrinfo.h>
 
 /**
  * スタートアップ

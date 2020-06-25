@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
-#include "printint.h"
+#include <printint.h>
 
 #define MAX (100000000L)
 int main(int argc, char *argv[])

@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <stdint.h>
 
-#include "printint.h"
+#include <printint.h>
 #define IN2_SIZE 24
 
 static uint64_t *verifire_ptr = NULL;

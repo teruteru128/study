@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "base64.h"
-#include "random.h"
+#include <base64.h>
+#include <random.h>
 #if 0
 #define D_SIZE (786432)
 #else

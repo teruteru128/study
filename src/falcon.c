@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "random.h"
+#include <random.h>
 
 #define URANDOM_PATH "/dev/urandom"
 #define MAX 1000000

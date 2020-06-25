@@ -12,9 +12,9 @@
 #include <limits.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#include "printint.h"
-#include "random.h"
-#include "numsys.h"
+#include <printint.h>
+#include <random.h>
+#include <random.h>
 
 #define IN2_SIZE 20
 #define CTX_SIZE 1
