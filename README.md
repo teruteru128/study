@@ -35,6 +35,7 @@ A garbage dump repository created for studying Teruteru.
     - スパムツールか何かで？
 - bitsetを実装しようとした残骸。
 - pybitmessage xml-rpcライブラリの残骸。やっぱり未完成。
+- BitMessage向けのアドレスを生成するツール。
 - 棒読みちゃんリモート読み上げツール。パラメータをリトルエンディアンで実装するのやめてくれよ……
 - RSA計算ツールなど
     - ファイルから改行区切りで16進数整数を2つ読み出して乗算して返すだけのツール
@@ -46,6 +47,8 @@ A garbage dump repository created for studying Teruteru.
 - きたない台詞を吐き出すクソツール。
     - ああああああああ！ﾌﾞ
     - やったぜ。
+    - [ン゛ボ](https://twitter.com/tukushiA/status/844873480805859330)[ップ](https://w.atwiki.jp/aniwotawiki/pages/38145.html#id_73c21301)
+    - ブッチッパ！
 - 乱数テスト
 - Dragon曲線描画ツール。Illustratorじゃ表示できねえぞこんなん！
 - secp256k1鍵ペアを大量に生成するツール。
@@ -87,6 +90,8 @@ A garbage dump repository created for studying Teruteru.
 - Tweetクライアントを作ろうとした残骸ファイル。
 - UPNPを実装しようとした残骸。このファイルいつから触ってないんだっけ？
 - NicoNamaCommentViewerのUserSettingを変換するために作ろうとしたXSLファイルの残骸。
+- OpenSSL EVP APIを使ってみるテスト。
+    - EVP_Digest
 
 ## かつて存在したクソ
 
