@@ -1,17 +1,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <args_parse.h>
 
 void init(void)
-{
-  return;
-}
-
-typedef struct args_t
-{
-} args_t;
-
-void parse_args(struct args_t *args, int argc, char *argv[])
 {
   return;
 }
