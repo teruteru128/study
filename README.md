@@ -84,7 +84,7 @@ A garbage dump repository created for studying Teruteru.
     - JavaのStringJoiner的なライブラリを目指そうとしてたんだっけ？
 - 3立方数の和(Sum of three cubes)の検算ツール
 - TeXのHello World。あれがTeXなのかLaTeXなのかよくわかってない。~~ﾌﾌﾌ……TeX!~~
-- Tweetクライアントを作ろうとした残骸ファイル。main関数すら書いてない。
+- Tweetクライアントを作ろうとした残骸ファイル。
 - UPNPを実装しようとした残骸。このファイルいつから触ってないんだっけ？
 - NicoNamaCommentViewerのUserSettingを変換するために作ろうとしたXSLファイルの残骸。
 
