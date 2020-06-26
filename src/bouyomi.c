@@ -102,16 +102,22 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
 }
 
 /*
-  1. encode
-  2. connect
-  3. send
-  4. cleanup
-
-  option
-  server(host & port)
-  charset
-  proxyは外部で対処
-*/
+ * 1. コマンドライン引数解析
+ * 2. 読み上げメッセージ文字コード変換
+ * 3. プロトコルエンコード
+ * 4. サーバーへ接続
+ * 5. 後始末
+ *
+ * 1. encode
+ * 2. connect
+ * 3. send
+ * 4. cleanup
+ *
+ * option
+ * server(host & port)
+ * charset
+ * proxyは外部で対処
+ */
 int main(int argc, char *argv[])
 {
   int rc = 0;
