@@ -6,7 +6,8 @@
 #include "study-config.h"
 #include "bouyomi.h"
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdint.h>
+#include <inttypes.h>
 #include <sys/types.h>
 #include <stdlib.h> //atoi(), exit(), EXIT_FAILURE, EXIT_SUCCESS
 #include <string.h> //memset(), strcmp()
@@ -41,54 +42,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h> //close()
 #endif
-
-#define MSGSIZE 1024
-#define BUFSIZE (MSGSIZE + 1)
-#define DEFAULT_PORT 50001
-#define DEFAULT_PORT_STR "50001"
-#define DEFAULT_SERV_ADDRESS "localhost"
-#define DEFAULT_SERV_ADDRESS4 "127.0.0.1"
-#define DEFAULT_SERV_ADDRESS6 "::1"
-#define ONION_SERV_ADDRESS "2ayu6gqru3xzfzbvud64ezocamykp56kunmkzveqmuxvout2yubeeuad.onion"
-
-// アライメントが入るためそのまま送信してはいけない
-typedef struct bouyomi_header_t
-{
-  short command;
-  short speed;
-  short tone;
-  short volume;
-  short voice;
-  char encode;
-  char empty; // alignment
-  int32_t length;
-} bouyomi_header;
-
-typedef struct bouyomi_conf_t
-{
-  short command;
-  short speed;
-  short tone;
-  short volume;
-  short voice;
-  char encode;
-  size_t length;
-  char *msg;
-} bouyomi_conf;
-
-typedef struct config_line_t
-{
-  char *key;
-  char *value;
-  struct config_line_t *next;
-} config_line_t;
-
-typedef enum charset_t
-{
-  UTF_8 = 0,
-  UNICODE = 1,
-  SHIFT_JIS = 2
-} charset;
 
 /**/
 int send_to_server(char *hostname, char *servicename, char *data, size_t len)
@@ -133,7 +86,11 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
   ssize_t w = 0;
   // 送信
   w = write(sock, data, len);
+  if(len != w){
+  fprintf(stderr, _("Error!\n"));
+  }else{
   fprintf(stderr, _("Sent!\n"));
+  }
   // ソケットを閉じる
   rc = close(sock);
   if (rc != 0)
@@ -151,8 +108,9 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
   4. cleanup
 
   option
-  host & port
+  server(host & port)
   charset
+  proxyは外部で対処
 */
 int main(int argc, char *argv[])
 {
@@ -298,7 +256,7 @@ int main(int argc, char *argv[])
 
   char *servAddr = ONION_SERV_ADDRESS;
   char *servPortStr = DEFAULT_PORT_STR;
-  int use_onion = 0;
+  int use_onion = 1;
   if (use_onion == 1)
   {
     servAddr = ONION_SERV_ADDRESS;
