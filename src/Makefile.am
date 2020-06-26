@@ -75,6 +75,7 @@ bin_PROGRAMS+=variables
 bin_PROGRAMS+=variables3
 bin_PROGRAMS+=variables4
 bin_PROGRAMS+=variables5
+bin_PROGRAMS+=variablesProc
 bin_PROGRAMS+=yattaze
 
 # TODO: *.cuをコンパイルするときだけNVCCを使いたい
