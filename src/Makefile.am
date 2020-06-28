@@ -51,6 +51,7 @@ bin_PROGRAMS+=primeNumber
 bin_PROGRAMS+=primeNumber2
 bin_PROGRAMS+=primeNumber3
 bin_PROGRAMS+=primeNumber4
+bin_PROGRAMS+=primeNumber5
 bin_PROGRAMS+=primesearch
 bin_PROGRAMS+=printBench
 bin_PROGRAMS+=read_random
