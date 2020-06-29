@@ -44,5 +44,6 @@ int main(int argc, char *argv[])
     printf("%02x", md[i]);
   }
   printf("\n");
+  EVP_MD_CTX_free(ctx);
   return EXIT_SUCCESS;
 }
