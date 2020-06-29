@@ -2,33 +2,54 @@
 #include "study-config.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <stdint.h>
 #include <inttypes.h>
 #include <sys/time.h>
 #include <openssl/sha.h>
+#include <openssl/evp.h>
 
 #include <printint.h>
+#include <java_random.h>
 #define IN2_SIZE 21
+typedef struct random_t
+{
+  int64_t seed;
+} Random;
 
+typedef union mc {
+    unsigned char md[SHA_DIGEST_LENGTH];
+    uint32_t ddd[SHA_DIGEST_LENGTH / sizeof(uint32_t)];
+} MC;
+
+/**
+ * 
+ */
 int main(int argc, char **argv)
 {
+    const EVP_MD *sha1 = EVP_sha1();
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
     SHA_CTX c;
-    struct timeval tv;
-    typedef union mc {
-        unsigned char md[SHA_DIGEST_LENGTH];
-        uint32_t ddd[SHA_DIGEST_LENGTH / sizeof(uint32_t)];
-    } MC;
-    MC mc;
+    unsigned char md[SHA_DIGEST_LENGTH];
     int i;
-    char *in1 = "MEsDAgcAAgEgAiAoQPNcS7L4k+q2qf3U7uyujtwRQNS3pLKN/zrRGERGagIgFjdV1JlqHF8BiIQne0/E3jVM7hWda/USrFI58per45s=";
-    char in2[IN2_SIZE];
+    char in1[125] = "MEsDAgcAAgEgAiAoQPNcS7L4k+q2qf3U7uyujtwRQNS3pLKN/zrRGERGagIgFjdV1JlqHF8BiIQne0/E3jVM7hWda/USrFI58per45s=";
     uint64_t in1Length = strlen(in1);
     uint64_t verifier;
     size_t verifierLength;
 
-    gettimeofday(&tv, NULL);
-    srand48(((tv.tv_usec & 0xFFFFFFFF) << 32) ^ ((tv.tv_usec >> 32) & 0xFFFFFFFF) ^ tv.tv_sec);
+    {
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        int64_t seed = (tv.tv_usec & 0x000FFFFF) << 32;
+        seed ^= tv.tv_sec;
+        printf("%016lx\n", seed);
+        printf("%ld.%06ld\n", tv.tv_sec, tv.tv_usec);
+        Random rnd;
+        setSeed(&rnd, seed);
+        srand48(nextLong(&rnd));
+    }
     /*
         1111111111111111111111111111111100000000000000000000000000000000
         0000000000000000111111111111111111111111111111110000000000000000
@@ -40,21 +61,22 @@ int main(int argc, char **argv)
     memset(&c, 0, sizeof(SHA_CTX));
     for (;; verifier++)
     {
-        SHA1_Init(&c);
-        SHA1_Update(&c, in1, in1Length);
-        verifierLength = snprintf(in2, IN2_SIZE, "%ld", verifier);
-        SHA1_Update(&c, in2, verifierLength);
-        SHA1_Final(mc.md, &c);
-        if (mc.md[0] == 0 && mc.md[1] == 0 && mc.md[2] == 0 && mc.md[3] == 0)
+        EVP_DigestInit(ctx, sha1);
+        verifierLength = snprintf(&in1[104], IN2_SIZE, "%ld", verifier);
+        EVP_DigestUpdate(ctx, in1, in1Length + verifierLength);
+        EVP_DigestFinal(ctx, md, NULL);
+        if (md[0] == 0 && md[1] == 0 && md[2] == 0 && md[3] == 0 && md[4] == 0)
         {
             printf(_("verifier : %" PRIu64 "\n"), verifier);
             for (i = 0; i < SHA_DIGEST_LENGTH; i++)
             {
-                printf("%02x", mc.md[i]);
+                printf("%02x", md[i]);
             }
             printf("\n");
             break;
         }
     }
+    /* DEAD CODE ***********************/
+    EVP_MD_CTX_free(ctx);
     return EXIT_SUCCESS;
 }
