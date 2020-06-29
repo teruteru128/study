@@ -9,16 +9,13 @@
 #include <openssl/ec.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/ripemd.h>
-#include <openssl/sha.h>
 #include <random.h>
 #include <bm.h>
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
-#define KEY_CACHE_SIZE 16777216ULL
-#define REQUIRE_NLZ 5
+#define KEY_CACHE_SIZE 4096ULL
+#define REQUIRE_NLZ 4
 #define ADDRESS_VERSION 4
 #define STREAM_NUMBER 1
 #define J_CACHE_SIZE 126
@@ -105,14 +102,17 @@ int main(int argc, char *argv[])
             EVP_DigestUpdate(sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
             EVP_DigestFinal(sha512ctx, cache64, NULL);
             EVP_DigestInit(ripemd160ctx, ripemd160md);
-            EVP_DigestUpdate(ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+            EVP_DigestUpdate(ripemd160ctx, cache64, 64);
             EVP_DigestFinal(ripemd160ctx, cache64, NULL);
-            for (nlz = 0; !cache64[nlz] && nlz < RIPEMD160_DIGEST_LENGTH; nlz++)
+            if(!cache64[0])
             {
-            }
-            if (nlz >= REQUIRE_NLZ)
-            {
-                exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+                for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
+                {
+                }
+                if (nlz >= REQUIRE_NLZ)
+                {
+                    exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+                }
             }
             for (j = 0; j < i; j += J_CACHE_SIZE)
             {
@@ -124,28 +124,34 @@ int main(int argc, char *argv[])
                     EVP_DigestUpdate(sha512ctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
                     EVP_DigestFinal(sha512ctx, cache64, NULL);
                     EVP_DigestInit(ripemd160ctx, ripemd160md);
-                    EVP_DigestUpdate(ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+                    EVP_DigestUpdate(ripemd160ctx, cache64, 64);
                     EVP_DigestFinal(ripemd160ctx, cache64, NULL);
-                    for (nlz = 0; !cache64[nlz] && nlz < RIPEMD160_DIGEST_LENGTH; nlz++)
+                    if(!cache64[0])
                     {
-                    }
-                    if (nlz >= REQUIRE_NLZ)
-                    {
-                        exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), cache64);
+                        for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
+                        {
+                        }
+                        if (nlz >= REQUIRE_NLZ)
+                        {
+                            exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), cache64);
+                        }
                     }
                     EVP_DigestInit(sha512ctx, sha512md);
                     EVP_DigestUpdate(sha512ctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
                     EVP_DigestUpdate(sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
                     EVP_DigestFinal(sha512ctx, cache64, NULL);
                     EVP_DigestInit(ripemd160ctx, ripemd160md);
-                    EVP_DigestUpdate(ripemd160ctx, cache64, SHA512_DIGEST_LENGTH);
+                    EVP_DigestUpdate(ripemd160ctx, cache64, 64);
                     EVP_DigestFinal(ripemd160ctx, cache64, NULL);
-                    for (nlz = 0; !cache64[nlz] && nlz < RIPEMD160_DIGEST_LENGTH; nlz++)
+                    if(!cache64[0])
                     {
-                    }
-                    if (nlz >= REQUIRE_NLZ)
-                    {
-                        exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+                        for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
+                        {
+                        }
+                        if (nlz >= REQUIRE_NLZ)
+                        {
+                            exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+                        }
                     }
                 } // jj
             }
