@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 //Joinを1関数で完結させるのはまずいような？
-char *strjoin(char *delimiter, size_t arraylen, char **array)
+char *strjoin(char *delimiter, char **array, size_t arraylen)
 {
   // delimiterがNULLのときの考慮は？ ->
   // delimiterを別の変数に移し替えてNULLの場合は空文字列にする
