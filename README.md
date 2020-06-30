@@ -2,6 +2,19 @@
 
 A garbage dump repository created for studying Teruteru.
 
+## TODO
+
+- 正規表現
+- MySQLクライアント
+- マルチスレッド(pthreads)
+- P2P地震情報プロトコル実装(P2P地震情報のLinux向けC言語実装)作成
+    - P2Pノード
+        - サーバー＆クライアント
+    - 可変長文字列リストもしくはキュー
+    - [パケット(プロトコル)構築](https://github.com/p2pquake/epsp-peer-cs/blob/f3cc70fd199806ced719fb9a692ec39b938924ba/Client/Common/Net/Packet.cs#L72)
+    - [プロトコルパーサ](https://github.com/p2pquake/epsp-specifications)
+- コマンドライン引数の解析
+
 ## Dependencies
 
 - libcurl4-gnutls-dev 7.58.0-2ubuntu3.8
