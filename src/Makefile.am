@@ -21,7 +21,6 @@ bin_PROGRAMS+=eckeygentest
 bin_PROGRAMS+=encodersa
 bin_PROGRAMS+=enginetest
 bin_PROGRAMS+=envgettest
-bin_PROGRAMS+=epsp-parser-test
 bin_PROGRAMS+=evptest
 bin_PROGRAMS+=falcon
 bin_PROGRAMS+=firstThread
@@ -135,8 +134,6 @@ eckeygentest_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 eckeygentest_SOURCES=eckeygentest.c study-config.h
 encodersa_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 encodersa_SOURCES=encodersa.c study-config.h
-epsp_parser_test_LDADD=../libstudy/src/libstudy.la
-epsp_parser_test_SOURCES=epsp-parser-test.c
 falcon_LDADD=../libstudy/src/libstudy.la
 falcon_SOURCES=falcon.c
 gettextsample2_CFLAGS=-DLOCALEDIR='"$(localedir)"'

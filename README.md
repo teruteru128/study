@@ -14,6 +14,7 @@ A garbage dump repository created for studying Teruteru.
     - [パケット(プロトコル)構築](https://github.com/p2pquake/epsp-peer-cs/blob/f3cc70fd199806ced719fb9a692ec39b938924ba/Client/Common/Net/Packet.cs#L72)
     - [プロトコルパーサ](https://github.com/p2pquake/epsp-specifications)
 - コマンドライン引数の解析
+- ファイル名の区切りをハイフンかアンダースコアのどちらかに統一する
 
 ## Dependencies
 
