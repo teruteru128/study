@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-06-25 09:27+0900\n"
+"POT-Creation-Date: 2020-06-30 13:57+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,22 +17,27 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/bmkeygen.c:164
+#: src/bmkeygen.c:80
 #, c-format
 msgid "Initializing private key...\n"
 msgstr ""
 
-#: src/bmkeygen.c:166
+#: src/bmkeygen.c:82
 #, c-format
 msgid "Initialized the private key. Initialize the public key.\n"
 msgstr ""
 
-#: src/bmkeygen.c:177
+#: src/bmkeygen.c:93
 #, c-format
 msgid "The public key initialization is complete.\n"
 msgstr ""
 
-#: src/bouyomi.c:136
+#: src/bouyomi.c:90
+#, c-format
+msgid "Error!\n"
+msgstr ""
+
+#: src/bouyomi.c:92
 #, c-format
 msgid "Sent!\n"
 msgstr ""
@@ -102,12 +107,12 @@ msgstr ""
 msgid "NTP server time : %s"
 msgstr ""
 
-#: src/study.c:24
+#: src/study.c:26
 #, c-format
 msgid "Help me!\n"
 msgstr ""
 
-#: src/teamspeakcalc.c:50
+#: src/teamspeakcalc.c:70
 #, c-format
 msgid "verifier : %<PRIu64>\n"
 msgstr ""

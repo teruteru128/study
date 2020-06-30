@@ -20,7 +20,6 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_PROG_RANLIB
 AC_PROG_MKDIR_P
 AC_PROG_YACC
 
@@ -75,6 +74,7 @@ AC_CONFIG_FILES([Makefile
                  .github/workflows/c-cpp.yml
                  .github/workflows/prerelease.yml
                  .github/workflows/release.yml
-                 src/Makefile])
+                 src/Makefile
+                 tests/Makefile])
 AC_CONFIG_SUBDIRS([libstudy])
 AC_OUTPUT

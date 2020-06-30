@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-06-25 09:27+0900\n"
+"POT-Creation-Date: 2020-06-30 13:57+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -18,22 +18,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/bmkeygen.c:164
+#: src/bmkeygen.c:80
 #, c-format
 msgid "Initializing private key...\n"
 msgstr "秘密鍵を初期化しています...\n"
 
-#: src/bmkeygen.c:166
+#: src/bmkeygen.c:82
 #, c-format
 msgid "Initialized the private key. Initialize the public key.\n"
 msgstr "秘密鍵を初期化しました。公開鍵を初期化します。\n"
 
-#: src/bmkeygen.c:177
+#: src/bmkeygen.c:93
 #, c-format
 msgid "The public key initialization is complete.\n"
 msgstr "公開鍵の初期化が完了しました。\n"
 
-#: src/bouyomi.c:136
+#: src/bouyomi.c:90
+#, c-format
+msgid "Error!\n"
+msgstr ""
+
+#: src/bouyomi.c:92
 #, c-format
 msgid "Sent!\n"
 msgstr "送信しました！\n"
@@ -103,12 +108,12 @@ msgstr "ローカル時刻 : %s"
 msgid "NTP server time : %s"
 msgstr "NTPサーバ時刻 : %s"
 
-#: src/study.c:24
+#: src/study.c:26
 #, c-format
 msgid "Help me!\n"
 msgstr "助けて！\n"
 
-#: src/teamspeakcalc.c:50
+#: src/teamspeakcalc.c:70
 #, c-format
 msgid "verifier : %<PRIu64>\n"
 msgstr "検証子 : %<PRIu64>\n"
