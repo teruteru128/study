@@ -46,7 +46,7 @@ int main(int argc, char **argv)
         seed ^= tv.tv_sec;
         printf("%016lx\n", seed);
         printf("%ld.%06ld\n", tv.tv_sec, tv.tv_usec);
-        Random rnd;
+        int64_t rnd = 0;
         setSeed(&rnd, seed);
         srand48(nextLong(&rnd));
     }
