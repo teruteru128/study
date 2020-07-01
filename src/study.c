@@ -35,7 +35,7 @@ static int64_t s(int64_t seed, int32_t x, int32_t z)
 static int64_t s1(int64_t seed, int32_t x, int32_t z)
 {
   //return (seed + (long)(x * x * 0x4c1906) + (long)(x * 0x5ac0db) + (long)(z * z) * 0x4307a7L + (long)(z * 0x5f24f)) ^ 0x3ad8025f;
-  return (seed + memoX[x + 625] + memoZ[z + 625]) ^ 0x3ad8025f;
+  return (seed + (long)(memoX[x + 625]) + memoZ[z + 625]) ^ 0x3ad8025f;
   /*
   int64_t x2 = x * x * 0x4c1906;
   int64_t x1 = x * 0x5ac0db;
@@ -83,7 +83,8 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 1250; i++) {
         offsetI = i - 625;
         i2 = offsetI * offsetI;
-        memoX[i] = (i2 * 0x4c1906) + (offsetI * 0x5ac0db);
+        memoX[i] = i2 * 0x4c1906;
+        memoX[i] += offsetI * 0x5ac0db;
         memoZ[i] = i2 * 0x4307a7L + offsetI * 0x5f24f;
     }
   }
@@ -101,6 +102,8 @@ int main(int argc, char *argv[])
   setSeed(&rnd, s(42056176818708L, -194, -148));
   printf("%d\n", nextIntWithBounds(&rnd, 10));
   setSeed(&rnd, s(42056176818708L, -193, -147));
+  printf("%d\n", nextIntWithBounds(&rnd, 10));
+  setSeed(&rnd, s1(42056176818708L, -193, -147));
   printf("%d\n", nextIntWithBounds(&rnd, 10));
   seed = initialScramble(s(42056176818708L, -196, -150));
   printf("%d\n", nextIntWithBounds(&seed, 10));
