@@ -97,7 +97,7 @@ cudamalloctest: cudamalloctest.o
 	$(NVCC) $(cudamalloctest_LDFLAGS) -ccbin $(CC) $< -o $@
 
 # see https://www.gnu.org/software/automake/manual/html_node/Subpackages.html
-AM_CPPFLAGS=-Wall -I$(top_srcdir)/libstudy/include
+AM_CPPFLAGS=-Wall -Wextra -Wdisabled-optimization -I$(top_srcdir)/libstudy/include
 CoDec_LDADD=../libstudy/src/libstudy.la
 CoDec_SOURCES=CoDec.c CoDec.h
 FizzBuzz_CFLAGS=-DLOCALEDIR='"$(localedir)"'

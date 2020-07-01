@@ -14,7 +14,7 @@
 #include <netinet/in.h>
 #include <printint.h>
 #include <random.h>
-#include <random.h>
+#include <numsys.h>
 
 #define IN2_SIZE 20
 #define CTX_SIZE 1

@@ -8,9 +8,15 @@
 #include "gettextsample.h"
 #include <printint.h>
 #include <random.h>
+#include <java_random.h>
 #include <bitset.h>
 #include <orz.h>
 #include <openssl/evp.h>
+
+static int64_t s(int64_t seed, int32_t x, int32_t z)
+{
+  return (seed + (long)(x * x * 0x4c1906) + (long)(x * 0x5ac0db) + (long)(z * z) * 0x4307a7L + (long)(z * 0x5f24f)) ^ 0x3ad8025f;
+}
 
 /**
  * --version
@@ -31,30 +37,13 @@
  */
 int main(int argc, char *argv[])
 {
-  setlocale(LC_ALL, "");
-  bindtextdomain(PACKAGE, LOCALEDIR);
-  textdomain(PACKAGE);
-  printf(_("Help me!\n"));
-  const EVP_MD *sha512 = EVP_sha512();
-  EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-  EVP_DigestInit(ctx, sha512);
-  EVP_DigestUpdate(ctx, "BIG PRECURE IS WATCHING YOU", strlen("BIG PRECURE IS WATCHING YOU"));
-  unsigned char md[EVP_MAX_MD_SIZE];
-  unsigned int len = 0;
-  EVP_DigestFinal(ctx, md, &len);
-  for (int i = 0; i < len; i++)
-  {
-    printf("%02x", md[i]);
-  }
-  printf("\n");
-  EVP_DigestInit(ctx, sha512);
-  EVP_DigestUpdate(ctx, md, len);
-  EVP_DigestFinal(ctx, md, &len);
-  for (int i = 0; i < len; i++)
-  {
-    printf("%02x", md[i]);
-  }
-  printf("\n");
-  EVP_MD_CTX_free(ctx);
+  int64_t seed = 42056176818708L;
+  seed = s(seed, -196, -150);
+  printf("%ld\n", seed);
+  seed = initializeSeed(seed);
+  printf("%ld\n", s(0, 0, 0));
+  printf("%ld\n", s(0, 0, 1));
+  printf("%ld\n", s(0, 0, 2));
+  printf("%ld\n", s(0, 0, 3));
   return EXIT_SUCCESS;
 }

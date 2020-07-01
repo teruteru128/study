@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <random.h>
+#include <xorshift.h>
 
 #define URANDOM_PATH "/dev/urandom"
 #define MAX 1000000
