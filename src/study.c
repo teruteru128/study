@@ -17,6 +17,17 @@
  * --help
  * 
  * orz
+ * 
+ * OpenSSL EVP
+ * 対称鍵暗号
+ * 認証付き暗号
+ * エンベロープ暗号化
+ * 署名と検証
+ *   EVP_DigestSign
+ * メッセージダイジェスト
+ * 鍵合意(鍵交換)
+ * メッセージ認証符号 (OpenSSL 3～)
+ *   EVP_MAC_new_ctx
  */
 int main(int argc, char *argv[])
 {
@@ -31,7 +42,7 @@ int main(int argc, char *argv[])
   unsigned char md[EVP_MAX_MD_SIZE];
   unsigned int len = 0;
   EVP_DigestFinal(ctx, md, &len);
-  for(int i = 0; i < len; i++)
+  for (int i = 0; i < len; i++)
   {
     printf("%02x", md[i]);
   }
@@ -39,7 +50,7 @@ int main(int argc, char *argv[])
   EVP_DigestInit(ctx, sha512);
   EVP_DigestUpdate(ctx, md, len);
   EVP_DigestFinal(ctx, md, &len);
-  for(int i = 0; i < len; i++)
+  for (int i = 0; i < len; i++)
   {
     printf("%02x", md[i]);
   }

@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
             EVP_DigestInit(ripemd160ctx, ripemd160md);
             EVP_DigestUpdate(ripemd160ctx, cache64, 64);
             EVP_DigestFinal(ripemd160ctx, cache64, NULL);
-            if(!cache64[0])
+            if (!cache64[0])
             {
                 for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
                 {
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
                     EVP_DigestInit(ripemd160ctx, ripemd160md);
                     EVP_DigestUpdate(ripemd160ctx, cache64, 64);
                     EVP_DigestFinal(ripemd160ctx, cache64, NULL);
-                    if(!cache64[0])
+                    if (!cache64[0])
                     {
                         for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
                         {
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
                     EVP_DigestInit(ripemd160ctx, ripemd160md);
                     EVP_DigestUpdate(ripemd160ctx, cache64, 64);
                     EVP_DigestFinal(ripemd160ctx, cache64, NULL);
-                    if(!cache64[0])
+                    if (!cache64[0])
                     {
                         for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
                         {
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
         }
     }
     /* DEAD CODE ***********************/
-//shutdown:
+    //shutdown:
     free(privateKeys);
     free(publicKeys);
     BN_free(prikey);
