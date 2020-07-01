@@ -11,7 +11,9 @@
 #include <java_random.h>
 #include <bitset.h>
 #include <orz.h>
+#include <time.h>
 #include <openssl/evp.h>
+#define LOOP_COUNT 1000000000ULL
 
 static int64_t s(int64_t seed, int32_t x, int32_t z)
 {
@@ -30,10 +32,10 @@ static int64_t t(int64_t seed, int32_t x, int32_t z)
   return (seed + (long)(x * x * 0x4c1906) + (long)(x * 0x5ac0db) + (long)(z * z) * 0x4307a7L + (long)(z * 0x5f24f));
 }
 
-int isSlimeChunk(int64_t seed, int32_t x, int32_t z)
+int isSlimeChunk(int64_t *seed1, int64_t seed, int32_t x, int32_t z)
 {
-  int64_t seed1 = s(seed, x, z);
-  return !nextIntWithBounds(&seed1, 10);
+  *seed1 = s(seed, x, z);
+  return !nextIntWithBounds(seed1, 10);
 }
 
 /**
@@ -55,7 +57,11 @@ int isSlimeChunk(int64_t seed, int32_t x, int32_t z)
  */
 int main(int argc, char *argv[])
 {
+  setlocale(LC_ALL, "");
+  bindtextdomain(PACKAGE, LOCALEDIR);
+  textdomain(PACKAGE);
   int64_t seed = 42056176818708L;
+  int64_t ctx;
   seed = s(seed, -196, -150);
   printf("%016lx\n", seed);
   seed = initialScramble(seed);
@@ -77,5 +83,26 @@ int main(int argc, char *argv[])
   printf("%016lx\n", t(seed, -195, -149));
   printf("%016lx\n", t(seed, -194, -158));
   printf("%016lx\n", t(seed, -193, -147));
+  printf("%d\n", isSlimeChunk(&ctx, 42056176818708L, -196, -150));
+  int is = 0;
+  struct timespec start;
+  struct timespec end;
+
+  clock_gettime(CLOCK_REALTIME, &start);
+  for(size_t i = 0; i < LOOP_COUNT; i++)
+  {
+    ctx = s(42056176818708L, -196, -150);
+    is = !nextIntWithBounds(&ctx, 10);
+    //is = isSlimeChunk(&ctx, 42056176818708L, -196, -150);
+  }
+  clock_gettime(CLOCK_REALTIME, &end);
+  time_t sec = end.tv_sec - start.tv_sec;
+  long nsec = end.tv_nsec - start.tv_nsec;
+  double passed = (sec * 1e9) + nsec;
+  double seconds = passed / 1e9;
+  fprintf(stderr, _("It took %g seconds.\n"), seconds);
+  fprintf(stderr, _("%g times per second\n"), LOOP_COUNT / seconds);
+  fprintf(stderr, _("%e seconds per time\n"), seconds / LOOP_COUNT);
+  printf("%d\n", is);
   return EXIT_SUCCESS;
 }
