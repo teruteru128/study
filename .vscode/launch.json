@@ -4,44 +4,44 @@
     // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    {
-        "name": "study",
-        "type": "cppdbg",
-        "request": "launch",
-        "program": "${workspaceFolder}/src/study",
-        "args": [],
-        "stopAtEntry": false,
-        "cwd": "${workspaceFolder}",
-        "environment": [],
-        "externalConsole": false,
-        "MIMode": "gdb",
-        "setupCommands": [
-            {
-                "description": "gdb の再フォーマットを有効にする",
-                "text": "-enable-pretty-printing",
-                "ignoreFailures": true
-            }
-        ]
-    },
-    {
-        "name": "sntpc 起動",
-        "type": "cppdbg",
-        "request": "launch",
-        "program": "${workspaceFolder}/src/sntpc",
-        "args": [],
-        "stopAtEntry": false,
-        "cwd": "${workspaceFolder}",
-        "environment": [],
-        "externalConsole": false,
-        "MIMode": "gdb",
-        "setupCommands": [
-            {
-                "description": "sntp client",
-                "text": "-enable-pretty-printing",
-                "ignoreFailures": true
-            }
-        ]
-    },
+        {
+            "name": "study",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/study",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "gdb の再フォーマットを有効にする",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "sntpc 起動",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/sntpc",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "sntp client",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
         {
             "name": "(gdb) Attach encodersa",
             "type": "cppdbg",
@@ -56,7 +56,8 @@
                     "ignoreFailures": true
                 }
             ]
-        },{
+        },
+        {
             "name": "(gdb) Launch encodersa",
             "type": "cppdbg",
             "request": "launch",
