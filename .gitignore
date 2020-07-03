@@ -142,3 +142,8 @@ tags
 ## Jota+ textedutor
 *~
 *.tmp
+
+# make check result files
+
+*.log
+*.trs

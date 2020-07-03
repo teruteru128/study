@@ -12,48 +12,19 @@
 #include <bitset.h>
 #include <orz.h>
 #include <time.h>
+#include <minecraft.h>
 #include <openssl/evp.h>
 #define LOOP_COUNT 1000ULL
-
-
-static int32_t memoX[1250];
-static int64_t memoZ[1250];
-
-static int64_t s(int64_t seed, int32_t x, int32_t z)
-{
-  return (seed + (long)(x * x * 0x4c1906) + (long)(x * 0x5ac0db) + (long)(z * z) * 0x4307a7L + (long)(z * 0x5f24f)) ^ 0x3ad8025f;
-  //return (seed + memoX[x + 625] + memoZ[z + 625]) ^ 0x3ad8025f;
-  /*
-  int64_t x2 = x * x * 0x4c1906;
-  int64_t x1 = x * 0x5ac0db;
-  int64_t z2 = z * z * 0x4307a7L;
-  int64_t z1 = z * 0x5f24f;
-  return (seed + x2 + x1 + z2 + z1) ^ 0x3ad8025f;
-  */
-}
-
-static int64_t s1(int64_t seed, int32_t x, int32_t z)
-{
-  //return (seed + (long)(x * x * 0x4c1906) + (long)(x * 0x5ac0db) + (long)(z * z) * 0x4307a7L + (long)(z * 0x5f24f)) ^ 0x3ad8025f;
-  return (seed + (long)(memoX[x + 625]) + memoZ[z + 625]) ^ 0x3ad8025f;
-  /*
-  int64_t x2 = x * x * 0x4c1906;
-  int64_t x1 = x * 0x5ac0db;
-  int64_t z2 = z * z * 0x4307a7L;
-  int64_t z1 = z * 0x5f24f;
-  return (seed + x2 + x1 + z2 + z1) ^ 0x3ad8025f;
-  */
-}
 
 static int64_t t(int64_t seed, int32_t x, int32_t z)
 {
   return (seed + (long)(x * x * 0x4c1906) + (long)(x * 0x5ac0db) + (long)(z * z) * 0x4307a7L + (long)(z * 0x5f24f));
 }
 
-int isSlimeChunk(int64_t *seed1, int64_t seed, int32_t x, int32_t z)
+int isSlimeChunk(int64_t *ctx, int64_t seed, int32_t x, int32_t z)
 {
-  *seed1 = s(seed, x, z);
-  return !nextIntWithBounds(seed1, 10);
+  *ctx = s(seed, x, z);
+  return !nextIntWithBounds(ctx, 10);
 }
 
 /**
@@ -78,16 +49,6 @@ int main(int argc, char *argv[])
   setlocale(LC_ALL, "");
   bindtextdomain(PACKAGE, LOCALEDIR);
   textdomain(PACKAGE);
-  {
-    int offsetI, i2;
-    for (int i = 0; i < 1250; i++) {
-        offsetI = i - 625;
-        i2 = offsetI * offsetI;
-        memoX[i] = i2 * 0x4c1906;
-        memoX[i] += offsetI * 0x5ac0db;
-        memoZ[i] = i2 * 0x4307a7L + offsetI * 0x5f24f;
-    }
-  }
   int64_t seed = 42056176818708L;
   seed = s(seed, -196, -150);
   printf("%016lx\n", seed);
@@ -102,8 +63,6 @@ int main(int argc, char *argv[])
   setSeed(&rnd, s(42056176818708L, -194, -148));
   printf("%d\n", nextIntWithBounds(&rnd, 10));
   setSeed(&rnd, s(42056176818708L, -193, -147));
-  printf("%d\n", nextIntWithBounds(&rnd, 10));
-  setSeed(&rnd, s1(42056176818708L, -193, -147));
   printf("%d\n", nextIntWithBounds(&rnd, 10));
   seed = initialScramble(s(42056176818708L, -196, -150));
   printf("%d\n", nextIntWithBounds(&seed, 10));
@@ -131,8 +90,6 @@ int main(int argc, char *argv[])
   ctx = initialScramble(s(998L, 455, 225));
   printf("ctx : %d\n", nextIntWithBounds(&ctx, 10));
   ctx = initialScramble(s(998L, 455, 225));
-  printf("ctx : %ld\n", ctx);
-  ctx = initialScramble(s1(998L, 455, 225));
   printf("ctx : %ld\n", ctx);
 
   clock_gettime(CLOCK_REALTIME, &start);

@@ -42,6 +42,9 @@
                 "path": [
                     "/usr/include",
                     "/usr/local/include",
+                    "/usr/local/cuda-10.2/include",
+                    "${workspaceFolder}/include",
+                    "${workspaceFolder}/libstudy/include",
                     "${workspaceFolder}"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
