@@ -5,10 +5,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <malloc.h>
-#include "gettextsample.h"
-#include <printint.h>
-#include <random.h>
-#include <bitset.h>
 #include <orz.h>
 #include <openssl/evp.h>
 
@@ -45,7 +41,7 @@ int main(int argc, char *argv[])
   unsigned char md[EVP_MAX_MD_SIZE];
   unsigned int len = 0;
   EVP_DigestFinal(ctx, md, &len);
-  for (int i = 0; i < len; i++)
+  for (unsigned int i = 0; i < len; i++)
   {
     printf("%02x", md[i]);
   }
@@ -53,7 +49,7 @@ int main(int argc, char *argv[])
   EVP_DigestInit(ctx, sha512);
   EVP_DigestUpdate(ctx, md, len);
   EVP_DigestFinal(ctx, md, &len);
-  for (int i = 0; i < len; i++)
+  for (unsigned int i = 0; i < len; i++)
   {
     printf("%02x", md[i]);
   }
