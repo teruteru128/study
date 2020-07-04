@@ -1,5 +1,6 @@
 
 #include "study-config.h"
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
@@ -102,11 +103,11 @@ int main(int argc, char *argv[])
   send.receive_timestamp = 0;
   send.transmit_timestamp_seconds = 0;
   send.transmit_timestamp_fractions = 0;
-  char *a = (char *)&send;
+  unsigned char *a = (char *)&send;
   int i = 0;
   for (; i < 48; i++)
   {
-    printf("%02x", a[i] & 0xff);
+    printf("%02x", a[i]);
     if ((i % 16) == 15)
     {
       printf("\n");
