@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-07-06 09:13+0900\n"
+"POT-Creation-Date: 2020-07-06 16:00+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -108,7 +108,7 @@ msgstr "ローカル時刻 : %s"
 msgid "NTP server time : %s"
 msgstr "NTPサーバ時刻 : %s"
 
-#: src/study.c:35
+#: src/study.c:36
 #, c-format
 msgid "Help me!\n"
 msgstr "助けて！\n"

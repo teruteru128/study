@@ -4,7 +4,8 @@
         ".classpath": "xml",
         "*.classpath": "xml",
         "*.h": "c",
+        "config.rpath": "shellscript",
         "*.cu": "cuda",
-        "config.rpath": "shellscript"
+        "*.cuh": "cuda"
     }
 }
