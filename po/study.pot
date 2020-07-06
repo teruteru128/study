@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-07-03 21:23+0900\n"
+"POT-Creation-Date: 2020-07-06 09:13+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -97,17 +97,17 @@ msgstr ""
 msgid "%e seconds per time\n"
 msgstr ""
 
-#: src/sntpc.c:195
+#: src/sntpc.c:196
 #, c-format
 msgid "Local time : %s"
 msgstr ""
 
-#: src/sntpc.c:196
+#: src/sntpc.c:197
 #, c-format
 msgid "NTP server time : %s"
 msgstr ""
 
-#: src/study.c:29
+#: src/study.c:35
 #, c-format
 msgid "Help me!\n"
 msgstr ""

@@ -5,7 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sha.h>
+#include <sha-1.h>
+
+#define DATA "The quick brown fox jumps over the lazy dog"
 
 int main(int argc, char *argv[])
 {
@@ -13,8 +15,7 @@ int main(int argc, char *argv[])
   SHA_CTX sha;
 
   sha_init(&sha);
-  char data[] = "The quick brown fox jumps over the lazy dog";
-  sha_update(&sha, data, strlen(data));
+  sha_update(&sha, DATA, strlen(DATA));
 
   char buf[20];
   char txt[41];

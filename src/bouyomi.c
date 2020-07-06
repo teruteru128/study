@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
 
   char *servAddr = ONION_SERV_ADDRESS;
   char *servPortStr = DEFAULT_PORT_STR;
-  int use_onion = 0;
+  int use_onion = 1;
   if (use_onion == 1)
   {
     servAddr = ONION_SERV_ADDRESS;
