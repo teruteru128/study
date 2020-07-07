@@ -132,15 +132,7 @@ struct chararray *encodeVarint(uint64_t u)
 
 void chararrayfree(struct chararray *p)
 {
-  if (p == NULL)
-  {
-    return;
-  }
-  if (p->data != NULL)
-  {
-    free(p->data);
-    p->data = NULL;
-  }
+  if (p->data) free(p->data);
   free(p);
 }
 
@@ -217,6 +209,8 @@ char *encodeAddress(int version, int stream, unsigned char *ripe, size_t ripelen
 
 /*
  * strを16進数文字列としてパースします。
+ * jsonパーサ
+ * https://mattn.kaoriya.net/software/lang/c/20130710214647.htm
  */
 static size_t parseHex(unsigned char **out, const char *str)
 {
