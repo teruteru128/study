@@ -11,6 +11,7 @@
 #include <openssl/evp.h>
 #include <java_random.h>
 #include <err.h>
+#include <byteswap.h>
 
 #define BIG_PRECURE_IS_WATCHING_YOU "BIG PRECURE IS WATCHING YOU"
 
@@ -33,6 +34,63 @@ static char divmod58(unsigned char *number, size_t length, size_t startAt)
   return (char)remainder;
 }
 
+/*
+ * どうやったらこんな使い勝手のいいライブラリが作れるんですか？
+ * https://github.com/Bitmessage/PyBitmessage/blob/8659c5313d54ea8c1f899f8a4e0bc8c02ae5dab3/src/pyelliptic/arithmetic.py#L41
+ * そもそもPythonのencode関数の引数valが多倍長整数臭いんだよねえ……
+ * →Python 2.x系はint型が少なくとも32ビット精度の整数、longが多倍長整数
+ * Python　3.x系だとintが多倍長整数 https://docs.python.org/ja/2.7/library/stdtypes.html#numeric-types-int-float-long-complex
+ * C言語だとmpz_tとかBIGNUMとかの使用が前提やぞ
+ * def encode(val, base, minlen=0):
+ * def decode(string, base):
+ * def changebase(string, frm, to, minlen=0):
+ * 
+ * 生バイナリを渡して文字列に変換する
+ * char *encode(char *, size_t len, int base, size_t minlen);
+ * 
+ * 文字列を渡してバイナリに変換する
+ * 本当にNULL終端された文字列だと仮定していいのか？
+ * NULL終端されていないと仮定して文字列長も受け取ったほうが便利じゃないか？
+ * stringの実際の長さと引数lenで渡した文字列長が一致しない場合は……呼び出し側の責任なので問題ないのか
+ * そもそも返すバイナリの長さがわからないのが問題だな？
+ * データ長をデータ本体ともども引数経由で返して返り値はエラー判定に使うか？
+ * char *decode(char *string, int base);
+ * int decode(char *string, size_t stringlen, int base, char **val, size_t *vallen);
+ * char *changebase(char *string, size_t len, int from, int to, size_t minlen);
+ * int changebase(char *string, size_t len, int from, int to, size_t minlen, char **val, size_t *vallen);
+ * 
+ * JavaとかPythonとかだと配列にlengthが付いてるから楽でいいなあ……
+ * 
+ * そもそも文字列と生バイナリの区別がデータ型でできないのが割と辛い
+ * ……Javaでも変わらんか
+ * 
+ * バイナリがunsigned charで文字列が(signed) charをよく使ってる気がする
+ * 
+ * iconv(3)に習うならoutputのbufも呼び出し側が指定すべきなんだよな
+ * iconvの実装が古い可能性
+ * 2, 10, 16, 58, 256
+ * 
+ * 生バイナリ(256進数)→58進数:1.365倍
+ * 生バイナリ(256進数)→16進数:2倍の領域
+ * 生バイナリ(256進数)→10進数:2.408倍の領域
+ * 生バイナリ(256進数)→10進数:8倍の領域
+ * 58進数→16進数:1.464倍の領域
+ * 58進数→10進数:1.763倍の領域
+ * 58進数→2進数:5.858倍の領域
+ * 16進数→10進数:1.204倍の領域
+ * 16進数→2進数:4倍の領域
+ * 10進数→2進数:3.322倍の領域
+ * 計算めんどくさいし誤差でオーバーランしたら嫌だし
+ * 小数点以下切り上げでとりあえず確保してreallocいいんじゃないかな( ˘ω˘)
+ * ->ローカル変数で領域を確保してstrdupするなりなんなりでもいい気がする……文字列ならな
+ * 
+ * encodeBase58
+ * https://github.com/Bitmessage/PyBitmessage/blob/d09782e53d3f42132532b6e39011cd27e7f41d25/src/addresses.py#L14
+ * 
+ * decodeBase58
+ * https://github.com/Bitmessage/PyBitmessage/blob/d09782e53d3f42132532b6e39011cd27e7f41d25/src/addresses.py#L33
+ * 
+ */
 char *base58encode(unsigned char *input, size_t length)
 {
   if (input == NULL || length == 0)
@@ -42,7 +100,8 @@ char *base58encode(unsigned char *input, size_t length)
   unsigned char *work = alloca(length);
   memcpy(work, input, length);
   size_t zeroCount = 0;
-  while (zeroCount < length && work[zeroCount] == 0) zeroCount++;
+  while (zeroCount < length && work[zeroCount] == 0)
+    zeroCount++;
   size_t templen = length * 2;
   char *temp = alloca(templen);
   size_t j = templen;
@@ -67,11 +126,12 @@ char *base58encode(unsigned char *input, size_t length)
   {
     temp[--j] = ALPHABET[0];
   }
-  char *output = malloc(templen - j);
-  memset(output, 0, templen - j);
-  memcpy(output, &temp[j], templen - j);
+  size_t outputlen = templen - j;
+  char *output = malloc(outputlen);
+  memset(output, 0, outputlen);
+  memcpy(output, &temp[j], outputlen);
   char *tmp = realloc(output, strlen(output));
-  if(!tmp)
+  if (!tmp)
   {
     free(output);
     err(EXIT_FAILURE, "realloc in base58encode");
@@ -86,6 +146,11 @@ struct chararray
   size_t length;
 };
 
+/*
+ * 
+ * https://github.com/Bitmessage/PyBitmessage/blob/d09782e53d3f42132532b6e39011cd27e7f41d25/src/addresses.py#L63
+ * https://docs.python.org/ja/3/library/struct.html
+ */
 struct chararray *encodeVarint(uint64_t u)
 {
   struct chararray *p = malloc(sizeof(struct chararray));
@@ -104,39 +169,47 @@ struct chararray *encodeVarint(uint64_t u)
   {
     p->data = malloc(sizeof(char) + sizeof(uint16_t));
     *p->data = 253;
-    *((uint16_t *)&p->data[1]) = (uint16_t)u;
-    p->length = 2;
+    *((uint16_t *)&p->data[1]) = bswap_16((uint16_t)u);
+    p->length = 3;
     return p;
   }
   if (65536 <= u && u < 4294967296L)
   {
     p->data = malloc(sizeof(char) + sizeof(uint32_t));
     *p->data = 254;
-    *((uint32_t *)&p->data[1]) = (uint32_t)u;
-    p->length = 2;
+    *((uint32_t *)&p->data[1]) = bswap_32((uint32_t)u);
+    p->length = 5;
     return p;
   }
   if (4294967296L <= u && u <= 18446744073709551615UL)
   {
     p->data = malloc(sizeof(char) + sizeof(uint64_t));
     *p->data = 254;
-    *((uint64_t *)&p->data[1]) = (uint64_t)u;
-    p->length = 2;
+    *((uint64_t *)&p->data[1]) = bswap_64((uint64_t)u);
+    p->length = 9;
     return p;
   }
+  // おそらくここには来ない
   free(p);
   return NULL;
 }
 
 void chararrayfree(struct chararray *p)
 {
-  if (p->data) free(p->data);
+  if (p->data)
+    free(p->data);
   free(p);
 }
 
+/*
+ * ripeをBitMessageアドレスにエンコードします。
+ * 
+ * https://github.com/Bitmessage/PyBitmessage/blob/d09782e53d3f42132532b6e39011cd27e7f41d25/src/addresses.py#L143
+ * https://github.com/teruteru128/java-study/blob/03906187223ad8e5e8f8629e23ecbe2fbca5b7b4/src/main/java/com/twitter/teruteru128/study/bitmessage/genaddress/BMAddress.java#L18
+ */
 char *encodeAddress(int version, int stream, unsigned char *ripe, size_t ripelen)
 {
-  unsigned char *workripe = NULL;
+  unsigned char *workripe = ripe;
   size_t workripelen = ripelen;
   if (version >= 2 && version < 4)
   {
@@ -147,19 +220,20 @@ char *encodeAddress(int version, int stream, unsigned char *ripe, size_t ripelen
     if (memcmp(ripe, "\0\0", 2) == 0)
     {
       workripe = &ripe[2];
-      workripelen = 18;
+      workripelen -= 2;
     }
     else if (memcmp(ripe, "\0", 1) == 0)
     {
       workripe = &ripe[1];
-      workripelen = 19;
-    } else {
-      workripe = ripe;
-      workripelen = 20;
+      workripelen -= 1;
     }
   }
   else
   {
+    if (ripelen != 20)
+    {
+      return NULL;
+    }
     size_t i = 0;
     for (; ripe[i] == 0 && i < ripelen; i++)
       ;
@@ -197,32 +271,33 @@ char *encodeAddress(int version, int stream, unsigned char *ripe, size_t ripelen
   char *ret = malloc(45);
   snprintf(ret, 45, "BM-%s", a);
   free(a);
-  char *tmp = realloc(ret, strlen(ret) + 1);
-  if(!ret)
   {
-    free(ret);
-    err(EXIT_FAILURE, "can not realloc");
+    char *tmp = realloc(ret, strlen(ret) + 1);
+    if (!ret)
+    {
+      free(ret);
+      err(EXIT_FAILURE, "can not realloc");
+    }
+    ret = tmp;
   }
-  ret = tmp;
-
-  return tmp;
+  return ret;
 }
 
-#define TABLE "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
-              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
-              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+#define TABLE "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"                     \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"                     \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"                     \
               "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\0\0\0\0\0\0" \
-              "\0\x0a\x0b\x0c\x0d\x0e\x0f\0\0\0\0\0\0\0\0\0" \
-              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
-              "\0\x0a\x0b\x0c\x0d\x0e\x0f\0\0\0\0\0\0\0\0\0" \
-              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
-              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
-              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
-              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
-              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
-              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
-              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
-              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+              "\0\x0a\x0b\x0c\x0d\x0e\x0f\0\0\0\0\0\0\0\0\0"         \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"                     \
+              "\0\x0a\x0b\x0c\x0d\x0e\x0f\0\0\0\0\0\0\0\0\0"         \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"                     \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"                     \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"                     \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"                     \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"                     \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"                     \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"                     \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"                     \
               "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 
 /*
@@ -232,20 +307,20 @@ char *encodeAddress(int version, int stream, unsigned char *ripe, size_t ripelen
  */
 static size_t parseHex(unsigned char **out, const char *str)
 {
-    size_t length = strlen(str) / 2;
-    size_t i = 0;
-    unsigned char *data = calloc(length, sizeof(char));
-    if (!data)
-    {
-        perror("calloc in parseHex");
-        exit(1);
-    }
-    for (i = 0; i < length; i++)
-    {
-        data[i] = (TABLE[str[2 * i]] << 4) | (TABLE[str[2 * i + 1]]);
-    }
-    *out = data;
-    return length;
+  size_t length = strlen(str) / 2;
+  size_t i = 0;
+  unsigned char *data = calloc(length, sizeof(char));
+  if (!data)
+  {
+    perror("calloc in parseHex");
+    exit(1);
+  }
+  for (i = 0; i < length; i++)
+  {
+    data[i] = (TABLE[str[2 * i] & 0xff] << 4) | (TABLE[str[2 * i + 1] & 0xff]);
+  }
+  *out = data;
+  return length;
 }
 
 /**
@@ -273,27 +348,28 @@ int main(int argc, char *argv[])
   textdomain(PACKAGE);
   printf(_("Help me!\n"));
   orz(1);
-  const EVP_MD *sha512md = EVP_sha512();
-  EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
-  EVP_DigestInit(mdctx, sha512md);
-  EVP_DigestUpdate(mdctx, BIG_PRECURE_IS_WATCHING_YOU, strlen(BIG_PRECURE_IS_WATCHING_YOU));
+  const EVP_MD *sha512 = EVP_sha512();
+  EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+  EVP_DigestInit(ctx, sha512);
+  EVP_DigestUpdate(ctx, BIG_PRECURE_IS_WATCHING_YOU, strlen(BIG_PRECURE_IS_WATCHING_YOU));
   unsigned char md[EVP_MAX_MD_SIZE];
   unsigned int len = 0;
-  EVP_DigestFinal(mdctx, md, &len);
+  EVP_DigestFinal(ctx, md, &len);
   for (unsigned int i = 0; i < len; i++)
   {
     printf("%02x", md[i]);
   }
   printf("\n");
-  EVP_DigestInit(mdctx, sha512md);
-  EVP_DigestUpdate(mdctx, md, len);
-  EVP_DigestFinal(mdctx, md, &len);
+  EVP_DigestInit(ctx, sha512);
+  EVP_DigestUpdate(ctx, md, len);
+  EVP_DigestFinal(ctx, md, &len);
   for (unsigned int i = 0; i < len; i++)
   {
     printf("%02x", md[i]);
   }
   printf("\n");
-  EVP_MD_CTX_free(mdctx);
+  EVP_MD_CTX_free(ctx);
+  // 00000D9663F57318B4E52288BFDC8B3C23E84DE1
   char *hex = "000111d38e5fc9071ffcd20b4a763cc9ae4f252bb4e48fd66a835e252ada93ff480d6dd43dc62a641155a5";
   unsigned char *in = NULL;
   len = (unsigned int)parseHex(&in, hex);
@@ -303,38 +379,14 @@ int main(int argc, char *argv[])
   printf("%s\n", out);
   free(in);
   free(out);
-  char *privsigningkey = "5JpQUnmw3AQwqpwXxr7ef4ZocBLdPu1St9mj7oCwxQoq1WWj9Tz";
-  char *privencryptionkey = "5HpMCnjo3KzAAyJ7NWcRq55MSuibGYGewRjjqSDeZ2E8oubNUXF";
-  unsigned char *raw_psk = NULL;
-  unsigned char *raw_pek = NULL;
-  unsigned char raw_pubsk[65];
-  unsigned char raw_pubek[65];
-  size_t raw_psk_len = parseHex(&raw_psk, privsigningkey);
-  size_t raw_pek_len = parseHex(&raw_pek, privencryptionkey);
-
-  EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
-  BIGNUM *prikey = BN_new();
-  EC_POINT *pubkey = EC_POINT_new(secp256k1);
-  BN_CTX *bnctx = BN_CTX_new();
-  BN_bin2bn(raw_psk, raw_psk_len, prikey);
-  EC_POINT_mul(secp256k1, pubkey, prikey, NULL, NULL, bnctx);
-  EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, raw_pubsk, 65, bnctx);
-  BN_bin2bn(raw_pek, raw_pek_len, prikey);
-  EC_POINT_mul(secp256k1, pubkey, prikey, NULL, NULL, bnctx);
-  EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, raw_pubek, 65, bnctx);
-
-  const EVP_MD *ripemd160md = EVP_ripemd160();
-  EVP_DigestInit(mdctx, sha512md);
-  EVP_DigestUpdate(mdctx, raw_pubsk, 65);
-  EVP_DigestUpdate(mdctx, raw_pubek, 65);
-  EVP_DigestFinal(mdctx, md, &len);
-  EVP_DigestInit(mdctx, ripemd160md);
-  EVP_DigestUpdate(mdctx, md, 64);
-  EVP_DigestFinal(mdctx, md, &len);
-
-  char *address = encodeAddress(4, 1, md, 20);
-  printf("%s\n", address);
-  free(address);
-
+  char *hex2 = "00000D9663F57318B4E52288BFDC8B3C23E84DE1";
+  in = NULL;
+  len = (unsigned int)parseHex(&in, hex2);
+  printf("%u\n", len);
+  //memset(in, 0, 10);
+  out = encodeAddress(4, 1, in, len);
+  printf("%s\n", out);
+  free(in);
+  free(out);
   return EXIT_SUCCESS;
 }
