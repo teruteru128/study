@@ -50,8 +50,7 @@ int main(int argc, char *argv[])
         perror("calloc(publicKeys)");
         return EXIT_FAILURE;
     }
-    EVP_MD_CTX *sha512ctx = EVP_MD_CTX_new();
-    EVP_MD_CTX *ripemd160ctx = EVP_MD_CTX_new();
+    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
     const EVP_MD *sha512md = EVP_sha512();
     const EVP_MD *ripemd160md = EVP_ripemd160();
     unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
@@ -97,13 +96,13 @@ int main(int argc, char *argv[])
         {
             // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
             memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-            EVP_DigestInit(sha512ctx, sha512md);
-            EVP_DigestUpdate(sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-            EVP_DigestUpdate(sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-            EVP_DigestFinal(sha512ctx, cache64, NULL);
-            EVP_DigestInit(ripemd160ctx, ripemd160md);
-            EVP_DigestUpdate(ripemd160ctx, cache64, 64);
-            EVP_DigestFinal(ripemd160ctx, cache64, NULL);
+            EVP_DigestInit(mdctx, sha512md);
+            EVP_DigestUpdate(mdctx, iPublicKey, PUBLIC_KEY_LENGTH);
+            EVP_DigestUpdate(mdctx, iPublicKey, PUBLIC_KEY_LENGTH);
+            EVP_DigestFinal(mdctx, cache64, NULL);
+            EVP_DigestInit(mdctx, ripemd160md);
+            EVP_DigestUpdate(mdctx, cache64, 64);
+            EVP_DigestFinal(mdctx, cache64, NULL);
             if (!cache64[0])
             {
                 for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
@@ -119,13 +118,13 @@ int main(int argc, char *argv[])
                 memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH * J_CACHE_SIZE);
                 for (jj = 0; jj < J_CACHE_SIZE && (j + jj) < i; jj++)
                 {
-                    EVP_DigestInit(sha512ctx, sha512md);
-                    EVP_DigestUpdate(sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                    EVP_DigestUpdate(sha512ctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-                    EVP_DigestFinal(sha512ctx, cache64, NULL);
-                    EVP_DigestInit(ripemd160ctx, ripemd160md);
-                    EVP_DigestUpdate(ripemd160ctx, cache64, 64);
-                    EVP_DigestFinal(ripemd160ctx, cache64, NULL);
+                    EVP_DigestInit(mdctx, sha512md);
+                    EVP_DigestUpdate(mdctx, iPublicKey, PUBLIC_KEY_LENGTH);
+                    EVP_DigestUpdate(mdctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
+                    EVP_DigestFinal(mdctx, cache64, NULL);
+                    EVP_DigestInit(mdctx, ripemd160md);
+                    EVP_DigestUpdate(mdctx, cache64, 64);
+                    EVP_DigestFinal(mdctx, cache64, NULL);
                     if (!cache64[0])
                     {
                         for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
@@ -136,13 +135,13 @@ int main(int argc, char *argv[])
                             exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), cache64);
                         }
                     }
-                    EVP_DigestInit(sha512ctx, sha512md);
-                    EVP_DigestUpdate(sha512ctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-                    EVP_DigestUpdate(sha512ctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                    EVP_DigestFinal(sha512ctx, cache64, NULL);
-                    EVP_DigestInit(ripemd160ctx, ripemd160md);
-                    EVP_DigestUpdate(ripemd160ctx, cache64, 64);
-                    EVP_DigestFinal(ripemd160ctx, cache64, NULL);
+                    EVP_DigestInit(mdctx, sha512md);
+                    EVP_DigestUpdate(mdctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
+                    EVP_DigestUpdate(mdctx, iPublicKey, PUBLIC_KEY_LENGTH);
+                    EVP_DigestFinal(mdctx, cache64, NULL);
+                    EVP_DigestInit(mdctx, ripemd160md);
+                    EVP_DigestUpdate(mdctx, cache64, 64);
+                    EVP_DigestFinal(mdctx, cache64, NULL);
                     if (!cache64[0])
                     {
                         for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
@@ -165,7 +164,6 @@ int main(int argc, char *argv[])
     BN_CTX_free(ctx);
     EC_POINT_free(pubkey);
     EC_GROUP_free(secp256k1);
-    EVP_MD_CTX_free(ripemd160ctx);
-    EVP_MD_CTX_free(sha512ctx);
+    EVP_MD_CTX_free(mdctx);
     return EXIT_SUCCESS;
 }

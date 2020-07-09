@@ -6,6 +6,8 @@
 #include <string.h>
 #include <malloc.h>
 #include <orz.h>
+#include <openssl/bn.h>
+#include <openssl/ec.h>
 #include <openssl/evp.h>
 #include <java_random.h>
 #include <err.h>
@@ -38,13 +40,9 @@ char *base58encode(unsigned char *input, size_t length)
     return NULL;
   }
   unsigned char *work = alloca(length);
-  memset(work, 0, length);
   memcpy(work, input, length);
   size_t zeroCount = 0;
-  while (zeroCount < length && work[zeroCount] == 0)
-  {
-    zeroCount++;
-  }
+  while (zeroCount < length && work[zeroCount] == 0) zeroCount++;
   size_t templen = length * 2;
   char *temp = alloca(templen);
   size_t j = templen;
@@ -151,10 +149,13 @@ char *encodeAddress(int version, int stream, unsigned char *ripe, size_t ripelen
       workripe = &ripe[2];
       workripelen = 18;
     }
-    if (memcmp(ripe, "\0", 1) == 0)
+    else if (memcmp(ripe, "\0", 1) == 0)
     {
       workripe = &ripe[1];
       workripelen = 19;
+    } else {
+      workripe = ripe;
+      workripelen = 20;
     }
   }
   else
@@ -207,6 +208,23 @@ char *encodeAddress(int version, int stream, unsigned char *ripe, size_t ripelen
   return tmp;
 }
 
+#define TABLE "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+              "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\0\0\0\0\0\0" \
+              "\0\x0a\x0b\x0c\x0d\x0e\x0f\0\0\0\0\0\0\0\0\0" \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+              "\0\x0a\x0b\x0c\x0d\x0e\x0f\0\0\0\0\0\0\0\0\0" \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" \
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+
 /*
  * strを16進数文字列としてパースします。
  * jsonパーサ
@@ -217,30 +235,14 @@ static size_t parseHex(unsigned char **out, const char *str)
     size_t length = strlen(str) / 2;
     size_t i = 0;
     unsigned char *data = calloc(length, sizeof(char));
-    static char table[256] = {0};
-    if (table[0x30] == 0)
-    {
-        for (i = 0; i < 10; i++)
-        {
-            table[(0x30 + i)] = (char)i;
-        }
-        for (i = 0; i <= 6; i++)
-        {
-            table[(0x40 + i)] = (char)(9 + i);
-        }
-        for (i = 0; i <= 6; i++)
-        {
-            table[(0x60 + i)] = (char)(9 + i);
-        }
-    }
     if (!data)
     {
-        perror(NULL);
+        perror("calloc in parseHex");
         exit(1);
     }
     for (i = 0; i < length; i++)
     {
-        data[i] = (table[str[2 * i]] << 4) | (table[str[2 * i + 1]]);
+        data[i] = (TABLE[str[2 * i]] << 4) | (TABLE[str[2 * i + 1]]);
     }
     *out = data;
     return length;
@@ -271,27 +273,27 @@ int main(int argc, char *argv[])
   textdomain(PACKAGE);
   printf(_("Help me!\n"));
   orz(1);
-  const EVP_MD *sha512 = EVP_sha512();
-  EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-  EVP_DigestInit(ctx, sha512);
-  EVP_DigestUpdate(ctx, BIG_PRECURE_IS_WATCHING_YOU, strlen(BIG_PRECURE_IS_WATCHING_YOU));
+  const EVP_MD *sha512md = EVP_sha512();
+  EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+  EVP_DigestInit(mdctx, sha512md);
+  EVP_DigestUpdate(mdctx, BIG_PRECURE_IS_WATCHING_YOU, strlen(BIG_PRECURE_IS_WATCHING_YOU));
   unsigned char md[EVP_MAX_MD_SIZE];
   unsigned int len = 0;
-  EVP_DigestFinal(ctx, md, &len);
+  EVP_DigestFinal(mdctx, md, &len);
   for (unsigned int i = 0; i < len; i++)
   {
     printf("%02x", md[i]);
   }
   printf("\n");
-  EVP_DigestInit(ctx, sha512);
-  EVP_DigestUpdate(ctx, md, len);
-  EVP_DigestFinal(ctx, md, &len);
+  EVP_DigestInit(mdctx, sha512md);
+  EVP_DigestUpdate(mdctx, md, len);
+  EVP_DigestFinal(mdctx, md, &len);
   for (unsigned int i = 0; i < len; i++)
   {
     printf("%02x", md[i]);
   }
   printf("\n");
-  EVP_MD_CTX_free(ctx);
+  EVP_MD_CTX_free(mdctx);
   char *hex = "000111d38e5fc9071ffcd20b4a763cc9ae4f252bb4e48fd66a835e252ada93ff480d6dd43dc62a641155a5";
   unsigned char *in = NULL;
   len = (unsigned int)parseHex(&in, hex);
@@ -301,5 +303,38 @@ int main(int argc, char *argv[])
   printf("%s\n", out);
   free(in);
   free(out);
+  char *privsigningkey = "5JpQUnmw3AQwqpwXxr7ef4ZocBLdPu1St9mj7oCwxQoq1WWj9Tz";
+  char *privencryptionkey = "5HpMCnjo3KzAAyJ7NWcRq55MSuibGYGewRjjqSDeZ2E8oubNUXF";
+  unsigned char *raw_psk = NULL;
+  unsigned char *raw_pek = NULL;
+  unsigned char raw_pubsk[65];
+  unsigned char raw_pubek[65];
+  size_t raw_psk_len = parseHex(&raw_psk, privsigningkey);
+  size_t raw_pek_len = parseHex(&raw_pek, privencryptionkey);
+
+  EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
+  BIGNUM *prikey = BN_new();
+  EC_POINT *pubkey = EC_POINT_new(secp256k1);
+  BN_CTX *bnctx = BN_CTX_new();
+  BN_bin2bn(raw_psk, raw_psk_len, prikey);
+  EC_POINT_mul(secp256k1, pubkey, prikey, NULL, NULL, bnctx);
+  EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, raw_pubsk, 65, bnctx);
+  BN_bin2bn(raw_pek, raw_pek_len, prikey);
+  EC_POINT_mul(secp256k1, pubkey, prikey, NULL, NULL, bnctx);
+  EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, raw_pubek, 65, bnctx);
+
+  const EVP_MD *ripemd160md = EVP_ripemd160();
+  EVP_DigestInit(mdctx, sha512md);
+  EVP_DigestUpdate(mdctx, raw_pubsk, 65);
+  EVP_DigestUpdate(mdctx, raw_pubek, 65);
+  EVP_DigestFinal(mdctx, md, &len);
+  EVP_DigestInit(mdctx, ripemd160md);
+  EVP_DigestUpdate(mdctx, md, 64);
+  EVP_DigestFinal(mdctx, md, &len);
+
+  char *address = encodeAddress(4, 1, md, 20);
+  printf("%s\n", address);
+  free(address);
+
   return EXIT_SUCCESS;
 }
