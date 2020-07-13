@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-07-06 16:00+0900\n"
+"POT-Creation-Date: 2020-07-14 01:18+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,17 +17,17 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/bmkeygen.c:80
+#: src/bmkeygen.c:79
 #, c-format
 msgid "Initializing private key...\n"
 msgstr ""
 
-#: src/bmkeygen.c:82
+#: src/bmkeygen.c:81
 #, c-format
 msgid "Initialized the private key. Initialize the public key.\n"
 msgstr ""
 
-#: src/bmkeygen.c:93
+#: src/bmkeygen.c:92
 #, c-format
 msgid "The public key initialization is complete.\n"
 msgstr ""
@@ -107,7 +107,7 @@ msgstr ""
 msgid "NTP server time : %s"
 msgstr ""
 
-#: src/study.c:36
+#: src/study.c:349
 #, c-format
 msgid "Help me!\n"
 msgstr ""
