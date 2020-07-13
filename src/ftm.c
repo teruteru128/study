@@ -1,5 +1,6 @@
-/* ftm.c */
+/* ftm.c - from feature_test_macros(7) */
 
+#include "config.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
