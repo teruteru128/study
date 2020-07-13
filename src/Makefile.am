@@ -30,6 +30,7 @@ bin_PROGRAMS+=firstThread2
 bin_PROGRAMS+=firstThread3
 bin_PROGRAMS+=firstThread4
 bin_PROGRAMS+=firstThread4-1
+bin_PROGRAMS+=ftm
 bin_PROGRAMS+=gettextsample2
 bin_PROGRAMS+=gettextsample3
 bin_PROGRAMS+=gettime

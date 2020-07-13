@@ -9,6 +9,7 @@ AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign])
 AC_CANONICAL_HOST
 AC_CONFIG_MACRO_DIRS([m4])
+AC_USE_SYSTEM_EXTENSIONS
 AM_PROG_AR
 LT_INIT
 
@@ -66,7 +67,7 @@ AC_FUNC_MALLOC
 AC_FUNC_MBRTOWC
 AC_FUNC_MMAP
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify clock_gettime getcwd gettimeofday localeconv mblen mbrlen memchr mempcpy memset munmap nl_langinfo regcomp select setlocale socket sqrt stpcpy strcasecmp strchr strcspn strdup strerror strrchr strstr strtol strtoul strtoull])
+AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify clock_gettime getcwd gettimeofday localeconv mblen mbrlen memchr mempcpy memset munmap nl_langinfo regcomp select setlocale socket sqrt stpcpy strcasecmp strchr strcspn strdup strdupa strerror strrchr strstr strtol strtoul strtoull])
 
 AC_CONFIG_FILES([Makefile
                  include/Makefile
