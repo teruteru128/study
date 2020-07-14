@@ -378,6 +378,22 @@ int main(int argc, char *argv[])
   printf("246 : %012lx\n", ppp);
   ppp = n(ppp);
   printf("246 : %012lx\n", ppp);
+  ppp = 74803317123181L;
+  ppp = initialScramble(ppp);
+  ppp = n(ppp);
+  printf("246 : %012lx\n", ppp);
+  ppp = n(ppp);
+  printf("246 : %012lx\n", ppp);
+  ppp = 74803317123181L;
+  ppp = initialScramble(ppp);
+  printf("246 : %016lx\n", nextLong(&ppp));
+  printf("246 : %016lx\n", nextLong(&ppp));
+  ppp = 74803317123181L;
+  ppp = initialScramble(ppp);
+  printf("246 : %016lx\n", ((int64_t)next(&ppp, 32)) << 32);
+  printf("246 : %016lx\n", (int64_t)next(&ppp, 32));
+  printf("246 : %016lx\n", ((int64_t)next(&ppp, 32)) << 32);
+  printf("246 : %016x\n", next(&ppp, 32));
   // 00000D9663F57318B4E52288BFDC8B3C23E84DE1
   char *hex = "000111d38e5fc9071ffcd20b4a763cc9ae4f252bb4e48fd66a835e252ada93ff480d6dd43dc62a641155a5";
   unsigned char *in = NULL;
