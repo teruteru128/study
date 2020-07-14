@@ -2,7 +2,10 @@
 #include "config.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <err.h>
 #include <openssl/evp.h>
+#include <byteswap.h>
 
 #define ALPHABET "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 #define BASE_58 58
@@ -294,7 +297,7 @@ char *encodeAddress(int version, int stream, unsigned char *ripe, size_t ripelen
  * jsonパーサ
  * https://mattn.kaoriya.net/software/lang/c/20130710214647.htm
  */
-static size_t parseHex(unsigned char **out, const char *str)
+size_t parseHex(unsigned char **out, const char *str)
 {
   size_t length = strlen(str) / 2;
   size_t i = 0;

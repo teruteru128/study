@@ -176,7 +176,7 @@ string_list_test_LDADD=../libstudy/src/libstudy.la
 string_list_test_SOURCES=string_list_test.c
 study_CFLAGS=-DLOCALEDIR='"$(localedir)"'
 study_LDADD=../libstudy/src/libstudy.la
-study_SOURCES=study.c gettextsample.c gettextsample.h study-config.h gettext.h
+study_SOURCES=study.c gettextsample.c gettextsample.h study-config.h gettext.h changebase.c
 sum_LDADD=../libstudy/src/libstudy.la
 sum_SOURCES=sum.c
 teamspeakIdUpgrader_CFLAGS=
