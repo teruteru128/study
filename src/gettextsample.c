@@ -12,4 +12,5 @@ int helloWorld001()
 {
   initGettext();
   printf(_("Hello world!\n"));
+  return 0;
 }

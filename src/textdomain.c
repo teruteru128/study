@@ -1,7 +1,10 @@
 
+#include "config.h"
 #include "textdomain_inner.h"
 #include "mytextdomain.h"
-#include "study-config.h"
+#include "gettext.h"
+#define _(str) gettext(str)
+#include <locale.h>
 
 void inittextdomain(void)
 {

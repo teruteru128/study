@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-07-14 01:18+0900\n"
+"POT-Creation-Date: 2020-07-15 09:50+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -18,57 +18,57 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/bmkeygen.c:79
+#: src/bmkeygen.c:82
 #, c-format
 msgid "Initializing private key...\n"
 msgstr "秘密鍵を初期化しています...\n"
 
-#: src/bmkeygen.c:81
+#: src/bmkeygen.c:84
 #, c-format
 msgid "Initialized the private key. Initialize the public key.\n"
 msgstr "秘密鍵を初期化しました。公開鍵を初期化します。\n"
 
-#: src/bmkeygen.c:92
+#: src/bmkeygen.c:95
 #, c-format
 msgid "The public key initialization is complete.\n"
 msgstr "公開鍵の初期化が完了しました。\n"
 
-#: src/bouyomi.c:90
+#: src/bouyomi.c:94
 #, c-format
 msgid "Error!\n"
 msgstr ""
 
-#: src/bouyomi.c:92
+#: src/bouyomi.c:98
 #, c-format
 msgid "Sent!\n"
 msgstr "送信しました！\n"
 
-#: src/eckeygentest.c:42 src/itoabench.c:39 src/itoabench.c:55
+#: src/eckeygentest.c:45 src/itoabench.c:42 src/itoabench.c:58
 #, c-format
 msgid "It took %.8f seconds.\n"
 msgstr "%.8f秒かかりました。\n"
 
-#: src/eckeygentest.c:43 src/itoabench.c:40 src/itoabench.c:56
+#: src/eckeygentest.c:46 src/itoabench.c:43 src/itoabench.c:59
 #, c-format
 msgid "%.1f times per second\n"
 msgstr "1秒あたり %.1f回\n"
 
-#: src/eckeygentest.c:44 src/itoabench.c:41 src/itoabench.c:57
+#: src/eckeygentest.c:47 src/itoabench.c:44 src/itoabench.c:60
 #, c-format
 msgid "%.12f seconds per time\n"
 msgstr "1回あたり %.12f秒\n"
 
-#: src/encodersa.c:101
+#: src/encodersa.c:104
 #, c-format
 msgid "q is larger\n"
 msgstr "qのほうが大きい\n"
 
-#: src/encodersa.c:106
+#: src/encodersa.c:109
 #, c-format
 msgid "p is larger\n"
 msgstr "pのほうが大きい\n"
 
-#: src/gettextsample.c:14 src/gettextsample2.c:9 src/localetest1.c:12
+#: src/gettextsample.c:14 src/gettextsample2.c:9 src/localetest1.c:15
 #, c-format
 msgid "Hello world!\n"
 msgstr "こんにちは世界！\n"
@@ -83,37 +83,37 @@ msgstr "%dマイクロ秒停止します。\n"
 msgid "%dmicro seconds stoped.\n"
 msgstr "%dマイクロ秒停止しました。\n"
 
-#: src/printBench.c:39
+#: src/printBench.c:42
 #, c-format
 msgid "It took %g seconds.\n"
 msgstr "%g秒かかりました。\n"
 
-#: src/printBench.c:40
+#: src/printBench.c:43
 #, c-format
 msgid "%g times per second\n"
 msgstr "1秒あたり %g回\n"
 
-#: src/printBench.c:41
+#: src/printBench.c:44
 #, c-format
 msgid "%e seconds per time\n"
 msgstr "1回あたり %e秒\n"
 
-#: src/sntpc.c:196
+#: src/sntpc.c:199
 #, c-format
 msgid "Local time : %s"
 msgstr "ローカル時刻 : %s"
 
-#: src/sntpc.c:197
+#: src/sntpc.c:200
 #, c-format
 msgid "NTP server time : %s"
 msgstr "NTPサーバ時刻 : %s"
 
-#: src/study.c:349
+#: src/study.c:57
 #, c-format
 msgid "Help me!\n"
 msgstr "助けて！\n"
 
-#: src/teamspeakcalc.c:70
+#: src/teamspeakcalc.c:65
 #, c-format
 msgid "verifier : %<PRIu64>\n"
 msgstr "検証子 : %<PRIu64>\n"

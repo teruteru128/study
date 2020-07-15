@@ -55,7 +55,6 @@ int main(int argc, char *argv[])
   bindtextdomain(PACKAGE, LOCALEDIR);
   textdomain(PACKAGE);
   printf(_("Help me!\n"));
-  orz(1);
   const EVP_MD *sha512 = EVP_sha512();
   EVP_MD_CTX *ctx = EVP_MD_CTX_new();
   EVP_DigestInit(ctx, sha512);
@@ -80,6 +79,12 @@ int main(int argc, char *argv[])
   int64_t ppp = 0x0;
   ppp = nInverse(ppp);
   printf("%ld\n", initialScramble(ppp));
+  ppp = 107038380838084L;
+  ppp = initialScramble(ppp);
+  ppp = n(ppp);
+  printf("246 : %012lx\n", ppp);
+  ppp = n(ppp);
+  printf("246 : %012lx\n", ppp);
   ppp = 246345201500483L;
   ppp = initialScramble(ppp);
   ppp = n(ppp);

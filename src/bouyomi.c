@@ -3,7 +3,10 @@
     前回: https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
 */
 
-#include "study-config.h"
+#include "config.h"
+#include "gettext.h"
+#define _(str) gettext(str)
+#include <locale.h>
 #include "bouyomi.h"
 #include <stdio.h>
 #include <stdint.h>
@@ -86,10 +89,13 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
   ssize_t w = 0;
   // 送信
   w = write(sock, data, len);
-  if(len != w){
-  fprintf(stderr, _("Error!\n"));
-  }else{
-  fprintf(stderr, _("Sent!\n"));
+  if (len != w)
+  {
+    fprintf(stderr, _("Error!\n"));
+  }
+  else
+  {
+    fprintf(stderr, _("Sent!\n"));
   }
   // ソケットを閉じる
   rc = close(sock);

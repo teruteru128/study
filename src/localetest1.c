@@ -1,5 +1,8 @@
 
-#include "study-config.h"
+#include "config.h"
+#include "gettext.h"
+#define _(str) gettext(str)
+#include <locale.h>
 #include <stdio.h>
 #include "localetest1.h"
 

@@ -100,28 +100,28 @@ cudamalloctest: cudamalloctest.o
 	$(NVCC) $(cudamalloctest_LDFLAGS) -ccbin $(CC) $< -o $@
 
 # see https://www.gnu.org/software/automake/manual/html_node/Subpackages.html
-AM_CPPFLAGS=-Wall -Wextra -Wdisabled-optimization -I$(top_srcdir)/libstudy/include
+AM_CPPFLAGS=-Wall -Wextra -Wdisabled-optimization -I$(top_srcdir)/libstudy/include -DLOCALEDIR='"$(localedir)"'
 CoDec_LDADD=../libstudy/src/libstudy.la
 CoDec_SOURCES=CoDec.c CoDec.h
-FizzBuzz_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+FizzBuzz_CFLAGS=
 FizzBuzz_LDADD=../libstudy/src/libstudy.la
 FizzBuzz_SOURCES=FizzBuzz.c
-Nabeatsu_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+Nabeatsu_CFLAGS=
 Nabeatsu_LDADD=../libstudy/src/libstudy.la
-Nabeatsu_SOURCES=Nabeatsu.c study-config.h gettext.h
+Nabeatsu_SOURCES=Nabeatsu.c gettext.h
 ankokudan_decode_SOURCES=ankokudan_decode.c
 argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c
-bmkeygen_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+bmkeygen_CFLAGS=
 bmkeygen_LDADD=../libstudy/src/libstudy.la
-bmkeygen_SOURCES=bmkeygen.c study-config.h
+bmkeygen_SOURCES=bmkeygen.c
 bmspam_CFLAGS=`xmlrpc-c-config libwww-client --cflags`
 bmspam_LDADD=../libstudy/src/libstudy.la
 bmspam_LDFLAGS=`xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
 bmspam_SOURCES=bmspam.c
-bouyomi_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+bouyomi_CFLAGS=
 bouyomi_LDADD=../libstudy/src/libstudy.la
-bouyomi_SOURCES=bouyomi.c bouyomi.h study-config.h gettext.h
+bouyomi_SOURCES=bouyomi.c bouyomi.h gettext.h
 calc_SOURCES=calc.c
 cl_LDADD=../libstudy/src/libstudy.la
 cl_SOURCES=cl.c
@@ -133,21 +133,21 @@ cudamalloctest_SOURCES=cudamalloctest.cu
 curltest_SOURCES=curltest.c
 dragon_LDADD=../libstudy/src/libstudy.la
 dragon_SOURCES=dragon.c
-eckeygentest_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-eckeygentest_SOURCES=eckeygentest.c study-config.h gettext.h
-encodersa_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-encodersa_SOURCES=encodersa.c study-config.h gettext.h
+eckeygentest_CFLAGS=
+eckeygentest_SOURCES=eckeygentest.c gettext.h
+encodersa_CFLAGS=
+encodersa_SOURCES=encodersa.c gettext.h
 falcon_LDADD=../libstudy/src/libstudy.la
 falcon_SOURCES=falcon.c
-gettextsample2_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-gettextsample2_SOURCES=gettextsample2.c gettextsample2.h study-config.h gettext.h
-gettextsample3_CFLAGS=-DLOCALEDIR='"$(localedir)"'
-gettextsample3_SOURCES=gettextsample3.c gettextsample3.h study-config.h textdomain.c textdomain_inner.h mytextdomain.h gettext.h
+gettextsample2_CFLAGS=
+gettextsample2_SOURCES=gettextsample2.c gettextsample2.h gettext.h
+gettextsample3_CFLAGS=
+gettextsample3_SOURCES=gettextsample3.c gettextsample3.h textdomain.c textdomain_inner.h mytextdomain.h gettext.h
 gettime_SOURCES=gettime.c gettime.h
-itoabench_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+itoabench_CFLAGS=
 itoabench_LDADD=../libstudy/src/libstudy.la
 itoabench_SOURCES=itoabench.c
-localetest1_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+localetest1_CFLAGS=
 localetest1_SOURCES=localetest1.c localetest1.h
 localetest2_SOURCES=localetest2.c
 mappingsample_SOURCES=mappingsample.c
@@ -157,26 +157,26 @@ prime2_SOURCES=prime2.c
 prime3_SOURCES=prime3.c
 prime_SOURCES=prime.c
 primesearch_SOURCES=primesearch.c
-printBench_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+printBench_CFLAGS=
 printBench_LDADD=../libstudy/src/libstudy.la
 printBench_SOURCES=printBench.c
 read_random_LDADD=../libstudy/src/libstudy.la
 read_random_SOURCES=read_random.c
 rsa1024_SOURCES=rsa1024.c
-selfmadelibsha_CPPFLAGS=-DLOCALEDIR='"$(localedir)"'
+selfmadelibsha_CPPFLAGS=
 selfmadelibsha_LDADD=../libstudy/src/libstudy.la
 selfmadelibsha_SOURCES=self-made-libsha.c self-made-libsha.h
 seq_CFLAGS=
 seq_SOURCES=seq.c
 service_sample_SOURCES=service-sample.c server.c server.h
-sntpc_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+sntpc_CFLAGS=
 sntpc_LDADD=../libstudy/src/libstudy.la
-sntpc_SOURCES=sntpc.c study-config.h
+sntpc_SOURCES=sntpc.c
 string_list_test_LDADD=../libstudy/src/libstudy.la
 string_list_test_SOURCES=string_list_test.c
-study_CFLAGS=-DLOCALEDIR='"$(localedir)"'
+study_CFLAGS=
 study_LDADD=../libstudy/src/libstudy.la
-study_SOURCES=study.c gettextsample.c gettextsample.h study-config.h gettext.h changebase.c
+study_SOURCES=study.c gettextsample.c gettextsample.h gettext.h changebase.c
 sum_LDADD=../libstudy/src/libstudy.la
 sum_SOURCES=sum.c
 teamspeakIdUpgrader_CFLAGS=
