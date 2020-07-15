@@ -110,5 +110,13 @@ int main(int argc, char *argv[])
   printf("%s\n", out);
   free(in);
   free(out);
+  ppp = 240144965573432L;
+  ppp = initialScramble(ppp);
+  ppp = n(ppp);
+  printf("246 : %012lx\n", ppp);
+  ppp = n(ppp);
+  printf("246 : %012lx\n", ppp);
+  ppp = n(ppp);
+  printf("246 : %012lx\n", ppp);
   return EXIT_SUCCESS;
 }
