@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <byteswap.h>
 
 int main(int argc, char **argv)
 {
@@ -20,7 +21,7 @@ int main(int argc, char **argv)
     sock = socket(AF_INET, SOCK_DGRAM, 0);
 
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(12345);
+    addr.sin_port = bswap_16(12345);
     addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
     if (argc >= 2)
