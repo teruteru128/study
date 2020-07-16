@@ -3,6 +3,7 @@ FizzBuzz
 Nabeatsu
 ankokudan_decode
 argparsesample
+base58test
 bcasttest
 bmkeygen
 bmspam
@@ -20,6 +21,7 @@ encodersa
 enginetest
 envgettest
 epsp-parser-test
+evpmdtest
 evptest
 falcon
 fastPrimeNumber
@@ -44,8 +46,10 @@ log-sample
 loop-bench
 mappingsample
 maxmovingsum
+mineseed
 mysqlfast
 portscanner
+potest
 prime
 prime2
 prime3
@@ -58,6 +62,7 @@ primesearch
 printBench
 read_random
 repeated-trials
+ripeencode
 rsa
 rsa1024
 selfmadelibsha
