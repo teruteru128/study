@@ -23,6 +23,9 @@
  * メッセージ認証符号 (OpenSSL 3～)
  *   EVP_MAC_new_ctx
  * 鍵導出関数
+ * strpbrk
+ * strsep
+ * strspn
  */
 int main(int argc, char *argv[])
 {

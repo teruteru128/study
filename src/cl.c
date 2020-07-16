@@ -47,13 +47,13 @@ int main(int argc, char *argv[])
     return -1;
   }
 
+  char buf[BUFSIZ];
+  int sock = 0;
+  int len = 0;
+
   /* 得られたアドレスすべてに対し接続を行う */
   for (adrinf = res; adrinf != NULL; adrinf = adrinf->ai_next)
   {
-
-    char buf[2048];
-    int sock;
-    int len;
 
     /*
      * 接続要求をする。
