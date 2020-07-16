@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-07-15 09:50+0900\n"
+"POT-Creation-Date: 2020-07-16 17:23+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -105,11 +105,6 @@ msgstr ""
 #: src/sntpc.c:200
 #, c-format
 msgid "NTP server time : %s"
-msgstr ""
-
-#: src/study.c:57
-#, c-format
-msgid "Help me!\n"
 msgstr ""
 
 #: src/teamspeakcalc.c:65
