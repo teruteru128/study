@@ -17,6 +17,7 @@
 #define bitmessage_port 8442
 #define NAME "TR BM TEST CLIENT"
 #define SERVER_URL "http://127.0.0.1:8442/"
+#define GENELRAL "BM-2cW67GEKkHGonXKZLCzouLLxnLym3azS8r"
 
 /**
  * int main(int argc, char* argv[]){
@@ -38,8 +39,6 @@ int main(int const argc, const char **const argv)
   char *sendmsg = "";
   char chan_name[64];
   char *msg = NULL;
-  char *generaladdress = "BM-2cW67GEKkHGonXKZLCzouLLxnLym3azS8r";
-  uuid_t uuid;
   bmapi_init();
   if (argc < 2)
   {
@@ -60,21 +59,11 @@ int main(int const argc, const char **const argv)
   do
   {
     tmp = fgets(chan_name, 64, infile);
-    bmapi_simpleSendMessage(generaladdress, chan_name, "HAPPY NEW YEAR!", message);
+    msg = bmapi_simpleSendMessage(chan_name, GENELRAL, "HAPPY NEW YEAR!", message);
+    printf("%s\n", msg);
   } while (tmp != NULL);
-
-  uuid_generate_random(uuid);
-  uuid_unparse(uuid, buf);
-  buf[strlen(buf)] = '\n';
-
-  char *uuid_address = bmapi_createChan(buf);
-  printf("%s, %s\n", buf, uuid_address);
-  msg = bmapi_simpleSendMessage(uuid_address, uuid_address, buf, buf);
-  printf("%s\n", msg);
-  free(msg);
 
   xmlrpc_client_teardown_global_const();
 
-  free(uuid_address);
   return EXIT_SUCCESS;
 }
