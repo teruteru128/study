@@ -13,22 +13,84 @@
 #include <base64.h>
 #include <bm.h>
 #include <bmapi.h>
+#include <err.h>
 #define localhost_ip "127.0.0.1"
 #define bitmessage_port 8442
 #define NAME "TR BM TEST CLIENT"
 #define SERVER_URL "http://127.0.0.1:8442/"
 #define GENELRAL "BM-2cW67GEKkHGonXKZLCzouLLxnLym3azS8r"
 
-static void die_if_fault_occurred(xmlrpc_env *env)
-{
-  /* Check our error-handling environment for an XML-RPC fault. */
-  if (env->fault_occurred)
-  {
-    fprintf(stderr, "XML-RPC Fault: %s (%d)\n",
-            env->fault_string, env->fault_code);
-    exit(1);
-  }
-}
+void die_if_fault_occurred(xmlrpc_env *env);
+
+#define SENDTO_ADDRESS_FILE "main.txt"
+#define SUBJECT "TWVycnkgQ2hyaXN0bWFzIQo="
+#define MESSAGE "PHByZT4KICAgIEBAICAgICAgICAgIEBACiAgICBAQEAgICAgICAgIEBAQAogICAgQEBAQCAgICAg" \
+"IEBAQEAgICBAQEBAICBAQCBAQEAgIEBAIEBAQCBAQCAgICAgIEBACiAgICBAQCBAQCAgICBAQCBA" \
+"QCAgQEAgIEBAIEBAQCAgQEAgQEBAICBAQCBAQCAgICBAQAogICAgQEAgIEBAICBAQCAgQEAgQEBA" \
+"QEBAICBAQCAgICAgIEBAICAgICAgIEBAICBAQAogICAgQEAgICBAQEBAICAgQEAgIEBAICAgICBA" \
+"QCAgICAgIEBAICAgICAgICBAQEBACiAgICBAQCAgICBAQCAgICBAQCAgIEBAQEAgIEBAICAgICAg" \
+"QEAgICAgICAgICBAQAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg" \
+"ICBAQAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQEAgIEBACiAgICAg" \
+"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQEBAQAogICBAQEAgICBAQCAgICAg" \
+"ICAgICAgICAgQEAgICAgICAgICAgQEAKIEBAICAgQEAgQEAgICAgICAgICAgICAgICAgICAgICAg" \
+"ICAgIEBACkBAICAgICAgIEBAIEBAQCAgQEAgQEBAICBAQCAgIEBAQEAgQEBAQEBAICBAQCBAQCAg" \
+"QEAgICAgICBAQEAgICAgQEBAQApAQCAgICAgICBAQEAgIEBAIEBAQCAgQEAgQEAgIEBAICAgICAg" \
+"QEAgICAgQEBAICBAQCAgQEAgIEBAICBAQCAgQEAKQEAgICAgICAgQEAgICBAQCBAQCAgICAgIEBA" \
+"ICAgQEBAICAgIEBAICAgIEBAICAgQEAgIEBAIEBAICAgQEAgICBAQEAKIEBAICAgQEAgQEAgICBA" \
+"QCBAQCAgICAgIEBAICAgICBAQCAgIEBAIEBAIEBAICAgICAgIEBAIEBAICAgQEAgICAgIEBACiAg" \
+"IEBAQCAgIEBAICAgQEAgQEAgICAgICAgQEAgQEBAQCAgICAgQEAgICBAQCAgICAgICBAQCAgQEBA" \
+"QCBAQCBAQEBACgoKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg" \
+"ICAgIHpyCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBZdCQk" \
+"JC4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC4sZSQkJCQkRiYj" \
+"MDM5OwogICAgICAgICAgICAgICAgICAgICAgICAgNGUgciAgICAgICAgICAgICAgICQkJCQkJCQu" \
+"CiAgICAgICAgICAgICAgICAgICAgICAgICBkJCRiciAgICAgICAgICAgIF96JCQkJCQkJEZgCiAg" \
+"ICAgICAgICAgICAgICAgICAgICAgICAgPyQkYi5fICAgICAgICAgIF4/JCQkJCQkJAogICAgICAg" \
+"ICAgICAgICAgICAgICAgICAgICA0JCQkJnF1b3Q7ICAgICAtZWVjLiAgJnF1b3Q7JnF1b3Q7SlAm" \
+"cXVvdDsgLi5lZWUkJS4uCiAgICAgICAgICAgICAgICAgICAgICAgICAgIC0qKk4gI2MgICAtXioq" \
+"Ki5lRSAgXnokUCQkJCQkJCQkJHItCiAgICAgICAgICAgICAgICAgIC56ZSQkJCQkZXU/JGV1ICYj" \
+"MDM5OyQkJCRiICQ9XiokJCAuJCQkJCQkJCQkJCZxdW90OwogICAgICAgICAgICAgICAtLS4mcXVv" \
+"dDs/JCQkJCQkJCQkYyZxdW90OyQkYyAuJnF1b3Q7JnF1b3Q7JnF1b3Q7IGUkSyAgPSZxdW90OyZx" \
+"dW90Oyo/JCQkUCZxdW90OyZxdW90OyZxdW90OyZxdW90OwogICB1ZWVlLiBgOmAgICRFICEhaCA/" \
+"JCQkJCQkJCRiIFIkTiYjMDM5O34hISAqJCRGIEomcXVvdDsmcXVvdDsmcXVvdDtDLiAgYAogIEog" \
+"IGAmcXVvdDskJGV1YCFoICEhIWA0ISEmbHQ7PyQkJCQkJCRQID8mcXVvdDsuZWVlLXouZWUmcXVv" \
+"dDsgfiQkZS5icgogICYjMDM5O2okJE5lYD8kJGNgNCF+YC1lLTohOmAkJCQkJCQkICQkKiomcXVv" \
+"dDt6ICReUiRQICAzICZxdW90OyQkJGJKCiAgIDQkJCRGJnF1b3Q7LmA/JCRjYCEhIFwpLiEhIWA/" \
+"JCQkJEYuJCQkIyAkdSQlIGVlKiZxdW90O14gOjRgJnF1b3Q7JCZxdW90Oz8kcQogICAgJnF1b3Q7" \
+"JnF1b3Q7YCwhISE6YCQkTi40ISF+fi5+fjQgPyQkRiYjMDM5OyQkRi5ALiogLUwuZUAkJCQkZWMu" \
+"ICAgICAgJnF1b3Q7CiAgICAmcXVvdDtScmAhISEhaCA/JCRjYGg6IGAjICEhICRGLHI0JEwqKiog" \
+"IGUkJCQkJCQkJCQkJCRoYwogICAgICAjZSYjMDM5OzQhISEhTGAkJGImIzAzOTshLjohaGB+fiAu" \
+"JEYmIzAzOTsmcXVvdDsgICAgZCQkJCQkJCQkJCQkJCQkJCQkaCwKICAgICAgIF4kLmAhISEhaCAk" \
+"JGJgIS4gLSAgICAkUCAvJiMwMzk7ICAgLiQkJCQkJCQkJCQkJCQkJCQkJCQkJGMKICAgICAgICAg" \
+"JnF1b3Q7JGNgISEhaGAkJC40fiAgICAgICQkJHImIzAzOTsgICAmbHQ7JCQkJCQkJCQkJCQkJCQk" \
+"JCQkJFAmcXVvdDsmcXVvdDsmcXVvdDsKICAgICAgICAgICBedGUuYH4gJCRiICAgICAgICBgRnVl" \
+"LSAgIGAkJCQkJCQkJCQkJCQkJFAmcXVvdDsuOiAgISEgJnF1b3Q7Jmx0OwogICAgICAgICAgICAg" \
+"IF4mcXVvdDs9NCRQJnF1b3Q7ICAgICAuLCwsLiAtXi4gICA/JCQkJCQkJCQkJCZxdW90Oz86LiAh" \
+"ISA6ISF+ICwsZWMuLgogICAgICAgICAgICAgICAgICAgIC4ueiQkJCQkJCQkJGgsICAgIGAkJCQk" \
+"JCRQJnF1b3Q7Li5gIWYgOiFmIH4pTHplJCQkUCZxdW90OyZxdW90OyZxdW90OyZxdW90Oz9pCiAg" \
+"ICAgICAgICAgICAgICAgIHVkJCQkJCQkJCQkJCQkJCRoICAgIGA/JCRGICZsdDshISYjMDM5OyZs" \
+"dDshJmd0Ozp+KXVlJCRQKiZxdW90Oy4uOiEhISEhIEoKICAgICAgICAgICAgICAgIC5LJCQkJCQk" \
+"JCQkJCQkJCQkJCQsICAgICBQLiZndDtlJiMwMzk7IWYgIX4gZWQkJFAmcXVvdDsuOiEhISEhISEh" \
+"YC5kJnF1b3Q7CiAgICAgICAgICAgICAgIHokJCQkJCQkJCQkJCQkJCQkJCQkJCAgICAgIDQhIX5c" \
+"ZSQkJFBgOiEhISEhISEhISEmIzAzOTsuZVAmIzAzOTsKICAgICAgICAgICAgICAtKiZxdW90Oy4g" \
+"LiAmcXVvdDs/PyQkJCQkJCQkJCQkJCAgICAgICB+IGB6JCQkRiZxdW90Oy5gISEhISEhISEhISYj" \
+"MDM5OyxkUCZxdW90OwogICAgICAgICAgICAuJnF1b3Q7ICk6ISFoIGlgIS0gKCZxdW90Oz8kJCQk" \
+"JCRmICAgICAgICAsJCRQJnF1b3Q7OiEgKS4gYCYjMDM5OyEhISFgLGQkRiYjMDM5OwogICAgICAg" \
+"LnVlZWV1LkpgLV4uIWggJmx0Oy0gIH5gLi4gPz8kJCYjMDM5OyAgICAgICAsJCQgOiEhYGUkJCQk" \
+"ZSBgLGUkRiYjMDM5OwogICAgZSQkJCQkJCQkJCQkJCRlZWlDICZxdW90Oyk/Oi0mbHQ7OiUmIzAz" \
+"OTs6Xj8gICAgICAgID8kZiAhISEgPyQkJCQmcXVvdDssRiZxdW90OwogICBQJnF1b3Q7Li4uLmBg" \
+"YCZxdW90OyZxdW90Oz8kJCQkJCQkJCRldUxeLiEuLmAgLiAgICAgICAgICZxdW90O1R1Ll8uLGBg" \
+"JnF1b3Q7JnF1b3Q7CiAgICQgISEhISEhISEhITo6LiZxdW90OyZxdW90Oz8/JCQkJCQkZUp+Xj0u" \
+"ICAgICAgICAgICAgYGBgYAogICA/JC5gISEhISEhISEhISEhISE6LiZxdW90Oz8/JCQkJCRjJiMw" \
+"Mzk7LgogICAgJnF1b3Q7P2IuYCEhISEhISEhISEhISEhISEmZ3Q7LiZxdW90Oz8kJCQkYwogICAg" \
+"ICBePyRjYCYjMDM5OyEhISEhISEhISEhJiMwMzk7LGVlYiwgJnF1b3Q7JCQkawogICAgICAgICAm" \
+"cXVvdDs/JGUuYCYjMDM5OyEhISEhISEgJCQkJCQgOy4/JCQKICAgICAgICAgICAgJnF1b3Q7PyRl" \
+"ZSxgYCYjMDM5OyYjMDM5OyEuJnF1b3Q7PyRQYGkhISAzUAogICAgICAgICAgICAgICAgJnF1b3Q7" \
+"JnF1b3Q7Pz8kYmVjLCwuLGNlZWVQJnF1b3Q7CiAgICAgICAgICAgICAgICAgICAgICAgYCZxdW90" \
+"OyZxdW90OyZxdW90OyZxdW90OyZxdW90OyZxdW90Owo8L3ByZT4="
+
+#define METHOD_NAME "sendMessage"
+#define USER_NAME "teruteru128"
+#define PASSWORD "testpassword"
 
 /**
  * int main(int argc, char* argv[]){
@@ -51,7 +113,13 @@ int main(int const argc, const char **const argv)
   xmlrpc_server_info *serverP;
   xmlrpc_value *resultP;
   const char *msg;
-  char *const methodName = "helloWorld";
+  FILE *toaddrfile = fopen(SENDTO_ADDRESS_FILE, "r");
+  if (toaddrfile == NULL)
+  {
+    err(EXIT_FAILURE, "fopen");
+  }
+  char toaddress[64];
+  char *tmp = NULL;
 
   /* Initialize our error-handling environment. */
   xmlrpc_env_init(&env);
@@ -62,28 +130,47 @@ int main(int const argc, const char **const argv)
                        &clientP);
   die_if_fault_occurred(&env);
   serverP = xmlrpc_server_info_new(&env, SERVER_URL);
-  xmlrpc_server_info_set_user(&env, serverP, "teruteru128", "testpassword");
+  xmlrpc_server_info_set_user(&env, serverP, USER_NAME, PASSWORD);
   xmlrpc_server_info_allow_auth_basic(&env, serverP);
 
-  xmlrpc_value *paramArray = xmlrpc_array_new(&env);
-  xmlrpc_value *f = xmlrpc_string_new(&env, "hello");
-  xmlrpc_value *s = xmlrpc_string_new(&env, "world");
-  xmlrpc_array_append_item(&env, paramArray, f);
-  xmlrpc_array_append_item(&env, paramArray, s);
+  xmlrpc_value *paramArray = NULL;
+  xmlrpc_value *toaddressv = NULL;
+  xmlrpc_value *fromaddressv = xmlrpc_string_new(&env, GENELRAL);
+  xmlrpc_value *subjectv = xmlrpc_string_new(&env, SUBJECT);
+  xmlrpc_value *messagev = xmlrpc_string_new(&env, MESSAGE);
+  xmlrpc_value *encodingTypev = xmlrpc_int_new(&env, 2);
+  xmlrpc_value *TTLv = xmlrpc_int_new(&env, 4 * 24 * 60 * 60);
+  while ((tmp = fgets(toaddress, 64, toaddrfile)) != NULL)
+  {
+    paramArray = xmlrpc_array_new(&env);
+    toaddressv = xmlrpc_string_new(&env, toaddress);
+    xmlrpc_array_append_item(&env, paramArray, toaddressv);
+    xmlrpc_array_append_item(&env, paramArray, fromaddressv);
+    xmlrpc_array_append_item(&env, paramArray, subjectv);
+    xmlrpc_array_append_item(&env, paramArray, messagev);
+    xmlrpc_array_append_item(&env, paramArray, encodingTypev);
+    xmlrpc_array_append_item(&env, paramArray, TTLv);
 
-  /* Make the remote procedure call */
-  xmlrpc_client_call2(&env, clientP, serverP, methodName, paramArray, &resultP);
-  die_if_fault_occurred(&env);
+    /* Make the remote procedure call */
+    xmlrpc_client_call2(&env, clientP, serverP, METHOD_NAME, paramArray, &resultP);
+    die_if_fault_occurred(&env);
 
-  /* Get our sum and print it out. */
-  xmlrpc_read_string(&env, resultP, &msg);
-  die_if_fault_occurred(&env);
-  printf("The sum  is %s\n", msg);
-  free((void *)msg);
+    /* Get our sum and print it out. */
+    xmlrpc_read_string(&env, resultP, &msg);
+    die_if_fault_occurred(&env);
+    printf("The sum  is %s\n", msg);
+    free((void *)msg);
 
-  /* Dispose of our result value. */
-  xmlrpc_DECREF(paramArray);
-  xmlrpc_DECREF(resultP);
+    /* Dispose of our result value. */
+    xmlrpc_DECREF(paramArray);
+    xmlrpc_DECREF(toaddressv);
+    xmlrpc_DECREF(resultP);
+  }
+  xmlrpc_DECREF(fromaddressv);
+  xmlrpc_DECREF(subjectv);
+  xmlrpc_DECREF(messagev);
+  xmlrpc_DECREF(encodingTypev);
+  xmlrpc_DECREF(TTLv);
 
   /* Clean up our error-handling environment. */
   xmlrpc_env_clean(&env);
