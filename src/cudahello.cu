@@ -14,10 +14,12 @@ int main(void)
   cudaError_t t = cudaSuccess;
   printf(_("Hello World!\n"));
   t = cudaGetDeviceCount(&device);
-  if(!t)
+  if (!t)
   {
     printf("%d, %d\n", t, device);
-  } else {
+  }
+  else
+  {
     printf("Error : %s \n%s\n", cudaGetErrorName(t), cudaGetErrorString(t));
   }
   return EXIT_SUCCESS;

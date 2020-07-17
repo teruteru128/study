@@ -14,7 +14,8 @@
 #define STR_HELP ("help")
 #define STR_L ("l")
 
-typedef enum logicswitch_e {
+typedef enum logicswitch_e
+{
     TWEET = 0,
     APP_REGISTER,
     LOGIN,

@@ -8,14 +8,14 @@ int main(argc, argv) int argc;
 char **argv;
 {
   FILE *in = fopen("/dev/urandom", "rb");
-  if(!in)
+  if (!in)
   {
     perror("fopen");
     return EXIT_FAILURE;
   }
   unsigned int seed;
   size_t k = fread(&seed, sizeof(unsigned int), 1, in);
-  if(k != 1)
+  if (k != 1)
   {
     perror("fopen");
     fclose(in);

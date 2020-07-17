@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
   }
   char *catch = NULL;
   int err = codec_encode(&catch, out);
-  if(!err)
+  if (!err)
   {
     return EXIT_FAILURE;
   }
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
   fputc('\n', stdout);
   free(out);
   err = codec_decode(&out, catch);
-  if(!err)
+  if (!err)
   {
     return EXIT_FAILURE;
   }
