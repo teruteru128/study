@@ -49,7 +49,7 @@ int main(int argc, char const *argv[])
   seed ^= tv.tv_sec;
   int64_t rnd = initialScramble(seed);
   int i = 0;
-  for( ; i < 5; i++)
-  printf("%.1fcm, %lfml\n", (nextFloat(&rnd) * 310 + 90) / 10, pow(10, nextFloat(&rnd) * 4));
-  return 0;
+  for (; i < 5; i++)
+    printf("%.1fcm, %lfml\n", (nextFloat(&rnd) * 310 + 90) / 10, pow(10, nextFloat(&rnd) * 4));
+  return EXIT_SUCCESS;
 }
