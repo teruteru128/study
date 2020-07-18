@@ -15,7 +15,11 @@
 int main(int argc, char **argv)
 {
     int sock;
-    struct sockaddr_in addr = {AF_INET, htons(12345), inet_addr("255.255.255.255")};
+    struct sockaddr_in addr = {
+        .sin_family = AF_INET,
+        .sin_port = htons(12345),
+        .sin_addr.s_addr = inet_addr("255.255.255.255")
+    };
     char *msg = NULL;
     int yes = 1;
     int j = 0, k = 0;
@@ -24,7 +28,7 @@ int main(int argc, char **argv)
     int ret = 0;
 
     sock = socket(AF_INET, SOCK_DGRAM, 0);
-    if (socket < 0)
+    if (sock < 0)
     {
         perror("socket");
         return EXIT_FAILURE;
@@ -40,18 +44,23 @@ int main(int argc, char **argv)
 
     if (argc >= 2)
     {
-        msg = argv[1];
+        msg = strdupa(argv[1]);
     }
     else
     {
-        msg = "HELLO";
+        msg = strdupa("HELLO");
     }
 
     r = sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&addr, sizeof(addr));
 
-    printf("%lu\n", r);
+    printf("send : %lu\n", r);
 
-    close(sock);
+    ret = close(sock);
 
-    return EXIT_SUCCESS;
+    if (ret != 0)
+    {
+        perror("close");
+    }
+
+    return ret;
 }
