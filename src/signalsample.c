@@ -1,4 +1,5 @@
 
+#include <config.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -8,7 +9,8 @@
 
 /**
  * signal sample
- * */
+ * TODO: use sigaction(2)
+ */
 static void sigint_action(int sig)
 {
     fprintf(stdout, "SIGINT recive(%d)\n", sig);
@@ -31,11 +33,12 @@ int main(int argc, char **argv)
     if (argc != 1)
     {
         fprintf(stderr, "Usage: %s\n", argv[0]);
-        return(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
     rc = set_signal_handler();
-    if(rc != EXIT_SUCCESS){
-        return(EXIT_FAILURE);
+    if (rc != EXIT_SUCCESS)
+    {
+        return EXIT_FAILURE;
     }
     printf("set signal handler ok\n");
     sleep(60);

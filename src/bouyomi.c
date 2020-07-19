@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  // TODO encode関数に分離
+  // TODO: encode関数に分離
   // 棒読みちゃん向けにエンコード
   char header[15];
   short command = 1;
