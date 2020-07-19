@@ -151,10 +151,11 @@ int main(int argc, char *argv[])
     freeaddrinfo(res);
     return EXIT_FAILURE;
   }
-  struct pollfd fds = {0, POLLIN, 0};
-  fds.fd = recv_sock;
+  struct pollfd fds = {recv_sock, POLLIN, 0};
+  struct timespec spec = {3, 0};
+  sigset_t sigmask = {0};
 
-  int selret = poll(&fds, 1, 3000);
+  int selret = ppoll(&fds, 1, &spec, &sigmask);
   printf("selret : %d\n", selret);
   if (selret == -1)
   {
