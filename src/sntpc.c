@@ -35,6 +35,21 @@ struct NTP_Packet
   int transmit_timestamp_seconds;
   int transmit_timestamp_fractions;
 };
+
+static void dumpNTPpacket(struct NTP_Packet *packet)
+{
+  unsigned char *a = (unsigned char *)packet;
+  int i = 0;
+  for (; i < 48; i++)
+  {
+    printf("%02x", a[i]);
+    if ((i % 16) == 15)
+    {
+      printf("\n");
+    }
+  }
+}
+
 /*
 https://www.nakka.com/lib/inet/sntpc.html
 https://www.nakka.com/lib/inet/sntpcex.html
@@ -47,26 +62,32 @@ int main(int argc, char *argv[])
   uint64_t seed[312];
   read_random(seed, sizeof(uint64_t), 312, 0);
   init_by_array64(seed, 312);
-  /* [1024,65536) */
-  unsigned short port_num = (unsigned short)(genrand64_real2() * 64512 + 1024);
+
+  int recv_sock = 0;
+  int sock_ai_family = 0;
+  int sock_ai_protocol = 0;
+
+  /*
+    * ローカルポート選定
+    * [1024,65536)
+    */
+  unsigned short port_num = 0;
   char port_str[8];
-  snprintf(port_str, 8, "%d", port_num);
-  struct addrinfo hints, *res;
+  struct addrinfo hints, *res = NULL, *ptr = NULL;
   memset(&hints, 0, sizeof(struct addrinfo));
 
   hints.ai_socktype = SOCK_DGRAM;
+  //hints.ai_family = AF_INET6;
   hints.ai_flags = AI_PASSIVE;
-  int err = getaddrinfo(NULL, port_str, &hints, &res);
+  int err = 0;
+  port_num = (unsigned short)(genrand64_real2() * 64512 + 1024);
+  snprintf(port_str, 8, "%d", port_num);
+  err = getaddrinfo(NULL, port_str, &hints, &res);
   if (err != 0)
   {
     perror("getaddrinfo localhost");
     return EXIT_FAILURE;
   }
-
-  int recv_sock = 0;
-  struct addrinfo *ptr;
-  int sock_ai_family;
-  int sock_ai_protocol;
 
   for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
   {
@@ -94,36 +115,24 @@ int main(int argc, char *argv[])
     close(recv_sock);
     return EXIT_FAILURE;
   }
+  printf("protocol : %d\n", ptr->ai_protocol);
+  print_addrinfo(ptr);
   freeaddrinfo(res);
+  res = NULL;
+  ptr = NULL;
 
-  printf("%ld\n", sizeof(struct NTP_Packet));
   struct NTP_Packet send;
+  memset(&send, 0, sizeof(struct NTP_Packet));
   send.Control_Word = htonl(0x0B000000);
-  send.root_delay = 0;
-  send.root_dispersion = 0;
-  send.reference_identifier = 0;
-  send.reference_timestamp = 0;
-  send.originate_timestamp = 0;
-  send.receive_timestamp = 0;
-  send.transmit_timestamp_seconds = 0;
-  send.transmit_timestamp_fractions = 0;
-  unsigned char *a = (unsigned char *)&send;
-  int i = 0;
-  for (; i < 48; i++)
-  {
-    printf("%02x", a[i]);
-    if ((i % 16) == 15)
-    {
-      printf("\n");
-    }
-  }
+  dumpNTPpacket(&send);
 
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_flags = 0;
   err = getaddrinfo(SERVER_NAME, SERVER_PORT, &hints, &res);
   if (err != 0)
   {
-    perror("getaddrinfo");
+    perror("getaddrinfo ntp");
+    fprintf(stderr, "%s\n", gai_strerror(err));
     freeaddrinfo(res);
     close(recv_sock);
     return EXIT_FAILURE;
@@ -143,6 +152,7 @@ int main(int argc, char *argv[])
     close(recv_sock);
     return EXIT_FAILURE;
   }
+  print_addrinfo(ptr);
   ssize_t w = sendto(recv_sock, &send, sizeof(struct NTP_Packet), 0, ptr->ai_addr, ptr->ai_addrlen);
   if (w == (ssize_t)-1)
   {
@@ -152,7 +162,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
   struct pollfd fds = {recv_sock, POLLIN, 0};
-  struct timespec spec = {3, 0};
+  struct timespec spec = {10, 0};
   sigset_t sigmask = {0};
 
   int selret = ppoll(&fds, 1, &spec, &sigmask);
@@ -166,8 +176,7 @@ int main(int argc, char *argv[])
   if (selret == 0)
   {
     perror("select timeout");
-    close(recv_sock);
-    return EXIT_FAILURE;
+    //close(recv_sock);
   }
   if ((fds.revents & POLLERR) != 0)
   {
@@ -176,6 +185,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
   struct NTP_Packet recv;
+  memset(&recv, 0, sizeof(struct NTP_Packet));
   w = recvfrom(recv_sock, &recv, sizeof(struct NTP_Packet), 0, res->ai_addr, &res->ai_addrlen);
   if (w == (ssize_t)-1)
   {
@@ -186,6 +196,7 @@ int main(int argc, char *argv[])
   }
   freeaddrinfo(res);
   close(recv_sock);
+  dumpNTPpacket(&recv);
 
   time_t machine_time = time(NULL);
   time_t ntp_time = ntohl(recv.transmit_timestamp_seconds) - 2208988800L;
