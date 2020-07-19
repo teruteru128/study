@@ -42,14 +42,7 @@ int main(int argc, char **argv)
     printf("ret : %d\n", ret);
     printf("%d(%d) -> %d(%d)\n", j, len1, k, len2);
 
-    if (argc >= 2)
-    {
-        msg = strdupa(argv[1]);
-    }
-    else
-    {
-        msg = strdupa("HELLO");
-    }
+    msg = strdupa(argc >= 2 ? argv[1] : "HELLO");
 
     r = sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&addr, sizeof(addr));
 

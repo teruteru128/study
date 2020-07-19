@@ -17,6 +17,7 @@
 #include <time.h>
 #include <random.h>
 #include <print_addrinfo.h>
+#include <poll.h>
 
 #define SERVER_NAME "ntp.nict.jp"
 #define SERVER_PORT "ntp"
@@ -106,7 +107,7 @@ int main(int argc, char *argv[])
   send.receive_timestamp = 0;
   send.transmit_timestamp_seconds = 0;
   send.transmit_timestamp_fractions = 0;
-  unsigned char *a = (char *)&send;
+  unsigned char *a = (unsigned char *)&send;
   int i = 0;
   for (; i < 48; i++)
   {
@@ -150,14 +151,11 @@ int main(int argc, char *argv[])
     freeaddrinfo(res);
     return EXIT_FAILURE;
   }
-  struct timeval waittime;
-  waittime.tv_sec = 3;
-  waittime.tv_usec = 0;
-  fd_set rdps;
-  FD_ZERO(&rdps);
-  FD_SET(recv_sock, &rdps);
+  struct pollfd fds = {0, POLLIN, 0};
+  fds.fd = recv_sock;
 
-  int selret = select(FD_SETSIZE, &rdps, NULL, NULL, &waittime);
+  int selret = poll(&fds, 1, 3000);
+  printf("selret : %d\n", selret);
   if (selret == -1)
   {
     perror("select");
@@ -170,7 +168,7 @@ int main(int argc, char *argv[])
     close(recv_sock);
     return EXIT_FAILURE;
   }
-  if (!FD_ISSET(recv_sock, &rdps))
+  if ((fds.revents & POLLERR) != 0)
   {
     perror("isset failed");
     close(recv_sock);

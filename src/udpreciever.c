@@ -12,8 +12,7 @@
 
 int main()
 {
-    struct sockaddr_in addr = {
-        AF_INET, htons(12345), INADDR_ANY};
+    struct sockaddr_in addr = {.sin_family = AF_INET, .sin_port = htons(12345), .sin_addr.s_addr = INADDR_ANY};
 
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -37,10 +36,12 @@ int main()
         memset(buf, 0, sizeof(buf));
         ssize_t len = recv(sock, buf, sizeof(buf), 0);
 
-        printf("%s\n", buf);
-        printf("%ld\n", len);
+        printf("%s : %ld\n", buf, len);
     } while (strcmp(buf, "end") != 0);
-    close(sock);
+    r = close(sock);
 
-    return 0;
+    if(r)
+        perror("close");
+
+    return EXIT_SUCCESS;
 }
