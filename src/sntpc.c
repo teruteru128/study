@@ -18,6 +18,11 @@
 #include <random.h>
 #include <print_addrinfo.h>
 #include <poll.h>
+#include <java_random.h>
+#include <math.h>
+#include <ctype.h>
+#include <err.h>
+#include <byteswap.h>
 
 #define SERVER_NAME "ntp.nict.jp"
 #define SERVER_PORT "ntp"
@@ -25,15 +30,18 @@
 /* _("NTP packet") */
 struct NTP_Packet
 {
-  int Control_Word;
-  int root_delay;
-  int root_dispersion;
-  int reference_identifier;
-  int64_t reference_timestamp;
-  int64_t originate_timestamp;
-  int64_t receive_timestamp;
-  int transmit_timestamp_seconds;
-  int transmit_timestamp_fractions;
+  int32_t Control_Word;
+  int32_t root_delay;
+  int32_t root_dispersion;
+  int32_t reference_identifier;
+  int32_t reference_timestamp_seconds;
+  int32_t reference_timestamp_fractions;
+  int32_t originate_timestamp_seconds;
+  int32_t originate_timestamp_fractions;
+  int32_t receive_timestamp_seconds;
+  int32_t receive_timestamp_fractions;
+  int32_t transmit_timestamp_seconds;
+  int32_t transmit_timestamp_fractions;
 };
 
 static void dumpNTPpacket(struct NTP_Packet *packet)
@@ -47,6 +55,53 @@ static void dumpNTPpacket(struct NTP_Packet *packet)
     {
       printf("\n");
     }
+  }
+
+  uint32_t w = bswap_32(packet->Control_Word);
+  printf("LI : %d\n", (w >> 30) & 0x03);
+  printf("VN : %d\n", (w >> 27) & 0x07);
+  printf("mode : %d\n", (w >> 24) & 0x07);
+  printf("Stratum : %d\n", (w >> 16) & 0xff);
+  char poll = (w >> 8) & 0xff;
+  printf("Poll : %d(%d)\n", poll, 1 << poll);
+  char pre = (char)(w >> 0) & 0xff;
+  printf("Precision : %d(%f)\n", pre, pow(2, pre));
+  int root_delay = bswap_32(packet->root_delay);
+  printf("Root Delay : %d(%f)\n", root_delay, root_delay/0x1p+16);
+  int root_dispersion = bswap_32(packet->root_dispersion);
+  printf("Root Dispersion : %d(%f)\n", root_dispersion, root_dispersion/0x1p+16);
+  printf("Reference ID : %08x", packet->reference_identifier);
+  char refid[5];
+  memset(refid, 0, sizeof(refid));
+  memcpy(refid, &packet->reference_identifier, 4);
+  if(isalnum(refid[0]))
+    printf("(%s)", refid);
+  printf("\n");
+  uint32_t reference_timestamp_seconds = bswap_32(packet->reference_timestamp_seconds);
+  uint32_t originate_timestamp_seconds = bswap_32(packet->originate_timestamp_seconds);
+  uint32_t receive_timestamp_seconds = bswap_32(packet->receive_timestamp_seconds);
+  uint64_t transmit_timestamp_seconds = bswap_32(packet->transmit_timestamp_seconds);
+  uint32_t transmit_timestamp_fractions = bswap_32(packet->transmit_timestamp_fractions);
+
+  printf("Reference Timestamp : %u(%lu)\n", reference_timestamp_seconds, reference_timestamp_seconds - 2208988800L);
+  printf("Origin Timestamp : %u(%lu)\n", originate_timestamp_seconds, originate_timestamp_seconds - 2208988800L);
+  printf("Receive Timestamp : %u(%lu)\n", receive_timestamp_seconds, receive_timestamp_seconds - 2208988800L);
+  printf("Transmit Timestamp seconds: %lu(%lu)\n", transmit_timestamp_seconds, transmit_timestamp_seconds - 2208988800L);
+  printf("Transmit Timestamp fractions : %u\n", transmit_timestamp_fractions);
+  printf("Transmit Timestamp seconds: %f\n", (((transmit_timestamp_seconds - 2208988800L) << 32) + transmit_timestamp_fractions) / (0x1p+32));
+
+  if(packet->transmit_timestamp_seconds != 0)
+  {
+    time_t machine_time = time(NULL);
+    time_t ntp_time = ntohl(packet->transmit_timestamp_seconds) - 2208988800L;
+    struct tm *lpNewLocalTime = localtime(&ntp_time);
+    if (lpNewLocalTime == NULL)
+    {
+      perror("localtime");
+      exit(EXIT_FAILURE);
+    }
+    printf(_("Local time : %s"), ctime(&machine_time));
+    printf(_("NTP server time : %s"), ctime(&ntp_time));
   }
 }
 
@@ -62,6 +117,14 @@ int main(int argc, char *argv[])
   uint64_t seed[312];
   read_random(seed, sizeof(uint64_t), 312, 0);
   init_by_array64(seed, 312);
+  union f
+  {
+    int64_t s;
+    char buf[8];
+  };
+  union f f;
+  read_random(&f.buf[2], sizeof(char), 6, 0);
+  int64_t s = f.s;
 
   int recv_sock = 0;
   int sock_ai_family = 0;
@@ -71,18 +134,18 @@ int main(int argc, char *argv[])
     * ローカルポート選定
     * [1024,65536)
     */
-  unsigned short port_num = 0;
+  //unsigned short port_num = (unsigned short)(genrand64_real2() * 64512 + 1024);
+  unsigned short port_num = (unsigned short)(nextDouble(&s) * 64512 + 1024);
   char port_str[8];
+  snprintf(port_str, 8, "%d", port_num);
+
   struct addrinfo hints, *res = NULL, *ptr = NULL;
   memset(&hints, 0, sizeof(struct addrinfo));
-
   hints.ai_socktype = SOCK_DGRAM;
   //hints.ai_family = AF_INET6;
   hints.ai_flags = AI_PASSIVE;
-  int err = 0;
-  port_num = (unsigned short)(genrand64_real2() * 64512 + 1024);
-  snprintf(port_str, 8, "%d", port_num);
-  err = getaddrinfo(NULL, port_str, &hints, &res);
+
+  int err = getaddrinfo(NULL, port_str, &hints, &res);
   if (err != 0)
   {
     perror("getaddrinfo localhost");
@@ -115,15 +178,16 @@ int main(int argc, char *argv[])
     close(recv_sock);
     return EXIT_FAILURE;
   }
-  printf("protocol : %d\n", ptr->ai_protocol);
-  print_addrinfo(ptr);
+  print_addrinfo0(ptr, stderr);
+  printf("%d\n", ptr->ai_socktype);
+  printf("%d\n", ptr->ai_protocol);
   freeaddrinfo(res);
   res = NULL;
   ptr = NULL;
 
   struct NTP_Packet send;
   memset(&send, 0, sizeof(struct NTP_Packet));
-  send.Control_Word = htonl(0x0B000000);
+  send.Control_Word = htonl(0x23000000);
   dumpNTPpacket(&send);
 
   hints.ai_socktype = SOCK_DGRAM;
@@ -197,16 +261,5 @@ int main(int argc, char *argv[])
   freeaddrinfo(res);
   close(recv_sock);
   dumpNTPpacket(&recv);
-
-  time_t machine_time = time(NULL);
-  time_t ntp_time = ntohl(recv.transmit_timestamp_seconds) - 2208988800L;
-  struct tm *lpNewLocalTime = localtime(&ntp_time);
-  if (lpNewLocalTime == NULL)
-  {
-    perror("localtime");
-    return EXIT_FAILURE;
-  }
-  printf(_("Local time : %s"), ctime(&machine_time));
-  printf(_("NTP server time : %s"), ctime(&ntp_time));
   return EXIT_SUCCESS;
 }
