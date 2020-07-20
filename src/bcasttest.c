@@ -14,12 +14,10 @@
 /** https://www.geekpage.jp/programming/linux-network/broadcast.php */
 int main(int argc, char **argv)
 {
-    int sock;
     struct sockaddr_in addr = {
         .sin_family = AF_INET,
         .sin_port = htons(12345),
-        .sin_addr.s_addr = inet_addr("255.255.255.255")
-    };
+        .sin_addr.s_addr = inet_addr("255.255.255.255")};
     char *msg = NULL;
     int yes = 1;
     int j = 0, k = 0;
@@ -27,7 +25,7 @@ int main(int argc, char **argv)
     ssize_t r = 0;
     int ret = 0;
 
-    sock = socket(AF_INET, SOCK_DGRAM, 0);
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
     {
         perror("socket");
@@ -42,7 +40,14 @@ int main(int argc, char **argv)
     printf("ret : %d\n", ret);
     printf("%d(%d) -> %d(%d)\n", j, len1, k, len2);
 
-    msg = strdupa(argc >= 2 ? argv[1] : "HELLO");
+    if (argc >= 2)
+    {
+        msg = argv[1];
+    }
+    else
+    {
+        msg = "HELLO";
+    }
 
     r = sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&addr, sizeof(addr));
 
