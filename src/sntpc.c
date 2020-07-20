@@ -58,24 +58,40 @@ static void dumpNTPpacket(struct NTP_Packet *packet)
   }
 
   uint32_t w = bswap_32(packet->Control_Word);
-  printf("LI : %d\n", (w >> 30) & 0x03);
-  printf("VN : %d\n", (w >> 27) & 0x07);
-  printf("mode : %d\n", (w >> 24) & 0x07);
-  printf("Stratum : %d\n", (w >> 16) & 0xff);
+  int leap_indicator = (w >> 30) & 0x03;
+  printf("LI : %d\n", leap_indicator);
+  int version_number = (w >> 27) & 0x07;
+  printf("VN : %d\n", version_number);
+  int mode = (w >> 24) & 0x07;
+  printf("mode : %d\n", mode);
+  int stratum = (w >> 16) & 0xff;
+  printf("Stratum : %d\n", stratum);
   char poll = (w >> 8) & 0xff;
   printf("Poll : %d(%d)\n", poll, 1 << poll);
   char pre = (char)(w >> 0) & 0xff;
   printf("Precision : %d(%f)\n", pre, pow(2, pre));
   int root_delay = bswap_32(packet->root_delay);
-  printf("Root Delay : %d(%f)\n", root_delay, root_delay/0x1p+16);
+  printf("Root Delay : %d(%f)\n", root_delay, root_delay / 0x1p+16);
   int root_dispersion = bswap_32(packet->root_dispersion);
-  printf("Root Dispersion : %d(%f)\n", root_dispersion, root_dispersion/0x1p+16);
-  printf("Reference ID : %08x", packet->reference_identifier);
+  printf("Root Dispersion : %d(%f)\n", root_dispersion, root_dispersion / 0x1p+16);
+  int reference_identifier = packet->reference_identifier;
+  printf("Reference ID : %08x", reference_identifier);
   char refid[5];
   memset(refid, 0, sizeof(refid));
-  memcpy(refid, &packet->reference_identifier, 4);
-  if(isalnum(refid[0]))
+  memcpy(refid, &reference_identifier, 4);
+  if (stratum == 1)
     printf("(%s)", refid);
+  if (version_number == 3 && stratum >= 2)
+  {
+    struct in_addr ad = {htonl(reference_identifier)};
+    char *addrstr = inet_ntoa(ad);
+    if(addrstr)
+      printf("(%s)", addrstr);
+  }
+  if (version_number == 4 && stratum >= 2)
+  {
+    printf("(*´ω｀*)");
+  }
   printf("\n");
   uint32_t reference_timestamp_seconds = bswap_32(packet->reference_timestamp_seconds);
   uint32_t originate_timestamp_seconds = bswap_32(packet->originate_timestamp_seconds);
@@ -89,8 +105,7 @@ static void dumpNTPpacket(struct NTP_Packet *packet)
   printf("Transmit Timestamp seconds: %lu(%lu)\n", transmit_timestamp_seconds, transmit_timestamp_seconds - 2208988800L);
   printf("Transmit Timestamp fractions : %u\n", transmit_timestamp_fractions);
   printf("Transmit Timestamp seconds: %f\n", (((transmit_timestamp_seconds - 2208988800L) << 32) + transmit_timestamp_fractions) / (0x1p+32));
-
-  if(packet->transmit_timestamp_seconds != 0)
+  if (transmit_timestamp_seconds)
   {
     time_t machine_time = time(NULL);
     time_t ntp_time = ntohl(packet->transmit_timestamp_seconds) - 2208988800L;
@@ -117,14 +132,17 @@ int main(int argc, char *argv[])
   uint64_t seed[312];
   read_random(seed, sizeof(uint64_t), 312, 0);
   init_by_array64(seed, 312);
-  union f
+  int64_t s = 0;
   {
-    int64_t s;
-    char buf[8];
-  };
-  union f f;
-  read_random(&f.buf[2], sizeof(char), 6, 0);
-  int64_t s = f.s;
+    union f
+    {
+      int64_t s;
+      char buf[8];
+    };
+    union f f;
+    read_random(&f.buf[2], sizeof(char), 6, 0);
+    s = f.s;
+  }
 
   int recv_sock = 0;
   int sock_ai_family = 0;
@@ -149,6 +167,7 @@ int main(int argc, char *argv[])
   if (err != 0)
   {
     perror("getaddrinfo localhost");
+    fprintf(stderr, "%s\n", gai_strerror(err));
     return EXIT_FAILURE;
   }
 
