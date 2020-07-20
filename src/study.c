@@ -4,11 +4,9 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "gettext.h"
 #define _(str) gettext(str)
 #include <locale.h>
-#include "strspntest.h"
 
 /**
  * --version
@@ -31,10 +29,8 @@
  *   文字検索関数
  * strsep
  *   トークン分割(空フィールド対応版)
- * strspn
  */
 int main(int argc, char *argv[])
 {
-  strspntest(argc, argv);
   return EXIT_SUCCESS;
 }
