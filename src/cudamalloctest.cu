@@ -5,8 +5,8 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #include "gettext.h"
-#define _(str)   gettext(str)
-#define N_(str)  gettext_noop(str)
+#define _(str) gettext(str)
+#define N_(str) gettext_noop(str)
 #include <locale.h>
 
 #define N 200
@@ -41,7 +41,7 @@ int main(void)
   if (error)
   {
     printf(_("Error : %s\n%s\n"), cudaGetErrorName(error), cudaGetErrorString(error));
-    return EXIT_FAILURE;
+    return (int)error;
   }
   else
   {
