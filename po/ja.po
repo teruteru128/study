@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-07-17 15:40+0900\n"
+"POT-Creation-Date: 2020-07-21 09:56+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -36,12 +36,32 @@ msgstr "公開鍵の初期化が完了しました。\n"
 #: src/bouyomi.c:94
 #, c-format
 msgid "Error!\n"
-msgstr ""
+msgstr "エラー！\n"
 
 #: src/bouyomi.c:98
 #, c-format
 msgid "Sent!\n"
 msgstr "送信しました！\n"
+
+#: src/cudahello.cu:15
+#, c-format
+msgid "Hello World!\n"
+msgstr "こんにちは世界！\n"
+
+#: src/cudamalloctest.cu:43
+#, c-format
+msgid ""
+"Error : %s\n"
+"%s\n"
+msgstr ""
+"エラー : %s\n"
+"%s\n"
+
+#: src/cudamalloctest.cu:48
+#, c-format
+msgid "Success : one cuda device\n"
+msgid_plural "Success : %d cuda devices\n"
+msgstr[0] "成功 : %d cuda デバイス\n"
 
 #: src/eckeygentest.c:45 src/itoabench.c:42 src/itoabench.c:58
 #, c-format
@@ -68,17 +88,17 @@ msgstr "qのほうが大きい\n"
 msgid "p is larger\n"
 msgstr "pのほうが大きい\n"
 
-#: src/gettextsample.c:14 src/gettextsample2.c:9 src/localetest1.c:15
+#: src/gettextsample.c:14 src/gettextsample2.c:15 src/localetest1.c:15
 #, c-format
 msgid "Hello world!\n"
 msgstr "こんにちは世界！\n"
 
-#: src/gettextsample3.c:10
+#: src/gettextsample3.c:17
 #, c-format
 msgid "%dmicro seconds stopping.\n"
 msgstr "%dマイクロ秒停止します。\n"
 
-#: src/gettextsample3.c:12
+#: src/gettextsample3.c:19
 #, c-format
 msgid "%dmicro seconds stoped.\n"
 msgstr "%dマイクロ秒停止しました。\n"
@@ -98,12 +118,12 @@ msgstr "1秒あたり %g回\n"
 msgid "%e seconds per time\n"
 msgstr "1回あたり %e秒\n"
 
-#: src/sntpc.c:199
+#: src/sntpc.c:120
 #, c-format
 msgid "Local time : %s"
 msgstr "ローカル時刻 : %s"
 
-#: src/sntpc.c:200
+#: src/sntpc.c:121
 #, c-format
 msgid "NTP server time : %s"
 msgstr "NTPサーバ時刻 : %s"
