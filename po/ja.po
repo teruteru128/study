@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-07-21 09:56+0900\n"
+"POT-Creation-Date: 2020-07-21 16:42+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -118,12 +118,12 @@ msgstr "1秒あたり %g回\n"
 msgid "%e seconds per time\n"
 msgstr "1回あたり %e秒\n"
 
-#: src/sntpc.c:120
+#: src/sntpc.c:121
 #, c-format
 msgid "Local time : %s"
 msgstr "ローカル時刻 : %s"
 
-#: src/sntpc.c:121
+#: src/sntpc.c:122
 #, c-format
 msgid "NTP server time : %s"
 msgstr "NTPサーバ時刻 : %s"

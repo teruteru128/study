@@ -10,32 +10,46 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <netdb.h>
+
+#define ip_address "192.168.1.3"
 
 // http://developer.wonderpla.net/entry/blog/engineer/network_program_with_cpp_01/
 int main(int argc, char **argv)
 {
-  unsigned int port = 0;
-  const char *ip_address = "192.168.1.3";
-  struct sockaddr_in addr = {
-      0,
-  };
+  struct addrinfo hints, *res, *ptr;
+  memset(&hints, 0, sizeof(struct addrinfo));
+  hints.ai_flags = 0;
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
 
   int sock = 0;
-  for (port = 1; port < 65536; port++)
+  char port_str[12];
+  int err = 0;
+  for (int port = 1; port < 65536; port++)
   {
-    sock = socket(PF_INET, SOCK_STREAM, 0);
-    if (sock < 0)
+    snprintf(port_str, 12, "%u", port);
+    if ((err = getaddrinfo(ip_address, port_str, &hints, &res)) != 0)
     {
-      perror("socket");
-      return EXIT_FAILURE;
+      perror("getaddrinfo localhost");
+      fprintf(stderr, "%s\n", gai_strerror(err));
+      continue;
     }
-    printf("%5d, ", port);
-    /* 接続のために構造体に値を入れる */
-    addr.sin_family = AF_INET;
-    /* 接続先のポート番号。ビッグエンディアンの32ビットに変換*/
-    addr.sin_port = htons(port);
-    /* inet_addrはxxx.xxx.xxx.xxxの文字列をビッグエンディアン(ネットワークバイトオーダー)の32ビットに変換する。*/
-    addr.sin_addr.s_addr = inet_addr(ip_address);
+    for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
+    {
+      sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+      if (sock == -1)
+        continue;
+
+      break;
+    }
+    if (ptr == NULL)
+    {
+      perror("bind failed");
+      close(sock);
+      continue;
+    }
+    printf("%5d : ", port);
 
     /* サーバにコネクトを行う。この関数はブロック型である。
        　 コネクトのタイムアウトはデバイスドライバーの実装によって違う。
@@ -46,7 +60,7 @@ int main(int argc, char **argv)
        第二引数のstruct sockaddrのキャストだが、sockの第一引数に何を指定しているかで指定される構造体が違うためにキャストすることになる。
        現代のソフトウェア工学的には気持ち悪い実装かも知れないが、connectがシステムコールである故にやむを得ないところがある。
        */
-    if (connect(sock, (struct sockaddr *)&addr, sizeof(addr)) != 0)
+    if (connect(sock, ptr->ai_addr, ptr->ai_addrlen) != 0)
     {
       /* 失敗*/
       printf("socket connect error!!! (%u, %d)\n", port, errno);
