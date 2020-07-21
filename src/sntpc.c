@@ -11,7 +11,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
-#include <arpa/inet.h>
 #include <stdlib.h> //atoi(), exit(), EXIT_FAILURE, EXIT_SUCCESS
 #include <string.h> //memset(), strcmp()
 #include <unistd.h> //close()
@@ -71,8 +70,8 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
   print_addrinfo0(ptr, stderr);
-  printf("%d\n", ptr->ai_socktype);
-  printf("%d\n", ptr->ai_protocol);
+  printf("socktype : %d\n", ptr->ai_socktype);
+  printf("protocol : %d\n", ptr->ai_protocol);
   freeaddrinfo(res);
   res = NULL;
   ptr = NULL;
@@ -114,6 +113,7 @@ int main(int argc, char *argv[])
     close(recv_sock);
     return EXIT_FAILURE;
   }
+  printf("%04x\n", fds.revents);
   struct NTP_Packet recv;
   memset(&recv, 0, sizeof(struct NTP_Packet));
   w = read(recv_sock, &recv, sizeof(struct NTP_Packet));

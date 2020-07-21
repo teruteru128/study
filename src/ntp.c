@@ -40,9 +40,9 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
   char poll = (w >> 8) & 0xff;
   fprintf(out, "Poll : %d(%d)\n", poll, 1 << poll);
   char pre = (char)(w >> 0) & 0xff;
-  fprintf(out, "Precision : %d(%a)\n", pre, pow(2, pre));
+  fprintf(out, "Precision : %d(%.32f)\n", pre, pow(2, pre));
   int root_delay = bswap_32(packet->root_delay);
-  fprintf(out, "Root Delay : %d(%a)\n", root_delay, root_delay / 0x1p+16);
+  fprintf(out, "Root Delay : %d(%f)\n", root_delay, root_delay / 0x1p+16);
   int root_dispersion = bswap_32(packet->root_dispersion);
   fprintf(out, "Root Dispersion : %d(%f)\n", root_dispersion, root_dispersion / 0x1p+16);
   int reference_identifier = packet->reference_identifier;
