@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
     freeaddrinfo(res);
     return EXIT_FAILURE;
   }
-  struct pollfd fds = {recv_sock, POLLIN, 0};
+  struct pollfd fds = {recv_sock, POLLIN | POLLERR, 0};
   struct timespec spec = {10, 0};
   sigset_t sigmask;
   sigfillset(&sigmask);
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
     perror("select timeout");
     //close(recv_sock);
   }
-  if ((fds.revents & POLLERR) != 0)
+  if (fds.revents & POLLERR)
   {
     perror("isset failed");
     close(recv_sock);
