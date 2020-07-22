@@ -17,9 +17,12 @@
 
 void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
 {
+  // NULL check
+  if (!packet || !out)
+    return;
+
   unsigned char *a = (unsigned char *)packet;
-  int i = 0;
-  for (; i < 48; i++)
+  for (size_t i = 0; i < sizeof(struct NTP_Packet); i++)
   {
     fprintf(out, "%02x", a[i]);
     if ((i % 16) == 15)
@@ -30,38 +33,44 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
 
   uint32_t w = bswap_32(packet->Control_Word);
   int leap_indicator = (w >> 30) & 0x03;
-  fprintf(out, "LI : %d\n", leap_indicator);
   int version_number = (w >> 27) & 0x07;
-  fprintf(out, "VN : %d\n", version_number);
   int mode = (w >> 24) & 0x07;
-  fprintf(out, "mode : %d\n", mode);
   int stratum = (w >> 16) & 0xff;
-  fprintf(out, "Stratum : %d\n", stratum);
   char poll = (w >> 8) & 0xff;
-  fprintf(out, "Poll : %d(%d)\n", poll, 1 << poll);
   char pre = (char)(w >> 0) & 0xff;
-  fprintf(out, "Precision : %d(%.32f)\n", pre, pow(2, pre));
   int root_delay = bswap_32(packet->root_delay);
-  fprintf(out, "Root Delay : %d(%f)\n", root_delay, root_delay / 0x1p+16);
   int root_dispersion = bswap_32(packet->root_dispersion);
-  fprintf(out, "Root Dispersion : %d(%f)\n", root_dispersion, root_dispersion / 0x1p+16);
   int reference_identifier = packet->reference_identifier;
-  fprintf(out, "Reference ID : %08x", reference_identifier);
-  char refid[5];
-  memset(refid, 0, sizeof(refid));
+  char refid[5] = {0};
   memcpy(refid, &reference_identifier, 4);
+
+  fprintf(out, "LI : %d\n", leap_indicator);
+  fprintf(out, "VN : %d\n", version_number);
+  fprintf(out, "mode : %d\n", mode);
+  fprintf(out, "Stratum : %d\n", stratum);
+  fprintf(out, "Poll : %d(%d)\n", poll, 1 << poll);
+  fprintf(out, "Precision : %d(%.32f)\n", pre, pow(2, pre));
+  fprintf(out, "Root Delay : %d(%f)\n", root_delay, root_delay / 0x1p+16);
+  fprintf(out, "Root Dispersion : %d(%f)\n", root_dispersion, root_dispersion / 0x1p+16);
+  fprintf(out, "Reference ID : %08x", bswap_32(reference_identifier));
+
   if (stratum == 1)
+  {
     fprintf(out, "(%s)", refid);
-  if (version_number == 3 && stratum >= 2)
-  {
-    struct in_addr ad = {htonl(reference_identifier)};
-    char *addrstr = inet_ntoa(ad);
-    if (addrstr)
-      fprintf(out, "(%s)", addrstr);
   }
-  if (version_number == 4 && stratum >= 2)
+  else if (stratum >= 2)
   {
-    fprintf(out, "(*´ω｀*)");
+    if (version_number == 3)
+    {
+      struct in_addr ad = {htonl(reference_identifier)};
+      char *addrstr = inet_ntoa(ad);
+      if (addrstr)
+        fprintf(out, "(%s)", addrstr);
+    }
+    else if (version_number == 4)
+    {
+      fprintf(out, "(*´ω｀*)");
+    }
   }
   fprintf(out, "\n");
   uint32_t reference_timestamp_seconds = bswap_32(packet->reference_timestamp_seconds);

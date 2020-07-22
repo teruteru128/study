@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include "server.h"
 
-static int sock = 0;
+static int sock = -1;
 
 int get_socket(const char *port)
 {
@@ -19,15 +19,17 @@ int get_socket(const char *port)
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_family = PF_UNSPEC;
+    hints.ai_flags = AI_PASSIVE;
     if ((ecode = getaddrinfo("localhost", port, &hints, &res)) != 0)
     {
         fprintf(stderr, "failed getaddrinfo() %s\n", gai_strerror(ecode));
-        goto failure_1;
+        return -1;
     }
     if ((ecode = getnameinfo(res->ai_addr, res->ai_addrlen, hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), NI_NUMERICHOST | NI_NUMERICSERV)) != 0)
     {
         fprintf(stderr, "failed getnameinfo() %s\n", gai_strerror(ecode));
-        goto failure_2;
+        freeaddrinfo(res);
+        return -1;
     }
     fprintf(stdout, "port is %s\n", sbuf);
     fprintf(stdout, "host is %s\n", hbuf);
@@ -35,36 +37,38 @@ int get_socket(const char *port)
     if ((sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) < 0)
     {
         perror("socket() failed.");
-        goto failure_2;
+        freeaddrinfo(res);
+        return -1;
     }
 
     if (bind(sock, res->ai_addr, res->ai_addrlen) < 0)
     {
         perror("bind() failed.");
-        goto failure_3;
+    close(sock);
+    freeaddrinfo(res);
+    return -1;
     }
 
     if (listen(sock, SOMAXCONN) < 0)
     {
         perror("listen() failed.");
-        goto failure_3;
+        close(sock);
+        freeaddrinfo(res);
+    return -1;
     }
 
     return sock;
-failure_3:
-    close(sock);
-failure_2:
-    freeaddrinfo(res);
-failure_1:
-    return -1;
 }
 int init_server(char *argv)
 {
-    if (sock == 0)
+    if (sock == -1)
     {
-        sock = get_socket(argv);
+        int s = get_socket(argv);
+        if(s < 0)
+            return s;
+        sock = s;
     }
-    return sock == -1 ? -1 : sock;
+    return sock;
 }
 void echo_back(int sock)
 {
@@ -88,7 +92,7 @@ void echo_back(int sock)
         }
         ptr = (uint32_t *)buf;
         tmp = ntohl(*ptr);
-        if (tmp == -1)
+        if (tmp == (uint32_t)-1)
         {
             fprintf(stderr, "exit command\n");
             flg = -1;

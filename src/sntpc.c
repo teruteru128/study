@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
   hints.ai_flags = 0;
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_DGRAM;
-  hints.ai_protocol = 0;
+  hints.ai_protocol = IPPROTO_UDP;
 
   int err = getaddrinfo(SERVER_NAME, SERVER_PORT, &hints, &res);
   if (err != 0)
@@ -50,6 +50,13 @@ int main(int argc, char *argv[])
     fprintf(stderr, "%s\n", gai_strerror(err));
     return EXIT_FAILURE;
   }
+
+  for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
+  {
+    print_addrinfo0(ptr, stderr);
+  }
+
+  fputs("--\n", stderr);
 
   /* ソケットを作成して接続 */
   for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
@@ -65,13 +72,11 @@ int main(int argc, char *argv[])
   }
   if (ptr == NULL)
   {
-    perror("bind failed");
+    perror("connect failed");
     close(recv_sock);
     return EXIT_FAILURE;
   }
   print_addrinfo0(ptr, stderr);
-  printf("socktype : %d\n", ptr->ai_socktype);
-  printf("protocol : %d\n", ptr->ai_protocol);
   freeaddrinfo(res);
   res = NULL;
   ptr = NULL;
@@ -79,7 +84,7 @@ int main(int argc, char *argv[])
   struct NTP_Packet send;
   memset(&send, 0, sizeof(struct NTP_Packet));
   send.Control_Word = bswap_32(0x23000000);
-  dumpNTPpacket(&send, stdout);
+  dumpNTPpacket(&send, stderr);
 
   ssize_t w = write(recv_sock, &send, sizeof(struct NTP_Packet));
   if (w == (ssize_t)-1)
@@ -95,7 +100,7 @@ int main(int argc, char *argv[])
   sigfillset(&sigmask);
 
   int selret = ppoll(&fds, 1, &spec, &sigmask);
-  printf("selret : %d\n", selret);
+  fprintf(stderr, "selret : %d\n", selret);
   if (selret == -1)
   {
     perror("select");
@@ -113,7 +118,7 @@ int main(int argc, char *argv[])
     close(recv_sock);
     return EXIT_FAILURE;
   }
-  printf("%04x\n", fds.revents);
+  fprintf(stderr, "revents : %04x\n", fds.revents);
   struct NTP_Packet recv;
   memset(&recv, 0, sizeof(struct NTP_Packet));
   w = read(recv_sock, &recv, sizeof(struct NTP_Packet));
@@ -126,6 +131,6 @@ int main(int argc, char *argv[])
   }
   freeaddrinfo(res);
   close(recv_sock);
-  dumpNTPpacket(&recv, stdout);
+  dumpNTPpacket(&recv, stderr);
   return EXIT_SUCCESS;
 }
