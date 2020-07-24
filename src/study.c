@@ -36,6 +36,11 @@ int main(int argc, char *argv[])
     return 1;
   
   FILE *in = fopen(argv[1], "r");
+  if(!in)
+  {
+    perror("fopen");
+    return 1;
+  }
 
   int64_t seed;
   int32_t x;
@@ -48,5 +53,6 @@ int main(int argc, char *argv[])
     printf("%ld, %d, %d, %d/%d\n", seed & 0xffffffffffffL, x, z, sc, chunk);
   }
 
+  fclose(in);
   return EXIT_SUCCESS;
 }
