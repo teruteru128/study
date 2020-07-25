@@ -23,7 +23,7 @@
 void die_if_fault_occurred(xmlrpc_env *env);
 
 #define SENDTO_ADDRESS_FILE "main.txt"
-#define SUBJECT "TWVycnkgQ2hyaXN0bWFzIQo="
+#define SUBJECT "TWVycnkgQ2hyaXN0bWFzIQ=="
 #define MESSAGE "PHByZT4KICAgIEBAICAgICAgICAgIEBACiAgICBAQEAgICAgICAgIEBAQAogICAgQEBAQCAgICAg" \
                 "IEBAQEAgICBAQEBAICBAQCBAQEAgIEBAIEBAQCBAQCAgICAgIEBACiAgICBAQCBAQCAgICBAQCBA" \
                 "QCAgQEAgIEBAIEBAQCAgQEAgQEBAICBAQCBAQCAgICBAQAogICAgQEAgIEBAICBAQCAgQEAgQEBA" \
@@ -108,58 +108,75 @@ void die_if_fault_occurred(xmlrpc_env *env);
  * */
 int main(int const argc, const char **const argv)
 {
-  xmlrpc_env env;
-  xmlrpc_client *clientP;
-  xmlrpc_server_info *serverP;
-  xmlrpc_value *resultP;
-  const char *msg;
   FILE *toaddrfile = fopen(SENDTO_ADDRESS_FILE, "r");
   if (toaddrfile == NULL)
   {
     err(EXIT_FAILURE, "fopen");
   }
-  char toaddress[64];
-  char *tmp = NULL;
 
+  xmlrpc_env env;
+  xmlrpc_client *clientP;
+  xmlrpc_server_info *serverP;
+  xmlrpc_value *resultP;
   /* Initialize our error-handling environment. */
   xmlrpc_env_init(&env);
-
+  die_if_fault_occurred(&env);
   xmlrpc_client_setup_global_const(&env);
-
+  die_if_fault_occurred(&env);
   xmlrpc_client_create(&env, XMLRPC_CLIENT_NO_FLAGS, NAME, VERSION, NULL, 0,
                        &clientP);
   die_if_fault_occurred(&env);
   serverP = xmlrpc_server_info_new(&env, SERVER_URL);
+  die_if_fault_occurred(&env);
   xmlrpc_server_info_set_user(&env, serverP, USER_NAME, PASSWORD);
+  die_if_fault_occurred(&env);
   xmlrpc_server_info_allow_auth_basic(&env, serverP);
+  die_if_fault_occurred(&env);
 
+  char toaddress[64];
+  char *tmp = NULL;
   xmlrpc_value *paramArray = NULL;
   xmlrpc_value *toaddressv = NULL;
   xmlrpc_value *fromaddressv = xmlrpc_string_new(&env, GENELRAL);
+  die_if_fault_occurred(&env);
   xmlrpc_value *subjectv = xmlrpc_string_new(&env, SUBJECT);
+  die_if_fault_occurred(&env);
   xmlrpc_value *messagev = xmlrpc_string_new(&env, MESSAGE);
+  die_if_fault_occurred(&env);
   xmlrpc_value *encodingTypev = xmlrpc_int_new(&env, 2);
+  die_if_fault_occurred(&env);
   xmlrpc_value *TTLv = xmlrpc_int_new(&env, 4 * 24 * 60 * 60);
+  die_if_fault_occurred(&env);
+  char *p = NULL;
   while ((tmp = fgets(toaddress, 64, toaddrfile)) != NULL)
   {
     paramArray = xmlrpc_array_new(&env);
+    die_if_fault_occurred(&env);
+    p = strpbrk(toaddress, "\r\n");
+    if(p != NULL)
+    {
+      *p = '\0';
+    }
     toaddressv = xmlrpc_string_new(&env, toaddress);
+    die_if_fault_occurred(&env);
     xmlrpc_array_append_item(&env, paramArray, toaddressv);
+    die_if_fault_occurred(&env);
     xmlrpc_array_append_item(&env, paramArray, fromaddressv);
+    die_if_fault_occurred(&env);
     xmlrpc_array_append_item(&env, paramArray, subjectv);
+    die_if_fault_occurred(&env);
     xmlrpc_array_append_item(&env, paramArray, messagev);
+    die_if_fault_occurred(&env);
     xmlrpc_array_append_item(&env, paramArray, encodingTypev);
+    die_if_fault_occurred(&env);
     xmlrpc_array_append_item(&env, paramArray, TTLv);
+    die_if_fault_occurred(&env);
 
     /* Make the remote procedure call */
     xmlrpc_client_call2(&env, clientP, serverP, METHOD_NAME, paramArray, &resultP);
     die_if_fault_occurred(&env);
 
-    /* Get our sum and print it out. */
-    xmlrpc_read_string(&env, resultP, &msg);
-    die_if_fault_occurred(&env);
-    printf("The sum  is %s\n", msg);
-    free((void *)msg);
+    printf("%s\n", toaddress);
 
     /* Dispose of our result value. */
     xmlrpc_DECREF(paramArray);
