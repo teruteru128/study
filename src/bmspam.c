@@ -153,7 +153,7 @@ int main(int const argc, const char **const argv)
     paramArray = xmlrpc_array_new(&env);
     die_if_fault_occurred(&env);
     p = strpbrk(toaddress, "\r\n");
-    if(p != NULL)
+    if (p != NULL)
     {
       *p = '\0';
     }
