@@ -3,7 +3,6 @@ FizzBuzz
 Nabeatsu
 ankokudan_decode
 argparsesample
-base58test
 bcasttest
 bmkeygen
 bmspam
@@ -63,7 +62,6 @@ primesearch
 printBench
 read_random
 repeated-trials
-ripeencode
 rsa
 rsa1024
 selfmadelibsha
