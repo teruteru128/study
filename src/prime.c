@@ -7,6 +7,15 @@
 #include <time.h>
 #include <gmp.h>
 
+/*
+ * 素数判定
+ * 素数探索
+ *   階乗素数
+ *   ハミング重みが3の素数(x^2 + y^2 + 1, x > y > 1)
+ *   x^2 + y^2 - 1, x > y > 1
+ *   x^2 - y^2 + 1, x > y > 1
+ *   x^2 - y^2 - 1, x > y > 1
+ */
 int main(int argc, char *argv[])
 {
   mpz_t number;
