@@ -41,6 +41,11 @@ static int callback(int a, int b, BN_GENCB *cb)
  *   文字検索関数
  * strsep
  *   トークン分割(空フィールド対応版)
+ * versionsort
+ * strverscmp
+ * alphasort
+ * tor geoip file 読み込み関数
+ * geoip_load_file
  */
 int main(int argc, char *argv[])
 {

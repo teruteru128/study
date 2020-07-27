@@ -73,6 +73,7 @@ AC_CONFIG_FILES([Makefile
                  include/Makefile
                  po/Makefile.in
                  src/Makefile
+                 src/config/Makefile
                  tests/Makefile])
 AC_CONFIG_SUBDIRS([libstudy])
 AC_OUTPUT

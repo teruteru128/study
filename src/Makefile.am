@@ -1,93 +1,95 @@
-bin_PROGRAMS=
-bin_PROGRAMS+=CoDec
-bin_PROGRAMS+=FizzBuzz
-bin_PROGRAMS+=Nabeatsu
-bin_PROGRAMS+=ankokudan_decode
-bin_PROGRAMS+=argparsesample
-bin_PROGRAMS+=bcasttest
-bin_PROGRAMS+=bmkeygen
-bin_PROGRAMS+=bmspam
-bin_PROGRAMS+=bouyomi
-bin_PROGRAMS+=calc
-bin_PROGRAMS+=cl
-bin_PROGRAMS+=cudahello
-bin_PROGRAMS+=cudamalloctest
-bin_PROGRAMS+=dappun
-bin_PROGRAMS+=doublerandom
-bin_PROGRAMS+=dragon
-bin_PROGRAMS+=dragon
-bin_PROGRAMS+=eckeygentest
-bin_PROGRAMS+=encodersa
-bin_PROGRAMS+=enginetest
-bin_PROGRAMS+=envgettest
-bin_PROGRAMS+=evpmdtest
-bin_PROGRAMS+=evptest
-bin_PROGRAMS+=falcon
-bin_PROGRAMS+=fastPrimeNumber
-bin_PROGRAMS+=fastPrimeNumber2
-bin_PROGRAMS+=firstThread
-bin_PROGRAMS+=firstThread2
-bin_PROGRAMS+=firstThread3
-bin_PROGRAMS+=firstThread4
-bin_PROGRAMS+=firstThread4-1
-bin_PROGRAMS+=ftm
-bin_PROGRAMS+=ftnr
-bin_PROGRAMS+=gettextsample2
-bin_PROGRAMS+=gettextsample3
-bin_PROGRAMS+=gettime
-bin_PROGRAMS+=hugecollatztest
-bin_PROGRAMS+=itoabench
-bin_PROGRAMS+=kxsample
-bin_PROGRAMS+=list2
-bin_PROGRAMS+=localetest1
-bin_PROGRAMS+=localetest2
-bin_PROGRAMS+=log-sample
-bin_PROGRAMS+=loop-bench
-bin_PROGRAMS+=mappingsample
-bin_PROGRAMS+=maxmovingsum
-bin_PROGRAMS+=mineseed
-bin_PROGRAMS+=mysqlfast
-bin_PROGRAMS+=portscanner
-bin_PROGRAMS+=potest
-bin_PROGRAMS+=prime
-bin_PROGRAMS+=prime2
-bin_PROGRAMS+=prime3
-bin_PROGRAMS+=primeNumber
-bin_PROGRAMS+=primeNumber2
-bin_PROGRAMS+=primeNumber3
-bin_PROGRAMS+=primeNumber4
-bin_PROGRAMS+=primeNumber5
-bin_PROGRAMS+=primesearch
-bin_PROGRAMS+=printBench
-bin_PROGRAMS+=read_random
-bin_PROGRAMS+=repeated-trials
-bin_PROGRAMS+=ripeencode
-bin_PROGRAMS+=rsa
-bin_PROGRAMS+=rsa1024
-bin_PROGRAMS+=selfmadelibsha
-bin_PROGRAMS+=seq
-bin_PROGRAMS+=service-sample
-bin_PROGRAMS+=signalsample
-bin_PROGRAMS+=signalsample2
-bin_PROGRAMS+=sntpc
-bin_PROGRAMS+=string_list_test
-bin_PROGRAMS+=study
-bin_PROGRAMS+=sum
-bin_PROGRAMS+=teamspeakIdUpgrader
-bin_PROGRAMS+=teamspeakcalc
-bin_PROGRAMS+=threadAttr
-bin_PROGRAMS+=tsidimprover
-bin_PROGRAMS+=tsidshowsample
-bin_PROGRAMS+=tweet
-bin_PROGRAMS+=udpreciever
-bin_PROGRAMS+=udpsender
-bin_PROGRAMS+=uuidtest
-bin_PROGRAMS+=variables
-bin_PROGRAMS+=variables3
-bin_PROGRAMS+=variables4
-bin_PROGRAMS+=variables5
-bin_PROGRAMS+=variablesProc
-bin_PROGRAMS+=yattaze
+SUBDIRS = config
+
+bin_PROGRAMS= \
+        CoDec \
+        FizzBuzz \
+        Nabeatsu \
+        ankokudan_decode \
+        argparsesample \
+        bcasttest \
+        bmkeygen \
+        bmspam \
+        bouyomi \
+        calc \
+        cl \
+        cudahello \
+        cudamalloctest \
+        dappun \
+        doublerandom \
+        dragon \
+        dragon \
+        eckeygentest \
+        encodersa \
+        enginetest \
+        envgettest \
+        evpmdtest \
+        evptest \
+        falcon \
+        fastPrimeNumber \
+        fastPrimeNumber2 \
+        firstThread \
+        firstThread2 \
+        firstThread3 \
+        firstThread4 \
+        firstThread4-1 \
+        ftm \
+        ftnr \
+        gettextsample2 \
+        gettextsample3 \
+        gettime \
+        hugecollatztest \
+        itoabench \
+        kxsample \
+        list2 \
+        localetest1 \
+        localetest2 \
+        log-sample \
+        loop-bench \
+        mappingsample \
+        maxmovingsum \
+        mineseed \
+        mysqlfast \
+        portscanner \
+        potest \
+        prime \
+        prime2 \
+        prime3 \
+        primeNumber \
+        primeNumber2 \
+        primeNumber3 \
+        primeNumber4 \
+        primeNumber5 \
+        primesearch \
+        printBench \
+        read_random \
+        repeated-trials \
+        ripeencode \
+        rsa \
+        rsa1024 \
+        selfmadelibsha \
+        seq \
+        service-sample \
+        signalsample \
+        signalsample2 \
+        sntpc \
+        string_list_test \
+        study \
+        sum \
+        teamspeakIdUpgrader \
+        teamspeakcalc \
+        threadAttr \
+        tsidimprover \
+        tsidshowsample \
+        tweet \
+        udpreciever \
+        udpsender \
+        uuidtest \
+        variables \
+        variables3 \
+        variables4 \
+        variables5 \
+        variablesProc \
+        yattaze
 
 # TODO: *.cuをコンパイルするときだけNVCCを使いたい
 # https://tschoonj.github.io/blog/2014/05/10/building-a-cuda-device-function-library-with-autotools/
@@ -115,8 +117,6 @@ Nabeatsu_LDADD=../libstudy/src/libstudy.la
 Nabeatsu_SOURCES=Nabeatsu.c gettext.h
 ankokudan_decode_SOURCES=ankokudan_decode.c
 argparsesample_SOURCES=argparsesample.c
-base58test_LDADD=../libstudy/src/libstudy.la
-base58test_SOURCES=base58test.c changebase.c
 bcasttest_SOURCES=bcasttest.c
 bmkeygen_CFLAGS=
 bmkeygen_LDADD=../libstudy/src/libstudy.la
@@ -171,7 +171,7 @@ printBench_SOURCES=printBench.c
 read_random_LDADD=../libstudy/src/libstudy.la
 read_random_SOURCES=read_random.c
 ripeencode_LDADD=../libstudy/src/libstudy.la
-ripeencode_SOURCES=ripeencode.c changebase.c
+ripeencode_SOURCES=ripeencode.c
 rsa1024_SOURCES=rsa1024.c
 selfmadelibsha_CPPFLAGS=
 selfmadelibsha_LDADD=../libstudy/src/libstudy.la
