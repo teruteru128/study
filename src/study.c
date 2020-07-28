@@ -1,7 +1,5 @@
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include "gettext.h"
@@ -11,10 +9,16 @@
 #include <openssl/err.h>
 #include <dirent.h>
 #include <string.h>
+#include <netdb.h>
+
+struct domainname
+{
+  char *dname;
+};
 
 int cmp(const void *p1, const void *p2, void *arg)
 {
-  return strcmp(p1, p2);
+  return strcmp(((struct domainname *)p1)->dname, ((struct domainname *)p2)->dname);
 }
 
 /**
@@ -46,12 +50,17 @@ int cmp(const void *p1, const void *p2, void *arg)
  */
 int main(int argc, char *argv[])
 {
-  char domains[4][24] = {"p2pquake.dyndns.info", "www.p2pquake.net", "p2pquake.dnsalias.net", "p2pquake.ddo.jp"};
-  qsort_r(domains, 4UL, sizeof(char [24]), cmp, NULL);
+  struct domainname domains[4] = {
+    {"p2pquake.dyndns.info"},
+    {"www.p2pquake.net"},
+    {"p2pquake.dnsalias.net"},
+    {"p2pquake.ddo.jp"}
+  };
+  qsort_r(domains, 4UL, sizeof(struct domainname), cmp, NULL);
   int i = 0;
   for(i = 0; i < 4; i++)
   {
-    printf("%s\n", domains[i]);
+    printf("%s\n", domains[i].dname);
   }
   return EXIT_SUCCESS;
 }
