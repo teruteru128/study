@@ -12,7 +12,7 @@
 #include <dirent.h>
 #include <string.h>
 
-int cmp(const void *p1, const void *p2)
+int cmp(const void *p1, const void *p2, void *arg)
 {
   return strcmp(p1, p2);
 }
@@ -47,7 +47,7 @@ int cmp(const void *p1, const void *p2)
 int main(int argc, char *argv[])
 {
   char domains[4][24] = {"p2pquake.dyndns.info", "www.p2pquake.net", "p2pquake.dnsalias.net", "p2pquake.ddo.jp"};
-  qsort(domains, 4UL, sizeof(char [24]), cmp);
+  qsort_r(domains, 4UL, sizeof(char [24]), cmp, NULL);
   int i = 0;
   for(i = 0; i < 4; i++)
   {
