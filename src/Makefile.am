@@ -38,6 +38,7 @@ bin_PROGRAMS= \
         gettextsample3 \
         gettime \
         hugecollatztest \
+        iconvtest \
         itoabench \
         kxsample \
         list2 \
@@ -150,6 +151,7 @@ gettextsample2_SOURCES=gettextsample2.c gettextsample2.h gettext.h
 gettextsample3_CFLAGS=
 gettextsample3_SOURCES=gettextsample3.c gettextsample3.h textdomain.c textdomain_inner.h mytextdomain.h gettext.h
 gettime_SOURCES=gettime.c gettime.h
+iconvtest_SOURCES=iconvtest.c
 itoabench_CFLAGS=
 itoabench_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 itoabench_SOURCES=itoabench.c

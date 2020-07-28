@@ -31,7 +31,7 @@
         return EXIT_FAILURE;                                        \
     }
 
-/*
+/**
  * TODO: リファクタリング
  * TODO: 鍵キャッシュサーバー
  * TODO: 既存鍵を使ってアドレス探索

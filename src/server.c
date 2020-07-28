@@ -210,7 +210,7 @@ void *do_service(void *arg)
     sock = -1;
 }
 
-/*
+/**
  * TODO: グローバル変数をフラグにして終了
  */
 void close_server()
