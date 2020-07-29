@@ -1,5 +1,7 @@
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include "gettext.h"
@@ -11,17 +13,35 @@
 #include <string.h>
 #include <java_random.h>
 #include <time.h>
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
 #include <sys/types.h>
+#ifdef HAVE_NETDB_H
 #include <netdb.h>
+#endif
 #include <unistd.h>
 #include <errno.h>
 #include <iconv.h>
 
 #define SERVER_PORT "6910"
+// C-implemented p2p earthquake
 #define PEER_NAME "cp2peq"
 #define PEER_VERSION "0.0.1-alpha"
 #define SRC "551 5 ABCDEFG:2005/03/27 12-34-56:12時34分頃,3,1,4,紀伊半島沖,ごく浅く,3.2,1,N12.3,E45.6,仙台管区気象台:-奈良県,+2,*下北山村,+1,*十津川村,*奈良川上村\r\n"
+
+struct args
+{
+};
+struct config
+{
+};
+int parseargs(struct args *args, int argc, char **argv);
+void loadconfig();
+void startdaemon();
+void startserver();
+void joinp2pnetwork();
+void connecttopeer();
 
 /**
  * --version
@@ -125,7 +145,7 @@ int main(int argc, char *argv[])
   char writebuf[BUFSIZ];
   snprintf(writebuf, BUFSIZ, "131 1 0.34:%s:%s\r\n", PEER_NAME, PEER_VERSION);
   ssize_t w = write(sock, writebuf, strlen(writebuf));
-  
+
   memset(readbuf, 0, BUFSIZ);
   s = read(sock, readbuf, BUFSIZ);
   printf("%s", readbuf);
