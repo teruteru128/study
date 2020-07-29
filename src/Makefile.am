@@ -105,8 +105,10 @@ cudahello: cudahello.o
 cudamalloctest: cudamalloctest.o
 	$(NVCC) $(cudamalloctest_LDFLAGS) -ccbin $(CC) $< -o $@
 
+studydatadir = $(datadir)/study
+
 # see https://www.gnu.org/software/automake/manual/html_node/Subpackages.html
-AM_CPPFLAGS=-Wall -Wextra -Wdisabled-optimization -I$(top_srcdir)/libstudy/include -DLOCALEDIR='"$(localedir)"'
+AM_CPPFLAGS=-Wall -Wextra -Wdisabled-optimization -I$(top_srcdir)/libstudy/include -DLOCALEDIR='"$(localedir)"' -DSTUDYDATADIR='"$(studydatadir)"'
 CoDec_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 CoDec_SOURCES=CoDec.c CoDec.h
 FizzBuzz_CFLAGS=

@@ -74,6 +74,7 @@ void connecttopeer();
  */
 int main(int argc, char *argv[])
 {
+  /*
   struct timespec ts;
   int r = clock_gettime(CLOCK_REALTIME, &ts);
   if (r != 0)
@@ -169,5 +170,19 @@ int main(int argc, char *argv[])
   s = read(sock, readbuf, BUFSIZ);
   printf("%s", readbuf);
   close(sock);
+  */
+  FILE *in = fopen(STUDYDATADIR "/addressbook.txt", "r");
+  if(!in)
+  {
+    perror("fopen");
+    return EXIT_FAILURE;
+  }
+  char buf[BUFSIZ];
+  while(fgets(buf, BUFSIZ, in) != NULL)
+  {
+    printf("%s", buf);
+    memset(buf, 0, BUFSIZ);
+  }
+  fclose(in);
   return EXIT_SUCCESS;
 }
