@@ -22,6 +22,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_MKDIR_P
+AC_PROG_RANLIB
 AC_PROG_YACC
 
 # Checks for libraries.
@@ -44,7 +45,7 @@ AC_CHECK_LIB([xmlrpc_xmltok], [main], [], [AC_MSG_FAILURE([could not find lib xm
 
 # Checks for header files.
 AC_FUNC_ALLOCA
-AC_CHECK_HEADERS([argz.h arpa/inet.h fcntl.h float.h inttypes.h langinfo.h libintl.h limits.h locale.h malloc.h netdb.h netinet/in.h stddef.h stdint.h stdio_ext.h stdlib.h string.h strings.h sys/ioctl.h sys/param.h sys/socket.h sys/time.h unistd.h wchar.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h libintl.h limits.h locale.h netdb.h netinet/in.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h wchar.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
@@ -52,6 +53,7 @@ AC_C_INLINE
 AC_TYPE_INT32_T
 AC_TYPE_INT64_T
 AC_C_RESTRICT
+AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
 AC_TYPE_UINT16_T
@@ -63,11 +65,12 @@ AC_CHECK_TYPES([ptrdiff_t])
 # Checks for library functions.
 AM_GNU_GETTEXT_VERSION([0.19.8])
 AM_GNU_GETTEXT([external])
+AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_FUNC_MBRTOWC
 AC_FUNC_MMAP
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify clock_gettime getcwd gettimeofday localeconv mblen mbrlen memchr mempcpy memset munmap nl_langinfo regcomp select setlocale socket sqrt stpcpy strcasecmp strchr strcspn strdup strdupa strerror strrchr strstr strtol strtoul strtoull])
+AC_CHECK_FUNCS([clock_gettime getcwd gettimeofday inet_ntoa memchr memset pow setlocale socket sqrt strchr strdup strerror strpbrk strspn strstr strtoull])
 
 AC_CONFIG_FILES([Makefile
                  include/Makefile
