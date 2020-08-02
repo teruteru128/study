@@ -12,6 +12,7 @@ bin_PROGRAMS= \
         bouyomi \
         calc \
         cl \
+        cp2peq \
         cudahello \
         cudamalloctest \
         dappun \
@@ -133,6 +134,8 @@ bouyomi_SOURCES=bouyomi.c bouyomi.h gettext.h
 calc_SOURCES=calc.c
 cl_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 cl_SOURCES=cl.c
+cp2peq_SOURCES=cp2peq.c
+cp2peq_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 cudahello_CFLAGS=-fPIC
 #cudahello_LINK=$(NVCC)
 cudahello_SOURCES=cudahello.cu

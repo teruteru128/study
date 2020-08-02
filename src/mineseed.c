@@ -1,6 +1,6 @@
 
 #include <stdio.h>
-#include <java_random.h>
+#include "java_random.h"
 
 int main(int argc, char const *argv[])
 {

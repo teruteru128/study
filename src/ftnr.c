@@ -2,7 +2,7 @@
 #include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <java_random.h>
+#include "java_random.h"
 #include <time.h>
 #include <math.h>
 #include <sys/time.h>

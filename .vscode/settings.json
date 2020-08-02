@@ -6,6 +6,8 @@
         "*.h": "c",
         "config.rpath": "shellscript",
         "*.cu": "cuda",
-        "*.cuh": "cuda"
+        "*.cuh": "cuda",
+        "typeindex": "c",
+        "typeinfo": "c"
     }
 }
