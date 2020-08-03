@@ -41,27 +41,29 @@
 int main(int argc, char *argv[])
 {
   regex_t line_pattern1;
-  regex_t *line_pattern2 = calloc(1, sizeof(regex_t));
-  regmatch_t match[16];
-  int r = regcomp(line_pattern2, "0[[:digit:]]+", REG_EXTENDED);
+  int r = regcomp(&line_pattern1, "^0[[:digit:]]+$", REG_EXTENDED);
   if(r != 0)
   {
-    return EXIT_FAILURE;
-  }
-  r = regexec(line_pattern2, "0120333906", 16, match, 0);
-  if(r != 0)
-  {
-    size_t len = regerror(r, line_pattern2, NULL, 0);
+    size_t len = regerror(r, &line_pattern1, NULL, 0);
     char *errstr = malloc(len);
-    regerror(r, line_pattern2, errstr, len);
+    regerror(r, &line_pattern1, errstr, len);
     printf("%s\n", errstr);
     free(errstr);
-    regfree(line_pattern2);
-    free(line_pattern2);
+    return EXIT_FAILURE;
+  }
+  regmatch_t match[16];
+  r = regexec(&line_pattern1, "0120333906", 16, match, 0);
+  if(r != 0)
+  {
+    size_t len = regerror(r, &line_pattern1, NULL, 0);
+    char *errstr = malloc(len);
+    regerror(r, &line_pattern1, errstr, len);
+    printf("%s\n", errstr);
+    free(errstr);
+    regfree(&line_pattern1);
     return EXIT_FAILURE;
   }
   printf("%d, %d\n", match->rm_so, match->rm_eo);
-  regfree(line_pattern2);
-  free(line_pattern2);
+  regfree(&line_pattern1);
   return EXIT_SUCCESS;
 }
