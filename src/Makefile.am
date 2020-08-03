@@ -33,6 +33,10 @@ bin_PROGRAMS= \
         firstThread3 \
         firstThread4 \
         firstThread4-1 \
+        fly \
+        fly2 \
+        fly2rwlock \
+        fly3 \
         ftm \
         ftnr \
         gettextsample2 \
@@ -150,6 +154,9 @@ encodersa_CFLAGS=
 encodersa_SOURCES=encodersa.c gettext.h
 falcon_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 falcon_SOURCES=falcon.c
+fly_SOURCES=fly.c
+fly2_SOURCES=fly2.c
+fly2rwlock_SOURCES=fly2.c
 ftnr_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 gettextsample2_CFLAGS=
 gettextsample2_SOURCES=gettextsample2.c gettextsample2.h gettext.h
