@@ -2,16 +2,14 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
 #define WIDTH 78
 #define HEIGHT 23
-#define MAX_FLY 6
-const char *flyMarkList = "o@*+.#";
+#define MAX_FLY 1
 #define DRAW_SYCLE 50
-#define MIN_SPEED 1.0
-#define MAX_SPEED 20.0
 
 int stopRequest;
 
@@ -50,6 +48,22 @@ void moveCursor(int x, int y)
     printf("\033[%d;%dH", y, x); /* このエスケープコードをターミナルに送るとカーソル1がx,yになる。 */
 }
 
+/*
+ * カーソル位置保存
+ */
+void saveCursor()
+{
+    printf("\0337"); /* このエスケープコードをターミナルに送るとカーソル位置を記憶する */
+}
+
+/*
+ * カーソル位置保存
+ */
+void restoreCursor()
+{
+    printf("\0338"); /* このエスケープコードをターミナルに送ると記憶したカーソル位置に戻る */
+}
+
 /* ハエ構造体 */
 typedef struct
 {
@@ -57,41 +71,33 @@ typedef struct
     double x, y;  /* 座標 */
     double angle; /* 移動方向 (角度) */
     double speed; /* 移動速度 (ピクセル/秒) */
+    double destX, destY; /* 目標地点 */
+    int busy; /* 移動中フラグ */
     pthread_mutex_t mutex;
+    pthread_cond_t cond;
 } Fly;
 
 Fly flyList[MAX_FLY];
 
 /* ハエの状態をランダムに初期化 */
-void FlyInitRandom(Fly *fly, char mark_)
+void FlyInitCenter(Fly *fly, char mark_)
 {
     fly->mark = mark_;
-    fly->x = randDouble(0, (double)(WIDTH - 1));
-    fly->y = randDouble(0, (double)(HEIGHT - 1));
-    fly->angle = randDouble(0, M_2_PI);
-    fly->speed = randDouble(MIN_SPEED, MAX_SPEED);
+    fly->x = (double)WIDTH / 2.0;
+    fly->y = (double)HEIGHT / 2.0;
+    fly->angle = 0;
+    fly->speed = 2;
+    fly->destX = fly->x;
+    fly->destY = fly->y;
+    fly->busy = 0;
     pthread_mutex_init(&fly->mutex, NULL);
+    pthread_cond_init(&fly->cond, NULL);
 }
 
-/*
- * ハエ構造体の利用終了
- */
 void FlyDestroy(Fly *fly)
 {
     pthread_mutex_destroy(&fly->mutex);
-}
-
-/*
- * 指定座標から距離を求める
- */
-double FlyDistance(Fly *fly, double x, double y)
-{
-    double dx, dy;
-    pthread_mutex_lock(&fly->mutex);
-    dx = x - fly->x;
-    dy = y - fly->y;
-    pthread_mutex_unlock(&fly->mutex);
-    return hypot(dx, dy);
+    pthread_cond_destroy(&fly->cond);
 }
 
 /* ハエを移動する */
@@ -101,34 +107,7 @@ void FlyMove(Fly *fly)
     pthread_mutex_lock(&fly->mutex);
     fly->x += cos(fly->angle);
     fly->y += sin(fly->angle);
-    if (fly->x < 0)
-    {
-        fly->x = 0;
-        fly->angle = M_PI - fly->angle;
-    }
-    else if (fly->x > WIDTH - 1)
-    {
-        fly->x = WIDTH - 1;
-        fly->angle = M_PI - fly->angle;
-    }
-    if (fly->y < 0)
-    {
-        fly->y = 0;
-        fly->angle = -fly->angle;
-    }
-    else if (fly->y > HEIGHT - 1)
-    {
-        fly->y = HEIGHT - 1;
-        fly->angle = -fly->angle;
-    }
     pthread_mutex_unlock(&fly->mutex);
-    for (i = 0; i < MAX_FLY; i++)
-    {
-        if((flyList[i].mark != fly->mark) && (FlyDistance(&flyList[i], fly->x, fly->y) < 2.0)){
-            fly->angle += M_PI;
-            break;
-        }
-    }
 }
 
 /*
@@ -144,15 +123,78 @@ int FlyIsAt(Fly *fly, int x, int y)
 }
 
 /*
- * ハエを移動する
+ * 目標地点に合わせて移動方向と速度を調整する
  */
+void FlySetDirection(Fly *fly)
+{
+    pthread_mutex_lock(&fly->mutex);
+    double dx = fly->destX-fly->x;
+    double dy = fly->destY-fly->y;
+    fly->angle = atan2(dy, dx);
+    fly->speed = hypot(dx, dy) / 5.0;
+    if(fly->speed < 2)
+        fly->speed = 2;
+    pthread_mutex_unlock(&fly->mutex);
+}
+
+/*
+ * 目標地点までの距離を得る
+ */
+double FlyDistanceToDestination(Fly *fly)
+{
+    double dx, dy;
+    pthread_mutex_lock(&fly->mutex);
+    dx = fly->destX-fly->x;
+    dy = fly->destY-fly->y;
+    pthread_mutex_unlock(&fly->mutex);
+    return hypot(dx, dy);
+}
+
+/*
+ * 目標地点がセットされるまで待つ
+ */
+void FlyWaitForSetDestination(Fly *fly)
+{
+    pthread_mutex_lock(&fly->mutex);
+    if(pthread_cond_wait(&fly->cond, &fly->mutex) != 0)
+    {
+        printf("Fatai error on pthread_cond_wait.\n");
+        exit(1);
+    }
+    pthread_mutex_unlock(&fly->mutex);
+}
+
+/*
+ * ハエの目標地点をセットする
+ */
+int FlySetDestination(Fly *fly, double x, double y)
+{
+    if(fly->busy)
+        return 0;
+    pthread_mutex_lock(&fly->mutex);
+    fly->destX = x;
+    fly->destY = y;
+    pthread_cond_signal(&fly->cond);
+    pthread_mutex_unlock(&fly->mutex);
+    return 1;
+}
+
 void *doMove(void *arg)
 {
     Fly *fly = (Fly *)arg;
     while (!stopRequest)
     {
-        FlyMove(fly);
-        mSleep((int)(1000.0 / fly->speed));
+        fly->busy = 0;
+        FlyWaitForSetDestination(fly);
+        while((FlyDistanceToDestination(fly) < 1))
+            continue;
+        fly->busy = 1;
+        FlySetDirection(fly);
+        while((FlyDistanceToDestination(fly) >= 1) && !stopRequest)
+        {
+            FlyMove(fly);
+            mSleep((int)(1000.0 / fly->speed));
+        }
     }
     return NULL;
 }
@@ -218,31 +260,36 @@ void *doDraw(void *arg)
 int main(int argc, char *argv[])
 {
     pthread_t drawThread;
-    pthread_t moveThread[MAX_FLY];
+    pthread_t moveThread;
     int i;
-    char buf[40];
+    char buf[40] , *cp;
+    double destX, destY;
 
-    srand((unsigned int)time(NULL));
     clearScreen();
-    for (i = 0; i < MAX_FLY; i++)
-    {
-        FlyInitRandom(&flyList[i], flyMarkList[i]);
-    }
+    FlyInitCenter(&flyList[0], '@');
 
-    for (i = 0; i < MAX_FLY; i++)
-    {
-        pthread_create(&moveThread[i], NULL, doMove, (void *)&flyList[i]);
-    }
+    pthread_create(&moveThread, NULL, doMove, (void *)&flyList[0]);
     pthread_create(&drawThread, NULL, doDraw, NULL);
 
-    fgets(buf, sizeof(buf), stdin);
+    /* メインスレッドはなにか入力されるのを待ち、ハエの目標点をセットする */
+    while(1)
+    {
+        printf("Destination? ");
+        fflush(stdout);
+        fgets(buf, sizeof(buf), stdin);
+        if(strncmp(buf, "stop", 4) == 0)
+            break;
+        destX = strtod(buf, &cp);
+        destY = strtod(cp, &cp);
+        if(!FlySetDestination(&flyList[0], destX, destY))
+        {
+            printf("The fly is busy now. Try later.\n");
+        }
+    }
     stopRequest = 1;
 
     pthread_join(drawThread, NULL);
-    for (i = 0; i < MAX_FLY; i++)
-    {
-        pthread_join(moveThread[i], NULL);
-        FlyDestroy(&flyList[i]);
-    }
+    pthread_join(moveThread, NULL);
+    FlyDestroy(&flyList[0]);
     return EXIT_SUCCESS;
 }

@@ -73,6 +73,9 @@ void FlyInitRandom(Fly *fly, char mark_)
     pthread_mutex_init(&fly->mutex, NULL);
 }
 
+/*
+ * ハエ構造体の利用終了
+ */
 void FlyDestroy(Fly *fly)
 {
     pthread_mutex_destroy(&fly->mutex);
@@ -119,6 +122,9 @@ int FlyIsAt(Fly *fly, int x, int y)
     return res;
 }
 
+/*
+ * ハエを移動する
+ */
 void *doMove(void *arg)
 {
     Fly *fly = (Fly *)arg;

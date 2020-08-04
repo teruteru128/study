@@ -12,6 +12,8 @@ bin_PROGRAMS= \
         bouyomi \
         calc \
         cl \
+        condTimedWait \
+        condWait \
         cp2peq \
         cudahello \
         cudamalloctest \
@@ -77,6 +79,9 @@ bin_PROGRAMS= \
         signalsample \
         signalsample2 \
         sntpc \
+        soloFly \
+        soloFly2 \
+        soloFly2-2 \
         string_list_test \
         study \
         sum \
@@ -138,6 +143,8 @@ bouyomi_SOURCES=bouyomi.c bouyomi.h gettext.h
 calc_SOURCES=calc.c
 cl_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 cl_SOURCES=cl.c
+condTimedWait_SOURCES=condTimedWait.c
+condWait_SOURCES=condWait.c
 cp2peq_SOURCES=cp2peq.c
 cp2peq_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 cudahello_CFLAGS=-fPIC
@@ -193,6 +200,9 @@ service_sample_SOURCES=service-sample.c server.c server.h
 sntpc_CFLAGS=
 sntpc_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 sntpc_SOURCES=sntpc.c ntp.c ntp.h
+soloFly_SOURCES=soloFly.c
+soloFly2_SOURCES=soloFly2.c
+soloFly2_2_SOURCES=soloFly2-2.c
 string_list_test_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 string_list_test_SOURCES=string_list_test.c
 study_CFLAGS=

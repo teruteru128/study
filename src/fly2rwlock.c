@@ -73,6 +73,9 @@ void FlyInitRandom(Fly *fly, char mark_)
     pthread_rwlock_init(&fly->rwlock, NULL);
 }
 
+/*
+ * ハエ構造体の利用終了
+ */
 void FlyDestroy(Fly *fly)
 {
     pthread_rwlock_destroy(&fly->rwlock);
@@ -119,6 +122,9 @@ int FlyIsAt(Fly *fly, int x, int y)
     return res;
 }
 
+/*
+ * ハエを移動する
+ */
 void *doMove(void *arg)
 {
     Fly *fly = (Fly *)arg;
