@@ -8,9 +8,12 @@
 #define _(str) gettext(str)
 #include <locale.h>
 #include <regex.h>
+#include <stdint.h>
+#include <minecraft.h>
+#include <time.h>
 
 /* http://tdual.hatenablog.com/entry/2018/05/02/113110 */
-struct searchSpace
+struct searchArea
 {
     int64_t seed_start;
     int64_t seed_end;
@@ -21,11 +24,16 @@ struct searchSpace
     int32_t threshold;
 };
 
+static size_t calcArrayOffset(int32_t x, int32_t z)
+{
+  return (z + 625) * 1250 + x + 625;
+}
+
 void *searchTask(void *arg)
 {
   // 0~624
   // -625 ~ -1
-  size_t index = (z + 625) * 1250 + x + 625;
+  size_t index = calcArrayOffset(0, 0);
   /*
    * 1250z + 1250 * 625 + x + 625
    * = x + 625 (2z + 1251)
@@ -33,7 +41,9 @@ void *searchTask(void *arg)
   size_t word = index >> 6;
   size_t bitindex = index & 0x3f;
   uint64_t set[24415];
-  (set[word] >> bitindex) & 0x01;
+  int64_t ctx;
+  set[word] |= (isSlimeChunk(&ctx, 0, 0, 0) & 0x01) << bitindex;
+  return NULL;
 }
 
 /**
@@ -67,30 +77,46 @@ void *searchTask(void *arg)
  */
 int main(int argc, char *argv[])
 {
-  regex_t line_pattern1;
-  int r = regcomp(&line_pattern1, "^0[[:digit:]]+$", REG_EXTENDED);
-  if(r != 0)
+  uint64_t *set = calloc(24415, sizeof(uint64_t));
+  if(!set)
   {
-    size_t len = regerror(r, &line_pattern1, NULL, 0);
-    char *errstr = malloc(len);
-    regerror(r, &line_pattern1, errstr, len);
-    printf("%s\n", errstr);
-    free(errstr);
-    return EXIT_FAILURE;
+    perror("calloc");
+    return 1;
   }
-  regmatch_t match[16];
-  r = regexec(&line_pattern1, "0120333906", 16, match, 0);
-  if(r != 0)
+
+  // 0~624
+  // -625 ~ -1
+  size_t index = 0;
+  /*
+   * 1250z + 1250 * 625 + x + 625
+   * = x + 625 (2z + 1251)
+   */
+  size_t word = 0;
+  size_t bitindex = 0;
+  struct timespec start;
+  struct timespec end;
+  clock_gettime(CLOCK_REALTIME, &start);
+  int64_t ctx;
+  for(int32_t z = -625; z < 625; z++)
   {
-    size_t len = regerror(r, &line_pattern1, NULL, 0);
-    char *errstr = malloc(len);
-    regerror(r, &line_pattern1, errstr, len);
-    printf("%s\n", errstr);
-    free(errstr);
-    regfree(&line_pattern1);
-    return EXIT_FAILURE;
+    for(int32_t x = -625; x < 625; x++)
+    {
+      index = calcArrayOffset(x, z);
+      word = index >> 6;
+      bitindex = index & 0x3f;
+      //printf("index: %ld, word: %ld, bitindex: %ld\n", index, word, bitindex);
+      set[word] |= (isSlimeChunk(&ctx, 0, x, z) & 0x01) << bitindex;
+    }
   }
-  printf("%d, %d\n", match->rm_so, match->rm_eo);
-  regfree(&line_pattern1);
+  clock_gettime(CLOCK_REALTIME, &end);
+  long nsec = end.tv_nsec - start.tv_nsec;
+  long sec = end.tv_sec - start.tv_sec;
+  if(nsec < 0)
+  {
+    sec -= 1;
+    nsec += 1000000000;
+  }
+  printf("%f\n", sec + (nsec / 1e9));
+  free(set);
   return EXIT_SUCCESS;
 }
