@@ -9,6 +9,33 @@
 #include <locale.h>
 #include <regex.h>
 
+/* http://tdual.hatenablog.com/entry/2018/05/02/113110 */
+struct searchSpace
+{
+    int64_t seed_start;
+    int64_t seed_end;
+    int32_t input_x;
+    int32_t input_z;
+    int32_t kernel_x;
+    int32_t kernel_z;
+    int32_t threshold;
+};
+
+void *searchTask(void *arg)
+{
+  // 0~624
+  // -625 ~ -1
+  size_t index = (z + 625) * 1250 + x + 625;
+  /*
+   * 1250z + 1250 * 625 + x + 625
+   * = x + 625 (2z + 1251)
+   */
+  size_t word = index >> 6;
+  size_t bitindex = index & 0x3f;
+  uint64_t set[24415];
+  (set[word] >> bitindex) & 0x01;
+}
+
 /**
  * --version
  * --help
