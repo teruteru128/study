@@ -22,6 +22,7 @@
 #define ADDRESS_VERSION 4
 #define STREAM_NUMBER 1
 #define J_CACHE_SIZE 126
+#define BLOCK_SIZE 128
 
 #define errchk(v, f)                                                \
     if (!v)                                                         \
@@ -30,6 +31,18 @@
         fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL)); \
         return EXIT_FAILURE;                                        \
     }
+
+static int calcRipe(EVP_MD_CTX *mdctx, const EVP_MD *sha512, const EVP_MD *ripemd160, char *cache64, char *pubSignKey, char *pubEncKey)
+{
+    EVP_DigestInit(mdctx, sha512);
+    EVP_DigestUpdate(mdctx, pubSignKey, PUBLIC_KEY_LENGTH);
+    EVP_DigestUpdate(mdctx, pubEncKey, PUBLIC_KEY_LENGTH);
+    EVP_DigestFinal(mdctx, cache64, NULL);
+    EVP_DigestInit(mdctx, ripemd160);
+    EVP_DigestUpdate(mdctx, cache64, 64);
+    EVP_DigestFinal(mdctx, cache64, NULL);
+    return 0;
+}
 
 /**
  * TODO: リファクタリング
@@ -56,11 +69,14 @@ int main(int argc, char *argv[])
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
     const EVP_MD *sha512md = EVP_sha512();
     const EVP_MD *ripemd160md = EVP_ripemd160();
-    unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
-    unsigned char jPublicKey[PUBLIC_KEY_LENGTH * J_CACHE_SIZE];
+    unsigned char *iPublicKey;
+    unsigned char *jPublicKey;
     unsigned char cache64[EVP_MAX_MD_SIZE];
     size_t i = 0;
+    size_t iPubIndex = 0;
+    size_t ii = 0;
     size_t j = 0;
+    size_t jIndex = 0;
     size_t jj = 0;
     int r = 0;
 
@@ -97,65 +113,33 @@ int main(int argc, char *argv[])
         // jのキャッシュサイズは4つ
         for (i = 0; i < KEY_CACHE_SIZE; i++)
         {
+            iPubIndex = i * PUBLIC_KEY_LENGTH;
+            iPublicKey = publicKeys + iPubIndex;
             // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
-            memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-            EVP_DigestInit(mdctx, sha512md);
-            EVP_DigestUpdate(mdctx, iPublicKey, PUBLIC_KEY_LENGTH);
-            EVP_DigestUpdate(mdctx, iPublicKey, PUBLIC_KEY_LENGTH);
-            EVP_DigestFinal(mdctx, cache64, NULL);
-            EVP_DigestInit(mdctx, ripemd160md);
-            EVP_DigestUpdate(mdctx, cache64, 64);
-            EVP_DigestFinal(mdctx, cache64, NULL);
+            calcRipe(mdctx, sha512md, ripemd160md, cache64, iPublicKey, iPublicKey);
             if (!cache64[0])
             {
-                for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
-                {
-                }
+                for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++);
                 if (nlz >= REQUIRE_NLZ)
-                {
                     exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
-                }
             }
-            for (j = 0; j < i; j += J_CACHE_SIZE)
+            for (j = 0; j < i; j++)
             {
-                memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH * J_CACHE_SIZE);
-                for (jj = 0; jj < J_CACHE_SIZE && (j + jj) < i; jj++)
+                jPublicKey = publicKeys + (j * PUBLIC_KEY_LENGTH);
+                calcRipe(mdctx, sha512md, ripemd160md, cache64, iPublicKey, jPublicKey);
+                if (!cache64[0])
                 {
-                    EVP_DigestInit(mdctx, sha512md);
-                    EVP_DigestUpdate(mdctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                    EVP_DigestUpdate(mdctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-                    EVP_DigestFinal(mdctx, cache64, NULL);
-                    EVP_DigestInit(mdctx, ripemd160md);
-                    EVP_DigestUpdate(mdctx, cache64, 64);
-                    EVP_DigestFinal(mdctx, cache64, NULL);
-                    if (!cache64[0])
-                    {
-                        for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
-                        {
-                        }
-                        if (nlz >= REQUIRE_NLZ)
-                        {
-                            exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), cache64);
-                        }
-                    }
-                    EVP_DigestInit(mdctx, sha512md);
-                    EVP_DigestUpdate(mdctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-                    EVP_DigestUpdate(mdctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                    EVP_DigestFinal(mdctx, cache64, NULL);
-                    EVP_DigestInit(mdctx, ripemd160md);
-                    EVP_DigestUpdate(mdctx, cache64, 64);
-                    EVP_DigestFinal(mdctx, cache64, NULL);
-                    if (!cache64[0])
-                    {
-                        for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
-                        {
-                        }
-                        if (nlz >= REQUIRE_NLZ)
-                        {
-                            exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
-                        }
-                    }
-                } // jj
+                    for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++);
+                    if (nlz >= REQUIRE_NLZ)
+                        exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, cache64);
+                }
+                calcRipe(mdctx, sha512md, ripemd160md, cache64, jPublicKey, iPublicKey);
+                if (!cache64[0])
+                {
+                    for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++);
+                    if (nlz >= REQUIRE_NLZ)
+                        exportAddress(privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+                }
             }
         }
     }
