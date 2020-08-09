@@ -14,10 +14,11 @@
 #include <openssl/evp.h>
 #include <random.h>
 #include <bm.h>
+#include <pthread.h>
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
-#define KEY_CACHE_SIZE 4096ULL
+#define KEY_CACHE_SIZE 67108864ULL
 #define REQUIRE_NLZ 4
 #define ADDRESS_VERSION 4
 #define STREAM_NUMBER 1
@@ -44,28 +45,27 @@ static int calcRipe(EVP_MD_CTX *mdctx, const EVP_MD *sha512, const EVP_MD *ripem
     return 0;
 }
 
-/**
- * TODO: リファクタリング
- * TODO: 鍵キャッシュサーバー
- * TODO: 既存鍵を使ってアドレス探索
- */
-int main(int argc, char *argv[])
+struct searchArg
 {
-    setlocale(LC_ALL, "");
-    bindtextdomain(PACKAGE, LOCALEDIR);
-    textdomain(PACKAGE);
-    unsigned char *privateKeys = calloc(KEY_CACHE_SIZE, PRIVATE_KEY_LENGTH);
-    if (!privateKeys)
-    {
-        perror("calloc(privateKeys)");
-        return EXIT_FAILURE;
-    }
-    unsigned char *publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
-    if (!publicKeys)
-    {
-        perror("calloc(publicKeys)");
-        return EXIT_FAILURE;
-    }
+    unsigned char *privateKeys;
+    size_t priKeyNmemb;
+    unsigned char *publicKeys;
+    size_t pubKeyNmemb;
+    size_t ibegin;
+    size_t iend;
+    size_t jbegin;
+    size_t jend;
+    size_t minExportThreshold;
+};
+
+void *searchAddress(void *arg)
+{
+    struct searchArg *searchArg = (struct searchArg *)arg;
+    if (!searchAddress)
+        return NULL;
+
+    unsigned char *privateKeys = searchArg->privateKeys;
+    unsigned char *publicKeys = searchArg->publicKeys;
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
     const EVP_MD *sha512md = EVP_sha512();
     const EVP_MD *ripemd160md = EVP_ripemd160();
@@ -79,78 +79,99 @@ int main(int argc, char *argv[])
     size_t jIndex = 0;
     size_t jj = 0;
     int r = 0;
-
-    // curve 生成
-    EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
-    errchk(secp256k1, EC_GROUP_new_by_curve_name);
-    // private key working area
-    BIGNUM *prikey = BN_new();
-    errchk(prikey, BN_new);
-    // public key working area
-    EC_POINT *pubkey = EC_POINT_new(secp256k1);
-    errchk(pubkey, EC_POINT_new);
-    BN_CTX *ctx = BN_CTX_new();
-    errchk(ctx, BN_CTX_new);
-    BIGNUM *tmp = NULL;
     size_t nlz = 0;
-    while (true)
+
+    for (i = 0; i < KEY_CACHE_SIZE; i++)
     {
-        fprintf(stderr, _("Initializing private key...\n"));
-        nextBytes(privateKeys, KEY_CACHE_SIZE * PRIVATE_KEY_LENGTH);
-        fprintf(stderr, _("Initialized the private key. Initialize the public key.\n"));
-        // 公開鍵の生成に非常に時間がかかるので注意。秒速9000鍵で30分程度
-        for (i = 0; i < KEY_CACHE_SIZE; i++)
+        iPubIndex = i * PUBLIC_KEY_LENGTH;
+        iPublicKey = publicKeys + iPubIndex;
+        // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
+        calcRipe(mdctx, sha512md, ripemd160md, cache64, iPublicKey, iPublicKey);
+        if (!cache64[0])
         {
-            tmp = BN_bin2bn(privateKeys + (i * PRIVATE_KEY_LENGTH), PRIVATE_KEY_LENGTH, prikey);
-            errchk(tmp, BN_bin2bn);
-            r = EC_POINT_mul(secp256k1, pubkey, prikey, NULL, NULL, ctx);
-            errchk(r, EC_POINT_mul);
-            r = EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH, ctx);
-            errchk(r, EC_POINT_point2oct);
+            for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++);
+            if (nlz >= REQUIRE_NLZ)
+                exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
         }
-        fprintf(stderr, _("The public key initialization is complete.\n"));
-        // iのキャッシュサイズは一つ
-        // jのキャッシュサイズは4つ
-        for (i = 0; i < KEY_CACHE_SIZE; i++)
+        for (j = 0; j < i; j++)
         {
-            iPubIndex = i * PUBLIC_KEY_LENGTH;
-            iPublicKey = publicKeys + iPubIndex;
-            // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
-            calcRipe(mdctx, sha512md, ripemd160md, cache64, iPublicKey, iPublicKey);
+            jPublicKey = publicKeys + (j * PUBLIC_KEY_LENGTH);
+            calcRipe(mdctx, sha512md, ripemd160md, cache64, iPublicKey, jPublicKey);
             if (!cache64[0])
             {
                 for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++);
                 if (nlz >= REQUIRE_NLZ)
-                    exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
+                    exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, cache64);
             }
-            for (j = 0; j < i; j++)
+            calcRipe(mdctx, sha512md, ripemd160md, cache64, jPublicKey, iPublicKey);
+            if (!cache64[0])
             {
-                jPublicKey = publicKeys + (j * PUBLIC_KEY_LENGTH);
-                calcRipe(mdctx, sha512md, ripemd160md, cache64, iPublicKey, jPublicKey);
-                if (!cache64[0])
-                {
-                    for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++);
-                    if (nlz >= REQUIRE_NLZ)
-                        exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, cache64);
-                }
-                calcRipe(mdctx, sha512md, ripemd160md, cache64, jPublicKey, iPublicKey);
-                if (!cache64[0])
-                {
-                    for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++);
-                    if (nlz >= REQUIRE_NLZ)
-                        exportAddress(privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
-                }
+                for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++);
+                if (nlz >= REQUIRE_NLZ)
+                    exportAddress(privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
             }
         }
     }
+    EVP_MD_CTX_free(mdctx);
+    return NULL;
+}
+
+/**
+ * TODO: リファクタリング
+ * TODO: 鍵キャッシュサーバー
+ * TODO: 既存鍵を使ってアドレス探索
+ */
+int main(int argc, char *argv[])
+{
+    setlocale(LC_ALL, "");
+    bindtextdomain(PACKAGE, LOCALEDIR);
+    textdomain(PACKAGE);
+    unsigned char *publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
+    if (!publicKeys)
+    {
+        perror("calloc(publicKeys)");
+        return EXIT_FAILURE;
+    }
+    {
+        FILE *fin = fopen("publicKeys.bin", "rb");
+        if(fin == NULL)
+        {
+            free(publicKeys);
+            exit(EXIT_FAILURE);
+        }
+        size_t l = fread(publicKeys, PUBLIC_KEY_LENGTH, KEY_CACHE_SIZE, fin);
+        fclose(fin);
+    }
+    pthread_t pthreads[4];
+    /*
+     * 67108864
+     * 67108864(67108864+1)/2 = 2251799847239680
+     * x(x+1)/2 = 562949961809920
+     * x≈33554432
+     * x≈47453132
+     * x≈58117980
+     * threads[0]:0<=x<33554432
+     * threads[1]:33554432<=x<47453132
+     * threads[2]:47453132<=x<58117980
+     * threads[3]:58117980<=x<67108864
+     */
+    size_t jbegins[4] = {0, 33554432, 47453132, 58117980};
+    size_t jends[4] = {33554432, 47453132, 58117980, 67108864};
+    struct searchArg arg[4];
+    for(size_t i = 0; i < 4; i++)
+    {
+        arg[i].privateKeys = NULL;
+        arg[i].priKeyNmemb = 0;
+        arg[i].publicKeys = publicKeys;
+        arg[i].pubKeyNmemb = 67108864;
+        arg[i].ibegin = 0;
+        arg[i].iend = 67108864;
+        arg[i].jbegin = jbegins[i];
+        arg[i].jend = jends[i];
+    }
     /* DEAD CODE ***********************/
     //shutdown:
-    free(privateKeys);
+    //free(privateKeys);
     free(publicKeys);
-    BN_free(prikey);
-    BN_CTX_free(ctx);
-    EC_POINT_free(pubkey);
-    EC_GROUP_free(secp256k1);
-    EVP_MD_CTX_free(mdctx);
     return EXIT_SUCCESS;
 }
