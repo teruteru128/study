@@ -15,13 +15,13 @@
 /* http://tdual.hatenablog.com/entry/2018/05/02/113110 */
 struct searchArea
 {
-    int64_t seed_start;
-    int64_t seed_end;
-    int32_t input_x;
-    int32_t input_z;
-    int32_t kernel_x;
-    int32_t kernel_z;
-    int32_t threshold;
+  int64_t seed_start;
+  int64_t seed_end;
+  int32_t input_x;
+  int32_t input_z;
+  int32_t kernel_x;
+  int32_t kernel_z;
+  int32_t threshold;
 };
 
 static size_t calcArrayOffset(int32_t x, int32_t z)
@@ -78,7 +78,7 @@ void *searchTask(void *arg)
 int main(int argc, char *argv[])
 {
   uint64_t *set = calloc(24415, sizeof(uint64_t));
-  if(!set)
+  if (!set)
   {
     perror("calloc");
     return 1;
@@ -97,9 +97,9 @@ int main(int argc, char *argv[])
   struct timespec end;
   clock_gettime(CLOCK_REALTIME, &start);
   int64_t ctx;
-  for(int32_t z = -625; z < 625; z++)
+  for (int32_t z = -625; z < 625; z++)
   {
-    for(int32_t x = -625; x < 625; x++)
+    for (int32_t x = -625; x < 625; x++)
     {
       index = calcArrayOffset(x, z);
       word = index >> 6;
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
   clock_gettime(CLOCK_REALTIME, &end);
   long nsec = end.tv_nsec - start.tv_nsec;
   long sec = end.tv_sec - start.tv_sec;
-  if(nsec < 0)
+  if (nsec < 0)
   {
     sec -= 1;
     nsec += 1000000000;
