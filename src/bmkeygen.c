@@ -89,7 +89,8 @@ void *searchAddress(void *arg)
         calcRipe(mdctx, sha512md, ripemd160md, cache64, iPublicKey, iPublicKey);
         if (!cache64[0])
         {
-            for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++);
+            for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
+                ;
             if (nlz >= REQUIRE_NLZ)
                 exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
         }
@@ -99,14 +100,16 @@ void *searchAddress(void *arg)
             calcRipe(mdctx, sha512md, ripemd160md, cache64, iPublicKey, jPublicKey);
             if (!cache64[0])
             {
-                for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++);
+                for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
+                    ;
                 if (nlz >= REQUIRE_NLZ)
                     exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, cache64);
             }
             calcRipe(mdctx, sha512md, ripemd160md, cache64, jPublicKey, iPublicKey);
             if (!cache64[0])
             {
-                for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++);
+                for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
+                    ;
                 if (nlz >= REQUIRE_NLZ)
                     exportAddress(privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
             }
@@ -134,7 +137,7 @@ int main(int argc, char *argv[])
     }
     {
         FILE *fin = fopen("publicKeys.bin", "rb");
-        if(fin == NULL)
+        if (fin == NULL)
         {
             free(publicKeys);
             exit(EXIT_FAILURE);
@@ -158,7 +161,7 @@ int main(int argc, char *argv[])
     size_t jbegins[4] = {0, 33554432, 47453132, 58117980};
     size_t jends[4] = {33554432, 47453132, 58117980, 67108864};
     struct searchArg arg[4];
-    for(size_t i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         arg[i].privateKeys = NULL;
         arg[i].priKeyNmemb = 0;
