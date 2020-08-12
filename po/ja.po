@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-07-23 15:19+0900\n"
+"POT-Creation-Date: 2020-08-12 13:28+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -17,21 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-
-#: src/bmkeygen.c:82
-#, c-format
-msgid "Initializing private key...\n"
-msgstr "秘密鍵を初期化しています...\n"
-
-#: src/bmkeygen.c:84
-#, c-format
-msgid "Initialized the private key. Initialize the public key.\n"
-msgstr "秘密鍵を初期化しました。公開鍵を初期化します。\n"
-
-#: src/bmkeygen.c:95
-#, c-format
-msgid "The public key initialization is complete.\n"
-msgstr "公開鍵の初期化が完了しました。\n"
 
 #: src/bouyomi.c:94
 #, c-format
@@ -132,6 +117,15 @@ msgstr "1回あたり %e秒\n"
 #, c-format
 msgid "verifier : %<PRIu64>\n"
 msgstr "検証子 : %<PRIu64>\n"
+
+#~ msgid "Initializing private key...\n"
+#~ msgstr "秘密鍵を初期化しています...\n"
+
+#~ msgid "Initialized the private key. Initialize the public key.\n"
+#~ msgstr "秘密鍵を初期化しました。公開鍵を初期化します。\n"
+
+#~ msgid "The public key initialization is complete.\n"
+#~ msgstr "公開鍵の初期化が完了しました。\n"
 
 #~ msgid "Help me!\n"
 #~ msgstr "助けて！\n"
