@@ -56,6 +56,7 @@ bin_PROGRAMS= \
         mappingsample \
         maxmovingsum \
         mineseed \
+        mysqlaccesssample \
         mysqlfast \
         portscanner \
         potest \
@@ -180,6 +181,7 @@ localetest2_SOURCES=localetest2.c
 mappingsample_SOURCES=mappingsample.c
 maxmovingsum_SOURCES=maxmovingsum.c
 mineseed_LDADD=$(top_builddir)/libstudy/src/libstudy.la
+mysqlaccesssample_SOURCES=mysqlaccesssample.c
 portscanner_SOURCES=portscanner.c
 prime2_SOURCES=prime2.c
 prime3_SOURCES=prime3.c

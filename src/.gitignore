@@ -53,6 +53,7 @@ loop-bench
 mappingsample
 maxmovingsum
 mineseed
+mysqlaccesssample
 mysqlfast
 portscanner
 potest

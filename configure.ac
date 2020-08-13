@@ -29,6 +29,7 @@ AC_PROG_YACC
 AC_CHECK_LIB([crypto], [main], [], [AC_MSG_FAILURE([could not find lib crypto])])
 AC_CHECK_LIB([curl], [main], [], [AC_MSG_FAILURE([could not find lib curl])])
 AC_CHECK_LIB([m], [main], [], [AC_MSG_FAILURE([could not find lib m])])
+AC_CHECK_LIB([mysqlclient], [main], [], [AC_MSG_FAILURE([could not find lib mysqlclient])])
 AC_CHECK_LIB([pthread], [main], [], [AC_MSG_FAILURE([could not find lib pthread])])
 AC_CHECK_LIB([sodium], [main], [], [AC_MSG_FAILURE([could not find lib sodium])])
 AC_CHECK_LIB([ssl], [main], [], [AC_MSG_FAILURE([could not find lib ssl])])
