@@ -5,10 +5,10 @@
 #include <string.h>
 #include <mysql/mysql.h>
 
-#define SQL_SERV "localhost"
 #define USER "user"
 #define PASSWD "advanforce"
 #define DB_NAME "sandbox"
+#define UNIX_SOCKET_PATH "/var/run/mysqld/mysqld.sock"
 
 /*
  * https://qiita.com/Ki4mTaria/items/778ff9186bb4958bb667
@@ -24,7 +24,7 @@ int main(void)
 
   // mysql接続
   conn = mysql_init(NULL);
-  if (!mysql_real_connect(conn, SQL_SERV, USER, PASSWD, DB_NAME, 0, NULL, 0))
+  if (!mysql_real_connect(conn, NULL, USER, PASSWD, DB_NAME, 0, UNIX_SOCKET_PATH, 0))
   {
     fprintf(stderr, "%s\n", mysql_error(conn));
     // error
