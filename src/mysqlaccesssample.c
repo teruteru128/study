@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mysql/mysql.h>
+
+/*
+ * https://qiita.com/Ki4mTaria/items/778ff9186bb4958bb667
+ */
 int main(void){
   MYSQL *conn     = NULL;
   MYSQL_RES *resp = NULL;
@@ -14,7 +18,7 @@ int main(void){
   char *passwd    = "advanforce";
   char *db_name   = "sandbox";
 
-  memset( &sql_str[0] , 0x00 , sizeof(sql_str) );
+  memset(sql_str , 0, sizeof(sql_str));
 
   // mysql接続
   conn = mysql_init(NULL);
