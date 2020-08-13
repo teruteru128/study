@@ -102,6 +102,7 @@ bin_PROGRAMS= \
         yattaze
 
 # TODO: *.cuをコンパイルするときだけNVCCを使いたい
+# EXTRA_DISTとCLEANFILESを使えばうまくいくのでは？
 # https://tschoonj.github.io/blog/2014/05/10/building-a-cuda-device-function-library-with-autotools/
 # :thinking:?
 NVCC=nvcc
@@ -109,10 +110,10 @@ NVCC=nvcc
 .cu.o:
 	$(NVCC) $(DEFAULT_INCLUDES) $(INCLUDES) -I$(top_srcdir)/libstudy/include -ccbin $(CC) -c $< -o $@
 
-cudahello: cudahello.o
+cudahello$(EXEEXT): cudahello.o
 	$(NVCC) $(cudahello_LDFLAGS) -ccbin $(CC) $< -o $@
 
-cudamalloctest: cudamalloctest.o
+cudamalloctest$(EXEEXT): cudamalloctest.o
 	$(NVCC) $(cudamalloctest_LDFLAGS) -ccbin $(CC) $< -o $@
 
 studydatadir = $(datadir)/study
@@ -152,7 +153,6 @@ cudahello_CFLAGS=-fPIC
 cudahello_SOURCES=cudahello.cu
 cudamalloctest_CFLAGS=-fPIC
 cudamalloctest_SOURCES=cudamalloctest.cu
-curltest_SOURCES=curltest.c
 dragon_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 dragon_SOURCES=dragon.c
 eckeygentest_CFLAGS=
