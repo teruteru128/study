@@ -90,6 +90,7 @@ bin_PROGRAMS= \
 	teamspeakIdUpgrader \
 	teamspeakcalc \
 	threadAttr \
+	threadcount \
 	tsidimprover \
 	tsidshowsample \
 	tweet \
@@ -234,6 +235,7 @@ teamspeakIdUpgrader_SOURCES=teamspeakIdUpgrader.c
 teamspeakcalc_CFLAGS=
 teamspeakcalc_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 teamspeakcalc_SOURCES=teamspeakcalc.c
+threadcount_SOURCES=threadcount.c
 tsidimprover_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 tsidimprover_SOURCES=tsidimprover.c
 tsidshowsample_SOURCES=tsidshowsample.c
