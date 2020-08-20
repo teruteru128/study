@@ -51,5 +51,6 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  pthread_attr_destroy(&attr);
   return EXIT_SUCCESS;
 }
