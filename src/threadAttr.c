@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#define SIZE 10000000
+#define SIZE 16777216
 
 void *threadFunc(void *arg)
 {
@@ -33,7 +33,11 @@ int main(int argc, char *argv[])
 
   pthread_attr_init(&attr);
 
-  if (pthread_attr_setstacksize(&attr, SIZE * sizeof(double) + 100000) != 0)
+  size_t stacksize;
+  pthread_attr_getstacksize(&attr, &stacksize);
+  printf("%lu\n", stacksize);
+
+  if (pthread_attr_setstacksize(&attr, SIZE * sizeof(double) + stacksize) != 0)
   {
     perror("Failed to set stack size.");
     return EXIT_FAILURE;
