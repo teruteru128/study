@@ -197,6 +197,7 @@ localetest1_SOURCES=localetest1.c localetest1.h
 localetest2_SOURCES=localetest2.c
 mappingsample_SOURCES=mappingsample.c
 maxmovingsum_SOURCES=maxmovingsum.c
+maxmovingsum_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 mineseed_LDADD=$(top_builddir)/libstudy/src/libstudy.la
 mysqlaccesssample_SOURCES=mysqlaccesssample.c
 mysqlaccesssample2_SOURCES=mysqlaccesssample2.c
