@@ -20,8 +20,25 @@
  * 出力配列は呼び出し側で確保する？(int *outarray, size_t outarraysize)
  * 呼び出された側？(int **outarray, size_t *outarraysize)もしくは返り値でint *を返す？
  */
-void moving_sum(int *array, const size_t datasize, const size_t windowsize)
+int moving_sum(int *inarray, const size_t datasize, const size_t windowsize, int *outarray, size_t outarraysize)
 {
+  if(inarray == NULL || datasize == 0 || windowsize == 0 || outarray == NULL || outarraysize == 0)
+  {
+    return 1;
+  }
+  int sum = 0;
+  for(size_t i = 0; i < windowsize; i++)
+  {
+    sum += inarray[i];
+  }
+  outarray[0] = sum;
+  for(size_t i = windowsize; i < datasize; i++)
+  {
+    sum -= inarray[i - windowsize];
+    sum += inarray[i];
+    outarray[i - windowsize + 1] = sum;
+  }
+  return 0;
 }
 
 /* 移動平均 */
