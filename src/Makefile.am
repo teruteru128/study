@@ -17,6 +17,7 @@ bin_PROGRAMS= \
 	cp2peq \
 	cudahello \
 	cudamalloctest \
+	curltest \
 	dappun \
 	doublerandom \
 	dragon \
