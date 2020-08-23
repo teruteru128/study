@@ -89,7 +89,7 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
   ssize_t w = 0;
   // 送信
   w = write(sock, data, len);
-  if (len != w)
+  if (w <= 0)
   {
     fprintf(stderr, _("Error!\n"));
   }
@@ -142,6 +142,19 @@ int main(int argc, char *argv[])
   /*
    * https://github.com/torproject/tor/blob/03867b3dd71f765e5adb620095692cb41798c273/src/app/config/config.c#L2537
    * parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_errors)
+   * --host
+   * --port
+   * --command
+   * --speed
+   * --tone
+   * --volume
+   * --voice
+   * args *new_args();
+   * call_bouyomi(int argc, char **argv);
+   *  parseargs
+   *  buildrequest
+   *  chooseserver
+   *  sendtoserver
    */
   /*
      {
@@ -194,14 +207,39 @@ int main(int argc, char *argv[])
    i += want_arg ? 2: 1;
    }
    }*/
-  char *in = NULL;
-  if (argc >= 2)
+  char *in = malloc(1);
+  in[0] = 0;
+  char *tmp = NULL;
+  size_t strlength = 0;
+  size_t len = 0;
+  char buf[BUFSIZ];
+  while(fgets(buf, BUFSIZ, stdin) != NULL)
   {
-    in = argv[1];
+    len = strlen(buf);
+    if(len == 0)
+    {
+      continue;
+    }
+    tmp = realloc(in, strlength + len + 1);
+    if(!tmp)
+    {
+      exit(EXIT_FAILURE);
+    }
+    in = tmp;
+    strlength += len;
+    strcat(in, buf);
   }
-  else
+  if(strlength == 0)
   {
-    in = "やったぜ。　投稿者：変態糞土方 (8月16日（水）07時14分22秒)\n昨日の8月15日にいつもの浮浪者のおっさん（60歳）と先日メールくれた汚れ好きの土方のにいちゃん\n（45歳）とわし（53歳）の3人で県北にある川の土手の下で盛りあったぜ。\n今日は明日が休みなんでコンビニで酒とつまみを買ってから滅多に人が来ない所なんで、\nそこでしこたま酒を飲んでからやりはじめたんや。\n3人でちんぽ舐めあいながら地下足袋だけになり持って来たいちぢく浣腸を3本ずつ入れあった。\nしばらくしたら、けつの穴がひくひくして来るし、糞が出口を求めて腹の中でぐるぐるしている。\n浮浪者のおっさんにけつの穴をなめさせながら、兄ちゃんのけつの穴を舐めてたら、\n先に兄ちゃんがわしの口に糞をドバーっと出して来た。\nそれと同時におっさんもわしも糞を出したんや。もう顔中、糞まみれや、\n3人で出した糞を手で掬いながらお互いの体にぬりあったり、\n糞まみれのちんぽを舐めあって小便で浣腸したりした。ああ～～たまらねえぜ。\nしばらくやりまくってから又浣腸をしあうともう気が狂う程気持ちええんじゃ。\n浮浪者のおっさんのけつの穴にわしのちんぽを突うずるっ込んでやると\nけつの穴が糞と小便でずるずるして気持ちが良い。\nにいちゃんもおっさんの口にちんぽ突っ込んで腰をつかって居る。\n糞まみれのおっさんのちんぽを掻きながら、思い切り射精したんや。\nそれからは、もうめちゃくちゃにおっさんと兄ちゃんの糞ちんぽを舐めあい、\n糞を塗りあい、二回も男汁を出した。もう一度やりたいぜ。\nやはり大勢で糞まみれになると最高やで。こんな、変態親父と糞あそびしないか。\nああ～～早く糞まみれになろうぜ。\n岡山の県北であえる奴なら最高や。わしは163*90*53,おっさんは165*75*60、や\n糞まみれでやりたいやつ、至急、メールくれや。\n土方姿のまま浣腸して、糞だらけでやろうや。";
+    len = strlen("やったぜ。");
+    tmp = realloc(in, strlength + len + 1);
+    if(!tmp)
+    {
+      exit(EXIT_FAILURE);
+    }
+    in = tmp;
+    strlength += len;
+    strcat(in, "やったぜ。");
   }
   charset charset = UTF_8;
   char *out = NULL;
@@ -232,6 +270,7 @@ int main(int argc, char *argv[])
     break;
   }
 
+  free(in);
   if (out == NULL)
   {
     perror("out encode OR copy failed");
@@ -240,7 +279,6 @@ int main(int argc, char *argv[])
 
   // TODO: encode関数に分離
   // 棒読みちゃん向けにエンコード
-  char header[15];
   short command = 1;
   short speed = -1;
   short tone = -1;
@@ -252,23 +290,22 @@ int main(int argc, char *argv[])
   // なぜhtonsなしで読み上げできるのか謎
   // 棒読みちゃんはリトルエンディアン指定だそうです
   // c#サンプルでBinaryWriterを使ってたから本体でもBinaryReader使ってるんじゃないんですか？知らんけど
-  *((short *)&header[0]) = command;
-  *((short *)&header[2]) = speed;
-  *((short *)&header[4]) = tone;
-  *((short *)&header[6]) = volume;
-  *((short *)&header[8]) = voice;
-  *((char *)&header[10]) = encode;
-  *((int *)&header[11]) = length;
 
   size_t send_len = 15 + length;
   char *send_buf = malloc(send_len);
-  memcpy(send_buf, header, 15);
+  *((short *)&send_buf[0]) = command;
+  *((short *)&send_buf[2]) = speed;
+  *((short *)&send_buf[4]) = tone;
+  *((short *)&send_buf[6]) = volume;
+  *((short *)&send_buf[8]) = voice;
+  *((char *)&send_buf[10]) = encode;
+  *((int *)&send_buf[11]) = length;
   memcpy(send_buf + 15, out, length);
   free(out);
 
   char *servAddr = ONION_SERV_ADDRESS;
   char *servPortStr = DEFAULT_PORT_STR;
-  int use_onion = 1;
+  int use_onion = 0;
   if (use_onion == 1)
   {
     servAddr = ONION_SERV_ADDRESS;
