@@ -14,7 +14,9 @@
 #define DEFAULT_SERV_ADDRESS6 "::1"
 #define ONION_SERV_ADDRESS "2ayu6gqru3xzfzbvud64ezocamykp56kunmkzveqmuxvout2yubeeuad.onion"
 
-// アライメントが入るためそのまま送信してはいけない
+/**
+ * アライメントが入るためそのまま送信してはいけない
+ */
 typedef struct bouyomi_header_t
 {
   short command;
@@ -27,6 +29,9 @@ typedef struct bouyomi_header_t
   int32_t length;
 } bouyomi_header;
 
+/**
+ * アライメントが入るためそのまま送信してはいけない
+ */
 typedef struct bouyomi_conf_t
 {
   short command;
@@ -35,16 +40,28 @@ typedef struct bouyomi_conf_t
   short volume;
   short voice;
   char encode;
-  size_t length;
-  char *msg;
+  int32_t length;
 } bouyomi_conf;
 
-typedef struct config_line_t
+typedef struct a
+{
+  short command;
+  short speed;
+  short tone;
+  short volume;
+  short voice;
+  char encode;
+  int32_t length;
+  char *msg;
+} bouyomi_conf_a;
+
+struct config_line_t;
+struct config_line_t
 {
   char *key;
   char *value;
   struct config_line_t *next;
-} config_line_t;
+};
 
 typedef enum charset_t
 {

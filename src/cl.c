@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   if (argc != 3)
   {
     fprintf(stderr, "usage: %s nodename servname\n", argv[0]);
-    return -1;
+    return EXIT_FAILURE;
   }
 
   /* 引数で指定されたアドレス、ポート番号からアドレス情報を得る */
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   if (rc != 0)
   {
     fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(rc));
-    return -1;
+    return EXIT_FAILURE;
   }
 
   char buf[BUFSIZ];
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
   {
     perror("write 1");
     close(sock);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   /* サーバからの応答を表示する */
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
   {
     perror("write 2");
     close(sock);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   close(sock);

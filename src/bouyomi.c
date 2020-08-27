@@ -1,7 +1,7 @@
 /*
-    今回: https://qiita.com/tajima_taso/items/13b5662aca1f68fc6e8e
-    前回: https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
-*/
+ * 今回: https://qiita.com/tajima_taso/items/13b5662aca1f68fc6e8e
+ * 前回: https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
+ */
 
 #include "config.h"
 #include "gettext.h"
@@ -46,7 +46,9 @@
 #include <unistd.h> //close()
 #endif
 
-/**/
+/**
+ * 
+ */
 int send_to_server(char *hostname, char *servicename, char *data, size_t len)
 {
   struct addrinfo hints, *res = NULL;
@@ -88,14 +90,13 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
 
   ssize_t w = 0;
   // 送信
-  w = write(sock, data, len);
-  if (w <= 0)
+  if ((w = write(sock, data, len)) <= 0)
   {
-    fprintf(stderr, _("Error!\n"));
+    fprintf(stderr, _("Error! %s\n"), strerror(errno));
   }
   else
   {
-    fprintf(stderr, _("Sent!\n"));
+    fprintf(stderr, _("Sent! %ld\n"), w);
   }
   // ソケットを閉じる
   rc = close(sock);
@@ -123,6 +124,8 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
  * server(host & port)
  * charset
  * proxyは外部で対処
+ * 
+ * bouyomic *bouyomi_client_new();
  */
 int main(int argc, char *argv[])
 {
@@ -213,27 +216,29 @@ int main(int argc, char *argv[])
   size_t strlength = 0;
   size_t len = 0;
   char buf[BUFSIZ];
-  while(fgets(buf, BUFSIZ, stdin) != NULL)
+  if(!isatty(fileno(stdin))){
+  while (fgets(buf, BUFSIZ, stdin) != NULL)
   {
     len = strlen(buf);
-    if(len == 0)
+    if (len == 0)
     {
       continue;
     }
     tmp = realloc(in, strlength + len + 1);
-    if(!tmp)
+    if (!tmp)
     {
       exit(EXIT_FAILURE);
     }
     in = tmp;
+    strcat(in + strlength, buf);
     strlength += len;
-    strcat(in, buf);
   }
-  if(strlength == 0)
+  }
+  if (strlength == 0)
   {
     len = strlen("やったぜ。");
     tmp = realloc(in, strlength + len + 1);
-    if(!tmp)
+    if (!tmp)
     {
       exit(EXIT_FAILURE);
     }
@@ -241,6 +246,9 @@ int main(int argc, char *argv[])
     strlength += len;
     strcat(in, "やったぜ。");
   }
+  /*
+   * 文字コード変換
+   */
   charset charset = UTF_8;
   char *out = NULL;
   char encode = 0;
@@ -277,12 +285,14 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  // TODO: encode関数に分離
-  // 棒読みちゃん向けにエンコード
+  /*
+   * TODO: encode関数に分離
+   * 棒読みちゃん向けにエンコード
+   */
   short command = 1;
   short speed = -1;
   short tone = -1;
-  short volume = 200;
+  short volume = -1;
   short voice = 0;
   size_t length = strlen(out);
   fprintf(stderr, "length : %ld\n", length);
@@ -303,18 +313,18 @@ int main(int argc, char *argv[])
   memcpy(send_buf + 15, out, length);
   free(out);
 
-  char *servAddr = ONION_SERV_ADDRESS;
-  char *servPortStr = DEFAULT_PORT_STR;
+  char servAddr[NI_MAXHOST] = ONION_SERV_ADDRESS;
+  char servPortStr[NI_MAXSERV] = DEFAULT_PORT_STR;
   int use_onion = 0;
   if (use_onion == 1)
   {
-    servAddr = ONION_SERV_ADDRESS;
+    strncpy(servAddr, ONION_SERV_ADDRESS, NI_MAXHOST);
   }
   else
   {
-    servAddr = DEFAULT_SERV_ADDRESS;
+    strncpy(servAddr, DEFAULT_SERV_ADDRESS, NI_MAXHOST);
   }
   rc = send_to_server(servAddr, servPortStr, send_buf, send_len);
   free(send_buf);
-  return EXIT_SUCCESS;
+  return rc;
 }

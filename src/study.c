@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "gettext.h"
 #define _(str) gettext(str)
+#include "bouyomi.h"
 
 /**
  * --version
@@ -38,5 +39,10 @@
  */
 int main(int argc, char *argv[])
 {
+  printf("%lu\n", sizeof(bouyomi_header));
+  printf("%lu\n", sizeof(bouyomi_conf));
+  printf("%lu\n", sizeof(bouyomi_conf_a));
+  printf("%lu\n", sizeof(struct config_line_t));
+  printf("%lu\n", sizeof(charset));
   return EXIT_SUCCESS;
 }

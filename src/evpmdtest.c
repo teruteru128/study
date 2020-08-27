@@ -2,6 +2,7 @@
 #include "config.h"
 #include <stdio.h>
 #include <openssl/evp.h>
+#include <string.h>
 
 #define BIG_PRECURE_IS_WATCHING_YOU "BIG PRECURE IS WATCHING YOU"
 
