@@ -69,7 +69,7 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
     if (sock < 0)
     {
       perror("socket()");
-      exit(EXIT_FAILURE);
+      return EXIT_FAILURE;
     }
     rc = connect(sock, adrinf->ai_addr, adrinf->ai_addrlen);
     if (rc < 0)
@@ -85,7 +85,7 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
   {
     perror("connect()");
     close(sock);
-    exit(EXIT_FAILURE);
+    return EXIT_FAILURE;
   }
 
   ssize_t w = 0;
@@ -210,29 +210,39 @@ int main(int argc, char *argv[])
    i += want_arg ? 2: 1;
    }
    }*/
-  char *in = malloc(1);
+  char *in = malloc(BUFSIZ);
   in[0] = 0;
   char *tmp = NULL;
   size_t strlength = 0;
   size_t len = 0;
+  size_t capacity = BUFSIZ;
   char buf[BUFSIZ];
-  if(!isatty(fileno(stdin))){
-  while (fgets(buf, BUFSIZ, stdin) != NULL)
+  if (!isatty(fileno(stdin)))
   {
-    len = strlen(buf);
-    if (len == 0)
+    while (fgets(buf, BUFSIZ, stdin) != NULL)
     {
-      continue;
+      len = strlen(buf);
+      if (len == 0)
+      {
+        continue;
+      }
+      size_t minnewcapa = strlength + len + 1;
+      if (minnewcapa > capacity)
+      {
+        while (minnewcapa > capacity)
+        {
+          capacity *= 2;
+        }
+        tmp = realloc(in, capacity);
+        if (!tmp)
+        {
+          exit(EXIT_FAILURE);
+        }
+        in = tmp;
+      }
+      strcat(in + strlength, buf);
+      strlength += len;
     }
-    tmp = realloc(in, strlength + len + 1);
-    if (!tmp)
-    {
-      exit(EXIT_FAILURE);
-    }
-    in = tmp;
-    strcat(in + strlength, buf);
-    strlength += len;
-  }
   }
   if (strlength == 0)
   {
@@ -246,6 +256,8 @@ int main(int argc, char *argv[])
     strlength += len;
     strcat(in, "やったぜ。");
   }
+  capacity = strlen(in) + 1;
+  realloc(in, capacity);
   /*
    * 文字コード変換
    */
@@ -313,7 +325,7 @@ int main(int argc, char *argv[])
   memcpy(send_buf + 15, out, length);
   free(out);
 
-  char servAddr[NI_MAXHOST] = ONION_SERV_ADDRESS;
+  char servAddr[NI_MAXHOST];
   char servPortStr[NI_MAXSERV] = DEFAULT_PORT_STR;
   int use_onion = 0;
   if (use_onion == 1)
@@ -322,7 +334,7 @@ int main(int argc, char *argv[])
   }
   else
   {
-    strncpy(servAddr, DEFAULT_SERV_ADDRESS, NI_MAXHOST);
+    strncpy(servAddr, DEFAULT_SERV_ADDRESS_2, NI_MAXHOST);
   }
   rc = send_to_server(servAddr, servPortStr, send_buf, send_len);
   free(send_buf);
