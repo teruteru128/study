@@ -4,11 +4,8 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <java_random.h>
 #include "gettext.h"
 #define _(str) gettext(str)
-#include "bouyomi.h"
 
 /**
  * --version
@@ -41,22 +38,5 @@
  */
 int main(int argc, char *argv[])
 {
-  struct timespec tp;
-  clock_gettime(CLOCK_REALTIME, &tp);
-  long seed = tp.tv_sec + tp.tv_nsec;
-  seed = n(seed);
-  size_t count = 0;
-  while(1)
-  {
-    if(nextIntWithBounds(&seed, 1000) == 0)
-    {
-      printf("%lu\n", count);
-      count = 0;
-    }
-    else
-    {
-      count++;
-    }
-  }
   return EXIT_SUCCESS;
 }
