@@ -4,6 +4,8 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <java_random.h>
 #include "gettext.h"
 #define _(str) gettext(str)
 #include "bouyomi.h"
@@ -39,10 +41,22 @@
  */
 int main(int argc, char *argv[])
 {
-  printf("%lu\n", sizeof(bouyomi_header));
-  printf("%lu\n", sizeof(bouyomi_conf));
-  printf("%lu\n", sizeof(bouyomi_conf_a));
-  printf("%lu\n", sizeof(struct config_line_t));
-  printf("%lu\n", sizeof(charset));
+  struct timespec tp;
+  clock_gettime(CLOCK_REALTIME, &tp);
+  long seed = tp.tv_sec + tp.tv_nsec;
+  seed = n(seed);
+  size_t count = 0;
+  while(1)
+  {
+    if(nextIntWithBounds(&seed, 1000) == 0)
+    {
+      printf("%lu\n", count);
+      count = 0;
+    }
+    else
+    {
+      count++;
+    }
+  }
   return EXIT_SUCCESS;
 }
