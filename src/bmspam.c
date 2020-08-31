@@ -17,7 +17,7 @@
 #define localhost_ip "127.0.0.1"
 #define bitmessage_port 8442
 #define NAME "TR BM TEST CLIENT"
-#define SERVER_URL "http://127.0.0.1:8442/"
+#define SERVER_URL "http://192.168.1.128:8442/"
 #define GENELRAL "BM-2cW67GEKkHGonXKZLCzouLLxnLym3azS8r"
 
 void die_if_fault_occurred(xmlrpc_env *env);
@@ -147,6 +147,7 @@ int main(int const argc, const char **const argv)
   die_if_fault_occurred(&env);
   xmlrpc_value *TTLv = xmlrpc_int_new(&env, 4 * 24 * 60 * 60);
   die_if_fault_occurred(&env);
+  fprintf(stderr, "initialized\n");
   char *p = NULL;
   while ((tmp = fgets(toaddress, 64, toaddrfile)) != NULL)
   {

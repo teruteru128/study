@@ -7,6 +7,7 @@ bin_PROGRAMS= \
 	ankokudan_decode \
 	argparsesample \
 	bcasttest \
+	bino \
 	bmkeygen \
 	bmspam \
 	bouyomi \
@@ -148,6 +149,7 @@ Nabeatsu_SOURCES=Nabeatsu.c gettext.h
 ankokudan_decode_SOURCES=ankokudan_decode.c
 argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c
+bino_SOURCES=bino.c
 bmkeygen_CFLAGS=
 bmkeygen_LDADD=$(LIBSTUDYPATH)
 bmkeygen_SOURCES=bmkeygen.c

@@ -22,13 +22,13 @@ void *threadFunc(void *arg)
     switch (pthread_cond_timedwait(&cond, &mutex, &ts))
     {
     case 0:
-        printf("threadFunc: Got signal\n");
+        fprintf(stderr, "threadFunc: Got signal\n");
         break;
     case ETIMEDOUT:
-        printf("threadFunc: Timeout\n");
+        fprintf(stderr, "threadFunc: Timeout\n");
         break;
     default:
-        printf("threadFunc: Error on pthread_cond_wait\n");
+        fprintf(stderr, "threadFunc: Error on pthread_cond_wait\n");
         exit(1);
     }
     pthread_mutex_unlock(&mutex);
@@ -44,7 +44,7 @@ int main(void)
 
     pthread_create(&thread, NULL, threadFunc, NULL);
     sleep(1);
-    printf("main: Signal\n");
+    fprintf(stderr, "main: Signal\n");
     pthread_cond_signal(&cond);
     pthread_join(thread, NULL);
 
