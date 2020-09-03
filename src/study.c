@@ -7,7 +7,8 @@
 #include "gettext.h"
 #define _(str) gettext(str)
 #include <stdint.h>
-#include <malloc.h>
+#include <malloc.h> // malloc_usable_size
+#include <regex.h>
 #include "gettextsample.h"
 #include "printint.h"
 #include "random.h"
@@ -44,6 +45,7 @@
  * tor geoip file 読み込み関数
  * geoip_load_file
  * https://youtu.be/MCzo6ZMfKa4
+ * ターミュレーター
  * 
  * TODO: P2P地震情報 ピア接続受け入れ＆ピアへ接続
  */
@@ -69,12 +71,6 @@ int main(int argc, char *argv[])
   printf("%ld\n", initialScramble(seed));
 
   printf("--\n");
-  seed = ISEED;
-  for (long i = 0; i <= 20; i++)
-  {
-    printf("%ld\n", seed + (i << 48));
-  }
-  printf("--\n");
   seed = initialScramble(ISEED);
   seed = n(seed);
   printf("%06lx\n", seed);
@@ -86,13 +82,24 @@ int main(int argc, char *argv[])
   printf("%06lx\n", r);
   printf("--\n");
   int64_t inv1, inv2, inseed;
-  for(seed = 0xfffffffe0000L; seed < 0x0ffffffff0000L; seed++)
+  regex_t regex;
+  regcomp(&regex, "^....0000", REG_EXTENDED | REG_NEWLINE | REG_ICASE);
+  regmatch_t match;
+  char buf[BUFSIZ];
+  int ret = 0;
+  for(seed = 0xffffffff0000L; seed < 0x1000000000000L; seed++)
   {
     inv1 = nInverse(seed);
     inv2 = nInverse(inv1);
     inseed = initialScramble(inv2);
-    printf("%012lx, %012lx, %ld\n", inv1, inv2, inseed);
+    snprintf(buf, BUFSIZ,"%012lx, %012lx, %ld", inv1, inv2, inseed);
+    ret = regexec(&regex, buf, 1, &match, 0);
+    if(ret == 0)
+    {
+      printf("%s\n", buf);
+    }
   }
 
+  regfree(&regex);
   return EXIT_SUCCESS;
 }

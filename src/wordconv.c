@@ -16,17 +16,17 @@ int main(int argc, char *argv[])
         ret = 1;
         goto fail;
     }
-    regex_t reg;
+    regex_t regex;
     char *pattern = "list";
-    regmatch_t match[1];
-    ret = regcomp(&reg, pattern, REG_EXTENDED | REG_NEWLINE | REG_ICASE);
+    regmatch_t match;
+    ret = regcomp(&regex, pattern, REG_EXTENDED | REG_NEWLINE | REG_ICASE);
     if(ret != 0)
     {
-        size_t len = regerror(ret, &reg, NULL, 0);
+        size_t len = regerror(ret, &regex, NULL, 0);
         char *buf = malloc(len);
         if(buf)
         {
-            regerror(ret, &reg, buf, len);
+            regerror(ret, &regex, buf, len);
             fprintf(stderr, "%s\n", buf);
             free(buf);
         }
@@ -36,32 +36,27 @@ int main(int argc, char *argv[])
     char line[BUFSIZ];
     while(fgets(line, BUFSIZ, in) != NULL)
     {
-        ret = regexec(&reg, line, 1, match, 0);
-        if(ret == 0)
+        ret = regexec(&regex, line, 1, &match, 0);
+        if(ret == 0 && match.rm_so != -1)
         {
-            if(match[0].rm_so != -1)
-            {
-                strncpy(&line[match[0].rm_so], "list", 4);
-            }
+            memcpy(&line[match.rm_so], pattern, 4);
         }
         else
         {
-            size_t len = regerror(ret, &reg, NULL, 0);
+            size_t len = regerror(ret, &regex, NULL, 0);
             char *buf = malloc(len);
             if(buf)
             {
-                regerror(ret, &reg, buf, len);
+                regerror(ret, &regex, buf, len);
                 fprintf(stderr, "%s\n", buf);
                 free(buf);
             }
         }
         fprintf(out, "%s", line);
-        match[0].rm_so = 0;
-        match[0].rm_eo = 0;
     }
 fail:
     fclose(in);
     fclose(out);
-    regfree(&reg);
+    regfree(&regex);
     return ret;
 }

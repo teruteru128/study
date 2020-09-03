@@ -46,6 +46,8 @@
 #include <unistd.h> //close()
 #endif
 
+#include <endian.h>
+
 /**
  * 
  */
@@ -77,7 +79,8 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
       close(sock);
       continue;
     }
-    print_addrinfo(adrinf);
+    fprintf(stderr, "[DEBUG]:");
+    print_addrinfo0(adrinf, stderr);
     break;
   }
   freeaddrinfo(res);
@@ -96,7 +99,7 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
   }
   else
   {
-    fprintf(stderr, _("Sent! %ld\n"), w);
+    fprintf(stderr, _("Sent!\n"));
   }
   // ソケットを閉じる
   rc = close(sock);
@@ -108,30 +111,8 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
   return EXIT_SUCCESS;
 }
 
-/*
- * 1. コマンドライン引数解析
- * 2. 読み上げメッセージ文字コード変換
- * 3. プロトコルエンコード
- * 4. サーバーへ接続
- * 5. 後始末
- *
- * 1. encode
- * 2. connect
- * 3. send
- * 4. cleanup
- *
- * option
- * server(host & port)
- * charset
- * proxyは外部で対処
- * 
- * bouyomic *bouyomi_client_new();
- */
-int main(int argc, char *argv[])
+void init_gettext()
 {
-  int rc = 0;
-  int ignore_errors = 0;
-
   setlocale(LC_ALL, "");
   /*
   if (setlocale(LC_ALL, "ja_JP.UTF-8") == NULL)
@@ -142,23 +123,15 @@ int main(int argc, char *argv[])
   */
   bindtextdomain(PACKAGE, LOCALEDIR);
   textdomain(PACKAGE);
-  /*
-   * https://github.com/torproject/tor/blob/03867b3dd71f765e5adb620095692cb41798c273/src/app/config/config.c#L2537
-   * parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_errors)
-   * --host
-   * --port
-   * --command
-   * --speed
-   * --tone
-   * --volume
-   * --voice
-   * args *new_args();
-   * call_bouyomi(int argc, char **argv);
-   *  parseargs
-   *  buildrequest
-   *  chooseserver
-   *  sendtoserver
-   */
+}
+
+struct args args;
+
+int call_bouyomi(int argc, char **argv)
+{
+  int rc = 0;
+  int ignore_errors = 0;
+  struct args *a = &args;
   /*
      {
      char *s, *arg;
@@ -211,6 +184,11 @@ int main(int argc, char *argv[])
    }
    }*/
   char *in = malloc(BUFSIZ);
+  if(!in)
+  {
+    perror("malloc, in");
+    return EXIT_FAILURE;
+  }
   in[0] = 0;
   char *tmp = NULL;
   size_t strlength = 0;
@@ -247,21 +225,34 @@ int main(int argc, char *argv[])
   if (strlength == 0)
   {
     len = strlen("やったぜ。");
-    tmp = realloc(in, strlength + len + 1);
-    if (!tmp)
+    size_t reqlen = strlength + len + 1;
+    if(reqlen > capacity)
     {
-      exit(EXIT_FAILURE);
+      tmp = realloc(in, reqlen);
+      if (!tmp)
+      {
+        exit(EXIT_FAILURE);
+      }
+      in = tmp;
     }
-    in = tmp;
     strlength += len;
     strcat(in, "やったぜ。");
   }
   capacity = strlen(in) + 1;
-  realloc(in, capacity);
+  tmp = realloc(in, capacity);
+  if(tmp == NULL)
+  {
+    perror("realloc(strlen(in) + 1)");
+    return EXIT_FAILURE;
+  }
+  else
+  {
+    in = tmp;
+  }
   /*
    * 文字コード変換
    */
-  charset charset = UTF_8;
+  charset_t charset = UTF_8;
   char *out = NULL;
   char encode = 0;
 
@@ -311,17 +302,19 @@ int main(int argc, char *argv[])
 
   // なぜhtonsなしで読み上げできるのか謎
   // 棒読みちゃんはリトルエンディアン指定だそうです
-  // c#サンプルでBinaryWriterを使ってたから本体でもBinaryReader使ってるんじゃないんですか？知らんけど
+  // c#サンプルでBinaryWriterを使ってたから
+  // 本体でもBinaryReader使ってるんじゃないんですか？
+  // 知らんけど
 
   size_t send_len = 15 + length;
   char *send_buf = malloc(send_len);
-  *((short *)&send_buf[0]) = command;
-  *((short *)&send_buf[2]) = speed;
-  *((short *)&send_buf[4]) = tone;
-  *((short *)&send_buf[6]) = volume;
-  *((short *)&send_buf[8]) = voice;
-  *((char *)&send_buf[10]) = encode;
-  *((int *)&send_buf[11]) = length;
+  *((short *)(send_buf + 0)) = htole16(command);
+  *((short *)(send_buf + 2)) = htole16(speed);
+  *((short *)(send_buf + 4)) = htole16(tone);
+  *((short *)(send_buf + 6)) = htole16(volume);
+  *((short *)(send_buf + 8)) = htole16(voice);
+  *( (char *)(send_buf + 10)) = encode;
+  *(  (int *)(send_buf + 11)) = htole32((int)length);
   memcpy(send_buf + 15, out, length);
   free(out);
 
@@ -338,5 +331,54 @@ int main(int argc, char *argv[])
   }
   rc = send_to_server(servAddr, servPortStr, send_buf, send_len);
   free(send_buf);
+  return rc;
+}
+
+/*
+ * 1. コマンドライン引数解析
+ * 2. 読み上げメッセージ文字コード変換
+ * 3. プロトコルエンコード
+ * 4. サーバーへ接続
+ * 5. 後始末
+ *
+ * 1. encode
+ * 2. connect
+ * 3. send
+ * 4. cleanup
+ *
+ * option
+ * server(host & port)
+ * --host
+ *   デフォルト localhost
+ * --port
+ *   デフォルト 50001
+ * charset
+ * proxyは外部で対処
+ *
+ * https://github.com/torproject/tor/blob/03867b3dd71f765e5adb620095692cb41798c273/src/app/config/config.c#L2537
+ * parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_errors)
+ * 引数を何も指定しないときはヘルプを表示して終了？
+ * --command
+ * --speed
+ * --tone
+ * --volume
+ * --voice
+ * args *new_args();
+ * call_bouyomi(int argc, char **argv);
+ *  parseargs
+ *  buildrequest
+ *  chooseserver
+ *  sendtoserver
+ *
+ * bouyomic *bouyomi_client_new();
+ *
+ * ログレベルはグローバル領域においておかないと使いづらくないか？
+ */
+int main(int argc, char *argv[])
+{
+  int rc = 0;
+
+  init_gettext();
+  rc = call_bouyomi(argc, argv);
   return rc;
 }

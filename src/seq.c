@@ -12,7 +12,10 @@
 #define A1 1.57885731355862L
 #define P 3e0L
 
-/* https://twitter.com/teruteru128/status/1108266625352892416 */
+/**
+ * シーケンス
+ * https://twitter.com/teruteru128/status/1108266625352892416
+ */
 int main(int argc, char *argv[])
 {
   long double a = 0;

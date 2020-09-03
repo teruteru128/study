@@ -32,19 +32,15 @@ typedef struct bouyomi_header_t
 
 /**
  * アライメントが入るためそのまま送信してはいけない
+ * see: https://github.com/0x75960/bouyomi/blob/28d01a9/src/lib.rs
  */
-typedef struct bouyomi_conf_t
+struct bouyomi_conf
 {
-  short command;
-  short speed;
-  short tone;
-  short volume;
-  short voice;
-  char encode;
-  int32_t length;
-} bouyomi_conf;
+  char *host;
+  char *port;
+};
 
-typedef struct a
+struct bouyomi_talk_conf
 {
   short command;
   short speed;
@@ -52,9 +48,7 @@ typedef struct a
   short volume;
   short voice;
   char encode;
-  int32_t length;
-  char *msg;
-} bouyomi_conf_a;
+};
 
 struct config_line_t;
 struct config_line_t
@@ -64,11 +58,17 @@ struct config_line_t
   struct config_line_t *next;
 };
 
-typedef enum charset_t
+typedef enum charset
 {
   UTF_8 = 0,
   UNICODE = 1,
   SHIFT_JIS = 2
-} charset;
+} charset_t;
+
+struct args
+{
+  int ignore_errors;
+  int loglevel;
+};
 
 #endif
