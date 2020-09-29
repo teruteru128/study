@@ -1,4 +1,6 @@
 
+#if defined(__GNUC__)
+#if __GNUC__ < 8
 #include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -92,3 +94,5 @@ int main(void)
   }
   return EXIT_SUCCESS;
 }
+#endif
+#endif

@@ -1,4 +1,6 @@
 
+#if defined(__GNUC__)
+#if __GNUC__ < 8
 #include "config.h"
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
@@ -24,3 +26,5 @@ int main(void)
   }
   return EXIT_SUCCESS;
 }
+#endif
+#endif

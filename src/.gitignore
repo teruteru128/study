@@ -4,6 +4,7 @@ Nabeatsu
 ankokudan_decode
 argparsesample
 bcasttest
+bino
 bmkeygen
 bmspam
 bouyomi
@@ -14,6 +15,7 @@ condWait
 cp2peq
 cudahello
 cudamalloctest
+curltest
 dappun
 doublerandom
 dragon
@@ -87,6 +89,7 @@ sum
 teamspeakIdUpgrader
 teamspeakcalc
 threadAttr
+threadcount
 tsidimprover
 tsidshowsample
 tweet
@@ -98,4 +101,5 @@ variables3
 variables4
 variables5
 variablesProc
+wordconv
 yattaze

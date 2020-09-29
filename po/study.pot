@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.1\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-08-12 13:28+0900\n"
+"POT-Creation-Date: 2020-09-03 21:40+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,36 +16,16 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
-
-#: src/bouyomi.c:94
-#, c-format
-msgid "Error!\n"
-msgstr ""
 
 #: src/bouyomi.c:98
 #, c-format
+msgid "Error! %s\n"
+msgstr ""
+
+#: src/bouyomi.c:102
+#, c-format
 msgid "Sent!\n"
 msgstr ""
-
-#: src/cudahello.cu:15
-#, c-format
-msgid "Hello World!\n"
-msgstr ""
-
-#: src/cudamalloctest.cu:43
-#, c-format
-msgid ""
-"Error : %s\n"
-"%s\n"
-msgstr ""
-
-#: src/cudamalloctest.cu:48
-#, c-format
-msgid "Success : one cuda device\n"
-msgid_plural "Success : %d cuda devices\n"
-msgstr[0] ""
-msgstr[1] ""
 
 #: src/eckeygentest.c:45 src/itoabench.c:42 src/itoabench.c:58
 #, c-format

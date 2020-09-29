@@ -8,6 +8,18 @@
         "*.cu": "cuda",
         "*.cuh": "cuda",
         "typeindex": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "bit": "c",
+        "*.tcc": "c",
+        "exception": "c",
+        "algorithm": "c",
+        "functional": "c",
+        "iterator": "c",
+        "memory": "c",
+        "limits": "c",
+        "numeric": "c",
+        "streambuf": "c",
+        "tuple": "c",
+        "type_traits": "c"
     }
 }
