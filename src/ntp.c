@@ -25,6 +25,10 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
   for (size_t i = 0; i < sizeof(struct NTP_Packet); i++)
   {
     fprintf(out, "%02x", a[i]);
+    if ((i % 16) == 7)
+    {
+      fprintf(out, " ");
+    }
     if ((i % 16) == 15)
     {
       fprintf(out, "\n");
@@ -41,8 +45,6 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
   int root_delay = bswap_32(packet->root_delay);
   int root_dispersion = bswap_32(packet->root_dispersion);
   int reference_identifier = packet->reference_identifier;
-  char refid[5] = {0};
-  memcpy(refid, &reference_identifier, 4);
 
   fprintf(out, "LI : %d\n", leap_indicator);
   fprintf(out, "VN : %d\n", version_number);
@@ -56,6 +58,8 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
 
   if (stratum == 1)
   {
+    char refid[5] = {0};
+    memcpy(refid, &reference_identifier, 4);
     fprintf(out, "(%s)", refid);
   }
   else if (stratum >= 2)

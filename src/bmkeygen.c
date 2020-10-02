@@ -95,7 +95,6 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "");
     bindtextdomain(PACKAGE, LOCALEDIR);
     textdomain(PACKAGE);
-    pthread_mutex_init(&mutex, NULL);
     unsigned char *publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
     if (!publicKeys)
     {
@@ -137,7 +136,7 @@ int main(int argc, char *argv[])
     const EVP_MD *sha512md = EVP_sha512();
     const EVP_MD *ripemd160md = EVP_ripemd160();
     unsigned char *signpubkey = NULL;
-    unsigned char *jPublicKey;
+    unsigned char *encPublicKey = NULL;
     unsigned char cache64[EVP_MAX_MD_SIZE];
     size_t iPubIndex = 0;
     size_t ii = 0;
@@ -150,21 +149,37 @@ int main(int argc, char *argv[])
     for (size_t i = 0; i < 67108864; i++)
     {
         signpubkey = publicKeys + (i * PUBLIC_KEY_LENGTH);
-        #pragma omp parallel for shared(sha512md, ripemd160md, publicKeys, signpubkey) private(cache64, mdctx)
-        for (size_t j = 0; j < 67108864; j++)
+        #pragma omp parallel for shared(sha512md, ripemd160md, publicKeys) private(cache64, mdctx) firstprivate(signpubkey, i)
+        for (size_t j = 0; j < i; j++)
         {
             mdctx = EVP_MD_CTX_new();
-            calcRipe(mdctx, sha512md, ripemd160md, cache64, signpubkey, publicKeys + (j * PUBLIC_KEY_LENGTH));
+            encPublicKey = publicKeys + (j * PUBLIC_KEY_LENGTH);
+            calcRipe(mdctx, sha512md, ripemd160md, cache64, signpubkey, encPublicKey);
             if (!cache64[0])
             {
                 for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
                     ;
                 if (nlz >= REQUIRE_NLZ)
                 {
-                    //exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), signpubkey, privateKeys + (j * PRIVATE_KEY_LENGTH), jPublicKey, cache64);
-                    pthread_mutex_lock(&mutex);
+                    //exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), signpubkey, privateKeys + (j * PRIVATE_KEY_LENGTH), encPublicKey, cache64);
+                    #pragma omp critical
+                    {
                     fprintf(stderr, "%ld, %ld, %ld\n", nlz, i, j);
-                    pthread_mutex_unlock(&mutex);
+                    }
+                }
+            }
+            calcRipe(mdctx, sha512md, ripemd160md, cache64, encPublicKey, signpubkey);
+            if (!cache64[0])
+            {
+                for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
+                    ;
+                if (nlz >= REQUIRE_NLZ)
+                {
+                    //exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), signpubkey, privateKeys + (j * PRIVATE_KEY_LENGTH), encPublicKey, cache64);
+                    #pragma omp critical
+                    {
+                        fprintf(stderr, "%ld, %ld, %ld\n", nlz, j, i);
+                    }
                 }
             }
             EVP_MD_CTX_free(mdctx);
@@ -173,6 +188,5 @@ int main(int argc, char *argv[])
     //shutdown:
     //free(privateKeys);
     free(publicKeys);
-    pthread_mutex_destroy(&mutex);
     return EXIT_SUCCESS;
 }
