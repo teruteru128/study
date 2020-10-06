@@ -99,7 +99,9 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
       perror("localtime");
       exit(EXIT_FAILURE);
     }
-    fprintf(out, _("Local time : %s"), ctime(&machine_time));
-    fprintf(out, _("NTP server time : %s"), ctime(&ntp_time));
+    char buf[32];
+    memset(buf, 0, 32);
+    fprintf(out, _("Local time : %s"), ctime_r(&machine_time, buf));
+    fprintf(out, _("NTP server time : %s"), ctime_r(&ntp_time, buf));
   }
 }
