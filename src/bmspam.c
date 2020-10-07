@@ -151,14 +151,18 @@ int main(int const argc, const char **const argv)
   char *p = NULL;
   while ((tmp = fgets(toaddress, 64, toaddrfile)) != NULL)
   {
-    paramArray = xmlrpc_array_new(&env);
-    die_if_fault_occurred(&env);
+    /* ファイルから読み込んだ文字列から改行文字を取り除く */
     p = strpbrk(toaddress, "\r\n");
     if (p != NULL)
     {
       *p = '\0';
     }
+    /* 文字列をxmlrpc文字列オブジェクトに変換する */
     toaddressv = xmlrpc_string_new(&env, toaddress);
+    die_if_fault_occurred(&env);
+
+    /* xmlrpcのパラメータを組み立てる */
+    paramArray = xmlrpc_array_new(&env);
     die_if_fault_occurred(&env);
     xmlrpc_array_append_item(&env, paramArray, toaddressv);
     die_if_fault_occurred(&env);
@@ -173,15 +177,20 @@ int main(int const argc, const char **const argv)
     xmlrpc_array_append_item(&env, paramArray, TTLv);
     die_if_fault_occurred(&env);
 
-    /* Make the remote procedure call */
+    /* Make the remote procedure call パラメーターとメソッドを指定して呼び出す */
     xmlrpc_client_call2(&env, clientP, serverP, METHOD_NAME, paramArray, &resultP);
     die_if_fault_occurred(&env);
 
     printf("%s\n", toaddress);
 
-    /* Dispose of our result value. */
+    /* Dispose of our result value. ゴミ掃除 */
     xmlrpc_DECREF(paramArray);
     xmlrpc_DECREF(toaddressv);
+    xmlrpc_DECREF(fromaddressv);
+    xmlrpc_DECREF(subjectv);
+    xmlrpc_DECREF(messagev);
+    xmlrpc_DECREF(encodingTypev);
+    xmlrpc_DECREF(TTLv);
     xmlrpc_DECREF(resultP);
   }
   xmlrpc_DECREF(fromaddressv);
