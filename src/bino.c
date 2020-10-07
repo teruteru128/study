@@ -31,9 +31,9 @@ int main(int argc, char *argv[])
     array1[i] = array2[i] = 0;
   }
   */
-  for(i = 0; i < X; i++)
-    array1[i] = 0;
   array1[0] = 1;
+  for(i = 1; i < X; i++)
+    array1[i] = 0;
   for(i = 0; i < X; i++)
   {
     for(j = 0; j <= i; j++)

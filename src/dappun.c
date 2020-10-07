@@ -3,14 +3,14 @@
 
 int main(int argc, char **argv)
 {
-  int i = 65535;
   char *riko = "ン゛ボップ";
   char *paka = "あああああああああああああああああああああああああああああああ！！！！！！！！！！！（ﾌﾞﾘﾌﾞﾘﾌﾞﾘﾌﾞﾘｭﾘｭﾘｭﾘｭﾘｭﾘｭ！！！！！！ﾌﾞﾂﾁﾁﾌﾞﾌﾞﾌﾞﾁﾁﾁﾁﾌﾞﾘﾘｲﾘﾌﾞﾌﾞﾌﾞﾌﾞｩｩｩｩｯｯｯ！！！！！！！ ）";
   char *buttippa = "ブッチッパ！";
-  for (; i; i--)
+  for (int i = 65535; i; i--)
   {
-    puts(riko);
-    puts(paka);
-    puts(buttippa);
+    fputs(riko, stdout);
+    fputs(paka, stdout);
+    fputs(buttippa, stdout);
+    fputs("\n", stdout);
   }
 }
