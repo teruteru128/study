@@ -19,7 +19,7 @@ int main()
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = IPPROTO_UDP;
 
-    int rc = getaddrinfo("localhost", "12345", &hints, &res);
+    int rc = getaddrinfo("0.0.0.0", "12345", &hints, &res);
     if(rc != 0)
     {
         fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(rc));
