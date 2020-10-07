@@ -26,35 +26,6 @@
 
 /*
  * 135066410865995223349603216278805969938881475605667027524485143851526510604859533833940287150571909441798207282164471551373680419703964191743046496589274256239341020864383202110372958725762358509643110564073501508187510676594629205563685529475213500852879416377328533906109750544334999811150056977236890927563
- */
-#define qfile "q.txt"
-
-int loadP(mpz_t *p)
-{
-    char buf[1024];
-    FILE *fp = NULL;
-    int ret = EXIT_SUCCESS;
-    char *tmp = NULL;
-    if ((fp = fopen(qfile, "r")) != NULL)
-    {
-        tmp = fgets(buf, 1024, fp);
-        if (!tmp)
-        {
-            return EXIT_FAILURE;
-        }
-        mpz_set_str(*p, buf, 16);
-    }
-    else
-    {
-        perror("fopen");
-        mpz_set_si(*p, 1);
-        ret = EXIT_FAILURE;
-    }
-    fclose(fp);
-    return ret;
-}
-
-/*
  * RSA-1024-challenge
  */
 int main(int argc, char *argv[])
@@ -68,27 +39,28 @@ int main(int argc, char *argv[])
         mpz_init(t[i]);
     }
     mpz_set_str(n, N, BASE);
-    loadP(&q);
-    // qを1からsqrt(n)までループ, (n-q^2)/qがqより大きくなるまでループ
-    mpz_set_str(r, "b0000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002", 16);
-    mpz_sqrt(sqrtN, n);
-    mpz_mul(sqQ, q, q);
-    mpz_mul_si(doubledSqQ, sqQ, 2);
-    mpz_sub(nSubSqQ, n, sqQ);
-    mpz_fdiv_qr(pSubQ, nSubSqQModQ, nSubSqQ, q);
-    mpz_add(p, pSubQ, q);
-    gmp_printf("n =              %Zd\n", n);
-    gmp_printf("n =              %Zx\n", n);
-    gmp_printf("2q^2 =           %Zd\n", doubledSqQ);
-    gmp_printf("q =              %155Zd\n", q);
-    gmp_printf("q =              %Zx\n", q);
-    gmp_printf("sqrt(n) =        %155Zd\n", sqrtN);
-    gmp_printf("n - q*q =        %Zd\n", nSubSqQ);
-    gmp_printf("p - q =          %155Zd\n", pSubQ);
-    gmp_printf("(n - q*q) %% q = %156Zd\n", nSubSqQModQ);
+    // qを1からsqrt(n)まで*2ずつ, (n-q^2)/qがqより大きくなるまでループ
+    // for(q = 1; (n-q^2)/q < q; q *= 2)
+    mpz_set_str(p, "6101033566922210362775848843043422665924052993891242451932861862025497930636586185033910893703459369951328434771914583346105161468964915448455746310700313", 10);
+    mpz_mul_ui(q, p, 2);
+    mpz_mod(r, n, p);
+    gmp_printf("%Zd\n", r);
+    mpz_mod(num, n, q);
+    gmp_printf("%Zd\n", num);
+    int cmp = mpz_cmp(r, num);
+    printf("r %s num\n", cmp == 0 ? "=" : (cmp > 0 ? ">": "<"));
+    for(mpz_set_si(q, 1), mpz_root(maxQ, n, 2); mpz_cmp(q, maxQ) < 0; mpz_mul_si(q, q, 2))
+    {
+        mpz_pow_ui(r, q, 2);
+        mpz_sub(r, n, r);
+        mpz_tdiv_qr(r, num, r, q);
+        gmp_printf("%Zd, %Zd\n", r, num);
+    }
+
     mpz_clears(n, p, q, r, minQ, maxQ, sqQ, sqrtN, nSubSqQ, nSubSqQModQ, doubledSqQ, pSubQ, num, NULL);
     for (i = 0; i < 16; i++)
     {
         mpz_clear(t[i]);
     }
+    return 0;
 }

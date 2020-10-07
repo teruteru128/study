@@ -20,6 +20,8 @@
         "numeric": "c",
         "streambuf": "c",
         "tuple": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "memory_resource": "c",
+        "string_view": "c"
     }
 }

@@ -14,6 +14,9 @@
 #include <bm.h>
 #include <bmapi.h>
 #include <err.h>
+#include <time.h>
+#include <pthread.h>
+#include <errno.h>
 #define localhost_ip "127.0.0.1"
 #define bitmessage_port 8442
 #define NAME "TR BM TEST CLIENT"
@@ -108,10 +111,51 @@ void die_if_fault_occurred(xmlrpc_env *env);
  * */
 int main(int const argc, const char **const argv)
 {
-  FILE *toaddrfile = fopen(SENDTO_ADDRESS_FILE, "r");
-  if (toaddrfile == NULL)
+  /* 次の実行日時を取得する */
+  /* 現在時刻を取得する */
+  struct timespec currentTime;
+  clock_gettime(CLOCK_REALTIME, &currentTime);
+  currentTime.tv_nsec = 0;
+  struct tm *tm = localtime(&currentTime.tv_sec);
+  tm->tm_sec = 0;
+  tm->tm_min = 0;
+  tm->tm_hour = 4;
+  tm->tm_mday = 25;
+  tm->tm_mon = 11;
+  struct timespec christmasTime;
+  christmasTime.tv_sec = mktime(tm);
+  christmasTime.tv_nsec = 0;
+  double diffsec = difftime(christmasTime.tv_sec, currentTime.tv_sec);
+  long diffnsec = christmasTime.tv_nsec - currentTime.tv_nsec;
+  if(diffnsec < 0)
   {
-    err(EXIT_FAILURE, "fopen");
+    diffnsec += 1000000000;
+    diffsec--;
+  }
+  if(diffsec < 0 || (diffsec == 0 && diffnsec < 0))
+  {
+    // 今年のクリスマスは終了済み
+    printf("日本は終了しました＼(^o^)／\n");
+    return 0;
+  }
+
+  printf("%.0lf.%09ld\n", diffsec, diffnsec);
+
+  {
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+    pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&cond, NULL);
+    pthread_mutex_lock(&mutex);
+    // 実行時間まで待つ
+    int sig = pthread_cond_timedwait(&cond, &mutex, &christmasTime);
+    if(sig != ETIMEDOUT)
+    {
+      return 1;
+    }
+    pthread_mutex_unlock(&mutex);
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&cond);
   }
 
   xmlrpc_env env;
@@ -149,6 +193,12 @@ int main(int const argc, const char **const argv)
   die_if_fault_occurred(&env);
   fprintf(stderr, "initialized\n");
   char *p = NULL;
+  FILE *toaddrfile = fopen(SENDTO_ADDRESS_FILE, "r");
+  if (toaddrfile == NULL)
+  {
+    err(EXIT_FAILURE, "fopen");
+  }
+
   while ((tmp = fgets(toaddress, 64, toaddrfile)) != NULL)
   {
     /* ファイルから読み込んだ文字列から改行文字を取り除く */

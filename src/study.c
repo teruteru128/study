@@ -4,10 +4,12 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
+#include <locale.h>
 #include "gettext.h"
 #define _(str) gettext(str)
-#include <stdint.h>
-#include "orz.h"
+#include <time.h>
+#include <pthread.h>
+#include <errno.h>
 
 /**
  * --version
@@ -45,7 +47,58 @@ int main(int argc, char *argv[])
   setlocale(LC_ALL, "");
   bindtextdomain(PACKAGE, LOCALEDIR);
   textdomain(PACKAGE);
-  printf(_("Help me!\n"));
-  orz(1);
+  /* 次の実行日時を取得する */
+  /* 現在時刻を取得する */
+  struct timespec currentTime;
+  clock_gettime(CLOCK_REALTIME, &currentTime);
+  struct tm tm;
+  struct tm *tm1 = localtime_r(&currentTime.tv_sec, &tm);
+  tm1->tm_sec = 0;
+  tm1->tm_min = 0;
+  tm1->tm_hour = 4;
+  tm1->tm_mday = 25;
+  tm1->tm_mon = 11;
+  struct timespec christmasTime;
+  christmasTime.tv_sec = mktime(tm1);
+  //christmasTime.tv_nsec = currentTime.tv_nsec;
+  christmasTime.tv_nsec = 0;
+  double diffsec = difftime(christmasTime.tv_sec, currentTime.tv_sec);
+  long diffnsec = christmasTime.tv_nsec - currentTime.tv_nsec;
+  if(diffnsec < 0)
+  {
+    diffnsec += 1000000000;
+    diffsec--;
+  }
+  if(diffsec < 0 || (diffsec == 0 && diffnsec < 0))
+  {
+    // 今年のクリスマスは終了済み
+    printf("日本は終了しました＼(^o^)／\n");
+    return 0;
+  }
+  if(diffsec == 0 && diffnsec == 0)
+  {
+    // 完全一致
+    printf("一致しました＼(^o^)／\n");
+  }
+
+  printf("%.0lf.%09ld\n", diffsec, diffnsec);
+
+  {
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+    pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&cond, NULL);
+    pthread_mutex_lock(&mutex);
+    // 実行時間まで待つ
+    int sig = pthread_cond_timedwait(&cond, &mutex, &christmasTime);
+    if(sig != ETIMEDOUT)
+    {
+      return 1;
+    }
+    pthread_mutex_unlock(&mutex);
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&cond);
+    fputs("時間が経過しました\n", stdout);
+  }
   return EXIT_SUCCESS;
 }

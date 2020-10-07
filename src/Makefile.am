@@ -8,6 +8,7 @@ bin_PROGRAMS= \
 	argparsesample \
 	bcasttest \
 	bino \
+	bm \
 	bmkeygen \
 	bmspam \
 	bouyomi \
@@ -18,6 +19,7 @@ bin_PROGRAMS= \
 	cp2peq \
 	curltest \
 	dappun \
+	dice \
 	doublerandom \
 	dragon \
 	dragon \
@@ -150,6 +152,7 @@ ankokudan_decode_SOURCES=ankokudan_decode.c
 argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c
 bino_SOURCES=bino.c
+bm_SOURCES=bm.c
 bmkeygen_CFLAGS=-fopenmp
 bmkeygen_LDADD=$(LIBSTUDYPATH)
 bmkeygen_SOURCES=bmkeygen.c
@@ -172,6 +175,7 @@ cudahello_CFLAGS=-fPIC
 cudahello_SOURCES=cudahello.cu
 cudamalloctest_CFLAGS=-fPIC
 cudamalloctest_SOURCES=cudamalloctest.cu
+dice_LDADD=$(LIBSTUDYPATH)
 dragon_LDADD=$(LIBSTUDYPATH)
 dragon_SOURCES=dragon.c
 eckeygentest_CFLAGS=
