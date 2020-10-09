@@ -56,7 +56,7 @@ int main()
         memset(buf, 0, BUFSIZ);
         ssize_t len = recv(sock, buf, BUFSIZ, 0);
 
-        printf("%s : %ld\n", buf, len);
+        printf("%s : %zd\n", buf, len);
     } while (strcmp(buf, "end") != 0);
     r = close(sock);
     freeaddrinfo(res);
