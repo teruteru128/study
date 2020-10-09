@@ -49,17 +49,14 @@ static int calcRipe(EVP_MD_CTX *mdctx, const EVP_MD *sha512, const EVP_MD *ripem
 static void validation(unsigned char *ripe, size_t i, size_t j)
 {
   size_t nlz = 0;
-  if (!ripe[0])
+  for (nlz = 0; !ripe[nlz] && nlz < 20; nlz++)
+    ;
+  if (nlz >= REQUIRE_NLZ)
   {
-    for (nlz = 1; !ripe[nlz] && nlz < 20; nlz++)
-      ;
-    if (nlz >= REQUIRE_NLZ)
-    {
-      //exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), signpubkey, privateKeys + (j * PRIVATE_KEY_LENGTH), encPublicKey, cache64);
+    //exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), signpubkey, privateKeys + (j * PRIVATE_KEY_LENGTH), encPublicKey, cache64);
 #pragma omp critical
-      {
-        fprintf(stderr, "%ld, %ld, %ld\n", nlz, i, j);
-      }
+    {
+      fprintf(stderr, "%ld, %ld, %ld\n", nlz, i, j);
     }
   }
 }
