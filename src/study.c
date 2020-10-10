@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
   clock_gettime(CLOCK_REALTIME, &currentTime);
   struct tm tm;
   struct tm *tm1 = localtime_r(&currentTime.tv_sec, &tm);
+  fprintf(stdout, "現在時刻 : %d年 %d月 %d日 %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
   tm1->tm_sec = 0;
   tm1->tm_min = 0;
   tm1->tm_hour = 4;
@@ -81,7 +82,7 @@ int main(int argc, char *argv[])
     printf("一致しました＼(^o^)／\n");
   }
 
-  printf("%.0lf.%09ld\n", diffsec, diffnsec);
+  printf("指定時間まであと%.0lf.%09ld秒\n", diffsec, diffnsec);
 
   {
     pthread_mutex_t mutex;
