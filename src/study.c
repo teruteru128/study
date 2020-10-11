@@ -52,36 +52,38 @@ int main(int argc, char *argv[])
   struct timespec currentTime;
   clock_gettime(CLOCK_REALTIME, &currentTime);
   struct tm tm;
-  struct tm *tm1 = localtime_r(&currentTime.tv_sec, &tm);
-  tm1->tm_sec = 0;
-  tm1->tm_min = 0;
-  tm1->tm_hour = 4;
-  tm1->tm_mday = 25;
-  tm1->tm_mon = 11;
+  tzset();
+  localtime_r(&currentTime.tv_sec, &tm);
+  tm.tm_sec = 0;
+  tm.tm_min = 0;
+  tm.tm_hour = 4;
+  tm.tm_mday = 25;
+  tm.tm_mon = 11;
   struct timespec christmasTime;
-  christmasTime.tv_sec = mktime(tm1);
+  christmasTime.tv_sec = mktime(&tm);
   //christmasTime.tv_nsec = currentTime.tv_nsec;
   christmasTime.tv_nsec = 0;
   double diffsec = difftime(christmasTime.tv_sec, currentTime.tv_sec);
   long diffnsec = christmasTime.tv_nsec - currentTime.tv_nsec;
-  if(diffnsec < 0)
+  if (diffnsec < 0)
   {
+    fprintf(stdout, "ああ！%lf, %ld\n", diffsec, diffnsec);
     diffnsec += 1000000000;
     diffsec--;
   }
-  if(diffsec < 0 || (diffsec == 0 && diffnsec < 0))
+  if (diffsec < 0)
   {
     // 今年のクリスマスは終了済み
     printf("日本は終了しました＼(^o^)／\n");
     return 0;
   }
-  if(diffsec == 0 && diffnsec == 0)
+  if (diffsec == 0 && diffnsec == 0)
   {
     // 完全一致
     printf("一致しました＼(^o^)／\n");
   }
 
-  printf("%.0lf.%09ld\n", diffsec, diffnsec);
+  printf("%ld.%09ld\n", (long)diffsec, diffnsec);
 
   {
     pthread_mutex_t mutex;
@@ -91,8 +93,11 @@ int main(int argc, char *argv[])
     pthread_mutex_lock(&mutex);
     // 実行時間まで待つ
     int sig = pthread_cond_timedwait(&cond, &mutex, &christmasTime);
-    if(sig != ETIMEDOUT)
+    if (sig != ETIMEDOUT)
     {
+      pthread_mutex_unlock(&mutex);
+      pthread_mutex_destroy(&mutex);
+      pthread_cond_destroy(&cond);
       return 1;
     }
     pthread_mutex_unlock(&mutex);
