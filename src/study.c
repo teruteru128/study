@@ -10,6 +10,9 @@
 #include <time.h>
 #include <pthread.h>
 #include <errno.h>
+#include <string.h>
+
+#define LIMIT 16
 
 /**
  * --version
@@ -100,10 +103,24 @@ int main(int argc, char *argv[])
       pthread_cond_destroy(&cond);
       return 1;
     }
-    pthread_mutex_unlock(&mutex);
-    pthread_mutex_destroy(&mutex);
-    pthread_cond_destroy(&cond);
-    fputs("時間が経過しました\n", stdout);
+  }
+  int i;
+  char text[16];
+  memset(text, 0, 16);
+  for(i = 0; i < LIMIT; i++){
+    text[0] = 0;
+    //snprintf(text, 16, "");
+    //memset(text, 0, 16);
+    if(i % 3 == 0){
+      strncat(text, "Fizz", 16);
+    }
+    if(i % 5 == 0){
+      strncat(text, "Buzz", 16);
+    }
+    if(i % 3 != 0 && i % 5 != 0){
+      snprintf(text, 16, "%d", i);
+    }
+    printf("%s\n", text);
   }
   return EXIT_SUCCESS;
 }
