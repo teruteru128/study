@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-10-09 11:00+0900\n"
+"POT-Creation-Date: 2020-10-19 12:13+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -68,12 +68,7 @@ msgstr "%dマイクロ秒停止します。\n"
 msgid "%dmicro seconds stoped.\n"
 msgstr "%dマイクロ秒停止しました。\n"
 
-#: src/ntp.c:104
-#, c-format
-msgid "Local time : %s"
-msgstr "ローカル時刻 : %s"
-
-#: src/ntp.c:105
+#: src/ntp.c:110
 #, c-format
 msgid "NTP server time : %s"
 msgstr "NTPサーバ時刻 : %s"
@@ -97,6 +92,9 @@ msgstr "1回あたり %e秒\n"
 #, c-format
 msgid "verifier : %<PRIu64>\n"
 msgstr "検証子 : %<PRIu64>\n"
+
+#~ msgid "Local time : %s"
+#~ msgstr "ローカル時刻 : %s"
 
 #~ msgid "Hello World!\n"
 #~ msgstr "こんにちは世界！\n"

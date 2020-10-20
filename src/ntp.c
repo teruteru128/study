@@ -92,16 +92,21 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
   if (transmit_timestamp_seconds)
   {
     time_t machine_time = time(NULL);
+    struct tm machine_tm;
+    localtime_r(&machine_time, &machine_tm);
     time_t ntp_time = ntohl(packet->transmit_timestamp_seconds) - 2208988800L;
-    struct tm *lpNewLocalTime = localtime(&ntp_time);
-    if (lpNewLocalTime == NULL)
+    struct tm lpNewLocalTime;
+    if (localtime_r(&ntp_time, &lpNewLocalTime) == NULL)
     {
       perror("localtime");
       exit(EXIT_FAILURE);
     }
-    char buf[32];
-    memset(buf, 0, 32);
-    fprintf(out, _("Local time : %s"), ctime_r(&machine_time, buf));
+    char buf[BUFSIZ];
+    memset(buf, 0, BUFSIZ);
+    strftime(buf, BUFSIZ, "%Ex%EX", &machine_tm);
+    fprintf(out, "Local time : %s\n", buf);
+    //fprintf(out, _("Local time : %s"), ctime_r(&machine_time, buf));
+    memset(buf, 0, BUFSIZ);
     fprintf(out, _("NTP server time : %s"), ctime_r(&ntp_time, buf));
   }
 }
