@@ -56,71 +56,26 @@ int main(int argc, char *argv[])
   clock_gettime(CLOCK_REALTIME, &currentTime);
   struct tm tm;
   tzset();
+  gmtime_r(&currentTime.tv_sec, &tm);
+  printf("%d %04d-%02d-%02dT%02d:%02d:%02dZ\n", tm.tm_isdst, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
   localtime_r(&currentTime.tv_sec, &tm);
+  printf("%d %d-%d-%dT%d:%d:%d+09:00\n", tm.tm_isdst, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+#ifdef __USE_MISC
+  printf("%ld, %s\n", tm.tm_gmtoff, tm.tm_zone);
+#endif
   tm.tm_sec = 0;
-  tm.tm_min = 0;
-  tm.tm_hour = 4;
-  tm.tm_mday = 25;
-  tm.tm_mon = 11;
-  struct timespec christmasTime;
-  christmasTime.tv_sec = mktime(&tm);
-  //christmasTime.tv_nsec = currentTime.tv_nsec;
-  christmasTime.tv_nsec = 0;
-  double diffsec = difftime(christmasTime.tv_sec, currentTime.tv_sec);
-  long diffnsec = christmasTime.tv_nsec - currentTime.tv_nsec;
-  if (diffnsec < 0)
-  {
-    fprintf(stdout, "ああ！%lf, %ld\n", diffsec, diffnsec);
-    diffnsec += 1000000000;
-    diffsec--;
-  }
-  if (diffsec < 0)
-  {
-    // 今年のクリスマスは終了済み
-    printf("日本は終了しました＼(^o^)／\n");
-    return 0;
-  }
-  if (diffsec == 0 && diffnsec == 0)
-  {
-    // 完全一致
-    printf("一致しました＼(^o^)／\n");
-  }
-
-  printf("%ld.%09ld\n", (long)diffsec, diffnsec);
-
-  {
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;
-    pthread_mutex_init(&mutex, NULL);
-    pthread_cond_init(&cond, NULL);
-    pthread_mutex_lock(&mutex);
-    // 実行時間まで待つ
-    int sig = pthread_cond_timedwait(&cond, &mutex, &christmasTime);
-    if (sig != ETIMEDOUT)
-    {
-      pthread_mutex_unlock(&mutex);
-      pthread_mutex_destroy(&mutex);
-      pthread_cond_destroy(&cond);
-      return 1;
-    }
-  }
-  int i;
-  char text[16];
-  memset(text, 0, 16);
-  for(i = 0; i < LIMIT; i++){
-    text[0] = 0;
-    //snprintf(text, 16, "");
-    //memset(text, 0, 16);
-    if(i % 3 == 0){
-      strncat(text, "Fizz", 16);
-    }
-    if(i % 5 == 0){
-      strncat(text, "Buzz", 16);
-    }
-    if(i % 3 != 0 && i % 5 != 0){
-      snprintf(text, 16, "%d", i);
-    }
-    printf("%s\n", text);
-  }
+  tm.tm_min = 10;
+  tm.tm_hour = 10;
+  tm.tm_mday = 10;
+  tm.tm_mon = 9;
+  time_t time1 = mktime(&tm);
+  tm.tm_sec = 0;
+  tm.tm_min = 10;
+  tm.tm_hour = 10;
+  tm.tm_mday = 10;
+  tm.tm_mon = 9;
+  tm.tm_year = 2010 - 1900;
+  time_t time2 = mktime(&tm);
+  printf("%lf\n", difftime(time1, time2));
   return EXIT_SUCCESS;
 }
