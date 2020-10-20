@@ -14,79 +14,82 @@
 #include <bm.h>
 #include <bmapi.h>
 #include <err.h>
+#include <time.h>
+#include <pthread.h>
+#include <errno.h>
 #define localhost_ip "127.0.0.1"
 #define bitmessage_port 8442
 #define NAME "TR BM TEST CLIENT"
-#define SERVER_URL "http://127.0.0.1:8442/"
+#define SERVER_URL "http://192.168.1.128:8442/"
 #define GENELRAL "BM-2cW67GEKkHGonXKZLCzouLLxnLym3azS8r"
 
 void die_if_fault_occurred(xmlrpc_env *env);
 
 #define SENDTO_ADDRESS_FILE "main.txt"
-#define SUBJECT "TWVycnkgQ2hyaXN0bWFzIQo="
+#define SUBJECT "TWVycnkgQ2hyaXN0bWFzIQ=="
 #define MESSAGE "PHByZT4KICAgIEBAICAgICAgICAgIEBACiAgICBAQEAgICAgICAgIEBAQAogICAgQEBAQCAgICAg" \
-"IEBAQEAgICBAQEBAICBAQCBAQEAgIEBAIEBAQCBAQCAgICAgIEBACiAgICBAQCBAQCAgICBAQCBA" \
-"QCAgQEAgIEBAIEBAQCAgQEAgQEBAICBAQCBAQCAgICBAQAogICAgQEAgIEBAICBAQCAgQEAgQEBA" \
-"QEBAICBAQCAgICAgIEBAICAgICAgIEBAICBAQAogICAgQEAgICBAQEBAICAgQEAgIEBAICAgICBA" \
-"QCAgICAgIEBAICAgICAgICBAQEBACiAgICBAQCAgICBAQCAgICBAQCAgIEBAQEAgIEBAICAgICAg" \
-"QEAgICAgICAgICBAQAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg" \
-"ICBAQAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQEAgIEBACiAgICAg" \
-"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQEBAQAogICBAQEAgICBAQCAgICAg" \
-"ICAgICAgICAgQEAgICAgICAgICAgQEAKIEBAICAgQEAgQEAgICAgICAgICAgICAgICAgICAgICAg" \
-"ICAgIEBACkBAICAgICAgIEBAIEBAQCAgQEAgQEBAICBAQCAgIEBAQEAgQEBAQEBAICBAQCBAQCAg" \
-"QEAgICAgICBAQEAgICAgQEBAQApAQCAgICAgICBAQEAgIEBAIEBAQCAgQEAgQEAgIEBAICAgICAg" \
-"QEAgICAgQEBAICBAQCAgQEAgIEBAICBAQCAgQEAKQEAgICAgICAgQEAgICBAQCBAQCAgICAgIEBA" \
-"ICAgQEBAICAgIEBAICAgIEBAICAgQEAgIEBAIEBAICAgQEAgICBAQEAKIEBAICAgQEAgQEAgICBA" \
-"QCBAQCAgICAgIEBAICAgICBAQCAgIEBAIEBAIEBAICAgICAgIEBAIEBAICAgQEAgICAgIEBACiAg" \
-"IEBAQCAgIEBAICAgQEAgQEAgICAgICAgQEAgQEBAQCAgICAgQEAgICBAQCAgICAgICBAQCAgQEBA" \
-"QCBAQCBAQEBACgoKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg" \
-"ICAgIHpyCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBZdCQk" \
-"JC4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC4sZSQkJCQkRiYj" \
-"MDM5OwogICAgICAgICAgICAgICAgICAgICAgICAgNGUgciAgICAgICAgICAgICAgICQkJCQkJCQu" \
-"CiAgICAgICAgICAgICAgICAgICAgICAgICBkJCRiciAgICAgICAgICAgIF96JCQkJCQkJEZgCiAg" \
-"ICAgICAgICAgICAgICAgICAgICAgICAgPyQkYi5fICAgICAgICAgIF4/JCQkJCQkJAogICAgICAg" \
-"ICAgICAgICAgICAgICAgICAgICA0JCQkJnF1b3Q7ICAgICAtZWVjLiAgJnF1b3Q7JnF1b3Q7SlAm" \
-"cXVvdDsgLi5lZWUkJS4uCiAgICAgICAgICAgICAgICAgICAgICAgICAgIC0qKk4gI2MgICAtXioq" \
-"Ki5lRSAgXnokUCQkJCQkJCQkJHItCiAgICAgICAgICAgICAgICAgIC56ZSQkJCQkZXU/JGV1ICYj" \
-"MDM5OyQkJCRiICQ9XiokJCAuJCQkJCQkJCQkJCZxdW90OwogICAgICAgICAgICAgICAtLS4mcXVv" \
-"dDs/JCQkJCQkJCQkYyZxdW90OyQkYyAuJnF1b3Q7JnF1b3Q7JnF1b3Q7IGUkSyAgPSZxdW90OyZx" \
-"dW90Oyo/JCQkUCZxdW90OyZxdW90OyZxdW90OyZxdW90OwogICB1ZWVlLiBgOmAgICRFICEhaCA/" \
-"JCQkJCQkJCRiIFIkTiYjMDM5O34hISAqJCRGIEomcXVvdDsmcXVvdDsmcXVvdDtDLiAgYAogIEog" \
-"IGAmcXVvdDskJGV1YCFoICEhIWA0ISEmbHQ7PyQkJCQkJCRQID8mcXVvdDsuZWVlLXouZWUmcXVv" \
-"dDsgfiQkZS5icgogICYjMDM5O2okJE5lYD8kJGNgNCF+YC1lLTohOmAkJCQkJCQkICQkKiomcXVv" \
-"dDt6ICReUiRQICAzICZxdW90OyQkJGJKCiAgIDQkJCRGJnF1b3Q7LmA/JCRjYCEhIFwpLiEhIWA/" \
-"JCQkJEYuJCQkIyAkdSQlIGVlKiZxdW90O14gOjRgJnF1b3Q7JCZxdW90Oz8kcQogICAgJnF1b3Q7" \
-"JnF1b3Q7YCwhISE6YCQkTi40ISF+fi5+fjQgPyQkRiYjMDM5OyQkRi5ALiogLUwuZUAkJCQkZWMu" \
-"ICAgICAgJnF1b3Q7CiAgICAmcXVvdDtScmAhISEhaCA/JCRjYGg6IGAjICEhICRGLHI0JEwqKiog" \
-"IGUkJCQkJCQkJCQkJCRoYwogICAgICAjZSYjMDM5OzQhISEhTGAkJGImIzAzOTshLjohaGB+fiAu" \
-"JEYmIzAzOTsmcXVvdDsgICAgZCQkJCQkJCQkJCQkJCQkJCQkaCwKICAgICAgIF4kLmAhISEhaCAk" \
-"JGJgIS4gLSAgICAkUCAvJiMwMzk7ICAgLiQkJCQkJCQkJCQkJCQkJCQkJCQkJGMKICAgICAgICAg" \
-"JnF1b3Q7JGNgISEhaGAkJC40fiAgICAgICQkJHImIzAzOTsgICAmbHQ7JCQkJCQkJCQkJCQkJCQk" \
-"JCQkJFAmcXVvdDsmcXVvdDsmcXVvdDsKICAgICAgICAgICBedGUuYH4gJCRiICAgICAgICBgRnVl" \
-"LSAgIGAkJCQkJCQkJCQkJCQkJFAmcXVvdDsuOiAgISEgJnF1b3Q7Jmx0OwogICAgICAgICAgICAg" \
-"IF4mcXVvdDs9NCRQJnF1b3Q7ICAgICAuLCwsLiAtXi4gICA/JCQkJCQkJCQkJCZxdW90Oz86LiAh" \
-"ISA6ISF+ICwsZWMuLgogICAgICAgICAgICAgICAgICAgIC4ueiQkJCQkJCQkJGgsICAgIGAkJCQk" \
-"JCRQJnF1b3Q7Li5gIWYgOiFmIH4pTHplJCQkUCZxdW90OyZxdW90OyZxdW90OyZxdW90Oz9pCiAg" \
-"ICAgICAgICAgICAgICAgIHVkJCQkJCQkJCQkJCQkJCRoICAgIGA/JCRGICZsdDshISYjMDM5OyZs" \
-"dDshJmd0Ozp+KXVlJCRQKiZxdW90Oy4uOiEhISEhIEoKICAgICAgICAgICAgICAgIC5LJCQkJCQk" \
-"JCQkJCQkJCQkJCQsICAgICBQLiZndDtlJiMwMzk7IWYgIX4gZWQkJFAmcXVvdDsuOiEhISEhISEh" \
-"YC5kJnF1b3Q7CiAgICAgICAgICAgICAgIHokJCQkJCQkJCQkJCQkJCQkJCQkJCAgICAgIDQhIX5c" \
-"ZSQkJFBgOiEhISEhISEhISEmIzAzOTsuZVAmIzAzOTsKICAgICAgICAgICAgICAtKiZxdW90Oy4g" \
-"LiAmcXVvdDs/PyQkJCQkJCQkJCQkJCAgICAgICB+IGB6JCQkRiZxdW90Oy5gISEhISEhISEhISYj" \
-"MDM5OyxkUCZxdW90OwogICAgICAgICAgICAuJnF1b3Q7ICk6ISFoIGlgIS0gKCZxdW90Oz8kJCQk" \
-"JCRmICAgICAgICAsJCRQJnF1b3Q7OiEgKS4gYCYjMDM5OyEhISFgLGQkRiYjMDM5OwogICAgICAg" \
-"LnVlZWV1LkpgLV4uIWggJmx0Oy0gIH5gLi4gPz8kJCYjMDM5OyAgICAgICAsJCQgOiEhYGUkJCQk" \
-"ZSBgLGUkRiYjMDM5OwogICAgZSQkJCQkJCQkJCQkJCRlZWlDICZxdW90Oyk/Oi0mbHQ7OiUmIzAz" \
-"OTs6Xj8gICAgICAgID8kZiAhISEgPyQkJCQmcXVvdDssRiZxdW90OwogICBQJnF1b3Q7Li4uLmBg" \
-"YCZxdW90OyZxdW90Oz8kJCQkJCQkJCRldUxeLiEuLmAgLiAgICAgICAgICZxdW90O1R1Ll8uLGBg" \
-"JnF1b3Q7JnF1b3Q7CiAgICQgISEhISEhISEhITo6LiZxdW90OyZxdW90Oz8/JCQkJCQkZUp+Xj0u" \
-"ICAgICAgICAgICAgYGBgYAogICA/JC5gISEhISEhISEhISEhISE6LiZxdW90Oz8/JCQkJCRjJiMw" \
-"Mzk7LgogICAgJnF1b3Q7P2IuYCEhISEhISEhISEhISEhISEmZ3Q7LiZxdW90Oz8kJCQkYwogICAg" \
-"ICBePyRjYCYjMDM5OyEhISEhISEhISEhJiMwMzk7LGVlYiwgJnF1b3Q7JCQkawogICAgICAgICAm" \
-"cXVvdDs/JGUuYCYjMDM5OyEhISEhISEgJCQkJCQgOy4/JCQKICAgICAgICAgICAgJnF1b3Q7PyRl" \
-"ZSxgYCYjMDM5OyYjMDM5OyEuJnF1b3Q7PyRQYGkhISAzUAogICAgICAgICAgICAgICAgJnF1b3Q7" \
-"JnF1b3Q7Pz8kYmVjLCwuLGNlZWVQJnF1b3Q7CiAgICAgICAgICAgICAgICAgICAgICAgYCZxdW90" \
-"OyZxdW90OyZxdW90OyZxdW90OyZxdW90OyZxdW90Owo8L3ByZT4="
+                "IEBAQEAgICBAQEBAICBAQCBAQEAgIEBAIEBAQCBAQCAgICAgIEBACiAgICBAQCBAQCAgICBAQCBA" \
+                "QCAgQEAgIEBAIEBAQCAgQEAgQEBAICBAQCBAQCAgICBAQAogICAgQEAgIEBAICBAQCAgQEAgQEBA" \
+                "QEBAICBAQCAgICAgIEBAICAgICAgIEBAICBAQAogICAgQEAgICBAQEBAICAgQEAgIEBAICAgICBA" \
+                "QCAgICAgIEBAICAgICAgICBAQEBACiAgICBAQCAgICBAQCAgICBAQCAgIEBAQEAgIEBAICAgICAg" \
+                "QEAgICAgICAgICBAQAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg" \
+                "ICBAQAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQEAgIEBACiAgICAg" \
+                "ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQEBAQAogICBAQEAgICBAQCAgICAg" \
+                "ICAgICAgICAgQEAgICAgICAgICAgQEAKIEBAICAgQEAgQEAgICAgICAgICAgICAgICAgICAgICAg" \
+                "ICAgIEBACkBAICAgICAgIEBAIEBAQCAgQEAgQEBAICBAQCAgIEBAQEAgQEBAQEBAICBAQCBAQCAg" \
+                "QEAgICAgICBAQEAgICAgQEBAQApAQCAgICAgICBAQEAgIEBAIEBAQCAgQEAgQEAgIEBAICAgICAg" \
+                "QEAgICAgQEBAICBAQCAgQEAgIEBAICBAQCAgQEAKQEAgICAgICAgQEAgICBAQCBAQCAgICAgIEBA" \
+                "ICAgQEBAICAgIEBAICAgIEBAICAgQEAgIEBAIEBAICAgQEAgICBAQEAKIEBAICAgQEAgQEAgICBA" \
+                "QCBAQCAgICAgIEBAICAgICBAQCAgIEBAIEBAIEBAICAgICAgIEBAIEBAICAgQEAgICAgIEBACiAg" \
+                "IEBAQCAgIEBAICAgQEAgQEAgICAgICAgQEAgQEBAQCAgICAgQEAgICBAQCAgICAgICBAQCAgQEBA" \
+                "QCBAQCBAQEBACgoKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg" \
+                "ICAgIHpyCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBZdCQk" \
+                "JC4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC4sZSQkJCQkRiYj" \
+                "MDM5OwogICAgICAgICAgICAgICAgICAgICAgICAgNGUgciAgICAgICAgICAgICAgICQkJCQkJCQu" \
+                "CiAgICAgICAgICAgICAgICAgICAgICAgICBkJCRiciAgICAgICAgICAgIF96JCQkJCQkJEZgCiAg" \
+                "ICAgICAgICAgICAgICAgICAgICAgICAgPyQkYi5fICAgICAgICAgIF4/JCQkJCQkJAogICAgICAg" \
+                "ICAgICAgICAgICAgICAgICAgICA0JCQkJnF1b3Q7ICAgICAtZWVjLiAgJnF1b3Q7JnF1b3Q7SlAm" \
+                "cXVvdDsgLi5lZWUkJS4uCiAgICAgICAgICAgICAgICAgICAgICAgICAgIC0qKk4gI2MgICAtXioq" \
+                "Ki5lRSAgXnokUCQkJCQkJCQkJHItCiAgICAgICAgICAgICAgICAgIC56ZSQkJCQkZXU/JGV1ICYj" \
+                "MDM5OyQkJCRiICQ9XiokJCAuJCQkJCQkJCQkJCZxdW90OwogICAgICAgICAgICAgICAtLS4mcXVv" \
+                "dDs/JCQkJCQkJCQkYyZxdW90OyQkYyAuJnF1b3Q7JnF1b3Q7JnF1b3Q7IGUkSyAgPSZxdW90OyZx" \
+                "dW90Oyo/JCQkUCZxdW90OyZxdW90OyZxdW90OyZxdW90OwogICB1ZWVlLiBgOmAgICRFICEhaCA/" \
+                "JCQkJCQkJCRiIFIkTiYjMDM5O34hISAqJCRGIEomcXVvdDsmcXVvdDsmcXVvdDtDLiAgYAogIEog" \
+                "IGAmcXVvdDskJGV1YCFoICEhIWA0ISEmbHQ7PyQkJCQkJCRQID8mcXVvdDsuZWVlLXouZWUmcXVv" \
+                "dDsgfiQkZS5icgogICYjMDM5O2okJE5lYD8kJGNgNCF+YC1lLTohOmAkJCQkJCQkICQkKiomcXVv" \
+                "dDt6ICReUiRQICAzICZxdW90OyQkJGJKCiAgIDQkJCRGJnF1b3Q7LmA/JCRjYCEhIFwpLiEhIWA/" \
+                "JCQkJEYuJCQkIyAkdSQlIGVlKiZxdW90O14gOjRgJnF1b3Q7JCZxdW90Oz8kcQogICAgJnF1b3Q7" \
+                "JnF1b3Q7YCwhISE6YCQkTi40ISF+fi5+fjQgPyQkRiYjMDM5OyQkRi5ALiogLUwuZUAkJCQkZWMu" \
+                "ICAgICAgJnF1b3Q7CiAgICAmcXVvdDtScmAhISEhaCA/JCRjYGg6IGAjICEhICRGLHI0JEwqKiog" \
+                "IGUkJCQkJCQkJCQkJCRoYwogICAgICAjZSYjMDM5OzQhISEhTGAkJGImIzAzOTshLjohaGB+fiAu" \
+                "JEYmIzAzOTsmcXVvdDsgICAgZCQkJCQkJCQkJCQkJCQkJCQkaCwKICAgICAgIF4kLmAhISEhaCAk" \
+                "JGJgIS4gLSAgICAkUCAvJiMwMzk7ICAgLiQkJCQkJCQkJCQkJCQkJCQkJCQkJGMKICAgICAgICAg" \
+                "JnF1b3Q7JGNgISEhaGAkJC40fiAgICAgICQkJHImIzAzOTsgICAmbHQ7JCQkJCQkJCQkJCQkJCQk" \
+                "JCQkJFAmcXVvdDsmcXVvdDsmcXVvdDsKICAgICAgICAgICBedGUuYH4gJCRiICAgICAgICBgRnVl" \
+                "LSAgIGAkJCQkJCQkJCQkJCQkJFAmcXVvdDsuOiAgISEgJnF1b3Q7Jmx0OwogICAgICAgICAgICAg" \
+                "IF4mcXVvdDs9NCRQJnF1b3Q7ICAgICAuLCwsLiAtXi4gICA/JCQkJCQkJCQkJCZxdW90Oz86LiAh" \
+                "ISA6ISF+ICwsZWMuLgogICAgICAgICAgICAgICAgICAgIC4ueiQkJCQkJCQkJGgsICAgIGAkJCQk" \
+                "JCRQJnF1b3Q7Li5gIWYgOiFmIH4pTHplJCQkUCZxdW90OyZxdW90OyZxdW90OyZxdW90Oz9pCiAg" \
+                "ICAgICAgICAgICAgICAgIHVkJCQkJCQkJCQkJCQkJCRoICAgIGA/JCRGICZsdDshISYjMDM5OyZs" \
+                "dDshJmd0Ozp+KXVlJCRQKiZxdW90Oy4uOiEhISEhIEoKICAgICAgICAgICAgICAgIC5LJCQkJCQk" \
+                "JCQkJCQkJCQkJCQsICAgICBQLiZndDtlJiMwMzk7IWYgIX4gZWQkJFAmcXVvdDsuOiEhISEhISEh" \
+                "YC5kJnF1b3Q7CiAgICAgICAgICAgICAgIHokJCQkJCQkJCQkJCQkJCQkJCQkJCAgICAgIDQhIX5c" \
+                "ZSQkJFBgOiEhISEhISEhISEmIzAzOTsuZVAmIzAzOTsKICAgICAgICAgICAgICAtKiZxdW90Oy4g" \
+                "LiAmcXVvdDs/PyQkJCQkJCQkJCQkJCAgICAgICB+IGB6JCQkRiZxdW90Oy5gISEhISEhISEhISYj" \
+                "MDM5OyxkUCZxdW90OwogICAgICAgICAgICAuJnF1b3Q7ICk6ISFoIGlgIS0gKCZxdW90Oz8kJCQk" \
+                "JCRmICAgICAgICAsJCRQJnF1b3Q7OiEgKS4gYCYjMDM5OyEhISFgLGQkRiYjMDM5OwogICAgICAg" \
+                "LnVlZWV1LkpgLV4uIWggJmx0Oy0gIH5gLi4gPz8kJCYjMDM5OyAgICAgICAsJCQgOiEhYGUkJCQk" \
+                "ZSBgLGUkRiYjMDM5OwogICAgZSQkJCQkJCQkJCQkJCRlZWlDICZxdW90Oyk/Oi0mbHQ7OiUmIzAz" \
+                "OTs6Xj8gICAgICAgID8kZiAhISEgPyQkJCQmcXVvdDssRiZxdW90OwogICBQJnF1b3Q7Li4uLmBg" \
+                "YCZxdW90OyZxdW90Oz8kJCQkJCQkJCRldUxeLiEuLmAgLiAgICAgICAgICZxdW90O1R1Ll8uLGBg" \
+                "JnF1b3Q7JnF1b3Q7CiAgICQgISEhISEhISEhITo6LiZxdW90OyZxdW90Oz8/JCQkJCQkZUp+Xj0u" \
+                "ICAgICAgICAgICAgYGBgYAogICA/JC5gISEhISEhISEhISEhISE6LiZxdW90Oz8/JCQkJCRjJiMw" \
+                "Mzk7LgogICAgJnF1b3Q7P2IuYCEhISEhISEhISEhISEhISEmZ3Q7LiZxdW90Oz8kJCQkYwogICAg" \
+                "ICBePyRjYCYjMDM5OyEhISEhISEhISEhJiMwMzk7LGVlYiwgJnF1b3Q7JCQkawogICAgICAgICAm" \
+                "cXVvdDs/JGUuYCYjMDM5OyEhISEhISEgJCQkJCQgOy4/JCQKICAgICAgICAgICAgJnF1b3Q7PyRl" \
+                "ZSxgYCYjMDM5OyYjMDM5OyEuJnF1b3Q7PyRQYGkhISAzUAogICAgICAgICAgICAgICAgJnF1b3Q7" \
+                "JnF1b3Q7Pz8kYmVjLCwuLGNlZWVQJnF1b3Q7CiAgICAgICAgICAgICAgICAgICAgICAgYCZxdW90" \
+                "OyZxdW90OyZxdW90OyZxdW90OyZxdW90OyZxdW90Owo8L3ByZT4="
 
 #define METHOD_NAME "sendMessage"
 #define USER_NAME "teruteru128"
@@ -108,62 +111,136 @@ void die_if_fault_occurred(xmlrpc_env *env);
  * */
 int main(int const argc, const char **const argv)
 {
+  /* 次の実行日時を取得する */
+  /* 現在時刻を取得する */
+  struct timespec currentTime;
+  clock_gettime(CLOCK_REALTIME, &currentTime);
+  currentTime.tv_nsec = 0;
+  struct tm *tm = localtime(&currentTime.tv_sec);
+  tm->tm_sec = 0;
+  tm->tm_min = 0;
+  tm->tm_hour = 4;
+  tm->tm_mday = 25;
+  tm->tm_mon = 11;
+  struct timespec christmasTime;
+  christmasTime.tv_sec = mktime(tm);
+  christmasTime.tv_nsec = 0;
+  double diffsec = difftime(christmasTime.tv_sec, currentTime.tv_sec);
+  long diffnsec = christmasTime.tv_nsec - currentTime.tv_nsec;
+  if(diffnsec < 0)
+  {
+    diffnsec += 1000000000;
+    diffsec--;
+  }
+  if(diffsec < 0 || (diffsec == 0 && diffnsec < 0))
+  {
+    // 今年のクリスマスは終了済み
+    printf("日本は終了しました＼(^o^)／\n");
+    return 0;
+  }
+
+  printf("%.0lf.%09ld\n", diffsec, diffnsec);
+
+  {
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+    pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&cond, NULL);
+    pthread_mutex_lock(&mutex);
+    // 実行時間まで待つ
+    int sig = pthread_cond_timedwait(&cond, &mutex, &christmasTime);
+    if(sig != ETIMEDOUT)
+    {
+      return 1;
+    }
+    pthread_mutex_unlock(&mutex);
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&cond);
+  }
+
   xmlrpc_env env;
   xmlrpc_client *clientP;
   xmlrpc_server_info *serverP;
   xmlrpc_value *resultP;
-  const char *msg;
+  /* Initialize our error-handling environment. */
+  xmlrpc_env_init(&env);
+  die_if_fault_occurred(&env);
+  xmlrpc_client_setup_global_const(&env);
+  die_if_fault_occurred(&env);
+  xmlrpc_client_create(&env, XMLRPC_CLIENT_NO_FLAGS, NAME, VERSION, NULL, 0,
+                       &clientP);
+  die_if_fault_occurred(&env);
+  serverP = xmlrpc_server_info_new(&env, SERVER_URL);
+  die_if_fault_occurred(&env);
+  xmlrpc_server_info_set_user(&env, serverP, USER_NAME, PASSWORD);
+  die_if_fault_occurred(&env);
+  xmlrpc_server_info_allow_auth_basic(&env, serverP);
+  die_if_fault_occurred(&env);
+
+  char toaddress[64];
+  char *tmp = NULL;
+  xmlrpc_value *paramArray = NULL;
+  xmlrpc_value *toaddressv = NULL;
+  xmlrpc_value *fromaddressv = xmlrpc_string_new(&env, GENELRAL);
+  die_if_fault_occurred(&env);
+  xmlrpc_value *subjectv = xmlrpc_string_new(&env, SUBJECT);
+  die_if_fault_occurred(&env);
+  xmlrpc_value *messagev = xmlrpc_string_new(&env, MESSAGE);
+  die_if_fault_occurred(&env);
+  xmlrpc_value *encodingTypev = xmlrpc_int_new(&env, 2);
+  die_if_fault_occurred(&env);
+  xmlrpc_value *TTLv = xmlrpc_int_new(&env, 4 * 24 * 60 * 60);
+  die_if_fault_occurred(&env);
+  fprintf(stderr, "initialized\n");
+  char *p = NULL;
   FILE *toaddrfile = fopen(SENDTO_ADDRESS_FILE, "r");
   if (toaddrfile == NULL)
   {
     err(EXIT_FAILURE, "fopen");
   }
-  char toaddress[64];
-  char *tmp = NULL;
 
-  /* Initialize our error-handling environment. */
-  xmlrpc_env_init(&env);
-
-  xmlrpc_client_setup_global_const(&env);
-
-  xmlrpc_client_create(&env, XMLRPC_CLIENT_NO_FLAGS, NAME, VERSION, NULL, 0,
-                       &clientP);
-  die_if_fault_occurred(&env);
-  serverP = xmlrpc_server_info_new(&env, SERVER_URL);
-  xmlrpc_server_info_set_user(&env, serverP, USER_NAME, PASSWORD);
-  xmlrpc_server_info_allow_auth_basic(&env, serverP);
-
-  xmlrpc_value *paramArray = NULL;
-  xmlrpc_value *toaddressv = NULL;
-  xmlrpc_value *fromaddressv = xmlrpc_string_new(&env, GENELRAL);
-  xmlrpc_value *subjectv = xmlrpc_string_new(&env, SUBJECT);
-  xmlrpc_value *messagev = xmlrpc_string_new(&env, MESSAGE);
-  xmlrpc_value *encodingTypev = xmlrpc_int_new(&env, 2);
-  xmlrpc_value *TTLv = xmlrpc_int_new(&env, 4 * 24 * 60 * 60);
   while ((tmp = fgets(toaddress, 64, toaddrfile)) != NULL)
   {
-    paramArray = xmlrpc_array_new(&env);
+    /* ファイルから読み込んだ文字列から改行文字を取り除く */
+    p = strpbrk(toaddress, "\r\n");
+    if (p != NULL)
+    {
+      *p = '\0';
+    }
+    /* 文字列をxmlrpc文字列オブジェクトに変換する */
     toaddressv = xmlrpc_string_new(&env, toaddress);
-    xmlrpc_array_append_item(&env, paramArray, toaddressv);
-    xmlrpc_array_append_item(&env, paramArray, fromaddressv);
-    xmlrpc_array_append_item(&env, paramArray, subjectv);
-    xmlrpc_array_append_item(&env, paramArray, messagev);
-    xmlrpc_array_append_item(&env, paramArray, encodingTypev);
-    xmlrpc_array_append_item(&env, paramArray, TTLv);
+    die_if_fault_occurred(&env);
 
-    /* Make the remote procedure call */
+    /* xmlrpcのパラメータを組み立てる */
+    paramArray = xmlrpc_array_new(&env);
+    die_if_fault_occurred(&env);
+    xmlrpc_array_append_item(&env, paramArray, toaddressv);
+    die_if_fault_occurred(&env);
+    xmlrpc_array_append_item(&env, paramArray, fromaddressv);
+    die_if_fault_occurred(&env);
+    xmlrpc_array_append_item(&env, paramArray, subjectv);
+    die_if_fault_occurred(&env);
+    xmlrpc_array_append_item(&env, paramArray, messagev);
+    die_if_fault_occurred(&env);
+    xmlrpc_array_append_item(&env, paramArray, encodingTypev);
+    die_if_fault_occurred(&env);
+    xmlrpc_array_append_item(&env, paramArray, TTLv);
+    die_if_fault_occurred(&env);
+
+    /* Make the remote procedure call パラメーターとメソッドを指定して呼び出す */
     xmlrpc_client_call2(&env, clientP, serverP, METHOD_NAME, paramArray, &resultP);
     die_if_fault_occurred(&env);
 
-    /* Get our sum and print it out. */
-    xmlrpc_read_string(&env, resultP, &msg);
-    die_if_fault_occurred(&env);
-    printf("The sum  is %s\n", msg);
-    free((void *)msg);
+    printf("%s\n", toaddress);
 
-    /* Dispose of our result value. */
+    /* Dispose of our result value. ゴミ掃除 */
     xmlrpc_DECREF(paramArray);
     xmlrpc_DECREF(toaddressv);
+    xmlrpc_DECREF(fromaddressv);
+    xmlrpc_DECREF(subjectv);
+    xmlrpc_DECREF(messagev);
+    xmlrpc_DECREF(encodingTypev);
+    xmlrpc_DECREF(TTLv);
     xmlrpc_DECREF(resultP);
   }
   xmlrpc_DECREF(fromaddressv);

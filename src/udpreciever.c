@@ -6,16 +6,35 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <string.h>
 #include <unistd.h>
 
 int main()
 {
-    struct sockaddr_in addr = {
-        AF_INET, htons(12345), INADDR_ANY};
+    struct addrinfo hints, *res = NULL, *ptr = NULL;
+    hints.ai_flags = 0;
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_protocol = IPPROTO_UDP;
 
-    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    int rc = getaddrinfo("0.0.0.0", "12345", &hints, &res);
+    if(rc != 0)
+    {
+        fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(rc));
+        return EXIT_FAILURE;
+    }
+
+    int sock = -1;
+    for(ptr = res; ptr != NULL; ptr = ptr->ai_next)
+    {
+        sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+        if(sock != -1)
+        {
+            break;
+        }
+    }
 
     if (sock == -1)
     {
@@ -23,7 +42,7 @@ int main()
         return EXIT_FAILURE;
     }
 
-    int r = bind(sock, (struct sockaddr *)&addr, sizeof(addr));
+    int r = bind(sock, ptr->ai_addr, ptr->ai_addrlen);
 
     if (r == -1)
     {
@@ -31,16 +50,19 @@ int main()
         return EXIT_FAILURE;
     }
 
-    char buf[2048];
+    char buf[BUFSIZ];
     do
     {
-        memset(buf, 0, sizeof(buf));
-        ssize_t len = recv(sock, buf, sizeof(buf), 0);
+        memset(buf, 0, BUFSIZ);
+        ssize_t len = recv(sock, buf, BUFSIZ, 0);
 
-        printf("%s\n", buf);
-        printf("%ld\n", len);
+        printf("%s : %zd\n", buf, len);
     } while (strcmp(buf, "end") != 0);
-    close(sock);
+    r = close(sock);
+    freeaddrinfo(res);
 
-    return 0;
+    if(r)
+        perror("close");
+
+    return EXIT_SUCCESS;
 }

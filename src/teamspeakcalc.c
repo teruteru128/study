@@ -15,7 +15,7 @@
 #include <openssl/evp.h>
 
 #include <printint.h>
-#include <java_random.h>
+#include "java_random.h"
 #define IN2_SIZE 21
 
 typedef union mc

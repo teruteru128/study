@@ -1,9 +1,9 @@
-SUBDIRS  =
-SUBDIRS += libstudy
-SUBDIRS += include
-SUBDIRS += po
-SUBDIRS += src
-SUBDIRS += tests
+SUBDIRS  =          \
+        libstudy    \
+        include     \
+        po          \
+        src         \
+        tests
 
 ACLOCAL_AMFLAGS = -I m4
 

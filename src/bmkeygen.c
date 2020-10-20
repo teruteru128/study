@@ -14,159 +14,168 @@
 #include <openssl/evp.h>
 #include <random.h>
 #include <bm.h>
+#include <pthread.h>
+#include <omp.h>
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
-#define KEY_CACHE_SIZE 4096ULL
+#define KEY_CACHE_SIZE 67108864ULL
 #define REQUIRE_NLZ 4
 #define ADDRESS_VERSION 4
 #define STREAM_NUMBER 1
 #define J_CACHE_SIZE 126
+#define BLOCK_SIZE 128
 
-#define errchk(v, f)                                                \
-    if (!v)                                                         \
-    {                                                               \
-        unsigned long err = ERR_get_error();                        \
-        fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL)); \
-        return EXIT_FAILURE;                                        \
+#define errchk(v, f)                                            \
+  if (!v)                                                       \
+  {                                                             \
+    unsigned long err = ERR_get_error();                        \
+    fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL)); \
+    return EXIT_FAILURE;                                        \
+  }
+
+static int calcRipe(EVP_MD_CTX *mdctx, const EVP_MD *sha512, const EVP_MD *ripemd160, unsigned char *cache64, unsigned char *pubSignKey, unsigned char *pubEncKey)
+{
+  EVP_DigestInit(mdctx, sha512);
+  EVP_DigestUpdate(mdctx, pubSignKey, PUBLIC_KEY_LENGTH);
+  EVP_DigestUpdate(mdctx, pubEncKey, PUBLIC_KEY_LENGTH);
+  EVP_DigestFinal(mdctx, cache64, NULL);
+  EVP_DigestInit(mdctx, ripemd160);
+  EVP_DigestUpdate(mdctx, cache64, 64);
+  EVP_DigestFinal(mdctx, cache64, NULL);
+  return 0;
+}
+
+static void validation(unsigned char *ripe, size_t i, size_t j)
+{
+  size_t nlz = 0;
+  for (nlz = 0; !ripe[nlz] && nlz < 20; nlz++)
+    ;
+  if (nlz >= REQUIRE_NLZ)
+  {
+    //exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), signpubkey, privateKeys + (j * PRIVATE_KEY_LENGTH), encPublicKey, cache64);
+#pragma omp critical
+    {
+      fprintf(stderr, "%ld, %ld, %ld\n", nlz, i, j);
     }
+  }
+}
 
-/*
+struct searchArg
+{
+  unsigned char *privateKeys;
+  size_t priKeyNmemb;
+  unsigned char *publicKeys;
+  size_t pubKeyNmemb;
+  size_t signBegin;
+  size_t signEnd;
+  size_t encBegin;
+  size_t encEnd;
+  size_t minExportThreshold;
+};
+
+struct results;
+struct results
+{
+  size_t signkeyindex;
+  size_t encryptkeyindex;
+  size_t numberOfLeadingZero;
+  struct results *next;
+};
+
+void freeresults(struct results *results)
+{
+  struct results *work = NULL;
+  while (results != NULL)
+  {
+    work = results->next;
+    free(results);
+    results = work->next;
+  }
+}
+
+/**
  * TODO: リファクタリング
  * TODO: 鍵キャッシュサーバー
  * TODO: 既存鍵を使ってアドレス探索
  */
 int main(int argc, char *argv[])
 {
-    setlocale(LC_ALL, "");
-    bindtextdomain(PACKAGE, LOCALEDIR);
-    textdomain(PACKAGE);
-    unsigned char *privateKeys = calloc(KEY_CACHE_SIZE, PRIVATE_KEY_LENGTH);
-    if (!privateKeys)
+#ifdef _OPENMP
+  printf("openmp\n");
+#else
+  printf("no openmp\n");
+#endif
+  setlocale(LC_ALL, "");
+  bindtextdomain(PACKAGE, LOCALEDIR);
+  textdomain(PACKAGE);
+  unsigned char *publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
+  if (!publicKeys)
+  {
+    perror("calloc(publicKeys)");
+    return EXIT_FAILURE;
+  }
+  fprintf(stderr, "calloced\n");
+  {
+    FILE *fin = fopen("publicKeys.bin", "rb");
+    if (fin == NULL)
     {
-        perror("calloc(privateKeys)");
-        return EXIT_FAILURE;
+      free(publicKeys);
+      exit(EXIT_FAILURE);
     }
-    unsigned char *publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
-    if (!publicKeys)
+    size_t l = fread(publicKeys, PUBLIC_KEY_LENGTH, KEY_CACHE_SIZE, fin);
+    fclose(fin);
+    if (l == KEY_CACHE_SIZE)
     {
-        perror("calloc(publicKeys)");
-        return EXIT_FAILURE;
+      fprintf(stderr, "ok\n");
     }
-    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
-    const EVP_MD *sha512md = EVP_sha512();
-    const EVP_MD *ripemd160md = EVP_ripemd160();
-    unsigned char iPublicKey[PUBLIC_KEY_LENGTH];
-    unsigned char jPublicKey[PUBLIC_KEY_LENGTH * J_CACHE_SIZE];
-    unsigned char cache64[EVP_MAX_MD_SIZE];
-    size_t i = 0;
-    size_t j = 0;
-    size_t jj = 0;
-    int r = 0;
+  }
+  fprintf(stderr, "loaded\n");
+  /*
+   * 67108864
+   * 67108864(67108864+1)/2 = 2251799847239680
+   * x(x+1)/2 = 562949961809920
+   * x≈33554432
+   * x≈47453132
+   * x≈58117980
+   * threads[0]:0<=x<33554432
+   * threads[1]:33554432<=x<47453132
+   * threads[2]:47453132<=x<58117980
+   * threads[3]:58117980<=x<67108864
+   */
 
-    // curve 生成
-    EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
-    errchk(secp256k1, EC_GROUP_new_by_curve_name);
-    // private key working area
-    BIGNUM *prikey = BN_new();
-    errchk(prikey, BN_new);
-    // public key working area
-    EC_POINT *pubkey = EC_POINT_new(secp256k1);
-    errchk(pubkey, EC_POINT_new);
-    BN_CTX *ctx = BN_CTX_new();
-    errchk(ctx, BN_CTX_new);
-    BIGNUM *tmp = NULL;
-    size_t nlz = 0;
-    while (true)
+  //unsigned char *privateKeys = NULL;
+  //unsigned char *publicKeys = ;
+  EVP_MD_CTX *mdctx = NULL;
+  const EVP_MD *sha512md = EVP_sha512();
+  const EVP_MD *ripemd160md = EVP_ripemd160();
+  unsigned char *signpubkey = NULL;
+  unsigned char *encPublicKey = NULL;
+  unsigned char cache64[EVP_MAX_MD_SIZE];
+  size_t iPubIndex = 0;
+  size_t ii = 0;
+  size_t jIndex = 0;
+  size_t jj = 0;
+  int r = 0;
+
+#pragma omp parallel for shared(sha512md, ripemd160md, publicKeys) private(cache64, signpubkey, mdctx)
+  for (size_t i = 0; i < 67108864; i++)
+  {
+    signpubkey = publicKeys + (i * PUBLIC_KEY_LENGTH);
+#pragma omp parallel for shared(sha512md, ripemd160md, publicKeys) private(cache64, mdctx) firstprivate(signpubkey, i)
+    for (size_t j = 0; j < i; j++)
     {
-        fprintf(stderr, _("Initializing private key...\n"));
-        nextBytes(privateKeys, KEY_CACHE_SIZE * PRIVATE_KEY_LENGTH);
-        fprintf(stderr, _("Initialized the private key. Initialize the public key.\n"));
-        // 公開鍵の生成に非常に時間がかかるので注意。秒速9000鍵で30分程度
-        for (i = 0; i < KEY_CACHE_SIZE; i++)
-        {
-            tmp = BN_bin2bn(privateKeys + (i * PRIVATE_KEY_LENGTH), PRIVATE_KEY_LENGTH, prikey);
-            errchk(tmp, BN_bin2bn);
-            r = EC_POINT_mul(secp256k1, pubkey, prikey, NULL, NULL, ctx);
-            errchk(r, EC_POINT_mul);
-            r = EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH, ctx);
-            errchk(r, EC_POINT_point2oct);
-        }
-        fprintf(stderr, _("The public key initialization is complete.\n"));
-        // iのキャッシュサイズは一つ
-        // jのキャッシュサイズは4つ
-        for (i = 0; i < KEY_CACHE_SIZE; i++)
-        {
-            // ヒープから直接参照するより一度スタックにコピーしたほうが早い説
-            memcpy(iPublicKey, publicKeys + (i * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-            EVP_DigestInit(mdctx, sha512md);
-            EVP_DigestUpdate(mdctx, iPublicKey, PUBLIC_KEY_LENGTH);
-            EVP_DigestUpdate(mdctx, iPublicKey, PUBLIC_KEY_LENGTH);
-            EVP_DigestFinal(mdctx, cache64, NULL);
-            EVP_DigestInit(mdctx, ripemd160md);
-            EVP_DigestUpdate(mdctx, cache64, 64);
-            EVP_DigestFinal(mdctx, cache64, NULL);
-            if (!cache64[0])
-            {
-                for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
-                {
-                }
-                if (nlz >= REQUIRE_NLZ)
-                {
-                    exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
-                }
-            }
-            for (j = 0; j < i; j += J_CACHE_SIZE)
-            {
-                memcpy(jPublicKey, publicKeys + (j * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH * J_CACHE_SIZE);
-                for (jj = 0; jj < J_CACHE_SIZE && (j + jj) < i; jj++)
-                {
-                    EVP_DigestInit(mdctx, sha512md);
-                    EVP_DigestUpdate(mdctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                    EVP_DigestUpdate(mdctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-                    EVP_DigestFinal(mdctx, cache64, NULL);
-                    EVP_DigestInit(mdctx, ripemd160md);
-                    EVP_DigestUpdate(mdctx, cache64, 64);
-                    EVP_DigestFinal(mdctx, cache64, NULL);
-                    if (!cache64[0])
-                    {
-                        for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
-                        {
-                        }
-                        if (nlz >= REQUIRE_NLZ)
-                        {
-                            exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), cache64);
-                        }
-                    }
-                    EVP_DigestInit(mdctx, sha512md);
-                    EVP_DigestUpdate(mdctx, jPublicKey + (jj * PUBLIC_KEY_LENGTH), PUBLIC_KEY_LENGTH);
-                    EVP_DigestUpdate(mdctx, iPublicKey, PUBLIC_KEY_LENGTH);
-                    EVP_DigestFinal(mdctx, cache64, NULL);
-                    EVP_DigestInit(mdctx, ripemd160md);
-                    EVP_DigestUpdate(mdctx, cache64, 64);
-                    EVP_DigestFinal(mdctx, cache64, NULL);
-                    if (!cache64[0])
-                    {
-                        for (nlz = 1; !cache64[nlz] && nlz < 20; nlz++)
-                        {
-                        }
-                        if (nlz >= REQUIRE_NLZ)
-                        {
-                            exportAddress(privateKeys + ((j + jj) * PRIVATE_KEY_LENGTH), jPublicKey + (jj * PUBLIC_KEY_LENGTH), privateKeys + (i * PRIVATE_KEY_LENGTH), iPublicKey, cache64);
-                        }
-                    }
-                } // jj
-            }
-        }
+      mdctx = EVP_MD_CTX_new();
+      encPublicKey = publicKeys + (j * PUBLIC_KEY_LENGTH);
+      calcRipe(mdctx, sha512md, ripemd160md, cache64, signpubkey, encPublicKey);
+      validation(cache64, i, j);
+      calcRipe(mdctx, sha512md, ripemd160md, cache64, encPublicKey, signpubkey);
+      validation(cache64, j, i);
+      EVP_MD_CTX_free(mdctx);
     }
-    /* DEAD CODE ***********************/
-    //shutdown:
-    free(privateKeys);
-    free(publicKeys);
-    BN_free(prikey);
-    BN_CTX_free(ctx);
-    EC_POINT_free(pubkey);
-    EC_GROUP_free(secp256k1);
-    EVP_MD_CTX_free(mdctx);
-    return EXIT_SUCCESS;
+  }
+  //shutdown:
+  //free(privateKeys);
+  free(publicKeys);
+  return EXIT_SUCCESS;
 }

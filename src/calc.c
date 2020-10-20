@@ -34,7 +34,8 @@ int main(int argc, char **argv)
       return 2;
     }
     char *buf = malloc(BUFSIZE);
-    if(!buf) {
+    if (!buf)
+    {
       perror("malloc buf");
       return EXIT_FAILURE;
     }

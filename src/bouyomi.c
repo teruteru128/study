@@ -1,7 +1,7 @@
 /*
-    今回: https://qiita.com/tajima_taso/items/13b5662aca1f68fc6e8e
-    前回: https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
-*/
+ * 今回: https://qiita.com/tajima_taso/items/13b5662aca1f68fc6e8e
+ * 前回: https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
+ */
 
 #include "config.h"
 #include "gettext.h"
@@ -46,7 +46,11 @@
 #include <unistd.h> //close()
 #endif
 
-/**/
+#include <endian.h>
+
+/**
+ * 
+ */
 int send_to_server(char *hostname, char *servicename, char *data, size_t len)
 {
   struct addrinfo hints, *res = NULL;
@@ -67,7 +71,7 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
     if (sock < 0)
     {
       perror("socket()");
-      exit(EXIT_FAILURE);
+      return EXIT_FAILURE;
     }
     rc = connect(sock, adrinf->ai_addr, adrinf->ai_addrlen);
     if (rc < 0)
@@ -75,7 +79,8 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
       close(sock);
       continue;
     }
-    print_addrinfo(adrinf);
+    fprintf(stderr, "[DEBUG]:");
+    print_addrinfo0(adrinf, stderr);
     break;
   }
   freeaddrinfo(res);
@@ -83,15 +88,14 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
   {
     perror("connect()");
     close(sock);
-    exit(EXIT_FAILURE);
+    return EXIT_FAILURE;
   }
 
   ssize_t w = 0;
   // 送信
-  w = write(sock, data, len);
-  if (len != w)
+  if ((w = write(sock, data, len)) <= 0)
   {
-    fprintf(stderr, _("Error!\n"));
+    fprintf(stderr, _("Error! %s\n"), strerror(errno));
   }
   else
   {
@@ -107,28 +111,8 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
   return EXIT_SUCCESS;
 }
 
-/*
- * 1. コマンドライン引数解析
- * 2. 読み上げメッセージ文字コード変換
- * 3. プロトコルエンコード
- * 4. サーバーへ接続
- * 5. 後始末
- *
- * 1. encode
- * 2. connect
- * 3. send
- * 4. cleanup
- *
- * option
- * server(host & port)
- * charset
- * proxyは外部で対処
- */
-int main(int argc, char *argv[])
+void init_gettext()
 {
-  int rc = 0;
-  int ignore_errors = 0;
-
   setlocale(LC_ALL, "");
   /*
   if (setlocale(LC_ALL, "ja_JP.UTF-8") == NULL)
@@ -139,10 +123,15 @@ int main(int argc, char *argv[])
   */
   bindtextdomain(PACKAGE, LOCALEDIR);
   textdomain(PACKAGE);
-  /*
-   * https://github.com/torproject/tor/blob/03867b3dd71f765e5adb620095692cb41798c273/src/app/config/config.c#L2537
-   * parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_errors)
-   */
+}
+
+struct args args;
+
+int call_bouyomi(int argc, char **argv)
+{
+  int rc = 0;
+  int ignore_errors = 0;
+  struct args *a = &args;
   /*
      {
      char *s, *arg;
@@ -194,16 +183,76 @@ int main(int argc, char *argv[])
    i += want_arg ? 2: 1;
    }
    }*/
-  char *in = NULL;
-  if (argc >= 2)
+  char *in = malloc(BUFSIZ);
+  if(!in)
   {
-    in = argv[1];
+    perror("malloc, in");
+    return EXIT_FAILURE;
+  }
+  in[0] = 0;
+  char *tmp = NULL;
+  size_t strlength = 0;
+  size_t len = 0;
+  size_t capacity = BUFSIZ;
+  char buf[BUFSIZ];
+  if (!isatty(fileno(stdin)))
+  {
+    while (fgets(buf, BUFSIZ, stdin) != NULL)
+    {
+      len = strlen(buf);
+      if (len == 0)
+      {
+        continue;
+      }
+      size_t minnewcapa = strlength + len + 1;
+      if (minnewcapa > capacity)
+      {
+        while (minnewcapa > capacity)
+        {
+          capacity *= 2;
+        }
+        tmp = realloc(in, capacity);
+        if (!tmp)
+        {
+          exit(EXIT_FAILURE);
+        }
+        in = tmp;
+      }
+      strcat(in + strlength, buf);
+      strlength += len;
+    }
+  }
+  if (strlength == 0)
+  {
+    len = strlen("やったぜ。");
+    size_t reqlen = strlength + len + 1;
+    if(reqlen > capacity)
+    {
+      tmp = realloc(in, reqlen);
+      if (!tmp)
+      {
+        exit(EXIT_FAILURE);
+      }
+      in = tmp;
+    }
+    strlength += len;
+    strcat(in, "やったぜ。");
+  }
+  capacity = strlen(in) + 1;
+  tmp = realloc(in, capacity);
+  if(tmp == NULL)
+  {
+    perror("realloc(strlen(in) + 1)");
+    return EXIT_FAILURE;
   }
   else
   {
-    in = "やったぜ。　投稿者：変態糞土方 (8月16日（水）07時14分22秒)\n昨日の8月15日にいつもの浮浪者のおっさん（60歳）と先日メールくれた汚れ好きの土方のにいちゃん\n（45歳）とわし（53歳）の3人で県北にある川の土手の下で盛りあったぜ。\n今日は明日が休みなんでコンビニで酒とつまみを買ってから滅多に人が来ない所なんで、\nそこでしこたま酒を飲んでからやりはじめたんや。\n3人でちんぽ舐めあいながら地下足袋だけになり持って来たいちぢく浣腸を3本ずつ入れあった。\nしばらくしたら、けつの穴がひくひくして来るし、糞が出口を求めて腹の中でぐるぐるしている。\n浮浪者のおっさんにけつの穴をなめさせながら、兄ちゃんのけつの穴を舐めてたら、\n先に兄ちゃんがわしの口に糞をドバーっと出して来た。\nそれと同時におっさんもわしも糞を出したんや。もう顔中、糞まみれや、\n3人で出した糞を手で掬いながらお互いの体にぬりあったり、\n糞まみれのちんぽを舐めあって小便で浣腸したりした。ああ～～たまらねえぜ。\nしばらくやりまくってから又浣腸をしあうともう気が狂う程気持ちええんじゃ。\n浮浪者のおっさんのけつの穴にわしのちんぽを突うずるっ込んでやると\nけつの穴が糞と小便でずるずるして気持ちが良い。\nにいちゃんもおっさんの口にちんぽ突っ込んで腰をつかって居る。\n糞まみれのおっさんのちんぽを掻きながら、思い切り射精したんや。\nそれからは、もうめちゃくちゃにおっさんと兄ちゃんの糞ちんぽを舐めあい、\n糞を塗りあい、二回も男汁を出した。もう一度やりたいぜ。\nやはり大勢で糞まみれになると最高やで。こんな、変態親父と糞あそびしないか。\nああ～～早く糞まみれになろうぜ。\n岡山の県北であえる奴なら最高や。わしは163*90*53,おっさんは165*75*60、や\n糞まみれでやりたいやつ、至急、メールくれや。\n土方姿のまま浣腸して、糞だらけでやろうや。";
+    in = tmp;
   }
-  charset charset = UTF_8;
+  /*
+   * 文字コード変換
+   */
+  charset_t charset = UTF_8;
   char *out = NULL;
   char encode = 0;
 
@@ -232,52 +281,104 @@ int main(int argc, char *argv[])
     break;
   }
 
+  free(in);
   if (out == NULL)
   {
     perror("out encode OR copy failed");
     return EXIT_FAILURE;
   }
 
-  // TODO encode関数に分離
-  // 棒読みちゃん向けにエンコード
-  char header[15];
+  /*
+   * TODO: encode関数に分離
+   * 棒読みちゃん向けにエンコード
+   */
   short command = 1;
   short speed = -1;
   short tone = -1;
-  short volume = 200;
+  short volume = -1;
   short voice = 0;
   size_t length = strlen(out);
   fprintf(stderr, "length : %ld\n", length);
 
   // なぜhtonsなしで読み上げできるのか謎
   // 棒読みちゃんはリトルエンディアン指定だそうです
-  // c#サンプルでBinaryWriterを使ってたから本体でもBinaryReader使ってるんじゃないんですか？知らんけど
-  *((short *)&header[0]) = command;
-  *((short *)&header[2]) = speed;
-  *((short *)&header[4]) = tone;
-  *((short *)&header[6]) = volume;
-  *((short *)&header[8]) = voice;
-  *((char *)&header[10]) = encode;
-  *((int *)&header[11]) = length;
+  // c#サンプルでBinaryWriterを使ってたから
+  // 本体でもBinaryReader使ってるんじゃないんですか？
+  // 知らんけど
 
   size_t send_len = 15 + length;
   char *send_buf = malloc(send_len);
-  memcpy(send_buf, header, 15);
+  *((short *)(send_buf + 0)) = htole16(command);
+  *((short *)(send_buf + 2)) = htole16(speed);
+  *((short *)(send_buf + 4)) = htole16(tone);
+  *((short *)(send_buf + 6)) = htole16(volume);
+  *((short *)(send_buf + 8)) = htole16(voice);
+  *( (char *)(send_buf + 10)) = encode;
+  *(  (int *)(send_buf + 11)) = htole32((int)length);
   memcpy(send_buf + 15, out, length);
   free(out);
 
-  char *servAddr = ONION_SERV_ADDRESS;
-  char *servPortStr = DEFAULT_PORT_STR;
-  int use_onion = 1;
+  char servAddr[NI_MAXHOST];
+  char servPortStr[NI_MAXSERV] = DEFAULT_PORT_STR;
+  int use_onion = 0;
   if (use_onion == 1)
   {
-    servAddr = ONION_SERV_ADDRESS;
+    strncpy(servAddr, ONION_SERV_ADDRESS, NI_MAXHOST);
   }
   else
   {
-    servAddr = DEFAULT_SERV_ADDRESS;
+    strncpy(servAddr, DEFAULT_SERV_ADDRESS_2, NI_MAXHOST);
   }
   rc = send_to_server(servAddr, servPortStr, send_buf, send_len);
   free(send_buf);
-  return EXIT_SUCCESS;
+  return rc;
+}
+
+/*
+ * 1. コマンドライン引数解析
+ * 2. 読み上げメッセージ文字コード変換
+ * 3. プロトコルエンコード
+ * 4. サーバーへ接続
+ * 5. 後始末
+ *
+ * 1. encode
+ * 2. connect
+ * 3. send
+ * 4. cleanup
+ *
+ * option
+ * server(host & port)
+ * --host
+ *   デフォルト localhost
+ * --port
+ *   デフォルト 50001
+ * charset
+ * proxyは外部で対処
+ *
+ * https://github.com/torproject/tor/blob/03867b3dd71f765e5adb620095692cb41798c273/src/app/config/config.c#L2537
+ * parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_errors)
+ * 引数を何も指定しないときはヘルプを表示して終了？
+ * --command
+ * --speed
+ * --tone
+ * --volume
+ * --voice
+ * args *new_args();
+ * call_bouyomi(int argc, char **argv);
+ *  parseargs
+ *  buildrequest
+ *  chooseserver
+ *  sendtoserver
+ *
+ * bouyomic *bouyomi_client_new();
+ *
+ * ログレベルはグローバル領域においておかないと使いづらくないか？
+ */
+int main(int argc, char *argv[])
+{
+  int rc = 0;
+
+  init_gettext();
+  rc = call_bouyomi(argc, argv);
+  return rc;
 }

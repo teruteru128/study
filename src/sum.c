@@ -33,7 +33,9 @@ int main(int argc, char *argv[])
   mpz_add(sum, sum, x3);
   mpz_add(sum, sum, y3);
   mpz_add(sum, sum, z3);
-  gmp_printf("(%Zd)^3 + (%Zd)^3 + (%Zd) = (%Zd) + (%Zd) + (%Zd) = %Zd\n", x, y, z, x3, y3, z3, sum);
+  gmp_printf("(%Zd)^3 + (%Zd)^3 + (%Zd)\n", x, y, z);
+  gmp_printf(" = (%Zd) + (%Zd) + (%Zd)\n", x3, y3, z3);
+  gmp_printf(" = %Zd\n", sum);
   mpz_clears(x, y, z, x3, y3, z3, sum, NULL);
 
   return EXIT_SUCCESS;

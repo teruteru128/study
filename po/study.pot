@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: study 1.0.0\n"
+"Project-Id-Version: study 1.0.1\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-07-16 17:23+0900\n"
+"POT-Creation-Date: 2020-10-09 11:00+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,27 +17,12 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/bmkeygen.c:82
-#, c-format
-msgid "Initializing private key...\n"
-msgstr ""
-
-#: src/bmkeygen.c:84
-#, c-format
-msgid "Initialized the private key. Initialize the public key.\n"
-msgstr ""
-
-#: src/bmkeygen.c:95
-#, c-format
-msgid "The public key initialization is complete.\n"
-msgstr ""
-
-#: src/bouyomi.c:94
-#, c-format
-msgid "Error!\n"
-msgstr ""
-
 #: src/bouyomi.c:98
+#, c-format
+msgid "Error! %s\n"
+msgstr ""
+
+#: src/bouyomi.c:102
 #, c-format
 msgid "Sent!\n"
 msgstr ""
@@ -67,19 +52,29 @@ msgstr ""
 msgid "p is larger\n"
 msgstr ""
 
-#: src/gettextsample.c:14 src/gettextsample2.c:9 src/localetest1.c:15
+#: src/gettextsample.c:14 src/gettextsample2.c:15 src/localetest1.c:15
 #, c-format
 msgid "Hello world!\n"
 msgstr ""
 
-#: src/gettextsample3.c:10
+#: src/gettextsample3.c:17
 #, c-format
 msgid "%dmicro seconds stopping.\n"
 msgstr ""
 
-#: src/gettextsample3.c:12
+#: src/gettextsample3.c:19
 #, c-format
 msgid "%dmicro seconds stoped.\n"
+msgstr ""
+
+#: src/ntp.c:104
+#, c-format
+msgid "Local time : %s"
+msgstr ""
+
+#: src/ntp.c:105
+#, c-format
+msgid "NTP server time : %s"
 msgstr ""
 
 #: src/printBench.c:42
@@ -95,16 +90,6 @@ msgstr ""
 #: src/printBench.c:44
 #, c-format
 msgid "%e seconds per time\n"
-msgstr ""
-
-#: src/sntpc.c:199
-#, c-format
-msgid "Local time : %s"
-msgstr ""
-
-#: src/sntpc.c:200
-#, c-format
-msgid "NTP server time : %s"
 msgstr ""
 
 #: src/teamspeakcalc.c:65

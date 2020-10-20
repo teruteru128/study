@@ -2,6 +2,7 @@
 src/bmkeygen.c
 src/bouyomi.c
 #src/cudahello.cu
+#src/cudamalloctest.cu
 src/eckeygentest.c
 src/encodersa.c
 src/gettextsample.c
@@ -9,6 +10,7 @@ src/gettextsample2.c
 src/gettextsample3.c
 src/itoabench.c
 src/localetest1.c
+src/ntp.c
 src/printBench.c
 src/sntpc.c
 src/study.c

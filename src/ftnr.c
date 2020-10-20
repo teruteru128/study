@@ -1,7 +1,8 @@
 
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <java_random.h>
+#include "java_random.h"
 #include <time.h>
 #include <math.h>
 #include <sys/time.h>
@@ -43,13 +44,12 @@
  */
 int main(int argc, char const *argv[])
 {
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  int64_t seed = (tv.tv_usec & 0x000FFFFF) << 28;
-  seed ^= tv.tv_sec;
+  struct timespec ts;
+  clock_gettime(CLOCK_REALTIME, &ts);
+  int64_t seed = ((ts.tv_nsec & 0x00FFFFFFL) << 24) + ts.tv_sec;
   int64_t rnd = initialScramble(seed);
   int i = 0;
-  for( ; i < 5; i++)
-  printf("%.1fcm, %lfml\n", (nextFloat(&rnd) * 310 + 90) / 10, pow(10, nextFloat(&rnd) * 4));
-  return 0;
+  for (; i < 5; i++)
+    printf("%.1fcm, %lfml\n", (nextDouble(&rnd) * 310 + 90) / 10, pow(10, nextDouble(&rnd) * 4));
+  return EXIT_SUCCESS;
 }

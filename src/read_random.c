@@ -9,7 +9,7 @@
 #else
 #define D_SIZE (8)
 #endif
-/*
+/**
   TODO: 出力フォーマット, データ長
   32bit 符号付き/符号なし整数
   64bit 符号付き/符号なし整数

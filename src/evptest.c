@@ -19,7 +19,8 @@ int main(int argc, char const *argv[])
     EVP_DigestInit(ctx, EVP_get_digestbynid(NID_sha3_256));
     EVP_DigestUpdate(ctx, str, strlen(str));
     EVP_DigestFinal(ctx, md, &mdsize);
-    for(unsigned int i = 0; i < mdsize; i++){
+    for (unsigned int i = 0; i < mdsize; i++)
+    {
         fprintf(stdout, "%02x", md[i]);
     }
     fputs("\n", stdout);
@@ -27,7 +28,8 @@ int main(int argc, char const *argv[])
     EVP_DigestInit(ctx, EVP_sha3_256());
     EVP_DigestUpdate(ctx, str, strlen(str));
     EVP_DigestFinal(ctx, md, &mdsize);
-    for(unsigned int i = 0; i < mdsize; i++){
+    for (unsigned int i = 0; i < mdsize; i++)
+    {
         fprintf(stdout, "%02x", md[i]);
     }
     fputs("\n", stdout);

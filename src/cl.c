@@ -33,27 +33,30 @@ int main(int argc, char *argv[])
   if (argc != 3)
   {
     fprintf(stderr, "usage: %s nodename servname\n", argv[0]);
-    return -1;
+    return EXIT_FAILURE;
   }
 
   /* 引数で指定されたアドレス、ポート番号からアドレス情報を得る */
   memset(&hints, 0, sizeof(hints));
+  hints.ai_flags = 0;
+  hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
 
   rc = getaddrinfo(argv[1], argv[2], &hints, &res);
   if (rc != 0)
   {
     fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(rc));
-    return -1;
+    return EXIT_FAILURE;
   }
+
+  char buf[BUFSIZ];
+  int sock = 0;
+  ssize_t len = 0;
 
   /* 得られたアドレスすべてに対し接続を行う */
   for (adrinf = res; adrinf != NULL; adrinf = adrinf->ai_next)
   {
-
-    char buf[2048];
-    int sock;
-    int len;
 
     /*
      * 接続要求をする。
@@ -73,17 +76,32 @@ int main(int argc, char *argv[])
       continue;
     }
 
-    /* アドレス情報を表示する */
-    print_addrinfo(adrinf);
-
-    /* サーバからの応答を表示する */
-    while (0 < (len = read(sock, buf, sizeof(buf))))
-    {
-      printf("%.*s", len, buf);
-    }
-
-    close(sock);
+    break;
   }
+  /* アドレス情報を表示する */
+  print_addrinfo(adrinf);
+
+  len = write(sock, "334", strlen("334"));
+  if(len == 0)
+  {
+    perror("write 1");
+    close(sock);
+    return EXIT_FAILURE;
+  }
+
+  /* サーバからの応答を表示する */
+  while (0 < (len = read(sock, buf, sizeof(buf))))
+  {
+    printf("%ld, %s\n", len, buf);
+  }
+  len = write(sock, "-1", strlen("-1"));if(len == 0)
+  {
+    perror("write 2");
+    close(sock);
+    return EXIT_FAILURE;
+  }
+
+  close(sock);
 
   return EXIT_SUCCESS;
 }
