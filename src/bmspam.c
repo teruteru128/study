@@ -189,7 +189,7 @@ int main(int const argc, const char **const argv)
   die_if_fault_occurred(&env);
   xmlrpc_value *encodingTypev = xmlrpc_int_new(&env, 2);
   die_if_fault_occurred(&env);
-  xmlrpc_value *TTLv = xmlrpc_int_new(&env, 4 * 24 * 60 * 60);
+  xmlrpc_value *TTLv = xmlrpc_int_new(&env, 28 * 4 * 24 * 60 * 60);
   die_if_fault_occurred(&env);
   fprintf(stderr, "initialized\n");
   char *p = NULL;
