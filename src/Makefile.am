@@ -87,6 +87,7 @@ bin_PROGRAMS= \
 	soloFly2 \
 	soloFly2-2 \
 	string_list_test \
+	strspntest \
 	study \
 	sum \
 	teamspeakIdUpgrader \
