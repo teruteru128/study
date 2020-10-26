@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <string.h>
+#include <syslog.h>
 
 #define LIMIT 16
 
@@ -77,5 +78,6 @@ int main(int argc, char *argv[])
   tm.tm_year = 2010 - 1900;
   time_t time2 = mktime(&tm);
   printf("%lf\n", difftime(time1, time2));
+  syslog(LOG_NOTICE, "HELLO WORLD");
   return EXIT_SUCCESS;
 }

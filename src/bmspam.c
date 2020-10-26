@@ -25,7 +25,7 @@
 
 void die_if_fault_occurred(xmlrpc_env *env);
 
-#define SENDTO_ADDRESS_FILE "main.txt"
+#define SENDTO_ADDRESS_FILE "test.txt"
 #define SUBJECT "TWVycnkgQ2hyaXN0bWFzIQ=="
 #define MESSAGE "PHByZT4KICAgIEBAICAgICAgICAgIEBACiAgICBAQEAgICAgICAgIEBAQAogICAgQEBAQCAgICAg" \
                 "IEBAQEAgICBAQEBAICBAQCBAQEAgIEBAIEBAQCBAQCAgICAgIEBACiAgICBAQCBAQCAgICBAQCBA" \
@@ -96,7 +96,8 @@ void die_if_fault_occurred(xmlrpc_env *env);
 #define PASSWORD "testpassword"
 
 /**
- * int main(int argc, char* argv[]){
+ * int main(int argc, char* argv[])
+ * {
  *   // グローバル定数初期化
  *   global_init();
  *   // 設定ファイルパース
@@ -108,6 +109,7 @@ void die_if_fault_occurred(xmlrpc_env *env);
  *   // 後片付け
  *   global_cleanup();
  * }
+ * TODO: コマンドライン引数でtest.txtとaddressbook.txtを切り替えられるようにする
  * */
 int main(int const argc, const char **const argv)
 {

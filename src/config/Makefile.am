@@ -3,8 +3,8 @@ studydatadir = $(datadir)/study
 
 EXTRA_DIST=\
         addressbook.txt\
-        main.txt
+        test.txt
 
 studydata_DATA=\
         addressbook.txt\
-        main.txt
+        test.txt

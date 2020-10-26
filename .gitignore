@@ -150,3 +150,5 @@ tags
 *.aux
 *.dvi
 *.pdf
+TAGS
+publicKeys.bin
