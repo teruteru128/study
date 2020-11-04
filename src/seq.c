@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
   printf("a_1 = %.52Lf\n", A1);
 
   int i = 0;
-  for (i = 0; i < 100; i++)
+  for (i = 2; i < 100; i++)
   {
     a = (an2 * an2 * an2 + an) / P;
     if (a >= 1000000)
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-      printf("a_%d = %.52Lf\n", i + 2, a);
+      printf("a_%d = %.52Lf\n", i, a);
     }
     an2 = an;
     an = a;
