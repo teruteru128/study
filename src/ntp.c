@@ -51,7 +51,7 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
   fprintf(out, "mode : %d\n", mode);
   fprintf(out, "Stratum : %d\n", stratum);
   fprintf(out, "Poll : %d(%d)\n", poll, 1 << poll);
-  fprintf(out, "Precision : %d(%.32f)\n", pre, pow(2, pre));
+  fprintf(out, "Precision : %d(%g)\n", pre, pow(2, pre));
   fprintf(out, "Root Delay : %d(%f)\n", root_delay, root_delay / 0x1p+16);
   fprintf(out, "Root Dispersion : %d(%f)\n", root_dispersion, root_dispersion / 0x1p+16);
   fprintf(out, "Reference ID : %08x", bswap_32(reference_identifier));

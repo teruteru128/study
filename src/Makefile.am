@@ -99,6 +99,7 @@ bin_PROGRAMS= \
 	tweet \
 	udpreciever \
 	udpsender \
+	upnp-port-fowarding-test \
 	uuidtest \
 	variables \
 	variables3 \

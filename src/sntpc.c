@@ -121,8 +121,8 @@ int main(int argc, char *argv[])
   fprintf(stderr, "revents : %04x\n", fds.revents);
   struct NTP_Packet recv;
   memset(&recv, 0, sizeof(struct NTP_Packet));
-  w = read(recv_sock, &recv, sizeof(struct NTP_Packet));
-  if (w == (ssize_t)-1)
+  ssize_t r = read(recv_sock, &recv, sizeof(struct NTP_Packet));
+  if (r == (ssize_t)-1)
   {
     perror("read");
     close(recv_sock);
