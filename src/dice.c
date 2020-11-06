@@ -2,7 +2,6 @@
 #include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <java_random.h>
 #include <byteswap.h>
 
 #define ROLLS 28
@@ -16,18 +15,19 @@ int main(int argc, char const *argv[])
         return EXIT_FAILURE;
     }
     int64_t seed = 0;
-    size_t num = fread(&seed, sizeof(char), 6, in);
+    size_t num = fread(&seed, sizeof(char), 8, in);
     fclose(in);
-    if(num != 6)
+    if(num != 8)
     {
-        fprintf(stderr, "read error!\n");
+        perror("fread");
         return EXIT_FAILURE;
     }
-    seed = n(htole64(seed));
+    seed = htole64(seed);
+    srandom(((seed >> 32) & 0xffffffff) ^ (seed & 0xffffffff));
     int roll[ROLLS];
     for(size_t i = 0; i < ROLLS; i++)
     {
-        roll[i] = nextIntWithBounds(&seed, DICE_SIZE) + 1;
+        roll[i] = ((double)random() / RAND_MAX) * DICE_SIZE + 1;
     }
     /*
      * https://hg.openjdk.java.net/jdk/jdk14/file/6c954123ee8d/src/java.base/share/classes/java/util/StringJoiner.java
