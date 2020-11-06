@@ -25,16 +25,16 @@ int main(int argc, char **argv)
     hints.ai_protocol = IPPROTO_UDP;
 
     int rc = getaddrinfo("localhost", "12345", &hints, &res);
-    if(rc != 0)
+    if (rc != 0)
     {
         fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(rc));
         return EXIT_FAILURE;
     }
 
-    for(ptr = res; ptr != NULL; ptr = ptr->ai_next)
+    for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
     {
         sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-        if(sock != -1)
+        if (sock != -1)
         {
             break;
         }

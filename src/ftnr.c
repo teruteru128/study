@@ -6,6 +6,7 @@
 #include <time.h>
 #include <math.h>
 #include <sys/time.h>
+#include <errno.h>
 
 /*
  * 9.3cm, 6.243646ml
@@ -47,9 +48,30 @@ int main(int argc, char const *argv[])
   struct timespec ts;
   clock_gettime(CLOCK_REALTIME, &ts);
   int64_t seed = ((ts.tv_nsec & 0x00FFFFFFL) << 24) + ts.tv_sec;
-  int64_t rnd = initialScramble(seed);
-  int i = 0;
-  for (; i < 5; i++)
-    printf("%.1fcm, %lfml\n", (nextDouble(&rnd) * 310 + 90) / 10, pow(10, nextDouble(&rnd) * 4));
+  char statebuf[BUFSIZ];
+  struct random_data buf;
+  errno = 0;
+  initstate_r(seed, statebuf, BUFSIZ, &buf);
+  if (srandom_r(seed, &buf) != 0)
+  {
+    perror("srandom_r");
+    return EXIT_FAILURE;
+  }
+  int32_t dick1;
+  int32_t dick2;
+  for (size_t i = 0; i < 5; i++)
+  {
+    if (random_r(&buf, &dick1))
+    {
+      perror("random_r 1");
+      return EXIT_FAILURE;
+    }
+    if (random_r(&buf, &dick2))
+    {
+      perror("random_r 2");
+      return EXIT_FAILURE;
+    }
+    printf("%.1fcm, %lfml\n", ((double)dick1 / RAND_MAX * 310 + 90) / 10, pow(10, (double)dick2 / RAND_MAX * 4));
+  }
   return EXIT_SUCCESS;
 }

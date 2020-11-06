@@ -10,14 +10,15 @@
 int main(int argc, char const *argv[])
 {
     FILE *in = fopen("/dev/urandom", "rb");
-    if(!in){
+    if (!in)
+    {
         perror("fopen urandom");
         return EXIT_FAILURE;
     }
     int64_t seed = 0;
     size_t num = fread(&seed, sizeof(char), 8, in);
     fclose(in);
-    if(num != 8)
+    if (num != 8)
     {
         perror("fread");
         return EXIT_FAILURE;
@@ -25,7 +26,7 @@ int main(int argc, char const *argv[])
     seed = htole64(seed);
     srandom(((seed >> 32) & 0xffffffff) ^ (seed & 0xffffffff));
     int roll[ROLLS];
-    for(size_t i = 0; i < ROLLS; i++)
+    for (size_t i = 0; i < ROLLS; i++)
     {
         roll[i] = ((double)random() / RAND_MAX) * DICE_SIZE + 1;
     }
@@ -50,7 +51,7 @@ int main(int argc, char const *argv[])
      */
     int64_t sum = roll[0];
     printf("(%d", roll[0]);
-    for(size_t i = 1; i < ROLLS; i++)
+    for (size_t i = 1; i < ROLLS; i++)
     {
         printf("+%d", roll[i]);
         sum += roll[i];

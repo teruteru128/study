@@ -132,59 +132,8 @@ int call_bouyomi(int argc, char **argv)
   int rc = 0;
   int ignore_errors = 0;
   struct args *a = &args;
-  /*
-     {
-     char *s, *arg;
-     int i = 1;
-     while(i < argc){
-     int command = 0; // CONFIG_LINE_NORMAL
-     takes_argument_t want_arg = ARGUMENT_NECESSARY;
-     int is_cmdline = 0;
-     int j;
-     int is_a_command = 0;
-
-     for(j = 0; option_list[j].name != NULL; j++){
-     if(!strcmp(argv[i], option_list[j].name)){
-     is_cmdline = 1;
-     want_arg = option_list[i].takes_argument;
-     break;
-     }
-     }
-
-     s = argv[i];
-
-     const int is_last = (i == argc-1);
-     if(want_arg == ARGUMENT_NECESSARY && is_last){
-     if(ignore_errors){}else{}
-     } else if(want_arg == ARGUMENT_OPTIONAL && is_last){
-     }else{
-     arg = (want_arg != ARGUMENT_NONE) ? strdup(argv[i + 1]) : strdup("");
-     }
-
-     config_line_t* param = malloc(sizeof(config_line_t));
-     memset(param, 0, sizeof(config_line_t));
-     param->key = is_cmdline ? strdup(argv[i]):strdup(""); // abberv
-     param->value = arg;
-     param->command = command;
-     param->next = NULL;
-
-     if(is_a_command){
-     result->command_arg = param->value;
-     }
-
-     if(is_cmdline){
-   *new_cmdline = param;
-   new_cmdline = &((*new_cmdline)->next);
-   }else{
-   *new = param;
-   new = &((*new)->next);
-   }
-
-   i += want_arg ? 2: 1;
-   }
-   }*/
   char *in = malloc(BUFSIZ);
-  if(!in)
+  if (!in)
   {
     perror("malloc, in");
     return EXIT_FAILURE;
@@ -226,7 +175,7 @@ int call_bouyomi(int argc, char **argv)
   {
     len = strlen("やったぜ。");
     size_t reqlen = strlength + len + 1;
-    if(reqlen > capacity)
+    if (reqlen > capacity)
     {
       tmp = realloc(in, reqlen);
       if (!tmp)
@@ -240,7 +189,7 @@ int call_bouyomi(int argc, char **argv)
   }
   capacity = strlen(in) + 1;
   tmp = realloc(in, capacity);
-  if(tmp == NULL)
+  if (tmp == NULL)
   {
     perror("realloc(strlen(in) + 1)");
     return EXIT_FAILURE;
@@ -313,8 +262,8 @@ int call_bouyomi(int argc, char **argv)
   *((short *)(send_buf + 4)) = htole16(tone);
   *((short *)(send_buf + 6)) = htole16(volume);
   *((short *)(send_buf + 8)) = htole16(voice);
-  *( (char *)(send_buf + 10)) = encode;
-  *(  (int *)(send_buf + 11)) = htole32((int)length);
+  *((char *)(send_buf + 10)) = encode;
+  *((int *)(send_buf + 11)) = htole32((int)length);
   memcpy(send_buf + 15, out, length);
   free(out);
 

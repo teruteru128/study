@@ -22,17 +22,17 @@
  */
 int moving_sum(const int *inarray, const size_t datasize, const size_t windowsize, int *outarray, size_t outarraysize)
 {
-  if(inarray == NULL || datasize == 0 || windowsize == 0 || outarray == NULL || outarraysize == 0)
+  if (inarray == NULL || datasize == 0 || windowsize == 0 || outarray == NULL || outarraysize == 0)
   {
     return 1;
   }
   int sum = 0;
-  for(size_t i = 0; i < windowsize; i++)
+  for (size_t i = 0; i < windowsize; i++)
   {
     sum += inarray[i];
   }
   outarray[0] = sum;
-  for(size_t i = windowsize; i < datasize; i++)
+  for (size_t i = windowsize; i < datasize; i++)
   {
     sum -= inarray[i - windowsize];
     sum += inarray[i];
@@ -44,17 +44,17 @@ int moving_sum(const int *inarray, const size_t datasize, const size_t windowsiz
 /* 移動平均 */
 void moving_average(int *inarray, const size_t datasize, const size_t windowsize, float *outarray, size_t outarraysize)
 {
-  if(inarray == NULL || datasize == 0 || windowsize == 0 || outarray == NULL || outarraysize == 0)
+  if (inarray == NULL || datasize == 0 || windowsize == 0 || outarray == NULL || outarraysize == 0)
   {
     return;
   }
   float sum = 0;
-  for(size_t i = 0; i < windowsize; i++)
+  for (size_t i = 0; i < windowsize; i++)
   {
     sum += inarray[i];
   }
   outarray[0] = sum / windowsize;
-  for(size_t i = windowsize; i < datasize; i++)
+  for (size_t i = windowsize; i < datasize; i++)
   {
     sum -= inarray[i - windowsize];
     sum += inarray[i];

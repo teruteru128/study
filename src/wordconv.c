@@ -7,11 +7,11 @@
 int main(int argc, char *argv[])
 {
     FILE *in = fopen("wordlist.txt", "r");
-    if(!in)
+    if (!in)
         return 1;
     int ret = 0;
     FILE *out = fopen("wordout.txt", "w");
-    if(!out)
+    if (!out)
     {
         ret = 1;
         goto fail;
@@ -20,11 +20,11 @@ int main(int argc, char *argv[])
     char *pattern = "list";
     regmatch_t match;
     ret = regcomp(&regex, pattern, REG_EXTENDED | REG_NEWLINE | REG_ICASE);
-    if(ret != 0)
+    if (ret != 0)
     {
         size_t len = regerror(ret, &regex, NULL, 0);
         char *buf = malloc(len);
-        if(buf)
+        if (buf)
         {
             regerror(ret, &regex, buf, len);
             fprintf(stderr, "%s\n", buf);
@@ -34,10 +34,10 @@ int main(int argc, char *argv[])
         goto fail;
     }
     char line[BUFSIZ];
-    while(fgets(line, BUFSIZ, in) != NULL)
+    while (fgets(line, BUFSIZ, in) != NULL)
     {
         ret = regexec(&regex, line, 1, &match, 0);
-        if(ret == 0 && match.rm_so != -1)
+        if (ret == 0 && match.rm_so != -1)
         {
             memcpy(&line[match.rm_so], pattern, 4);
         }
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
         {
             size_t len = regerror(ret, &regex, NULL, 0);
             char *buf = malloc(len);
-            if(buf)
+            if (buf)
             {
                 regerror(ret, &regex, buf, len);
                 fprintf(stderr, "%s\n", buf);

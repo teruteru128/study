@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
   {
 
     /*
-     * 接続要求をする。
+     * ソケットを生成する。
      */
     sock = socket(adrinf->ai_family, adrinf->ai_socktype, adrinf->ai_protocol);
     if (sock < 0)
@@ -68,6 +68,9 @@ int main(int argc, char *argv[])
       continue;
     }
 
+    /*
+     * 接続要求をする。
+     */
     rc = connect(sock, adrinf->ai_addr, adrinf->ai_addrlen);
     if (rc < 0)
     {
@@ -82,7 +85,7 @@ int main(int argc, char *argv[])
   print_addrinfo(adrinf);
 
   len = write(sock, "334", strlen("334"));
-  if(len == 0)
+  if (len == 0)
   {
     perror("write 1");
     close(sock);
@@ -94,7 +97,8 @@ int main(int argc, char *argv[])
   {
     printf("%ld, %s\n", len, buf);
   }
-  len = write(sock, "-1", strlen("-1"));if(len == 0)
+  len = write(sock, "-1", strlen("-1"));
+  if (len == 0)
   {
     perror("write 2");
     close(sock);

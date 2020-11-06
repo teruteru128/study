@@ -129,12 +129,12 @@ int main(int const argc, const char **const argv)
   christmasTime.tv_nsec = 0;
   double diffsec = difftime(christmasTime.tv_sec, currentTime.tv_sec);
   long diffnsec = christmasTime.tv_nsec - currentTime.tv_nsec;
-  if(diffnsec < 0)
+  if (diffnsec < 0)
   {
     diffnsec += 1000000000;
     diffsec--;
   }
-  if(diffsec < 0 || (diffsec == 0 && diffnsec < 0))
+  if (diffsec < 0 || (diffsec == 0 && diffnsec < 0))
   {
     // 今年のクリスマスは終了済み
     printf("日本は終了しました＼(^o^)／\n");
@@ -151,7 +151,7 @@ int main(int const argc, const char **const argv)
     pthread_mutex_lock(&mutex);
     // 実行時間まで待つ
     int sig = pthread_cond_timedwait(&cond, &mutex, &christmasTime);
-    if(sig != ETIMEDOUT)
+    if (sig != ETIMEDOUT)
     {
       return 1;
     }

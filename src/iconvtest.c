@@ -7,8 +7,8 @@
 
 #define SRC "551 5 ABCDEFG:2005/03/27 12-34-56:12時34分頃,3,1,4,紀伊半島沖,ごく浅く,3.2,1,N12.3,E45.6,仙台管区気象台:-奈良県,+2,*下北山村,+1,*十津川村,*奈良川上村\r\n"
 
-int main(argc, argv)
-int argc; char **argv;
+int main(argc, argv) int argc;
+char **argv;
 {
   printf("%lu\r\n", strlen(SRC));
   iconv_t cd = iconv_open("Shift-JIS", "UTF-8");
@@ -21,7 +21,8 @@ int argc; char **argv;
   size_t destlen = srclen * 3 + 1;
   char *tmpsrc = SRC;
   char *destbuf = malloc(destlen);
-  if(!destbuf){
+  if (!destbuf)
+  {
     perror("malloc");
     return EXIT_FAILURE;
   }
@@ -34,7 +35,7 @@ int argc; char **argv;
   }
   *destbuf = '\0';
   char *tmp = realloc(head, strlen(head) + 1);
-  if(tmp != NULL)
+  if (tmp != NULL)
   {
     head = tmp;
   }
@@ -42,7 +43,7 @@ int argc; char **argv;
   printf("%s", head);
   free(head);
   int r = iconv_close(cd);
-  if(r != 0)
+  if (r != 0)
   {
     perror("iconv_close");
     return EXIT_FAILURE;
