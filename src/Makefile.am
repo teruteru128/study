@@ -57,6 +57,7 @@ bin_PROGRAMS= \
 	loop-bench \
 	mappingsample \
 	maxmovingsum \
+	md5fullzero \
 	mineseed \
 	mysqlaccesssample \
 	mysqlaccesssample2 \

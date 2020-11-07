@@ -11,7 +11,8 @@
 #include <pthread.h>
 #include <errno.h>
 #include <string.h>
-#include <syslog.h>
+#include <stdint.h>
+#include <byteswap.h>
 
 #define LIMIT 16
 
@@ -60,7 +61,7 @@ int main(int argc, char *argv[])
   gmtime_r(&currentTime.tv_sec, &tm);
   printf("%d %04d-%02d-%02dT%02d:%02d:%02dZ\n", tm.tm_isdst, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
   localtime_r(&currentTime.tv_sec, &tm);
-  printf("%d %d-%d-%dT%d:%d:%d+09:00\n", tm.tm_isdst, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+  printf("%d %04d-%02d-%02dT%02d:%02d:%02d+09:00\n", tm.tm_isdst, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 #ifdef __USE_MISC
   printf("%ld, %s\n", tm.tm_gmtoff, tm.tm_zone);
 #endif
@@ -78,6 +79,19 @@ int main(int argc, char *argv[])
   tm.tm_year = 2010 - 1900;
   time_t time2 = mktime(&tm);
   printf("%lf\n", difftime(time1, time2));
-  syslog(LOG_NOTICE, "HELLO WORLD");
+  unsigned char buf[20];
+  FILE *r = fopen("/dev/urandom", "rb");
+  if(r == NULL)
+  {
+    return EXIT_FAILURE;
+  }
+  fread(buf, sizeof(char), 12, r);
+  fclose(r);
+  *((uint64_t *)&buf[12]) = le64toh(1);
+  for(size_t i = 0; i < 20; i++)
+  {
+    printf("%02x", buf[i]);
+  }
+  fputs("\n", stdout);
   return EXIT_SUCCESS;
 }
