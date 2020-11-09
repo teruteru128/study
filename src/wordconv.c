@@ -6,57 +6,57 @@
 
 int main(int argc, char *argv[])
 {
-    FILE *in = fopen("wordlist.txt", "r");
-    if (!in)
-        return 1;
-    int ret = 0;
-    FILE *out = fopen("wordout.txt", "w");
-    if (!out)
+  FILE *in = fopen("wordlist.txt", "r");
+  if (!in)
+    return 1;
+  int ret = 0;
+  FILE *out = fopen("wordout.txt", "w");
+  if (!out)
+  {
+    ret = 1;
+    goto fail;
+  }
+  regex_t regex;
+  char *pattern = "list";
+  regmatch_t match;
+  ret = regcomp(&regex, pattern, REG_EXTENDED | REG_NEWLINE | REG_ICASE);
+  if (ret != 0)
+  {
+    size_t len = regerror(ret, &regex, NULL, 0);
+    char *buf = malloc(len);
+    if (buf)
     {
-        ret = 1;
-        goto fail;
+      regerror(ret, &regex, buf, len);
+      fprintf(stderr, "%s\n", buf);
+      free(buf);
     }
-    regex_t regex;
-    char *pattern = "list";
-    regmatch_t match;
-    ret = regcomp(&regex, pattern, REG_EXTENDED | REG_NEWLINE | REG_ICASE);
-    if (ret != 0)
+    ret = 1;
+    goto fail;
+  }
+  char line[BUFSIZ];
+  while (fgets(line, BUFSIZ, in) != NULL)
+  {
+    ret = regexec(&regex, line, 1, &match, 0);
+    if (ret == 0 && match.rm_so != -1)
     {
-        size_t len = regerror(ret, &regex, NULL, 0);
-        char *buf = malloc(len);
-        if (buf)
-        {
-            regerror(ret, &regex, buf, len);
-            fprintf(stderr, "%s\n", buf);
-            free(buf);
-        }
-        ret = 1;
-        goto fail;
+      memcpy(&line[match.rm_so], pattern, 4);
     }
-    char line[BUFSIZ];
-    while (fgets(line, BUFSIZ, in) != NULL)
+    else
     {
-        ret = regexec(&regex, line, 1, &match, 0);
-        if (ret == 0 && match.rm_so != -1)
-        {
-            memcpy(&line[match.rm_so], pattern, 4);
-        }
-        else
-        {
-            size_t len = regerror(ret, &regex, NULL, 0);
-            char *buf = malloc(len);
-            if (buf)
-            {
-                regerror(ret, &regex, buf, len);
-                fprintf(stderr, "%s\n", buf);
-                free(buf);
-            }
-        }
-        fprintf(out, "%s", line);
+      size_t len = regerror(ret, &regex, NULL, 0);
+      char *buf = malloc(len);
+      if (buf)
+      {
+        regerror(ret, &regex, buf, len);
+        fprintf(stderr, "%s\n", buf);
+        free(buf);
+      }
     }
+    fprintf(out, "%s", line);
+  }
 fail:
-    fclose(in);
-    fclose(out);
-    regfree(&regex);
-    return ret;
+  fclose(in);
+  fclose(out);
+  regfree(&regex);
+  return ret;
 }

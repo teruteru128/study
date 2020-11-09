@@ -10,7 +10,7 @@
 #define DEFAULT_PORT 50001
 #define DEFAULT_PORT_STR "50001"
 #define DEFAULT_SERV_ADDRESS "localhost"
-#define DEFAULT_SERV_ADDRESS_2 "192.168.1.128"
+#define DEFAULT_SERV_ADDRESS_2 "192.168.11.3"
 #define DEFAULT_SERV_ADDRESS4 "127.0.0.1"
 #define DEFAULT_SERV_ADDRESS6 "::1"
 #define ONION_SERV_ADDRESS "2ayu6gqru3xzfzbvud64ezocamykp56kunmkzveqmuxvout2yubeeuad.onion"
@@ -31,7 +31,6 @@ typedef struct bouyomi_header_t
 } bouyomi_header;
 
 /**
- * アライメントが入るためそのまま送信してはいけない
  * see: https://github.com/0x75960/bouyomi/blob/28d01a9/src/lib.rs
  */
 struct bouyomi_conf

@@ -20,7 +20,7 @@ struct a
 void *funcyou(void *arg)
 {
   struct a *a = (struct a *)arg;
-  for(size_t i = 0; i < 0xffffffffL; i++)
+  for (size_t i = 0; i < 0xffffffffL; i++)
   {
     pthread_mutex_lock(&a->mutex);
     a->count++;
@@ -39,14 +39,14 @@ int main(int argc, char *argv[])
   pthread_mutex_init(&a.mutex, NULL);
   pthread_cond_init(&a.cond, NULL);
 
-  if(pthread_create(&thread, NULL, funcyou, &a)!=0)
+  if (pthread_create(&thread, NULL, funcyou, &a) != 0)
   {
     printf("Can't create thread\n");
     return EXIT_FAILURE;
   }
 
   long count = 0;
-  while(a.finish == 0)
+  while (a.finish == 0)
   {
     pthread_mutex_lock(&a.mutex);
     count = a.count;

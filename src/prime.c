@@ -26,10 +26,10 @@ int main(int argc, char *argv[])
   mpz_set_str(number, "9cfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff4", 16);
   mpz_set(p, number);
   //9cfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff4
-  while(1)
+  while (1)
   {
     answer = mpz_probab_prime_p(p, 25);
-    if(answer == 1 || answer == 2)
+    if (answer == 1 || answer == 2)
     {
       mpz_out_str(stdout, 16, p);
       fputs("\n", stdout);
