@@ -99,6 +99,6 @@ int main(int argc, char *argv[])
   {
     printf("%02x", buf[i]);
   }
-  fputs("\n", stdout);
+  fputs("\nひぐらしの\e[31mな\e[mく頃に\n", stdout);
   return EXIT_SUCCESS;
 }
