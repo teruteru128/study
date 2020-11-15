@@ -13,6 +13,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <byteswap.h>
+#include <inttypes.h>
+#include <stddef.h>
 
 #define LIMIT 16
 
@@ -94,7 +96,8 @@ int main(int argc, char *argv[])
   fclose(r);
   *((uint64_t *)(buf + 12)) = le64toh(1);
   errno = 0;
-  printf("%p\n", __errno_location());
+  ptrdiff_t diff = (int *)&currentTime - __errno_location();
+  printf("%p %p %016tx\n", __errno_location(), &currentTime, diff);
   for (size_t i = 0; i < 20; i++)
   {
     printf("%02x", buf[i]);
