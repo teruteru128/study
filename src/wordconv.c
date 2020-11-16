@@ -30,6 +30,10 @@ int main(int argc, char *argv[])
       fprintf(stderr, "%s\n", buf);
       free(buf);
     }
+    else
+    {
+      perror("malloc");
+    }
     ret = 1;
     goto fail;
   }

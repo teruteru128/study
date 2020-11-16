@@ -68,6 +68,8 @@ struct args
 {
   int ignore_errors;
   int loglevel;
+  char *servAddr;
+  char *servPortStr;
 };
 
 #endif

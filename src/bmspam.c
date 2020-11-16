@@ -151,13 +151,13 @@ int main(int const argc, const char **const argv)
     pthread_mutex_lock(&mutex);
     // 実行時間まで待つ
     int sig = pthread_cond_timedwait(&cond, &mutex, &christmasTime);
-    if (sig != ETIMEDOUT)
-    {
-      return 1;
-    }
     pthread_mutex_unlock(&mutex);
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&cond);
+    if (sig != ETIMEDOUT)
+    {
+      return EXIT_FAILURE;
+    }
   }
 
   xmlrpc_env env;
