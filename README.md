@@ -23,7 +23,6 @@ A garbage dump repository created for studying Teruteru.
 - libsodium-dev 1.0.16-2 
 - libxmlrpc-core-c3-dev 1.33.14-8build1
 - uuid-dev 2.31.1-0.4ubuntu3.6
-- cuda-10-2 10.2.89-1
 - libupnp-dev 1:1.6.24-4
 
 ## このリポジトリに含む~~クソ~~機能
@@ -55,8 +54,6 @@ A garbage dump repository created for studying Teruteru.
     - ファイルから改行区切りで16進数整数を2つ読み出して乗算して返すだけのツール
 - iconvを薄くラップするライブラリ() iconvってなんでこんなにめんどくさいの？
 - 某サイトで配布されていた暗号化/復号化()ツールをC言語で実装したライブラリ
-- CUDA向けHello World
-- CUDA向けメモリ確保テスト。なお実行できる環境を持っていない模様
 - curl呼び出しテスト
 - きたない台詞を吐き出すクソツール。
     - ああああああああ！ﾌﾞ

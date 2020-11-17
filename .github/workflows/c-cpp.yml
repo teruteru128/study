@@ -24,22 +24,18 @@ jobs:
         run: git submodule update --init --recursive
       - name: Install dependents
         run: |
-          wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
-          sudo mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
-          sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
-          sudo add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
           sudo apt update
-          sudo apt install autopoint cuda-11-1 libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev
+          sudo apt install autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev
       - name: autogen.sh
         run: ./autogen.sh
       - name: configure
         run: ./configure
       - name: make
-        run: PATH=/usr/local/cuda-10.2/bin:${PATH} make -j
+        run: make -j
       - name: make check
-        run: PATH=/usr/local/cuda-10.2/bin:${PATH} make check -j
+        run: make check -j
       - name: make distcheck
-        run: PATH=/usr/local/cuda-10.2/bin:${PATH} make distcheck -j
+        run: make distcheck -j
       - name: Save artifact
         uses: actions/upload-artifact@v2.0.1
         with:
