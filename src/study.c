@@ -55,33 +55,6 @@ int main(int argc, char *argv[])
   setlocale(LC_ALL, "");
   bindtextdomain(PACKAGE, LOCALEDIR);
   textdomain(PACKAGE);
-  /* 次の実行日時を取得する */
-  /* 現在時刻を取得する */
-  struct timespec currentTime;
-  clock_gettime(CLOCK_REALTIME, &currentTime);
-  struct tm tm;
-  tzset();
-  gmtime_r(&currentTime.tv_sec, &tm);
-  printf("%d %04d-%02d-%02dT%02d:%02d:%02dZ\n", tm.tm_isdst, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-  localtime_r(&currentTime.tv_sec, &tm);
-  printf("%d %04d-%02d-%02dT%02d:%02d:%02d+09:00\n", tm.tm_isdst, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-#ifdef __USE_MISC
-  printf("%ld, %s\n", tm.tm_gmtoff, tm.tm_zone);
-#endif
-  tm.tm_sec = 0;
-  tm.tm_min = 10;
-  tm.tm_hour = 10;
-  tm.tm_mday = 10;
-  tm.tm_mon = 9;
-  time_t time1 = mktime(&tm);
-  tm.tm_sec = 0;
-  tm.tm_min = 10;
-  tm.tm_hour = 10;
-  tm.tm_mday = 10;
-  tm.tm_mon = 9;
-  tm.tm_year = 2010 - 1900;
-  time_t time2 = mktime(&tm);
-  printf("%lf\n", difftime(time1, time2));
   unsigned char buf[20];
   FILE *r = fopen("/dev/urandom", "rb");
   if (r == NULL)
@@ -97,8 +70,8 @@ int main(int argc, char *argv[])
   fclose(r);
   *((uint64_t *)(buf + 12)) = le64toh(1);
   errno = 0;
-  ptrdiff_t diff = (int *)&currentTime - __errno_location();
-  printf("%p %p %016tx\n", __errno_location(), &currentTime, diff);
+  ptrdiff_t diff = (int *)buf - __errno_location();
+  printf("%p %p %016tx\n", __errno_location(), &buf, diff);
   for (size_t i = 0; i < 20; i++)
   {
     printf("%02x", buf[i]);

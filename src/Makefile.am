@@ -95,6 +95,7 @@ bin_PROGRAMS= \
 	teamspeakcalc \
 	threadAttr \
 	threadcount \
+	timesample \
 	tsidimprover \
 	tsidshowsample \
 	tweet \
