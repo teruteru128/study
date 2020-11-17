@@ -14,8 +14,6 @@ cl
 condTimedWait
 condWait
 cp2peq
-cudahello
-cudamalloctest
 curltest
 dappun
 dice
