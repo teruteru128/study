@@ -17,6 +17,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <errno.h>
+#include <limits.h>
 #include "bmspam.h"
 
 void die_if_fault_occurred(xmlrpc_env *env);
@@ -124,8 +125,11 @@ int main(int const argc, const char **const argv)
   xmlrpc_value *TTLv = xmlrpc_int_new(&env, 28 * 4 * 24 * 60 * 60);
   die_if_fault_occurred(&env);
   fprintf(stderr, "initialized\n");
-  char *p = NULL;
-  FILE *toaddrfile = fopen(SENDTO_ADDRESS_FILE, "r");
+  char path[PATH_MAX];
+  snprintf(path, PATH_MAX, "%s/%s", STUDYDATADIR, SENDTO_ADDRESS_FILE);
+  char *p = canonicalize_file_name(path);
+  FILE *toaddrfile = fopen(p, "r");
+  free(p);
   if (toaddrfile == NULL)
   {
     err(EXIT_FAILURE, "fopen");

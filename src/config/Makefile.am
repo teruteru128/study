@@ -1,10 +1,10 @@
 
 studydatadir = $(datadir)/study
 
-EXTRA_DIST=\
-        addressbook.txt\
-        test.txt
+#EXTRA_DIST=\
+#        addressbook.txt\
+#        test.txt
 
-studydata_DATA=\
+dist_studydata_DATA=\
         addressbook.txt\
         test.txt
