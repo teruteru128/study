@@ -19,8 +19,9 @@
 #define LIMIT 16
 
 /**
- * --version
  * --help
+ * --verbose
+ * --version
  * 
  * orz
  * 
