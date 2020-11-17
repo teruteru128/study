@@ -27,6 +27,7 @@ bin_PROGRAMS= \
 	encodersa \
 	enginetest \
 	envgettest \
+	errnosample \
 	evpmdtest \
 	evptest \
 	falcon \
