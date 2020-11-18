@@ -23,5 +23,6 @@
         "type_traits": "c",
         "memory_resource": "c",
         "string_view": "c"
-    }
+    },
+    "cmake.configureOnOpen": true
 }
