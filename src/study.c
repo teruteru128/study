@@ -31,12 +31,12 @@ int64_t next(rndctx_t *ctx)
   // 毎回ctxをnewしてfreeするのもったいないけどなにかいい方法ない？
   EVP_MD_CTX *tmpmd = EVP_MD_CTX_new();
   EVP_DigestInit(tmpmd, sha1);
-  *((uint64_t *)(ctx->ctx + 12)) = le64toh(ctx->count);
+  *((uint64_t *)(ctx->ctx + 12)) = htobe64(ctx->count);
   ctx->count++;
   EVP_DigestUpdate(tmpmd, ctx->ctx, 20);
   EVP_DigestFinal(tmpmd, ctx->ctx, NULL);
   EVP_MD_CTX_free(tmpmd);
-  return  *((uint64_t *)(ctx->ctx + 12));
+  return be64toh(*((uint64_t *)(ctx->ctx + 12)));
 }
 
 /**
@@ -107,13 +107,13 @@ int main(int argc, char *argv[])
     perror("fread error2");
   }
   fclose(r);
-  *((uint64_t *)(buf + 12)) = le64toh(1);
+  *((uint64_t *)(buf + 12)) = htobe64(1);
   for (size_t i = 0; i < 20; i++)
   {
     printf("%02x", buf[i]);
   }
   fputs("\n", stdout);
-  for(int i = 0; i < 20; i++)
+  for (int i = 0; i < 20; i++)
   {
     printf("%ld\n", next(&ctx));
   }
