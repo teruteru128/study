@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-int main(int argc, char *argv)
+int main(int argc, char **argv)
 {
     /* 次の実行日時を取得する */
     /* 現在時刻を取得する */

@@ -19,6 +19,9 @@ static int running = 1;
  * listen host name
  * listen family
  * listen port
+ * 
+ * killsignal : sigint
+ * reloadsignal : sighup
  */
 int get_socket(const char *port)
 {

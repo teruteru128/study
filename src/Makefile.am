@@ -128,7 +128,7 @@ test.pdf: test.tex
 studydatadir = $(datadir)/study
 
 # see https://www.gnu.org/software/automake/manual/html_node/Subpackages.html
-AM_CPPFLAGS=-Wall -Wextra -Wdisabled-optimization -I$(top_srcdir)/libstudy/include -DLOCALEDIR='"$(localedir)"' -DSTUDYDATADIR='"$(studydatadir)"'
+AM_CPPFLAGS=-Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wconversion -Wdisabled-optimization -Wendif-labels -Wfloat-equal -Winit-self -Winline -Wlogical-op -Wmissing-include-dirs -Wpacked -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wswitch-enum -Wunsafe-loop-optimizations -Wvariadic-macros -Wwrite-strings -I$(top_srcdir)/libstudy/include -DLOCALEDIR='"$(localedir)"' -DSTUDYDATADIR='"$(studydatadir)"'
 LIBSTUDYPATH=$(top_builddir)/libstudy/src/libstudy.la
 CoDec_LDADD=$(LIBSTUDYPATH)
 CoDec_SOURCES=CoDec.c CoDec.h
