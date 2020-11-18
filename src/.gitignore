@@ -14,8 +14,6 @@ cl
 condTimedWait
 condWait
 cp2peq
-cudahello
-cudamalloctest
 curltest
 dappun
 dice
@@ -25,6 +23,7 @@ eckeygentest
 encodersa
 enginetest
 envgettest
+errnosample
 evpmdtest
 evptest
 falcon
@@ -93,6 +92,7 @@ teamspeakIdUpgrader
 teamspeakcalc
 threadAttr
 threadcount
+timesample
 tsidimprover
 tsidshowsample
 tweet

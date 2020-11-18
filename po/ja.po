@@ -106,10 +106,6 @@ msgstr "検証子 : %<PRIu64>\n"
 #~ "エラー : %s\n"
 #~ "%s\n"
 
-#~ msgid "Success : one cuda device\n"
-#~ msgid_plural "Success : %d cuda devices\n"
-#~ msgstr[0] "成功 : %d cuda デバイス\n"
-
 #~ msgid "Initializing private key...\n"
 #~ msgstr "秘密鍵を初期化しています...\n"
 

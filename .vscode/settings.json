@@ -5,8 +5,6 @@
         "*.classpath": "xml",
         "*.h": "c",
         "config.rpath": "shellscript",
-        "*.cu": "cuda",
-        "*.cuh": "cuda",
         "typeindex": "c",
         "typeinfo": "c",
         "bit": "c",

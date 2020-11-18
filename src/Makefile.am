@@ -27,6 +27,7 @@ bin_PROGRAMS= \
 	encodersa \
 	enginetest \
 	envgettest \
+	errnosample \
 	evpmdtest \
 	evptest \
 	falcon \
@@ -95,6 +96,7 @@ bin_PROGRAMS= \
 	teamspeakcalc \
 	threadAttr \
 	threadcount \
+	timesample \
 	tsidimprover \
 	tsidshowsample \
 	tweet \
@@ -122,21 +124,6 @@ test.pdf: test.tex
 
 .tex.div:
 	platex $<
-
-# TODO: *.cuをコンパイルするときだけNVCCを使いたい
-# EXTRA_DISTとCLEANFILESを使えばうまくいくのでは？
-# https://tschoonj.github.io/blog/2014/05/10/building-a-cuda-device-function-library-with-autotools/
-# :thinking:?
-NVCC=nvcc
-
-.cu.o:
-	$(NVCC) $(DEFAULT_INCLUDES) $(INCLUDES) -I$(top_srcdir)/libstudy/include -ccbin $(CC) -c $< -o $@
-
-cudahello$(EXEEXT): cudahello.o
-	$(NVCC) $(cudahello_LDFLAGS) -ccbin $(CC) $< -o $@
-
-cudamalloctest$(EXEEXT): cudamalloctest.o
-	$(NVCC) $(cudamalloctest_LDFLAGS) -ccbin $(CC) $< -o $@
 
 studydatadir = $(datadir)/study
 
@@ -173,11 +160,6 @@ condTimedWait_SOURCES=condTimedWait.c
 condWait_SOURCES=condWait.c
 cp2peq_SOURCES=cp2peq.c
 cp2peq_LDADD=$(LIBSTUDYPATH)
-cudahello_CFLAGS=-fPIC
-#cudahello_LINK=$(NVCC)
-cudahello_SOURCES=cudahello.cu
-cudamalloctest_CFLAGS=-fPIC
-cudamalloctest_SOURCES=cudamalloctest.cu
 dice_LDADD=
 dragon_LDADD=$(LIBSTUDYPATH)
 dragon_SOURCES=dragon.c
