@@ -2,18 +2,21 @@
 #ifndef GETTIME_H
 #define GETTIME_H
 
+#include "config.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <netdb.h>
 #include <sys/time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <time.h>
 #include <getopt.h>
 #include <stdlib.h>
+#include <byteswap.h>
 
 #define DEFAULT_SERVER "time.google.com"
 
@@ -21,12 +24,19 @@
 
 typedef struct sntp_t
 {
+  // おまえ、ぜったい、ゆるさない
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+  unsigned int mode : 3;
+  unsigned int vn : 3;
+  unsigned int li : 2;
+#elif __BYTE_ORDER == __BIG_ENDIAN
   unsigned int li : 2;
   unsigned int vn : 3;
   unsigned int mode : 3;
-  unsigned int stratum : 8;
-  unsigned int poll : 8;
-  unsigned int precison : 8;
+#endif
+  int stratum : 8;
+  int poll : 8;
+  int precison : 8;
   unsigned int root_delay;
   unsigned int root_dispresion;
   unsigned int reference_identifire;

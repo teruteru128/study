@@ -35,7 +35,12 @@ void ntp2tv(uint8_t ntp[8], struct timeval *tv)
 
 size_t print_tv(struct timeval *t)
 {
-  return printf("%ld.%06ld\n", t->tv_sec, t->tv_usec);
+  return (size_t)printf("%ld.%06ld\n", t->tv_sec, t->tv_usec);
+}
+
+size_t print_ts(struct timespec *t)
+{
+  return (size_t)printf("%ld.%09ld\n", t->tv_sec, t->tv_nsec);
 }
 
 size_t print_ntp(uint8_t ntp[8])
@@ -84,142 +89,130 @@ void tv2ntp(struct timeval *tv, uint8_t ntp[8])
 int main(int argc, char **argv)
 {
 
-  int serv_sd = 0;
   int recv_sd = 0;
-  struct sockaddr_in addr;
-  socklen_t sin_size;
-  struct sockaddr_in recv_addr;
-  struct sockaddr_in from_addr;
-  SNTP sntp;
-  char buf[2048];
-  int i = 0;
-  struct timeval t;
+  struct addrinfo hints, *res, *ptr;
+  SNTP sendsntp;
+  SNTP recvsntp;
+  struct timeval tv;
+  struct timespec ts;
   uint8_t ntp[8];
 
-  gettimeofday(&t, NULL);
+  gettimeofday(&tv, NULL);
+  clock_gettime(CLOCK_REALTIME, &ts);
 
-  tv2ntp(&t, ntp);
+  tv2ntp(&tv, ntp);
   printf("tv : ");
-  print_tv(&t);
+  print_tv(&tv);
   printf("ntp: ");
   print_ntp(ntp);
 
-  memset(&sntp, 0, sizeof(SNTP));
-  memset(buf, 0, sizeof(buf));
+  memset(&sendsntp, 0, sizeof(SNTP));
+  memset(&recvsntp, 0, sizeof(SNTP));
 
-  sntp.li = 0;
-  sntp.vn = 4;
-  sntp.mode = 3;
-  sntp.stratum = 0;
-  sntp.poll = 0;
-  sntp.precison = 0;
-  sntp.root_delay = 0;
-  sntp.root_dispresion = 0;
-  sntp.reference_identifire = 0;
-  char *tmp = (char *)&sntp;
-  //tmp[0] = 0xb0;
-  //memcpy(&(sntp.transmit_timestamp), ntp, 8);
+  sendsntp.li = 0;
+  sendsntp.vn = 4;
+  sendsntp.mode = 3;
+  sendsntp.stratum = 0;
+  sendsntp.poll = 0;
+  sendsntp.precison = 0;
+  sendsntp.root_delay = 0;
+  sendsntp.root_dispresion = 0;
+  sendsntp.reference_identifire = 0;
 
-  printf("li : %d\n", sntp.li);
-  printf("vn : %d\n", sntp.vn);
-  printf("mode : %d\n", sntp.mode);
-  printf("stratum : %d\n", sntp.stratum);
-  printf("poll : %d\n", sntp.poll);
-  printf("precison : %d\n", sntp.precison);
-  printf("root delay : %d\n", sntp.root_delay);
-  printf("root dispresion : %d\n", sntp.root_dispresion);
-  printf("reference identifire : %d\n", sntp.reference_identifire);
+  printf("li : %d\n", sendsntp.li);
+  printf("vn : %d\n", sendsntp.vn);
+  printf("mode : %d\n", sendsntp.mode);
+  printf("stratum : %d\n", sendsntp.stratum);
+  printf("poll : %d\n", sendsntp.poll);
+  printf("precison : %d\n", sendsntp.precison);
+  printf("root delay : %d\n", sendsntp.root_delay);
+  printf("root dispresion : %d\n", sendsntp.root_dispresion);
+  printf("reference identifire : %d\n", sendsntp.reference_identifire);
 
-  for (i = 0; i < sizeof(SNTP); i++)
   {
-    printf("%02x", (tmp[i] & 0xff));
-    if (i % 16 == 15)
+    unsigned char *tmp = (unsigned char *)&sendsntp;
+    //tmp[0] = 0xb0;
+    //memcpy(&(sntp.transmit_timestamp), ntp, 8);
+    for (size_t i = 0; i < sizeof(SNTP); i++)
     {
-      puts("");
+      printf("%02x", (tmp[i] & 0xff));
+      if (i % 16 == 15)
+      {
+        puts("");
+      }
     }
   }
 
-  if ((recv_sd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+  hints.ai_flags = 0;
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_DGRAM;
+  hints.ai_protocol = IPPROTO_UDP;
+  int ret = getaddrinfo(DEFAULT_SERVER, "ntp", &hints, &res);
+  if (ret != 0)
   {
-    perror("recv socket");
-  }
-  // 送信用ソケット作成
-  if ((serv_sd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-  {
-    perror("serv socket");
-    return 1;
-  }
-
-  recv_addr.sin_family = AF_INET;
-  recv_addr.sin_port = htons(123);
-  recv_addr.sin_addr.s_addr = INADDR_ANY;
-
-  if (bind(recv_sd, (struct sockaddr *)&recv_addr, sizeof(recv_addr)) < 0)
-  {
-    perror("bind");
-    return 1;
+    fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(ret));
+    return EXIT_FAILURE;
   }
 
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(123);
-  // TODO: support ipv6
-  addr.sin_addr.s_addr = inet_addr(DEFAULT_SERVER);
+  for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
+  {
+    recv_sd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (recv_sd < 0)
+      continue;
+  }
+
   puts(DEFAULT_SERVER);
 
-  if (sendto(serv_sd, (const char *)&sntp, sizeof(SNTP), 0, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+  if (sendto(recv_sd, &sendsntp, sizeof(SNTP), 0, ptr->ai_addr, ptr->ai_addrlen) < 0)
   {
     perror("sendto");
-    return 1;
+    return EXIT_FAILURE;
   }
 
-  puts("successfully send!");
-  /*
-  close(serv_sd);
-
-  serv_sd = 0;
-*/
-  puts("before:");
-  for (i = 0; i < 64; i++)
+  fputs("successfully send!\nbefore:\n", stdout);
   {
-    printf("%02x", buf[i]);
-    if (i % 16 == 15)
+    unsigned char *tmp = (unsigned char *)&recvsntp;
+    for (size_t i = 0; i < 48; i++)
     {
-      puts("");
+      printf("%02x", tmp[i]);
+      if (i % 16 == 15)
+      {
+        fputs("\n", stdout);
+      }
     }
   }
 
-  if (recvfrom(serv_sd, buf, sizeof(buf), 0, (struct sockaddr *)&from_addr, &sin_size) < 0)
+  if (recvfrom(recv_sd, &recvsntp, sizeof(recvsntp), 0, ptr->ai_addr, &ptr->ai_addrlen) < 0)
   {
     perror("recvfrom");
     return 1;
   }
 
-  char str[4096];
-  if (inet_ntop(AF_INET, &addr, str, sizeof(addr)) != NULL)
+  char str[NI_MAXHOST];
+  if (inet_ntop(ptr->ai_family, ptr->ai_addr, str, NI_MAXHOST) != NULL)
   {
     printf("%s\n", str);
   }
+  freeaddrinfo(res);
 
   puts("after:");
-  for (i = 0; i < 64; i++)
   {
-    printf("%02x", (buf[i] & 0xff));
-    if (i % 16 == 15)
+    unsigned char *tmp = (unsigned char *)&recvsntp;
+    for (size_t i = 0; i < 48; i++)
     {
-      puts("");
+      printf("%02x", (tmp[i] & 0xff));
+      if (i % 16 == 15)
+      {
+        puts("");
+      }
     }
   }
+  printf("%d %d %d %d %d %d\n", recvsntp.li, recvsntp.vn, recvsntp.mode, recvsntp.stratum, recvsntp.poll, recvsntp.precison);
 
-  if (serv_sd != 0)
-  {
-    close(serv_sd);
-    serv_sd = 0;
-  }
   if (recv_sd != 0)
   {
     close(recv_sd);
     recv_sd = 0;
   }
-  printf("%08x\n", htonl(0x0B000000));
-  return 0;
+  return EXIT_SUCCESS;
 }
