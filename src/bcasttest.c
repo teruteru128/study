@@ -26,7 +26,6 @@ int main(int argc, char **argv)
         fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(rc));
         return EXIT_FAILURE;
     }
-    char *msg = NULL;
     int yes = 1;
     int bcval1 = 0, bcval2 = 0;
     socklen_t len1 = 4, len2 = 4;
@@ -38,9 +37,7 @@ int main(int argc, char **argv)
     {
         sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if (sock != -1)
-        {
             break;
-        }
     }
 
     ret = getsockopt(sock, SOL_SOCKET, SO_BROADCAST, (void *)&bcval1, &len1);
@@ -51,16 +48,15 @@ int main(int argc, char **argv)
     printf("ret : %d\n", ret);
     printf("%d(%d) -> %d(%d)\n", bcval1, len1, bcval2, len2);
 
-    if (argc >= 2)
+    char *msg = strdup(argc >= 2 ? argv[1] : "HELLO");
+    if(msg == NULL)
     {
-        msg = argv[1];
-    }
-    else
-    {
-        msg = "HELLO";
+        perror("strdup error");
+        return EXIT_FAILURE;
     }
 
     r = sendto(sock, msg, strlen(msg), 0, ptr->ai_addr, ptr->ai_addrlen);
+    free(msg);
 
     printf("send : %lu\n", r);
 
