@@ -81,15 +81,15 @@ int main(int argc, char *argv[])
   res = NULL;
   ptr = NULL;
 
-  struct NTP_Packet send;
-  memset(&send, 0, sizeof(struct NTP_Packet));
-  send.Control_Word = bswap_32(0x23000000);
-  dumpNTPpacket(&send, stderr);
+  struct NTP_Packet sendpacket;
+  memset(&sendpacket, 0, sizeof(struct NTP_Packet));
+  sendpacket.Control_Word = bswap_32(0x23000000);
+  dumpNTPpacket(&sendpacket, stderr);
 
-  ssize_t w = write(recv_sock, &send, sizeof(struct NTP_Packet));
+  ssize_t w = send(recv_sock, &sendpacket, sizeof(struct NTP_Packet), 0);
   if (w == (ssize_t)-1)
   {
-    perror("write");
+    perror("send");
     close(recv_sock);
     freeaddrinfo(res);
     return EXIT_FAILURE;
@@ -119,18 +119,18 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
   fprintf(stderr, "revents : %04x\n", fds.revents);
-  struct NTP_Packet recv;
-  memset(&recv, 0, sizeof(struct NTP_Packet));
-  ssize_t r = read(recv_sock, &recv, sizeof(struct NTP_Packet));
+  struct NTP_Packet recvpacket;
+  memset(&recvpacket, 0, sizeof(struct NTP_Packet));
+  ssize_t r = recv(recv_sock, &recvpacket, sizeof(struct NTP_Packet), 0);
   if (r == (ssize_t)-1)
   {
-    perror("read");
+    perror("recv");
     close(recv_sock);
     freeaddrinfo(res);
     return EXIT_FAILURE;
   }
   freeaddrinfo(res);
   close(recv_sock);
-  dumpNTPpacket(&recv, stderr);
+  dumpNTPpacket(&recvpacket, stderr);
   return EXIT_SUCCESS;
 }
