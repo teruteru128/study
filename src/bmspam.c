@@ -18,6 +18,8 @@
 #include <pthread.h>
 #include <errno.h>
 #include <limits.h>
+#include <sys/timerfd.h>
+#include <unistd.h>
 #include "bmspam.h"
 
 void die_if_fault_occurred(xmlrpc_env *env);
@@ -55,17 +57,19 @@ int main(int const argc, const char **const argv)
   tm.tm_hour = 4;
   tm.tm_mday = 25;
   tm.tm_mon = 11;
-  struct timespec christmasTime;
-  christmasTime.tv_sec = mktime(&tm);
-  christmasTime.tv_nsec = 0;
-  double diffsec = difftime(christmasTime.tv_sec, currentTime.tv_sec);
-  long diffnsec = christmasTime.tv_nsec - currentTime.tv_nsec;
+  struct itimerspec christmasTime;
+  christmasTime.it_value.tv_sec = mktime(&tm);
+  christmasTime.it_value.tv_nsec = 0;
+  christmasTime.it_interval.tv_sec = 0;
+  christmasTime.it_interval.tv_nsec = 0;
+  double diffsec = difftime(christmasTime.it_value.tv_sec, currentTime.tv_sec);
+  long diffnsec = christmasTime.it_value.tv_nsec - currentTime.tv_nsec;
   if (diffnsec < 0)
   {
     diffnsec += 1000000000;
     diffsec--;
   }
-  if (diffsec < 0 || (diffsec == 0 && diffnsec < 0))
+  if (diffsec < 0)
   {
     // 今年のクリスマスは終了済み
     printf("日本は終了しました＼(^o^)／\n");
@@ -75,20 +79,28 @@ int main(int const argc, const char **const argv)
   printf("%.0lf.%09ld\n", diffsec, diffnsec);
 
   {
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;
-    pthread_mutex_init(&mutex, NULL);
-    pthread_cond_init(&cond, NULL);
-    pthread_mutex_lock(&mutex);
-    // 実行時間まで待つ
-    int sig = pthread_cond_timedwait(&cond, &mutex, &christmasTime);
-    pthread_mutex_unlock(&mutex);
-    pthread_mutex_destroy(&mutex);
-    pthread_cond_destroy(&cond);
-    if (sig != ETIMEDOUT)
+    int timer = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
+    if (timer < 0)
     {
+      perror("timerfd_create");
       return EXIT_FAILURE;
     }
+    int ret = timerfd_settime(timer, TFD_TIMER_ABSTIME, &christmasTime, NULL);
+    if (ret != 0)
+    {
+      perror("timerfd_settime");
+      close(timer);
+      return EXIT_FAILURE;
+    }
+    uint64_t numexpire = 0;
+    ssize_t r = read(timer, &numexpire, 8);
+    ret = 0;
+    if (r < 0)
+    {
+      perror("recv");
+      ret = EXIT_FAILURE;
+    }
+    close(timer);
   }
 
   xmlrpc_env env;
@@ -118,18 +130,31 @@ int main(int const argc, const char **const argv)
   die_if_fault_occurred(&env);
   xmlrpc_value *subjectv = xmlrpc_string_new(&env, SUBJECT);
   die_if_fault_occurred(&env);
-  xmlrpc_value *messagev = xmlrpc_string_new(&env, MESSAGE);
+  char message[BUFSIZ];
+  char line[BUFSIZ];
+  FILE *msgf = fopen(STUDYDATADIR MESSAGE_FILE, "r");
+  if (msgf == NULL)
+  {
+    err(EXIT_FAILURE, "fopen");
+  }
+  while ((tmp = fgets(line, BUFSIZ, msgf)) != NULL)
+  {
+    char *p = strpbrk(toaddress, "\r\n");
+    if (p != NULL)
+    {
+      *p = '\0';
+    }
+    strcat(message, tmp);
+  }
+  fclose(msgf);
+  xmlrpc_value *messagev = xmlrpc_string_new(&env, message);
   die_if_fault_occurred(&env);
   xmlrpc_value *encodingTypev = xmlrpc_int_new(&env, 2);
   die_if_fault_occurred(&env);
   xmlrpc_value *TTLv = xmlrpc_int_new(&env, 28 * 4 * 24 * 60 * 60);
   die_if_fault_occurred(&env);
   fprintf(stderr, "initialized\n");
-  char path[PATH_MAX];
-  snprintf(path, PATH_MAX, "%s/%s", STUDYDATADIR, SENDTO_ADDRESS_FILE);
-  char *p = canonicalize_file_name(path);
-  FILE *toaddrfile = fopen(p, "r");
-  free(p);
+  FILE *toaddrfile = fopen(STUDYDATADIR SENDTO_ADDRESS_FILE, "r");
   if (toaddrfile == NULL)
   {
     err(EXIT_FAILURE, "fopen");
@@ -138,7 +163,7 @@ int main(int const argc, const char **const argv)
   while ((tmp = fgets(toaddress, 64, toaddrfile)) != NULL)
   {
     /* ファイルから読み込んだ文字列から改行文字を取り除く */
-    p = strpbrk(toaddress, "\r\n");
+    char *p = strpbrk(toaddress, "\r\n");
     if (p != NULL)
     {
       *p = '\0';
@@ -179,6 +204,7 @@ int main(int const argc, const char **const argv)
     xmlrpc_DECREF(TTLv);
     xmlrpc_DECREF(resultP);
   }
+  fclose(toaddrfile);
   xmlrpc_DECREF(fromaddressv);
   xmlrpc_DECREF(subjectv);
   xmlrpc_DECREF(messagev);
