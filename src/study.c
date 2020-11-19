@@ -68,6 +68,9 @@ int64_t next(rndctx_t *ctx)
  * geoip_load_file
  * https://youtu.be/MCzo6ZMfKa4
  * ターミュレーター
+ * eventfd
+ * timerfd
+ * signalfd
  * 
  * TODO: P2P地震情報 ピア接続受け入れ＆ピアへ接続
  */
