@@ -71,7 +71,7 @@ int send_to_server(char *hostname, char *servicename, char *data, size_t len)
     if (sock < 0)
     {
       perror("socket()");
-      return EXIT_FAILURE;
+      continue;
     }
     rc = connect(sock, adrinf->ai_addr, adrinf->ai_addrlen);
     if (rc < 0)
