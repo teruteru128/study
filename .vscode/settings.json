@@ -20,7 +20,9 @@
         "tuple": "c",
         "type_traits": "c",
         "memory_resource": "c",
-        "string_view": "c"
+        "string_view": "c",
+        "complex": "c",
+        "fstream": "c"
     },
     "cmake.configureOnOpen": true
 }
