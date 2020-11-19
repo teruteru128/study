@@ -16,28 +16,11 @@
 #include <inttypes.h>
 #include <stddef.h>
 #include <openssl/evp.h>
+#include <sys/timerfd.h>
+#include <unistd.h>
+#include <netdb.h>
 
 #define LIMIT 16
-
-typedef struct rndctx
-{
-  uint64_t count;
-  unsigned char ctx[20];
-} rndctx_t;
-
-int64_t next(rndctx_t *ctx)
-{
-  const EVP_MD *sha1 = EVP_sha1();
-  // 毎回ctxをnewしてfreeするのもったいないけどなにかいい方法ない？
-  EVP_MD_CTX *tmpmd = EVP_MD_CTX_new();
-  EVP_DigestInit(tmpmd, sha1);
-  *((uint64_t *)(ctx->ctx + 12)) = htobe64(ctx->count);
-  ctx->count++;
-  EVP_DigestUpdate(tmpmd, ctx->ctx, 20);
-  EVP_DigestFinal(tmpmd, ctx->ctx, NULL);
-  EVP_MD_CTX_free(tmpmd);
-  return be64toh(*((uint64_t *)(ctx->ctx + 12)));
-}
 
 /**
  * --help
@@ -72,69 +55,53 @@ int64_t next(rndctx_t *ctx)
  * timerfd
  * signalfd
  * 
+ * Linuxにおけるウェイト処理
+ * - sleep
+ * - usleep
+ * - nanosleep
+ * - selectのタイムアウト指定
+ * - settimer
+ * - timerfd
+ * - pthread_cond_timedwait
+ * 
  * TODO: P2P地震情報 ピア接続受け入れ＆ピアへ接続
  */
 int main(int argc, char *argv[])
 {
-  setlocale(LC_ALL, "");
-  bindtextdomain(PACKAGE, LOCALEDIR);
-  textdomain(PACKAGE);
-  /*
-    SHA-1ベース乱数
-    内部状態 12バイト乱数+8バイトカウンタ(0スタート)
-    初期化 12バイト乱数
-    sha1(12バイト乱数+8バイトカウンタ)
-    →12バイト再利用+8バイト出力
-    カウンタをctxに上書き
-    カウンタをインクリメント
-    ハッシュしてctxに書き込む
-    出力値を返す
-  */
-  rndctx_t ctx;
-  ctx.count = 0;
-  unsigned char buf[20];
-  FILE *r = fopen("/dev/urandom", "rb");
-  if (r == NULL)
+  struct timespec cur;
+  clock_gettime(CLOCK_REALTIME, &cur);
+  struct itimerspec spec;
+  spec.it_value.tv_sec = cur.tv_sec + 3;
+  spec.it_value.tv_nsec = cur.tv_nsec;
+  spec.it_interval.tv_sec = 1;
+  spec.it_interval.tv_nsec = 0;
+
+  int timer = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
+  if(timer < 0)
   {
+    perror("timerfd_create");
     return EXIT_FAILURE;
   }
-  size_t req = 12;
-  size_t len = fread(buf, sizeof(char), req, r);
-  if (len != req)
+  int ret = timerfd_settime(timer, TFD_TIMER_ABSTIME, &spec, NULL);
+  if(ret != 0)
   {
-    perror("fread error1");
+    perror("timerfd_settime");
+    close(timer);
+    return EXIT_FAILURE;
   }
-  len = fread(ctx.ctx, sizeof(char), req, r);
-  if (len != req)
+
+  uint64_t numexpire = 0;
+  // recvで読み込むと失敗を返す
+  ssize_t r = read(timer, &numexpire, 8);
+  ret = 0;
+  if(r < 0)
   {
-    perror("fread error2");
+    perror("recv");
+    ret = EXIT_FAILURE;
   }
-  fclose(r);
-  *((uint64_t *)(buf + 12)) = htobe64(1);
-  for (size_t i = 0; i < 20; i++)
-  {
-    printf("%02x", buf[i]);
-  }
-  fputs("\n", stdout);
-  for (int i = 0; i < 20; i++)
-  {
-    printf("%ld\n", next(&ctx));
-  }
-  int h = 0;
-  int v = 0;
-  for (int i = 1; i < argc; i++)
-  {
-    if (strcmp(argv[i], "--help") == 0)
-    {
-      h = 1;
-    }
-    else if (strcmp(argv[i], "--version") == 0)
-    {
-      v = 1;
-    }
-  }
-  printf("%d %d\n", h, v);
-  // メインコマンドのhelpとサブコマンドのhelpを別に実装するには？
-  fputs("ひぐらしの\e[31mな\e[mく頃に\n", stdout);
-  return EXIT_SUCCESS;
+
+  printf("%" PRId64 "\n", numexpire);
+  close(timer);
+  fputs("ひぐらしの\x1b[31mな\x1b[mく頃に\n", stdout);
+  return ret;
 }

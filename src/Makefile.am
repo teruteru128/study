@@ -82,6 +82,7 @@ bin_PROGRAMS= \
 	selfmadelibsha \
 	seq \
 	service-sample \
+	sha1rngsample \
 	signalsample \
 	signalsample2 \
 	sntpc \

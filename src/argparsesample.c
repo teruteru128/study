@@ -60,5 +60,20 @@ int main(int argc, char **argv)
     {
         parseCommandLineArgs(&args, argc, argv);
     }
+    // メインコマンドのhelpとサブコマンドのhelpを別に実装するには？
+    int h = 0;
+    int v = 0;
+    for (int i = 1; i < argc; i++)
+    {
+        if (strcmp(argv[i], "--help") == 0)
+        {
+            h = 1;
+        }
+        else if (strcmp(argv[i], "--version") == 0)
+        {
+            v = 1;
+        }
+    }
+    printf("%d %d\n", h, v);
     return EXIT_SUCCESS;
 }
