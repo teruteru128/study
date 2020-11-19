@@ -27,5 +27,5 @@ int main(int argc, char const *argv[])
   printf("246 : %012lx\n", ppp);
   ppp = n(ppp);
   printf("246 : %012lx\n", ppp);
-    return 0;
+  return 0;
 }
