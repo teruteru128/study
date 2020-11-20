@@ -5,15 +5,14 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 #ifdef _POSIX_SOURCE
     printf("_POSIX_SOURCE defined\n");
 #endif
 
 #ifdef _POSIX_C_SOURCE
-    printf("_POSIX_C_SOURCE defined: %ldL\n", (long) _POSIX_C_SOURCE);
+    printf("_POSIX_C_SOURCE defined: %ldL\n", _POSIX_C_SOURCE);
 #endif
 
 #ifdef _ISOC99_SOURCE
@@ -72,5 +71,16 @@ main(int argc, char *argv[])
     printf("_FORTIFY_SOURCE defined\n");
 #endif
 
-    exit(EXIT_SUCCESS);
+#ifdef BYTE_ORDER
+    printf("BYTE_ORDER defined\n");
+#if BYTE_ORDER == LITTLE_ENDIAN
+    printf("BYTE_ORDER is LITTLE_ENDIAN\n");
+#elif BYTE_ORDER == BIG_ENDIAN
+    printf("BYTE_ORDER is BIG_ENDIAN\n");
+#elif BYTE_ORDER == PDP_ENDIAN
+    printf("BYTE_ORDER is PDP_ENDIAN\n");
+#endif
+#endif
+
+    return EXIT_SUCCESS;
 }
