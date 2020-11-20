@@ -15,6 +15,7 @@ A garbage dump repository created for studying Teruteru.
     - [プロトコルパーサ](https://github.com/p2pquake/epsp-specifications)
 - コマンドライン引数の解析
 - ファイル名の区切りをハイフンかアンダースコアのどちらかに統一する
+- TODO: signalfdのサンプル作成
 
 ## Dependencies
 
