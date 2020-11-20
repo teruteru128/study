@@ -50,6 +50,7 @@ int main(int const argc, const char **const argv)
   struct timespec currentTime;
   clock_gettime(CLOCK_REALTIME, &currentTime);
   currentTime.tv_nsec = 0;
+  // 今年のクリスマスのUNIXタイムスタンプを取得する
   struct tm tm;
   localtime_r(&currentTime.tv_sec, &tm);
   tm.tm_sec = 0;
@@ -57,18 +58,9 @@ int main(int const argc, const char **const argv)
   tm.tm_hour = 4;
   tm.tm_mday = 25;
   tm.tm_mon = 11;
-  struct itimerspec christmasTime;
-  christmasTime.it_value.tv_sec = mktime(&tm);
-  christmasTime.it_value.tv_nsec = 0;
-  christmasTime.it_interval.tv_sec = 0;
-  christmasTime.it_interval.tv_nsec = 0;
-  double diffsec = difftime(christmasTime.it_value.tv_sec, currentTime.tv_sec);
-  long diffnsec = christmasTime.it_value.tv_nsec - currentTime.tv_nsec;
-  if (diffnsec < 0)
-  {
-    diffnsec += 1000000000;
-    diffsec--;
-  }
+  time_t christmasTime = mktime(&tm);
+  // 実行判定。現在時刻が今年のクリスマスよりも未来だった場合実行しない
+  double diffsec = difftime(christmasTime, currentTime.tv_sec);
   if (diffsec < 0)
   {
     // 今年のクリスマスは終了済み
@@ -76,7 +68,14 @@ int main(int const argc, const char **const argv)
     return 0;
   }
 
-  printf("%.0lf.%09ld\n", diffsec, diffnsec);
+  printf("%.0lf\n", diffsec);
+
+  struct itimerspec detonationTime;
+  // クリスマスを有効期限に設定
+  detonationTime.it_value.tv_sec = christmasTime;
+  detonationTime.it_value.tv_nsec = 0;
+  detonationTime.it_interval.tv_sec = 0;
+  detonationTime.it_interval.tv_nsec = 0;
 
   {
     int timer = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
@@ -85,7 +84,7 @@ int main(int const argc, const char **const argv)
       perror("timerfd_create");
       return EXIT_FAILURE;
     }
-    int ret = timerfd_settime(timer, TFD_TIMER_ABSTIME, &christmasTime, NULL);
+    int ret = timerfd_settime(timer, TFD_TIMER_ABSTIME, &detonationTime, NULL);
     if (ret != 0)
     {
       perror("timerfd_settime");
