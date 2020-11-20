@@ -127,6 +127,8 @@ test.pdf: test.tex
 .tex.div:
 	platex $<
 
+EXTRA_DIST=gettextsample.c
+
 studydatadir = $(datadir)/study
 
 # see https://www.gnu.org/software/automake/manual/html_node/Subpackages.html
