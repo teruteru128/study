@@ -49,6 +49,16 @@ static Args *parseStdin(Args *args)
     return args;
 }
 
+/**
+ * @brief 
+ * --help
+ * --verbose
+ * --version
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char **argv)
 {
     Args args;
