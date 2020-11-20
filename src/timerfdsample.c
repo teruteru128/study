@@ -2,23 +2,12 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <locale.h>
-#include "gettext.h"
-#define _(str) gettext(str)
-#include <time.h>
-#include <pthread.h>
-#include <errno.h>
-#include <string.h>
-#include <stdint.h>
-#include <byteswap.h>
-#include <inttypes.h>
-#include <stddef.h>
-#include <openssl/evp.h>
 #include <sys/timerfd.h>
 #include <unistd.h>
-#include <netdb.h>
+#include <inttypes.h>
 
 /**
  * eventfd sample.
