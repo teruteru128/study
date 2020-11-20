@@ -527,7 +527,7 @@ static void readIdentity(char *filename)
     printf("Public key: %s\n", ecc_public_base64);
     printf("Public key length (Base64): %zd\n", strlen(ecc_public_base64));
     printf("Fingerprint: %s\n", idfingerprint);
-    printf("Current security level: %u (with counter=%" PRIu64 ")\n",
+    printf("Current security level: %" PRIu8 " (with counter=%" PRIu64 ")\n",
            getSecurityLevel(ecc_public_base64, counter), counter);
 
     safefree(ecc_public_base64);
