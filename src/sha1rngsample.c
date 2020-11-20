@@ -26,7 +26,7 @@ int64_t next(rndctx_t *ctx)
   EVP_DigestUpdate(tmpmd, ctx->ctx, 20);
   EVP_DigestFinal(tmpmd, ctx->ctx, NULL);
   EVP_MD_CTX_free(tmpmd);
-  return be64toh(*((uint64_t *)(ctx->ctx + 12)));
+  return (int64_t)be64toh(*((uint64_t *)(ctx->ctx + 12)));
 }
 
 /**
