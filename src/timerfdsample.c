@@ -33,27 +33,27 @@ int main(int argc, char *argv[])
 {
     struct timespec cur;
     clock_gettime(CLOCK_MONOTONIC, &cur);
+    printf("%ld.%09ld, %lf\n", cur.tv_sec, cur.tv_nsec, (double)cur.tv_sec / 86400);
+    clock_gettime(CLOCK_MONOTONIC, &cur);
     printf("%ld.%09ld\n", cur.tv_sec, cur.tv_nsec);
-    printf("%lf\n", (double)cur.tv_sec / 86400);
-    clock_gettime(CLOCK_REALTIME, &cur);
-    struct itimerspec spec;
-    spec.it_value.tv_sec = cur.tv_sec + 3;
-    spec.it_value.tv_nsec = cur.tv_nsec;
-    // it_intervalを両方0にすると繰り返しタイマーオフ
-    spec.it_interval.tv_sec = 1;
-    spec.it_interval.tv_nsec = 0;
 
-    int timer = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
-    if (timer < 0)
+    int timerfd = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
+    if (timerfd < 0)
     {
         perror("timerfd_create");
         return EXIT_FAILURE;
     }
-    int ret = timerfd_settime(timer, TFD_TIMER_ABSTIME, &spec, NULL);
+    struct itimerspec spec;
+    spec.it_value.tv_sec = 3;
+    spec.it_value.tv_nsec = 0;
+    // it_intervalを両方0にすると繰り返しタイマーオフ
+    spec.it_interval.tv_sec = 1;
+    spec.it_interval.tv_nsec = 0;
+    int ret = timerfd_settime(timerfd, 0, &spec, NULL);
     if (ret != 0)
     {
         perror("timerfd_settime");
-        close(timer);
+        close(timerfd);
         return EXIT_FAILURE;
     }
 
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     for (tot_exp = 0; tot_exp < max_exp;)
     {
         // recvで読み込むと失敗を返す
-        r = read(timer, &exp, sizeof(uint64_t));
+        r = read(timerfd, &exp, sizeof(uint64_t));
         if (r != sizeof(uint64_t))
         {
             perror("recv");
@@ -79,6 +79,6 @@ int main(int argc, char *argv[])
         printf("read : %" PRId64 " , total : %" PRIu64 "\n", exp, tot_exp);
     }
 
-    close(timer);
+    close(timerfd);
     return ret;
 }

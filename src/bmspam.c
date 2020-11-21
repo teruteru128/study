@@ -78,29 +78,29 @@ int main(int const argc, const char **const argv)
   detonationTime.it_interval.tv_nsec = 0;
 
   {
-    int timer = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
-    if (timer < 0)
+    int timerfd = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
+    if (timerfd < 0)
     {
       perror("timerfd_create");
       return EXIT_FAILURE;
     }
-    int ret = timerfd_settime(timer, TFD_TIMER_ABSTIME, &detonationTime, NULL);
+    int ret = timerfd_settime(timerfd, TFD_TIMER_ABSTIME, &detonationTime, NULL);
     if (ret != 0)
     {
       perror("timerfd_settime");
-      close(timer);
+      close(timerfd);
       return EXIT_FAILURE;
     }
     // expiration
     uint64_t exp = 0;
-    ssize_t r = read(timer, &exp, 8);
+    ssize_t r = read(timerfd, &exp, 8);
     ret = 0;
     if (r < 0)
     {
       perror("recv");
       ret = EXIT_FAILURE;
     }
-    close(timer);
+    close(timerfd);
   }
 
   xmlrpc_env env;
