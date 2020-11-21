@@ -91,8 +91,9 @@ int main(int const argc, const char **const argv)
       close(timer);
       return EXIT_FAILURE;
     }
-    uint64_t numexpire = 0;
-    ssize_t r = read(timer, &numexpire, 8);
+    // expiration
+    uint64_t exp = 0;
+    ssize_t r = read(timer, &exp, 8);
     ret = 0;
     if (r < 0)
     {

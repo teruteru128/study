@@ -22,7 +22,8 @@
         "memory_resource": "c",
         "string_view": "c",
         "complex": "c",
-        "fstream": "c"
+        "fstream": "c",
+        "chrono": "c"
     },
     "cmake.configureOnOpen": true
 }

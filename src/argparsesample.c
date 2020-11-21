@@ -28,7 +28,7 @@ typedef enum logicswitch_e
 /**
  * コマンドライン引数パーササンプル
  */
-typedef struct args_t
+typedef struct args
 {
     LogicSwtich logic;
     int hasCommandLineArguments;

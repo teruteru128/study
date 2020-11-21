@@ -10,7 +10,7 @@ void init(void)
 
 int main(int argc, char *argv[])
 {
-  args_t *args = args_new();
+  args *args = args_new();
   init();
   parse_args(args, argc, argv);
   return EXIT_SUCCESS;
