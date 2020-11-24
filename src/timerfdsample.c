@@ -39,19 +39,20 @@ int main(int argc, char *argv[])
     clock_gettime(CLOCK_MONOTONIC, &cur);
     printf("%ld.%09ld\n", cur.tv_sec, cur.tv_nsec);
 
-    int timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC);
+    int timerfd = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
     if (timerfd < 0)
     {
         perror("timerfd_create");
         return EXIT_FAILURE;
     }
+    clock_gettime(CLOCK_REALTIME, &cur);
     struct itimerspec spec;
-    spec.it_value.tv_sec = 1;
+    spec.it_value.tv_sec = cur.tv_sec + 1;
     spec.it_value.tv_nsec = 0;
     // it_intervalを両方0にすると繰り返しタイマーオフ
-    spec.it_interval.tv_sec = 0;
-    spec.it_interval.tv_nsec = 100000;
-    int ret = timerfd_settime(timerfd, 0, &spec, NULL);
+    spec.it_interval.tv_sec = 1;
+    spec.it_interval.tv_nsec = 0;
+    int ret = timerfd_settime(timerfd, TFD_TIMER_ABSTIME, &spec, NULL);
     if (ret != 0)
     {
         perror("timerfd_settime");
@@ -60,15 +61,16 @@ int main(int argc, char *argv[])
     }
 
     // expiration
-    uint64_t exp = 0;
+    uint64_t exp;
     // max expiration
-    const uint64_t max_exp = 16000;
+    const uint64_t max_exp = 16;
     // total expiration
     uint64_t tot_exp;
     ssize_t r = 0;
     for (tot_exp = 0; tot_exp < max_exp;)
     {
         // recvで読み込むと失敗を返す
+        // 一度にuint64_tを2つ分以上readさせても1回分の時間しか停止しないし1つしか書き込まれない
         r = read(timerfd, &exp, sizeof(uint64_t));
         if (r != sizeof(uint64_t))
         {
@@ -77,7 +79,7 @@ int main(int argc, char *argv[])
             break;
         }
         tot_exp += exp;
-        printf("read : %" PRId64 " , total : %" PRIu64 "\n", exp, tot_exp);
+        printf("read : %" PRId64 ", total : %" PRIu64 "\n", exp, tot_exp);
     }
 
     close(timerfd);
