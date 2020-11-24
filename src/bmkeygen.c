@@ -15,16 +15,15 @@
 #include <random.h>
 #include <bm.h>
 #include <pthread.h>
-#include <omp.h>
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
-#define KEY_CACHE_SIZE 67108864ULL
-#define REQUIRE_NLZ 4
-#define ADDRESS_VERSION 4
-#define STREAM_NUMBER 1
+#define KEY_CACHE_SIZE 67108864UL
 #define J_CACHE_SIZE 126
-#define BLOCK_SIZE 128
+#define LARGE_BLOCK_SIZE (KEY_CACHE_SIZE / 4)
+#define SMALL_BLOCK_SIZE 126
+#define REQUIRE_NLZ 4
+#define THREAD_NUM 16
 
 #define errchk(v, f)                                            \
   if (!v)                                                       \
@@ -34,11 +33,11 @@
     return EXIT_FAILURE;                                        \
   }
 
-static int calcRipe(EVP_MD_CTX *mdctx, const EVP_MD *sha512, const EVP_MD *ripemd160, unsigned char *cache64, unsigned char *pubSignKey, unsigned char *pubEncKey)
+static int calcRipe(EVP_MD_CTX *mdctx, const EVP_MD *sha512, const EVP_MD *ripemd160, unsigned char *cache64, unsigned char *publicKey, size_t signkeyindex, size_t enckeyindex)
 {
   EVP_DigestInit(mdctx, sha512);
-  EVP_DigestUpdate(mdctx, pubSignKey, PUBLIC_KEY_LENGTH);
-  EVP_DigestUpdate(mdctx, pubEncKey, PUBLIC_KEY_LENGTH);
+  EVP_DigestUpdate(mdctx, publicKey + signkeyindex * PUBLIC_KEY_LENGTH, PUBLIC_KEY_LENGTH);
+  EVP_DigestUpdate(mdctx, publicKey + enckeyindex * PUBLIC_KEY_LENGTH, PUBLIC_KEY_LENGTH);
   EVP_DigestFinal(mdctx, cache64, NULL);
   EVP_DigestInit(mdctx, ripemd160);
   EVP_DigestUpdate(mdctx, cache64, 64);
@@ -46,25 +45,16 @@ static int calcRipe(EVP_MD_CTX *mdctx, const EVP_MD *sha512, const EVP_MD *ripem
   return 0;
 }
 
-static void validation(unsigned char *ripe, size_t i, size_t j)
+static size_t getNLZ(unsigned char *ripe)
 {
   size_t nlz = 0;
   for (nlz = 0; !ripe[nlz] && nlz < 20; nlz++)
     ;
-  if (nlz >= REQUIRE_NLZ)
-  {
-    //exportAddress(privateKeys + (i * PRIVATE_KEY_LENGTH), signpubkey, privateKeys + (j * PRIVATE_KEY_LENGTH), encPublicKey, cache64);
-#pragma omp critical
-    {
-      fprintf(stderr, "%ld, %ld, %ld\n", nlz, i, j);
-    }
-  }
+  return nlz;
 }
 
-struct searchArg
+struct threadArg
 {
-  unsigned char *privateKeys;
-  size_t priKeyNmemb;
   unsigned char *publicKeys;
   size_t pubKeyNmemb;
   size_t signBegin;
@@ -72,6 +62,8 @@ struct searchArg
   size_t encBegin;
   size_t encEnd;
   size_t minExportThreshold;
+  const EVP_MD *sha512md;
+  const EVP_MD *ripemd160md;
 };
 
 struct results;
@@ -94,6 +86,56 @@ void freeresults(struct results *results)
   }
 }
 
+void *task(void *arg)
+{
+  struct threadArg *targ = (struct threadArg *)arg;
+  unsigned char *publicKeys = targ->publicKeys;
+  const EVP_MD *sha512md = targ->sha512md;
+  const EVP_MD *ripemd160md = targ->ripemd160md;
+  unsigned char cache64[EVP_MAX_MD_SIZE];
+  size_t ii;
+  size_t ii_max = targ->signEnd;
+  size_t i;
+  size_t i_max;
+  size_t jj;
+  size_t jj_max = targ->encEnd;
+  size_t j;
+  size_t j_max;
+  size_t nlz;
+  size_t minExportThreshold = targ->minExportThreshold;
+  EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+  for (ii = targ->signBegin, i_max = ii + SMALL_BLOCK_SIZE; ii < ii_max; ii = i_max, i_max += SMALL_BLOCK_SIZE)
+  {
+    for (jj = targ->encEnd, j_max = jj + SMALL_BLOCK_SIZE; jj < jj_max; jj = j_max, j_max += SMALL_BLOCK_SIZE)
+    {
+      for (i = ii; i < i_max && i < ii_max; i++)
+      {
+        for (j = jj; j < j_max && j < jj_max; j++)
+        {
+          calcRipe(mdctx, sha512md, ripemd160md, cache64, publicKeys, i, j);
+          nlz = getNLZ(cache64);
+          if (nlz >= minExportThreshold)
+          {
+            {
+              fprintf(stderr, "%ld, %ld, %ld\n", nlz, ii, jj);
+            }
+          }
+          calcRipe(mdctx, sha512md, ripemd160md, cache64, publicKeys, j, i);
+          nlz = getNLZ(cache64);
+          if (nlz >= minExportThreshold)
+          {
+            {
+              fprintf(stderr, "%ld, %ld, %ld\n", nlz, jj, ii);
+            }
+          }
+        }
+      }
+    }
+  }
+  EVP_MD_CTX_free(mdctx);
+  return NULL;
+}
+
 /**
  * TODO: リファクタリング
  * TODO: 鍵キャッシュサーバー
@@ -101,11 +143,6 @@ void freeresults(struct results *results)
  */
 int main(int argc, char *argv[])
 {
-#ifdef _OPENMP
-  printf("openmp\n");
-#else
-  printf("no openmp\n");
-#endif
   setlocale(LC_ALL, "");
   bindtextdomain(PACKAGE, LOCALEDIR);
   textdomain(PACKAGE);
@@ -146,33 +183,29 @@ int main(int argc, char *argv[])
 
   //unsigned char *privateKeys = NULL;
   //unsigned char *publicKeys = ;
-  EVP_MD_CTX *mdctx = NULL;
+  pthread_t threads[THREAD_NUM];
+  struct threadArg arg[THREAD_NUM];
   const EVP_MD *sha512md = EVP_sha512();
   const EVP_MD *ripemd160md = EVP_ripemd160();
-  unsigned char *signpubkey = NULL;
-  unsigned char *encPublicKey = NULL;
-  unsigned char cache64[EVP_MAX_MD_SIZE];
-  size_t iPubIndex = 0;
-  size_t ii = 0;
-  size_t jIndex = 0;
-  size_t jj = 0;
-  int r = 0;
-
-#pragma omp parallel for shared(sha512md, ripemd160md, publicKeys) private(cache64, signpubkey, mdctx)
-  for (size_t i = 0; i < 67108864; i++)
+  for (size_t i = 0; i < THREAD_NUM; i++)
   {
-    signpubkey = publicKeys + (i * PUBLIC_KEY_LENGTH);
-#pragma omp parallel for shared(sha512md, ripemd160md, publicKeys) private(cache64, mdctx) firstprivate(signpubkey, i)
-    for (size_t j = 0; j < i; j++)
-    {
-      mdctx = EVP_MD_CTX_new();
-      encPublicKey = publicKeys + (j * PUBLIC_KEY_LENGTH);
-      calcRipe(mdctx, sha512md, ripemd160md, cache64, signpubkey, encPublicKey);
-      validation(cache64, i, j);
-      calcRipe(mdctx, sha512md, ripemd160md, cache64, encPublicKey, signpubkey);
-      validation(cache64, j, i);
-      EVP_MD_CTX_free(mdctx);
-    }
+    arg[i].publicKeys = publicKeys;
+    arg[i].pubKeyNmemb = 0;
+    arg[i].signBegin = LARGE_BLOCK_SIZE * (i / 4);
+    arg[i].signEnd = LARGE_BLOCK_SIZE * ((i / 4) + 1);
+    arg[i].encBegin = LARGE_BLOCK_SIZE * (i % 4);
+    arg[i].encEnd = LARGE_BLOCK_SIZE * ((i % 4) + 1);
+    arg[i].minExportThreshold = 4;
+    arg[i].sha512md = sha512md;
+    arg[i].ripemd160md = ripemd160md;
+  }
+  for (size_t i = 0; i < THREAD_NUM; i++)
+  {
+    pthread_create(&threads[i], NULL, task, &arg[i]);
+  }
+  for (size_t i = 0; i < THREAD_NUM; i++)
+  {
+    pthread_join(threads[i], NULL);
   }
   //shutdown:
   //free(privateKeys);

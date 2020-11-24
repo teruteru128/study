@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.1\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-10-19 12:13+0900\n"
+"POT-Creation-Date: 2020-11-22 15:19+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -57,17 +57,17 @@ msgstr ""
 msgid "Hello world!\n"
 msgstr ""
 
-#: src/gettextsample3.c:17
+#: src/gettextsample3.c:49
 #, c-format
 msgid "%dmicro seconds stopping.\n"
 msgstr ""
 
-#: src/gettextsample3.c:19
+#: src/gettextsample3.c:63
 #, c-format
 msgid "%dmicro seconds stoped.\n"
 msgstr ""
 
-#: src/ntp.c:110
+#: src/ntp.c:115
 #, c-format
 msgid "NTP server time : %s"
 msgstr ""

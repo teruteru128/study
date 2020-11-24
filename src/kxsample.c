@@ -23,7 +23,7 @@ int main(int argc, char **argv)
   int fd;
   int c;
 
-  if ((fd = open("/dev/random", O_RDONLY)) != -1)
+  if ((fd = open("/dev/random", O_RDONLY | O_CLOEXEC)) != -1)
   {
     if (ioctl(fd, RNDGETENTCNT, &c) == 0 && c < 160)
     {
@@ -87,7 +87,6 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
   int i = 0;
-  char ctxstr[65];
   printf("client_pk : ");
   for (i = 0; i < crypto_kx_PUBLICKEYBYTES; i++)
   {
@@ -112,28 +111,26 @@ int main(int argc, char **argv)
     printf("%02x", server_sk[i]);
   }
   printf("\n");
+  char ctxstr[crypto_kx_SESSIONKEYBYTES * 2 + 1];
   for (i = 0; i < crypto_kx_SESSIONKEYBYTES; i++)
   {
-    snprintf(&ctxstr[i * 2], 3, "%02x", client_tx[i]);
+    snprintf(&ctxstr[i << 1], 3, "%02x", client_tx[i]);
   }
   printf("client_tx : %s\n", ctxstr);
-  printf("server_rx : ");
   for (i = 0; i < crypto_kx_SESSIONKEYBYTES; i++)
   {
-    printf("%02x", server_rx[i]);
+    snprintf(&ctxstr[i << 1], 3, "%02x", server_rx[i]);
   }
-  printf("\n");
-  printf("client_rx : ");
+  printf("server_rx : %s\n", ctxstr);
   for (i = 0; i < crypto_kx_SESSIONKEYBYTES; i++)
   {
-    printf("%02x", client_rx[i]);
+    snprintf(&ctxstr[i << 1], 3, "%02x", client_rx[i]);
   }
-  printf("\n");
-  printf("server_tx : ");
+  printf("client_rx : %s\n", ctxstr);
   for (i = 0; i < crypto_kx_SESSIONKEYBYTES; i++)
   {
-    printf("%02x", server_tx[i]);
+    snprintf(&ctxstr[i << 1], 3, "%02x", server_tx[i]);
   }
-  printf("\n");
+  printf("server_tx : %s\n", ctxstr);
   return EXIT_SUCCESS;
 }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-10-19 12:13+0900\n"
+"POT-Creation-Date: 2020-11-22 15:19+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -58,17 +58,17 @@ msgstr "pのほうが大きい\n"
 msgid "Hello world!\n"
 msgstr "こんにちは世界！\n"
 
-#: src/gettextsample3.c:17
+#: src/gettextsample3.c:49
 #, c-format
 msgid "%dmicro seconds stopping.\n"
 msgstr "%dマイクロ秒停止します。\n"
 
-#: src/gettextsample3.c:19
+#: src/gettextsample3.c:63
 #, c-format
 msgid "%dmicro seconds stoped.\n"
 msgstr "%dマイクロ秒停止しました。\n"
 
-#: src/ntp.c:110
+#: src/ntp.c:115
 #, c-format
 msgid "NTP server time : %s"
 msgstr "NTPサーバ時刻 : %s"

@@ -16,6 +16,7 @@
 #include <unistd.h> //close()
 #include <print_addrinfo.h>
 #include <poll.h>
+#include <sys/epoll.h>
 #include <byteswap.h>
 #include <signal.h>
 #include "ntp.h"
@@ -94,35 +95,10 @@ int main(int argc, char *argv[])
     freeaddrinfo(res);
     return EXIT_FAILURE;
   }
-  struct pollfd fds = {recv_sock, POLLIN | POLLERR, 0};
-  struct timespec spec = {10, 0};
-  sigset_t sigmask;
-  sigfillset(&sigmask);
-
-  int selret = ppoll(&fds, 1, &spec, &sigmask);
-  fprintf(stderr, "selret : %d\n", selret);
-  if (selret == -1)
-  {
-    perror("select");
-    close(recv_sock);
-    return EXIT_FAILURE;
-  }
-  if (selret == 0)
-  {
-    perror("select timeout");
-    //close(recv_sock);
-  }
-  if (fds.revents & POLLERR)
-  {
-    perror("isset failed");
-    close(recv_sock);
-    return EXIT_FAILURE;
-  }
-  fprintf(stderr, "revents : %04x\n", fds.revents);
   struct NTP_Packet recvpacket;
   memset(&recvpacket, 0, sizeof(struct NTP_Packet));
-  ssize_t r = recv(recv_sock, &recvpacket, sizeof(struct NTP_Packet), 0);
-  if (r == (ssize_t)-1)
+  ssize_t r = read(recv_sock, &recvpacket, sizeof(struct NTP_Packet));
+  if (r != sizeof(struct NTP_Packet))
   {
     perror("recv");
     close(recv_sock);

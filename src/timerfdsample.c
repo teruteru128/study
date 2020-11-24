@@ -10,7 +10,7 @@
 #include <inttypes.h>
 
 /**
- * eventfd sample.
+ * @brief eventfd sample.
  * 
  * eventfd
  * timerfd
@@ -23,6 +23,8 @@
  * - selectのタイムアウト指定
  * - settimer
  * - timerfd
+ *   timerfdはsleepとかusleep, nanosleepに比べると手間がかかりますねー
+ *   そりゃfdだからねえ
  * - pthread_cond_timedwait
  * 
  * @param argc 
@@ -37,18 +39,18 @@ int main(int argc, char *argv[])
     clock_gettime(CLOCK_MONOTONIC, &cur);
     printf("%ld.%09ld\n", cur.tv_sec, cur.tv_nsec);
 
-    int timerfd = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
+    int timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC);
     if (timerfd < 0)
     {
         perror("timerfd_create");
         return EXIT_FAILURE;
     }
     struct itimerspec spec;
-    spec.it_value.tv_sec = 3;
+    spec.it_value.tv_sec = 1;
     spec.it_value.tv_nsec = 0;
     // it_intervalを両方0にすると繰り返しタイマーオフ
-    spec.it_interval.tv_sec = 1;
-    spec.it_interval.tv_nsec = 0;
+    spec.it_interval.tv_sec = 0;
+    spec.it_interval.tv_nsec = 100000;
     int ret = timerfd_settime(timerfd, 0, &spec, NULL);
     if (ret != 0)
     {
@@ -60,11 +62,10 @@ int main(int argc, char *argv[])
     // expiration
     uint64_t exp = 0;
     // max expiration
-    uint64_t max_exp = 16;
+    const uint64_t max_exp = 16000;
     // total expiration
     uint64_t tot_exp;
     ssize_t r = 0;
-    ret = 0;
     for (tot_exp = 0; tot_exp < max_exp;)
     {
         // recvで読み込むと失敗を返す

@@ -1,29 +1,2 @@
 {
-    "files.associations": {
-        "*.ts": "xml",
-        ".classpath": "xml",
-        "*.classpath": "xml",
-        "*.h": "c",
-        "config.rpath": "shellscript",
-        "typeindex": "c",
-        "typeinfo": "c",
-        "bit": "c",
-        "*.tcc": "c",
-        "exception": "c",
-        "algorithm": "c",
-        "functional": "c",
-        "iterator": "c",
-        "memory": "c",
-        "limits": "c",
-        "numeric": "c",
-        "streambuf": "c",
-        "tuple": "c",
-        "type_traits": "c",
-        "memory_resource": "c",
-        "string_view": "c",
-        "complex": "c",
-        "fstream": "c",
-        "chrono": "c"
-    },
-    "cmake.configureOnOpen": true
 }

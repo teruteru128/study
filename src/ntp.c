@@ -14,6 +14,7 @@
 #define _(str) gettext(str)
 #include <locale.h>
 #include <math.h>
+#include <ctype.h>
 
 void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
 {
@@ -36,31 +37,34 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
   }
 
   uint32_t w = bswap_32(packet->Control_Word);
-  int leap_indicator = (w >> 30) & 0x03;
-  int version_number = (w >> 27) & 0x07;
-  int mode = (w >> 24) & 0x07;
-  int stratum = (w >> 16) & 0xff;
-  char poll = (w >> 8) & 0xff;
-  char pre = (char)(w >> 0) & 0xff;
-  int root_delay = bswap_32(packet->root_delay);
-  int root_dispersion = bswap_32(packet->root_dispersion);
-  int reference_identifier = packet->reference_identifier;
+  unsigned int leap_indicator = (w >> 30) & 0x03;
+  unsigned int version_number = (w >> 27) & 0x07;
+  unsigned int mode = (w >> 24) & 0x07;
+  unsigned int stratum = (w >> 16) & 0xff;
+  char poll = (char)((w >> 8) & 0xff);
+  char pre = (char)((w >> 0) & 0xff);
+  unsigned int root_delay = bswap_32(packet->root_delay);
+  unsigned int root_dispersion = bswap_32(packet->root_dispersion);
+  unsigned int reference_identifier = packet->reference_identifier;
 
   fprintf(out, "LI : %d\n", leap_indicator);
   fprintf(out, "VN : %d\n", version_number);
   fprintf(out, "mode : %d\n", mode);
   fprintf(out, "Stratum : %d\n", stratum);
   fprintf(out, "Poll : %d(%d)\n", poll, 1 << poll);
-  fprintf(out, "Precision : %d(%g)\n", pre, pow(2, pre));
-  fprintf(out, "Root Delay : %d(%f)\n", root_delay, root_delay / 0x1p+16);
-  fprintf(out, "Root Dispersion : %d(%f)\n", root_dispersion, root_dispersion / 0x1p+16);
+  fprintf(out, "Precision : %d(%g seconds)\n", pre, pow(2, pre));
+  if (root_delay)
+    fprintf(out, "Root Delay : %d(%f)\n", root_delay, root_delay / 0x1p+16);
+  if (root_dispersion)
+    fprintf(out, "Root Dispersion : %d(%f)\n", root_dispersion, root_dispersion / 0x1p+16);
   fprintf(out, "Reference ID : %08x", bswap_32(reference_identifier));
 
   if (stratum == 1)
   {
-    char refid[5] = {0};
+    char refid[5] = "";
     memcpy(refid, &reference_identifier, 4);
-    fprintf(out, "(%s)", refid);
+    if (isprint(refid[0]))
+      fprintf(out, "(%s)", refid);
   }
   else if (stratum >= 2)
   {
@@ -84,11 +88,12 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
   uint32_t transmit_timestamp_fractions = bswap_32(packet->transmit_timestamp_fractions);
 
   fprintf(out, "Reference Timestamp : %u(%lu)\n", reference_timestamp_seconds, reference_timestamp_seconds - 2208988800L);
-  fprintf(out, "Origin Timestamp : %u(%lu)\n", originate_timestamp_seconds, originate_timestamp_seconds - 2208988800L);
+  if (originate_timestamp_seconds)
+    fprintf(out, "Origin Timestamp : %u(%lu)\n", originate_timestamp_seconds, originate_timestamp_seconds - 2208988800L);
   fprintf(out, "Receive Timestamp : %u(%lu)\n", receive_timestamp_seconds, receive_timestamp_seconds - 2208988800L);
   fprintf(out, "Transmit Timestamp seconds: %lu(%lu)\n", transmit_timestamp_seconds, transmit_timestamp_seconds - 2208988800L);
   fprintf(out, "Transmit Timestamp fractions : %u\n", transmit_timestamp_fractions);
-  fprintf(out, "Transmit Timestamp seconds: %f\n", (((transmit_timestamp_seconds - 2208988800L) << 32) + transmit_timestamp_fractions) / (0x1p+32));
+  fprintf(out, "Transmit Timestamp seconds: %.9f\n", (double)(((transmit_timestamp_seconds - 2208988800L) << 32) + transmit_timestamp_fractions) / (0x1p+32));
   if (transmit_timestamp_seconds)
   {
     time_t machine_time = time(NULL);

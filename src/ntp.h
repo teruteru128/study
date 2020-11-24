@@ -8,18 +8,18 @@
 /* N_("NTP packet") */
 struct NTP_Packet
 {
-  int32_t Control_Word;
-  int32_t root_delay;
-  int32_t root_dispersion;
-  int32_t reference_identifier;
-  int32_t reference_timestamp_seconds;
-  int32_t reference_timestamp_fractions;
-  int32_t originate_timestamp_seconds;
-  int32_t originate_timestamp_fractions;
-  int32_t receive_timestamp_seconds;
-  int32_t receive_timestamp_fractions;
-  int32_t transmit_timestamp_seconds;
-  int32_t transmit_timestamp_fractions;
+  uint32_t Control_Word;
+  uint32_t root_delay;
+  uint32_t root_dispersion;
+  uint32_t reference_identifier;
+  uint32_t reference_timestamp_seconds;
+  uint32_t reference_timestamp_fractions;
+  uint32_t originate_timestamp_seconds;
+  uint32_t originate_timestamp_fractions;
+  uint32_t receive_timestamp_seconds;
+  uint32_t receive_timestamp_fractions;
+  uint32_t transmit_timestamp_seconds;
+  uint32_t transmit_timestamp_fractions;
 };
 
 void dumpNTPpacket(struct NTP_Packet *packet, FILE *out);

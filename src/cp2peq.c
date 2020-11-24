@@ -143,14 +143,14 @@ int main(int argc, char *argv[])
   printf("%s", readbuf);
 
   char writebuf[BUFSIZ];
-  snprintf(writebuf, BUFSIZ, "131 1 0.34:%s:%s\r\n", PEER_NAME, PEER_VERSION);
-  ssize_t w = write(sock, writebuf, strlen(writebuf));
+  size_t writelen = (size_t)snprintf(writebuf, BUFSIZ, "131 1 0.34:%s:%s\r\n", PEER_NAME, PEER_VERSION);
+  ssize_t w = write(sock, writebuf, writelen);
 
   memset(readbuf, 0, BUFSIZ);
   s = read(sock, readbuf, BUFSIZ);
   printf("%s", readbuf);
-  snprintf(writebuf, BUFSIZ, "113 1\r\n");
-  w = write(sock, writebuf, strlen(writebuf));
+  writelen = (size_t)snprintf(writebuf, BUFSIZ, "113 1\r\n");
+  w = write(sock, writebuf, writelen);
   memset(readbuf, 0, BUFSIZ);
   s = read(sock, readbuf, BUFSIZ);
   printf("%s", readbuf);
@@ -158,13 +158,13 @@ int main(int argc, char *argv[])
   int rep;
   int peerid;
   sscanf(readbuf, "%d %d %d\r\n", &code, &rep, &peerid);
-  snprintf(writebuf, BUFSIZ, "115 1 %d\r\n", peerid);
-  w = write(sock, writebuf, strlen(writebuf));
+  writelen = (size_t)snprintf(writebuf, BUFSIZ, "115 1 %d\r\n", peerid);
+  w = write(sock, writebuf, writelen);
   memset(readbuf, 0, BUFSIZ);
   s = read(sock, readbuf, BUFSIZ);
   printf("%s", readbuf);
-  snprintf(writebuf, BUFSIZ, "119 1\r\n");
-  w = write(sock, writebuf, strlen(writebuf));
+  writelen = (size_t)snprintf(writebuf, BUFSIZ, "119 1\r\n");
+  w = write(sock, writebuf, writelen);
   memset(readbuf, 0, BUFSIZ);
   s = read(sock, readbuf, BUFSIZ);
   printf("%s", readbuf);

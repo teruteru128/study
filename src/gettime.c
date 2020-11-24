@@ -1,5 +1,6 @@
 
 #include "gettime.h"
+#include "print_addrinfo.h"
 
 void ntp2tv(uint8_t ntp[8], struct timeval *tv)
 {
@@ -144,7 +145,7 @@ int main(int argc, char **argv)
   }
 
   hints.ai_flags = 0;
-  hints.ai_family = AF_INET;
+  hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_protocol = IPPROTO_UDP;
   int ret = getaddrinfo(DEFAULT_SERVER, "ntp", &hints, &res);
@@ -157,8 +158,16 @@ int main(int argc, char **argv)
   for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
   {
     recv_sd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-    if (recv_sd < 0)
-      continue;
+    if (recv_sd >= 0)
+      break;
+  }
+
+  if (ptr == NULL)
+  {
+    fputs("connected failed\n", stderr);
+    freeaddrinfo(res);
+    close(recv_sd);
+    return EXIT_FAILURE;
   }
 
   puts(DEFAULT_SERVER);

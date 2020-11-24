@@ -93,12 +93,12 @@ int main(int const argc, const char **const argv)
     }
     // expiration
     uint64_t exp = 0;
-    ssize_t r = read(timerfd, &exp, 8);
-    ret = 0;
-    if (r < 0)
+    ssize_t r = read(timerfd, &exp, sizeof(uint64_t));
+    if (r != sizeof(uint64_t))
     {
       perror("recv");
-      ret = EXIT_FAILURE;
+      close(timerfd);
+      return EXIT_FAILURE;
     }
     close(timerfd);
   }

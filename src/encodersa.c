@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
   }
   char *infile1 = argv[1];
   char *infile2 = argv[2];
-  char outfile[128];
   uuid_t uuid;
   char uuidstr[UUID_STR_LEN];
   uuid_generate_random(uuid);
@@ -203,7 +202,8 @@ int main(int argc, char *argv[])
 #endif
   // ファイル書き出し
 
-  snprintf(outfile, 128, "%dbits-%s-priv.pem", BN_num_bits(n), uuidstr);
+  char outfile[PATH_MAX];
+  snprintf(outfile, PATH_MAX, "%dbits-%s-priv.pem", BN_num_bits(n), uuidstr);
   BIO *bio = BIO_new_file(outfile, "w");
   if (bio == NULL)
   {

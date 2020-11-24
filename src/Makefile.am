@@ -182,6 +182,7 @@ gettextsample2_CFLAGS=
 gettextsample2_SOURCES=gettextsample2.c gettextsample2.h gettext.h
 gettextsample3_CFLAGS=
 gettextsample3_SOURCES=gettextsample3.c gettextsample3.h textdomain.c textdomain_inner.h mytextdomain.h gettext.h
+gettime_LDADD=$(LIBSTUDYPATH)
 gettime_SOURCES=gettime.c gettime.h
 iconvtest_SOURCES=iconvtest.c
 itoabench_CFLAGS=
