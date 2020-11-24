@@ -99,6 +99,7 @@ bin_PROGRAMS= \
 	threadAttr \
 	threadcount \
 	timerfdsample \
+	timerfdsample2 \
 	timesample \
 	tsidimprover \
 	tsidshowsample \

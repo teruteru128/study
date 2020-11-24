@@ -26,6 +26,7 @@ void die_if_fault_occurred(xmlrpc_env *env);
 
 #define USER_NAME "teruteru128"
 #define PASSWORD "testpassword"
+#define ADDRBUFSIZE 64
 
 /**
  * int main(int argc, char* argv[])
@@ -50,15 +51,16 @@ int main(int const argc, const char **const argv)
   struct timespec currentTime;
   clock_gettime(CLOCK_REALTIME, &currentTime);
   currentTime.tv_nsec = 0;
+  tzset();
   // 今年のクリスマスのUNIXタイムスタンプを取得する
   struct tm tm;
-  localtime_r(&currentTime.tv_sec, &tm);
+  struct tm *now = localtime_r(&currentTime.tv_sec, &tm);
   tm.tm_sec = 0;
   tm.tm_min = 0;
   tm.tm_hour = 4;
   tm.tm_mday = 25;
   tm.tm_mon = 11;
-  time_t christmasTime = mktime(&tm);
+  time_t christmasTime = mktime(now);
   // 実行判定。現在時刻が今年のクリスマスよりも未来だった場合実行しない
   double diffsec = difftime(christmasTime, currentTime.tv_sec);
   if (diffsec < 0)
@@ -122,7 +124,7 @@ int main(int const argc, const char **const argv)
   xmlrpc_server_info_allow_auth_basic(&env, serverP);
   die_if_fault_occurred(&env);
 
-  char toaddress[64];
+  char toaddress[ADDRBUFSIZE];
   char *tmp = NULL;
   xmlrpc_value *paramArray = NULL;
   xmlrpc_value *toaddressv = NULL;
@@ -160,7 +162,7 @@ int main(int const argc, const char **const argv)
     err(EXIT_FAILURE, "fopen");
   }
 
-  while ((tmp = fgets(toaddress, 64, toaddrfile)) != NULL)
+  while ((tmp = fgets(toaddress, ADDRBUFSIZE, toaddrfile)) != NULL)
   {
     /* ファイルから読み込んだ文字列から改行文字を取り除く */
     char *p = strpbrk(toaddress, "\r\n");

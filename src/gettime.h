@@ -33,6 +33,8 @@ typedef struct sntp_t
   unsigned int li : 2;
   unsigned int vn : 3;
   unsigned int mode : 3;
+#else
+  uint32_t control_word;
 #endif
   int stratum : 8;
   int poll : 8;

@@ -44,21 +44,21 @@ size_t print_ts(struct timespec *t)
   return (size_t)printf("%ld.%09ld\n", t->tv_sec, t->tv_nsec);
 }
 
-size_t print_ntp(uint8_t ntp[8])
+size_t print_ntp(uint32_t ntp[2])
 {
   int i;
   int res = 0;
-  for (i = 0; i < 8; i++)
+  for (i = 0; i < 2; i++)
   {
-    if (i == 8 / 2)
+    if (i == 1)
       res += printf(".");
-    res += printf("%02x", ntp[i]);
+    res += printf("%08x", ntp[i]);
   } /* for */
   res += printf("\n");
   return res;
 } /* print_ntp */
 
-void tv2ntp(struct timeval *tv, uint8_t ntp[8])
+void tv2ntp(struct timeval *tv, uint32_t ntp[2])
 {
   uint64_t aux = 0;
   uint8_t *p = ntp + 8;
@@ -68,6 +68,7 @@ void tv2ntp(struct timeval *tv, uint8_t ntp[8])
   aux <<= 32;
   aux /= 1000000;
 
+  ntp[1] = htonl((uint32_t)aux);
   /* we set the ntp in network byte order */
   for (i = 0; i < 8 / 2; i++)
   {
@@ -78,6 +79,7 @@ void tv2ntp(struct timeval *tv, uint8_t ntp[8])
   aux = tv->tv_sec;
   aux += OFFSET;
 
+  ntp[0] = htonl((uint32_t)aux);
   /* let's go with the fraction of second */
   for (; i < 8; i++)
   {
@@ -96,7 +98,7 @@ int main(int argc, char **argv)
   SNTP recvsntp;
   struct timeval tv;
   struct timespec ts;
-  uint8_t ntp[8];
+  uint32_t ntp[2];
 
   gettimeofday(&tv, NULL);
   clock_gettime(CLOCK_REALTIME, &ts);

@@ -17,24 +17,19 @@ int main(int argc, char **argv)
     tzset();
     gmtime_r(&currentTime.tv_sec, &tm);
     printf("%d %04d-%02d-%02dT%02d:%02d:%02dZ\n", tm.tm_isdst, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-    localtime_r(&currentTime.tv_sec, &tm);
-    printf("%d %04d-%02d-%02dT%02d:%02d:%02d+09:00\n", tm.tm_isdst, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    struct tm *now = localtime_r(&currentTime.tv_sec, &tm);
+    printf("%d %04d-%02d-%02dT%02d:%02d:%02d+09:00", tm.tm_isdst, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 #ifdef __USE_MISC
-    printf("%ld, %s\n", tm.tm_gmtoff, tm.tm_zone);
+    printf(" %ld, %s", tm.tm_gmtoff, tm.tm_zone);
 #endif
+    fputs("\n", stdout);
     tm.tm_sec = 0;
-    tm.tm_min = 10;
-    tm.tm_hour = 10;
-    tm.tm_mday = 10;
-    tm.tm_mon = 9;
+    tm.tm_min = 0;
+    tm.tm_hour = 4;
+    tm.tm_mday = 25;
+    tm.tm_mon = 11;
+    printf("%d %04d-%02d-%02dT%02d:%02d:%02d+09:00\n", tm.tm_isdst, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
     time_t time1 = mktime(&tm);
-    tm.tm_sec = 0;
-    tm.tm_min = 10;
-    tm.tm_hour = 10;
-    tm.tm_mday = 10;
-    tm.tm_mon = 9;
-    tm.tm_year = 2010 - 1900;
-    time_t time2 = mktime(&tm);
-    printf("%lf\n", difftime(time1, time2));
+    printf("%ld\n", (long)difftime(time1, currentTime.tv_sec));
     return EXIT_SUCCESS;
 }
