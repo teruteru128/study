@@ -1,5 +1,6 @@
 
 #include "config.h"
+#include <stddef.h>
 #include "gettext.h"
 #define _(str) gettext(str)
 #include <locale.h>
@@ -9,32 +10,33 @@
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
-#include <printint.h>
+#include <limits.h>
 
-void showNabeatsu()
+extern char *ltoa(long, char *, int);
+
+void showNabeatsu(size_t nmax)
 {
-  int n;
-  char txt[64];
-  for (n = 1; n <= 40; n++)
+  char txt[24];
+  for (size_t n = 1; n <= nmax; n++)
   {
-    memset(txt, 0, 64);
-    itoa(n, txt, 10);
-    if (n % 3 == 0 || strchr(txt, '3'))
+    snprintf(txt, 24, "%zd", n);
+    //ltoa(n, txt, 10);
+    if (strchr(txt, '3') || n % 3 == 0)
     {
-      fputs("アホ\n", stdout);
+      fputs("aho\n", stdout);
     }
     else
     {
+      //fprintf(stdout, "%s\n", txt);
       fputs(txt, stdout);
       fputs("\n", stdout);
     }
   }
 }
-#define MAX (100000000)
 int main(int argc, char *argv[])
 {
   setlocale(LC_ALL, "");
   bindtextdomain(PACKAGE, LOCALEDIR);
   textdomain(PACKAGE);
-  showNabeatsu();
+  showNabeatsu(INT_MAX);
 }

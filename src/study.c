@@ -2,8 +2,14 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef ENABLE_REGEX
+#include <regex.h>
+#else
+#include <string.h>
+#endif
 
 /**
  * 
@@ -44,5 +50,32 @@
  */
 int main(int argc, char *argv[])
 {
+#ifdef ENABLE_REGEX
+  regex_t pattern1;
+  regcomp(&pattern1, "3", REG_EXTENDED | REG_NEWLINE | REG_NOSUB);
+#endif
+  char buf[24];
+  for (size_t i = 1; i <= 40; i++)
+  {
+    snprintf(buf, 24, "%zd", i);
+    //ltoa(i, buf, 10);
+    if (i % 3 == 0 ||
+#ifdef ENABLE_REGEX
+        regexec(&pattern1, buf, 0, NULL, 0) == 0
+#else
+        !strchr(buf, '3')
+#endif
+    )
+    {
+      fputs("aho\n", stdout);
+    }
+    else
+    {
+      printf("%s\n", buf);
+    }
+  }
+#ifdef ENABLE_REGEX
+  regfree(&pattern1);
+#endif
   return EXIT_SUCCESS;
 }

@@ -63,6 +63,7 @@ bin_PROGRAMS= \
 	mysqlaccesssample \
 	mysqlaccesssample2 \
 	mysqlfast \
+	pgpcrc24sample \
 	portscanner \
 	potest \
 	prime \
