@@ -198,6 +198,7 @@ int main(int argc, char *argv[])
   }
   /*
    * 文字コード変換
+   * ホストの文字コードをUTF-8に仮定していいんだろうか
    */
   charset_t charset = UTF_8;
   char *out = NULL;

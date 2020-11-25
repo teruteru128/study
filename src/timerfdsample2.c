@@ -81,9 +81,9 @@ int main(int argc, char *argv[])
         // FILEでラップしてfreadはセーフ
         // 一度にuint64_tを2つ分以上freadさせると指定した個数分だけウェイトがかかり、すべての領域に満了回数が書き込まれる
         // freadがこの挙動をすることに依存すべきでないと思う
-        r = fread(exp, sizeof(uint64_t), 2, timerf);
+        r = fread(exp, sizeof(uint64_t), 1, timerf);
         clock_gettime(CLOCK_REALTIME, &cur);
-        if (r != 2)
+        if (r != 1)
         {
             perror("recv");
             ret = EXIT_FAILURE;
@@ -91,8 +91,8 @@ int main(int argc, char *argv[])
         }
         localtime_r(&cur.tv_sec, &tm);
         tot_exp += exp[0] + exp[1];
-        printf("%04d-%02d-%02dT%02d:%02d:%02d+09:00, read : %" PRId64 ", %" PRId64 " , total : %" PRIu64 "\n",
-               tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, exp[0], exp[1], tot_exp);
+        printf("%04d-%02d-%02dT%02d:%02d:%02d.%09ld+09:00, read : %" PRId64 ", %" PRId64 " , total : %" PRIu64 "\n",
+               tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, cur.tv_nsec, exp[0], exp[1], tot_exp);
     }
 
     fclose(timerf);
