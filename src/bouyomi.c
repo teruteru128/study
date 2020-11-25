@@ -132,6 +132,7 @@ int main(int argc, char *argv[])
   char buf[BUFSIZ];
   if (!isatty(fileno(stdin)))
   {
+    errno = 0;
     // 標準入力(端末以外)から読み上げ文書読み込み
     while (fgets(buf, BUFSIZ, stdin) != NULL)
     {
@@ -262,17 +263,14 @@ int main(int argc, char *argv[])
   // 知らんけど
   // ヘッダー長が8の倍数じゃないのつらい
 
-  size_t send_len = 15 + length;
-  char *send_buf = malloc(send_len);
-  *((short *)(send_buf + 0)) = (short)htole16((unsigned short)command);
-  *((short *)(send_buf + 2)) = (short)htole16((unsigned short)speed);
-  *((short *)(send_buf + 4)) = (short)htole16((unsigned short)tone);
-  *((short *)(send_buf + 6)) = (short)htole16((unsigned short)volume);
-  *((short *)(send_buf + 8)) = (short)htole16((unsigned short)voice);
-  *((char *)(send_buf + 10)) = encode;
-  *((int *)(send_buf + 11)) = (int)htole32((unsigned int)length);
-  memcpy(send_buf + 15, out, length);
-  free(out);
+  char header[15];
+  *((short *)(header + 0)) = (short)htole16((unsigned short)command);
+  *((short *)(header + 2)) = (short)htole16((unsigned short)speed);
+  *((short *)(header + 4)) = (short)htole16((unsigned short)tone);
+  *((short *)(header + 6)) = (short)htole16((unsigned short)volume);
+  *((short *)(header + 8)) = (short)htole16((unsigned short)voice);
+  *((char *)(header + 10)) = encode;
+  *((int *)(header + 11)) = (int)htole32((unsigned int)length);
 
   char servAddr[NI_MAXHOST];
   char servPortStr[NI_MAXSERV] = DEFAULT_PORT_STR;
@@ -290,7 +288,7 @@ int main(int argc, char *argv[])
   rc = getaddrinfo(servAddr, servPortStr, &hints, &res);
   if (rc != 0)
   {
-    free(send_buf);
+    free(out);
     perror("getaddrinfo");
     return EXIT_FAILURE;
   }
@@ -326,14 +324,23 @@ int main(int argc, char *argv[])
 
   ssize_t w = 0;
   // 送信
-  if ((w = write(sock, send_buf, send_len)) <= 0)
+  if ((w = write(sock, header, 15)) != 15)
   {
     fprintf(stderr, _("Error! %s\n"), strerror(errno));
+    rc = close(sock);
+    free(out);
+    perror("write header");
+    return EXIT_FAILURE;
   }
-  else
+  if ((w = write(sock, out, length)) != (ssize_t)length)
   {
-    fprintf(stderr, _("Sent!\n"));
+    fprintf(stderr, _("Error! %s\n"), strerror(errno));
+    rc = close(sock);
+    free(out);
+    perror("write header");
+    return EXIT_FAILURE;
   }
+  fprintf(stderr, _("Sent!\n"));
   // ソケットを閉じる
   rc = close(sock);
   if (rc != 0)
@@ -341,6 +348,6 @@ int main(int argc, char *argv[])
     perror("close");
     return EXIT_FAILURE;
   }
-  free(send_buf);
+  free(out);
   return rc;
 }
