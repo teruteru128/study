@@ -3,6 +3,7 @@
         "*.ts": "xml",
         ".classpath": "xml",
         "*.classpath": "xml",
-        "cstdio": "cpp"
+        "cstdio": "cpp",
+        "complex": "c"
     }
 }
