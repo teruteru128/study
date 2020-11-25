@@ -22,8 +22,6 @@
 #include <unistd.h>
 #include "bmspam.h"
 
-void die_if_fault_occurred(xmlrpc_env *env);
-
 #define USER_NAME "teruteru128"
 #define PASSWORD "testpassword"
 #define ADDRBUFSIZE 64
@@ -108,14 +106,12 @@ int main(int const argc, const char **const argv)
   xmlrpc_env env;
   xmlrpc_client *clientP;
   xmlrpc_server_info *serverP;
-  xmlrpc_value *resultP;
   /* Initialize our error-handling environment. */
   xmlrpc_env_init(&env);
   die_if_fault_occurred(&env);
   xmlrpc_client_setup_global_const(&env);
   die_if_fault_occurred(&env);
-  xmlrpc_client_create(&env, XMLRPC_CLIENT_NO_FLAGS, NAME, VERSION, NULL, 0,
-                       &clientP);
+  xmlrpc_client_create(&env, XMLRPC_CLIENT_NO_FLAGS, NAME, VERSION, NULL, 0, &clientP);
   die_if_fault_occurred(&env);
   serverP = xmlrpc_server_info_new(&env, SERVER_URL);
   die_if_fault_occurred(&env);
@@ -126,7 +122,6 @@ int main(int const argc, const char **const argv)
 
   char toaddress[ADDRBUFSIZE];
   char *tmp = NULL;
-  xmlrpc_value *paramArray = NULL;
   xmlrpc_value *toaddressv = NULL;
   xmlrpc_value *fromaddressv = xmlrpc_string_new(&env, GENELRAL);
   die_if_fault_occurred(&env);
@@ -162,6 +157,7 @@ int main(int const argc, const char **const argv)
     err(EXIT_FAILURE, "fopen");
   }
 
+  const char *ackdata = NULL;
   while ((tmp = fgets(toaddress, ADDRBUFSIZE, toaddrfile)) != NULL)
   {
     /* ファイルから読み込んだ文字列から改行文字を取り除く */
@@ -174,37 +170,13 @@ int main(int const argc, const char **const argv)
     toaddressv = xmlrpc_string_new(&env, toaddress);
     die_if_fault_occurred(&env);
 
-    /* xmlrpcのパラメータを組み立てる */
-    paramArray = xmlrpc_array_new(&env);
-    die_if_fault_occurred(&env);
-    xmlrpc_array_append_item(&env, paramArray, toaddressv);
-    die_if_fault_occurred(&env);
-    xmlrpc_array_append_item(&env, paramArray, fromaddressv);
-    die_if_fault_occurred(&env);
-    xmlrpc_array_append_item(&env, paramArray, subjectv);
-    die_if_fault_occurred(&env);
-    xmlrpc_array_append_item(&env, paramArray, messagev);
-    die_if_fault_occurred(&env);
-    xmlrpc_array_append_item(&env, paramArray, encodingTypev);
-    die_if_fault_occurred(&env);
-    xmlrpc_array_append_item(&env, paramArray, TTLv);
-    die_if_fault_occurred(&env);
-
-    /* Make the remote procedure call パラメーターとメソッドを指定して呼び出す */
-    xmlrpc_client_call2(&env, clientP, serverP, METHOD_NAME, paramArray, &resultP);
-    die_if_fault_occurred(&env);
+    ackdata = bmapi_sendMessage(&env, clientP, serverP, toaddressv, fromaddressv, subjectv, messagev, encodingTypev, TTLv);
+    free(ackdata);
 
     printf("%s\n", toaddress);
 
     /* Dispose of our result value. ゴミ掃除 */
-    xmlrpc_DECREF(paramArray);
     xmlrpc_DECREF(toaddressv);
-    xmlrpc_DECREF(fromaddressv);
-    xmlrpc_DECREF(subjectv);
-    xmlrpc_DECREF(messagev);
-    xmlrpc_DECREF(encodingTypev);
-    xmlrpc_DECREF(TTLv);
-    xmlrpc_DECREF(resultP);
   }
   fclose(toaddrfile);
   xmlrpc_DECREF(fromaddressv);
