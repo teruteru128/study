@@ -4,6 +4,7 @@
  */
 
 #include "config.h"
+#include <stddef.h>
 #include "gettext.h"
 #define _(str) gettext(str)
 #include <locale.h>
@@ -33,10 +34,6 @@
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
 #endif
 
 #ifdef HAVE_NETDB_H
@@ -247,7 +244,9 @@ int main(int argc, char *argv[])
   short volume = -1;
   short voice = 0;
   size_t length = strlen(out);
+#ifdef _DEBUG
   fprintf(stderr, "length : %ld\n", length);
+#endif
   if (length > INT_MAX)
   {
     free(out);
@@ -290,6 +289,7 @@ int main(int argc, char *argv[])
   rc = getaddrinfo(servAddr, servPortStr, &hints, &res);
   if (rc != 0)
   {
+    free(send_buf);
     perror("getaddrinfo");
     return EXIT_FAILURE;
   }
@@ -310,8 +310,9 @@ int main(int argc, char *argv[])
       close(sock);
       continue;
     }
-    fprintf(stderr, "[DEBUG]:");
+#ifdef _DEBUG
     print_addrinfo0(adrinf, stderr);
+#endif
     break;
   }
   freeaddrinfo(res);
