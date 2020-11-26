@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/timerfd.h>
 #include <unistd.h>
 #include <inttypes.h>
@@ -81,9 +82,9 @@ int main(int argc, char *argv[])
         // FILEでラップしてfreadはセーフ
         // 一度にuint64_tを2つ分以上freadさせると指定した個数分だけウェイトがかかり、すべての領域に満了回数が書き込まれる
         // freadがこの挙動をすることに依存すべきでないと思う
-        r = fread(exp, sizeof(uint64_t), 1, timerf);
+        r = fread(exp, sizeof(uint64_t), 2, timerf);
         clock_gettime(CLOCK_REALTIME, &cur);
-        if (r != 1)
+        if (r != 2)
         {
             perror("recv");
             ret = EXIT_FAILURE;

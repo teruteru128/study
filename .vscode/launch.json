@@ -8,7 +8,7 @@
             "name": "study",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/src/study",
+            "program": "${workspaceFolder}/src/.libs/study",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

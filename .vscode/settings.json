@@ -4,6 +4,7 @@
         ".classpath": "xml",
         "*.classpath": "xml",
         "cstdio": "cpp",
-        "complex": "c"
+        "complex": "c",
+        "typeinfo": "c"
     }
 }

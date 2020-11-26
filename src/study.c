@@ -5,26 +5,30 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef ENABLE_REGEX
-#include <regex.h>
-#else
-#include <string.h>
-#endif
 
 /**
  * 
  * 対称鍵暗号
+ *   EVP_CIPHER
+ *   https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
  * 認証付き暗号
- * エンベロープ暗号化
+ *   https://wiki.openssl.org/index.php/EVP_Authenticated_Encryption_and_Decryption
+ * エンベロープ暗号化(ハイブリッド暗号？)
+ *   https://wiki.openssl.org/index.php/EVP_Asymmetric_Encryption_and_Decryption_of_an_Envelope
  * 署名と検証
  *   EVP_DigestSign
+ *   https://wiki.openssl.org/index.php/EVP_Signing_and_Verifying
  * メッセージダイジェスト
+ *   https://wiki.openssl.org/index.php/EVP_Message_Digests
  * 鍵合意(鍵交換)
+ *   EVP_PKEY_CTX
+ *   EVP_PKEY_derive
+ *   https://wiki.openssl.org/index.php/EVP_Key_Derivation
  * メッセージ認証符号 (OpenSSL 3～)
  *   EVP_MAC_new_ctx
  * 鍵導出関数
- * strpbrk
- *   文字検索関数
+ *   EVP_KDF
+ *   https://wiki.openssl.org/index.php/EVP_Key_Derivation
  * strsep
  *   トークン分割(空フィールド対応版)
  * versionsort
@@ -50,32 +54,5 @@
  */
 int main(int argc, char *argv[])
 {
-#ifdef ENABLE_REGEX
-  regex_t pattern1;
-  regcomp(&pattern1, "3", REG_EXTENDED | REG_NEWLINE | REG_NOSUB);
-#endif
-  char buf[24];
-  for (size_t i = 1; i <= 40; i++)
-  {
-    snprintf(buf, 24, "%zd", i);
-    //ltoa(i, buf, 10);
-    if (i % 3 == 0 ||
-#ifdef ENABLE_REGEX
-        regexec(&pattern1, buf, 0, NULL, 0) == 0
-#else
-        !strchr(buf, '3')
-#endif
-    )
-    {
-      fputs("aho\n", stdout);
-    }
-    else
-    {
-      printf("%s\n", buf);
-    }
-  }
-#ifdef ENABLE_REGEX
-  regfree(&pattern1);
-#endif
   return EXIT_SUCCESS;
 }
