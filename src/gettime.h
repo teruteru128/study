@@ -20,7 +20,7 @@
 
 #define DEFAULT_SERVER "time.google.com"
 
-#define OFFSET 2208988800ULL
+#define OFFSET 2208988800L
 
 typedef struct sntp_t
 {

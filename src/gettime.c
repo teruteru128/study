@@ -2,12 +2,14 @@
 #include "gettime.h"
 #include "print_addrinfo.h"
 
-void ntp2tv(uint8_t ntp[8], struct timeval *tv)
+void ntp2tv(uint32_t ntp[2], struct timeval *tv)
 {
   uint64_t aux = 0;
   uint8_t *p = ntp;
   int i;
 
+  aux = ntohl(ntp[0]);
+#if 0
   /* we get the ntp in network byte order, so we must
      * convert it to host byte order. */
   for (i = 0; i < 8 / 2; i++)
@@ -15,11 +17,14 @@ void ntp2tv(uint8_t ntp[8], struct timeval *tv)
     aux <<= 8;
     aux |= *p++;
   } /* for */
+#endif
 
   /* now we have in aux the NTP seconds offset */
   aux -= OFFSET;
   tv->tv_sec = aux;
 
+  aux = ntohl(ntp[1]);
+#if 0
   /* let's go with the fraction of second */
   aux = 0;
   for (; i < 8; i++)
@@ -27,12 +32,19 @@ void ntp2tv(uint8_t ntp[8], struct timeval *tv)
     aux <<= 8;
     aux |= *p++;
   } /* for */
+#endif
 
   /* now we have in aux the NTP fraction (0..2^32-1) */
   aux *= 1000000; /* multiply by 1e6 */
   aux >>= 32;     /* and divide by 2^32 */
   tv->tv_usec = aux;
 } /* ntp2tv */
+
+void ntp2ts(uint32_t ntp[2], struct timespec *ts)
+{
+  ts->tv_sec = ntohl(ntp[0]) - OFFSET;
+  ts->tv_nsec = (ntohl(ntp[1]) * 1000000000L) >> 32;
+}
 
 size_t print_tv(struct timeval *t)
 {
@@ -46,48 +58,51 @@ size_t print_ts(struct timespec *t)
 
 size_t print_ntp(uint32_t ntp[2])
 {
-  int i;
-  int res = 0;
-  for (i = 0; i < 2; i++)
-  {
-    if (i == 1)
-      res += printf(".");
-    res += printf("%08x", ntp[i]);
-  } /* for */
-  res += printf("\n");
-  return res;
+  return (size_t)printf("%08x.%08x\n", ntohl(ntp[0]), ntohl(ntp[1]));
 } /* print_ntp */
 
 void tv2ntp(struct timeval *tv, uint32_t ntp[2])
 {
   uint64_t aux = 0;
+#if 0
   uint8_t *p = ntp + 8;
   int i;
+#endif
 
   aux = tv->tv_usec;
   aux <<= 32;
   aux /= 1000000;
 
   ntp[1] = htonl((uint32_t)aux);
+#if 0
   /* we set the ntp in network byte order */
   for (i = 0; i < 8 / 2; i++)
   {
     *--p = aux & 0xff;
     aux >>= 8;
   } /* for */
+#endif
 
   aux = tv->tv_sec;
   aux += OFFSET;
 
   ntp[0] = htonl((uint32_t)aux);
+#if 0
   /* let's go with the fraction of second */
   for (; i < 8; i++)
   {
     *--p = aux & 0xff;
     aux >>= 8;
   } /* for */
+#endif
 
 } /* ntp2tv */
+
+void ts2ntp(struct timespec *ts, uint32_t ntp[2])
+{
+  ntp[0] = htonl((uint32_t)((uint64_t)ts->tv_sec + OFFSET));
+  ntp[1] = htonl((uint32_t)(((uint64_t)ts->tv_nsec << 32) / 1000000000));
+} /* ts2ntp */
 
 int main(int argc, char **argv)
 {
@@ -106,6 +121,12 @@ int main(int argc, char **argv)
   tv2ntp(&tv, ntp);
   printf("tv : ");
   print_tv(&tv);
+  printf("ntp: ");
+  print_ntp(ntp);
+
+  ts2ntp(&ts, ntp);
+  printf("ts : ");
+  print_ts(&ts);
   printf("ntp: ");
   print_ntp(ntp);
 
@@ -200,7 +221,16 @@ int main(int argc, char **argv)
   }
 
   char str[NI_MAXHOST];
-  if (inet_ntop(ptr->ai_family, ptr->ai_addr, str, NI_MAXHOST) != NULL)
+  void *v = NULL;
+  if(ptr->ai_family == AF_INET)
+  {
+    v = &((struct sockaddr_in *)ptr->ai_addr)->sin_addr;
+  }
+  else
+  {
+    v = &((struct sockaddr_in6 *)ptr->ai_addr)->sin6_addr;
+  }
+  if (inet_ntop(ptr->ai_family, v, str, NI_MAXHOST) != NULL)
   {
     printf("%s\n", str);
   }
