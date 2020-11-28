@@ -157,7 +157,7 @@ int main(int const argc, const char **const argv)
     err(EXIT_FAILURE, "fopen");
   }
 
-  const char *ackdata = NULL;
+  char *ackdata = NULL;
   while ((tmp = fgets(toaddress, ADDRBUFSIZE, toaddrfile)) != NULL)
   {
     /* ファイルから読み込んだ文字列から改行文字を取り除く */
