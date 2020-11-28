@@ -10,6 +10,7 @@ bin_PROGRAMS= \
 	bino \
 	bm \
 	bmkeygen \
+	bmkeysearch \
 	bmspam \
 	bouyomi \
 	calc \
@@ -149,9 +150,12 @@ argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c
 bino_SOURCES=bino.c
 bm_SOURCES=bm.c
-bmkeygen_CFLAGS=-fopenmp
-bmkeygen_LDADD=$(LIBSTUDYPATH)
+bmkeygen_CFLAGS=
+bmkeygen_LDADD=
 bmkeygen_SOURCES=bmkeygen.c
+bmkeysearch_CFLAGS=
+bmkeysearch_LDADD=$(LIBSTUDYPATH)
+bmkeysearch_SOURCES=bmkeysearch.c
 bmspam_CFLAGS=`xmlrpc-c-config libwww-client --cflags`
 bmspam_LDADD=$(LIBSTUDYPATH)
 bmspam_LDFLAGS=`xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
