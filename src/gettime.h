@@ -22,7 +22,7 @@
 
 #define OFFSET 2208988800L
 
-typedef struct sntp_t
+typedef struct sntp
 {
   // おまえ、ぜったい、ゆるさない
 #if __BYTE_ORDER == __LITTLE_ENDIAN

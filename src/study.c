@@ -5,6 +5,24 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
+
+#define MAX 134217728
+#define THREAD_NUM 32
+
+size_t sum;
+pthread_mutex_t mutex;
+
+void *func(void *arg)
+{
+  for (size_t i = 0; i < MAX; i++)
+  {
+    pthread_mutex_lock(&mutex);
+    sum++;
+    pthread_mutex_unlock(&mutex);
+  }
+  return NULL;
+}
 
 /**
  * 
@@ -46,6 +64,8 @@
  * 
  * TODO: P2P地震情報 ピア接続受け入れ＆ピアへ接続
  * 
+ * 標準入力と標準出力を別スレッドで行うアプリ
+ * 
  * @brief sanbox func.
  * 
  * @param argc 
@@ -54,5 +74,18 @@
  */
 int main(int argc, char *argv[])
 {
+  pthread_t threads[THREAD_NUM];
+  pthread_mutex_init(&mutex, NULL);
+  sum = 0;
+  for (size_t i = 0; i < THREAD_NUM; i++)
+  {
+    pthread_create(&threads[i], NULL, func, NULL);
+  }
+  for (size_t i = 0; i < THREAD_NUM; i++)
+  {
+    pthread_join(threads[i], NULL);
+  }
+  pthread_mutex_destroy(&mutex);
+  printf("%zu\n", sum);
   return EXIT_SUCCESS;
 }

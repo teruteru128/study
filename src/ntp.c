@@ -1,4 +1,8 @@
 
+/**
+ * @brief NTP
+ * 
+ */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -85,21 +89,27 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
   uint32_t originate_timestamp_seconds = bswap_32(packet->originate_timestamp_seconds);
   uint32_t receive_timestamp_seconds = bswap_32(packet->receive_timestamp_seconds);
   uint32_t transmit_timestamp_seconds = bswap_32(packet->transmit_timestamp_seconds);
+
+  uint64_t offset_reference_timestamp_seconds = reference_timestamp_seconds - OFFSET;
+  uint64_t offset_originate_timestamp_seconds = originate_timestamp_seconds - OFFSET;
+  uint64_t offset_receive_timestamp_seconds = receive_timestamp_seconds - OFFSET;
+  uint64_t offset_transmit_timestamp_seconds = transmit_timestamp_seconds - OFFSET;
+
   uint32_t transmit_timestamp_fractions = bswap_32(packet->transmit_timestamp_fractions);
 
-  fprintf(out, "Reference Timestamp : %u(%lu)\n", reference_timestamp_seconds, reference_timestamp_seconds - 2208988800L);
+  fprintf(out, "Reference Timestamp : %u(%lu)\n", reference_timestamp_seconds, offset_reference_timestamp_seconds);
   if (originate_timestamp_seconds)
-    fprintf(out, "Origin Timestamp : %u(%lu)\n", originate_timestamp_seconds, originate_timestamp_seconds - 2208988800L);
-  fprintf(out, "Receive Timestamp : %u(%lu)\n", receive_timestamp_seconds, receive_timestamp_seconds - 2208988800L);
-  fprintf(out, "Transmit Timestamp seconds: %u(%lu)\n", transmit_timestamp_seconds, transmit_timestamp_seconds - 2208988800L);
+    fprintf(out, "Origin Timestamp : %u(%lu)\n", originate_timestamp_seconds, offset_originate_timestamp_seconds);
+  fprintf(out, "Receive Timestamp : %u(%lu)\n", receive_timestamp_seconds, offset_receive_timestamp_seconds);
+  fprintf(out, "Transmit Timestamp seconds: %u(%lu)\n", transmit_timestamp_seconds, offset_transmit_timestamp_seconds);
   fprintf(out, "Transmit Timestamp fractions : %u\n", transmit_timestamp_fractions);
-  fprintf(out, "Transmit Timestamp seconds: %.9f\n", (double)(((transmit_timestamp_seconds - 2208988800L) << 32) + transmit_timestamp_fractions) / (0x1p+32));
+  fprintf(out, "Transmit Timestamp seconds: %.9f\n", (double)(((offset_transmit_timestamp_seconds) << 32) + transmit_timestamp_fractions) / (0x1p+32));
   if (transmit_timestamp_seconds)
   {
     time_t machine_time = time(NULL);
     struct tm machine_tm;
     localtime_r(&machine_time, &machine_tm);
-    time_t ntp_time = ntohl(packet->transmit_timestamp_seconds) - 2208988800L;
+    time_t ntp_time = offset_transmit_timestamp_seconds;
     struct tm lpNewLocalTime;
     if (localtime_r(&ntp_time, &lpNewLocalTime) == NULL)
     {

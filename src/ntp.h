@@ -5,7 +5,12 @@
 #include <stdio.h>
 #include <stdint.h>
 
-/* N_("NTP packet") */
+#define OFFSET 2208988800UL
+
+/**
+ * @brief  N_("NTP packet") 
+ * 
+ */
 struct NTP_Packet
 {
   uint32_t Control_Word;

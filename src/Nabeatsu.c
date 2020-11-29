@@ -28,7 +28,7 @@ void showNabeatsu(size_t nmax)
   char txt[24];
   for (size_t n = 1; n <= nmax; n++)
   {
-    snprintf(txt, 24, "%zd", n);
+    snprintf(txt, 24, "%zu", n);
     //ltoa(n, txt, 10);
     if (
 #ifdef ENABLE_REGEX
@@ -56,5 +56,5 @@ int main(int argc, char *argv[])
   setlocale(LC_ALL, "");
   bindtextdomain(PACKAGE, LOCALEDIR);
   textdomain(PACKAGE);
-  showNabeatsu(SIZE_MAX);
+  showNabeatsu(INT_MAX);
 }

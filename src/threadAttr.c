@@ -6,33 +6,31 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stddef.h>
+#include <inttypes.h>
 #include <errno.h>
 
 #define SIZE 16777216
 
-struct a
-{
-  pthread_mutex_t mutex;
-  pthread_cond_t cond;
-};
+pthread_mutex_t mutex;
+pthread_cond_t cond;
 
 void *threadFunc(void *arg)
 {
-  struct a *a = (struct a *)arg;
-  double table[SIZE];
-  int i;
+  uint64_t table[SIZE];
 
-  for (i = 0; i < SIZE; i++)
+  for (long i = 0; i < SIZE; i++)
   {
-    table[i] = i * 3.14;
+    table[i] = (uint64_t)((double)i * 3.14);
   }
-  printf("準備完了\n");
-  pthread_mutex_lock(&a->mutex);
-  pthread_cond_wait(&a->cond, &a->mutex);
-  pthread_mutex_unlock(&a->mutex);
-  for (i = 0; i < SIZE; i++)
+  pthread_cond_signal(&cond);
+  fprintf(stderr, "準備完了\n");
+  pthread_mutex_lock(&mutex);
+  pthread_cond_wait(&cond, &mutex);
+  pthread_mutex_unlock(&mutex);
+  for (size_t i = 0; i < SIZE; i++)
   {
-    printf("%lf\n", table[i]);
+    fprintf(stdout, "%lu\n", table[i]);
   }
   return NULL;
 }
@@ -41,18 +39,17 @@ int main(int argc, char *argv[])
 {
   pthread_attr_t attr;
   pthread_t thread;
-  struct a a;
 
   pthread_attr_init(&attr);
-  pthread_mutex_init(&a.mutex, NULL);
-  pthread_cond_init(&a.cond, NULL);
+  pthread_mutex_init(&mutex, NULL);
+  pthread_cond_init(&cond, NULL);
 
   size_t stacksize;
   pthread_attr_getstacksize(&attr, &stacksize);
-  printf("%lu -> ", stacksize);
+  fprintf(stderr, "%lu -> ", stacksize);
 
-  stacksize += SIZE * sizeof(double);
-  printf("%lu\n", stacksize);
+  stacksize += SIZE * sizeof(uint64_t);
+  fprintf(stderr, "%lu\n", stacksize);
 
   if (pthread_attr_setstacksize(&attr, stacksize) != 0)
   {
@@ -60,15 +57,18 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  if (pthread_create(&thread, &attr, threadFunc, &a) != 0)
+  if (pthread_create(&thread, &attr, threadFunc, NULL) != 0)
   {
     perror("Error: Failed to create new thread.");
     return EXIT_FAILURE;
   }
+  pthread_mutex_lock(&mutex);
+  pthread_cond_wait(&cond, &mutex);
+  pthread_mutex_unlock(&mutex);
 
-  printf("エンターキーを押して終了...\n");
+  fprintf(stderr, "エンターキーを押して再開...\n");
   fgetc(stdin);
-  pthread_cond_signal(&a.cond);
+  pthread_cond_signal(&cond);
 
   if (pthread_join(thread, NULL) != 0)
   {
@@ -76,8 +76,8 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  pthread_mutex_destroy(&a.mutex);
-  pthread_cond_destroy(&a.cond);
+  pthread_mutex_destroy(&mutex);
+  pthread_cond_destroy(&cond);
   pthread_attr_destroy(&attr);
   return EXIT_SUCCESS;
 }

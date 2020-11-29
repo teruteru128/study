@@ -1,43 +1,10 @@
 
 #include "gettime.h"
-#include "print_addrinfo.h"
 
 void ntp2tv(uint32_t ntp[2], struct timeval *tv)
 {
-  uint64_t aux = 0;
-  uint8_t *p = ntp;
-  int i;
-
-  aux = ntohl(ntp[0]);
-#if 0
-  /* we get the ntp in network byte order, so we must
-     * convert it to host byte order. */
-  for (i = 0; i < 8 / 2; i++)
-  {
-    aux <<= 8;
-    aux |= *p++;
-  } /* for */
-#endif
-
-  /* now we have in aux the NTP seconds offset */
-  aux -= OFFSET;
-  tv->tv_sec = aux;
-
-  aux = ntohl(ntp[1]);
-#if 0
-  /* let's go with the fraction of second */
-  aux = 0;
-  for (; i < 8; i++)
-  {
-    aux <<= 8;
-    aux |= *p++;
-  } /* for */
-#endif
-
-  /* now we have in aux the NTP fraction (0..2^32-1) */
-  aux *= 1000000; /* multiply by 1e6 */
-  aux >>= 32;     /* and divide by 2^32 */
-  tv->tv_usec = aux;
+  tv->tv_sec = ntohl(ntp[0]) - OFFSET;
+  tv->tv_usec = (ntohl(ntp[1]) * 1000000L) >> 32;
 } /* ntp2tv */
 
 void ntp2ts(uint32_t ntp[2], struct timespec *ts)
@@ -63,45 +30,14 @@ size_t print_ntp(uint32_t ntp[2])
 
 void tv2ntp(struct timeval *tv, uint32_t ntp[2])
 {
-  uint64_t aux = 0;
-#if 0
-  uint8_t *p = ntp + 8;
-  int i;
-#endif
-
-  aux = tv->tv_usec;
-  aux <<= 32;
-  aux /= 1000000;
-
-  ntp[1] = htonl((uint32_t)aux);
-#if 0
-  /* we set the ntp in network byte order */
-  for (i = 0; i < 8 / 2; i++)
-  {
-    *--p = aux & 0xff;
-    aux >>= 8;
-  } /* for */
-#endif
-
-  aux = tv->tv_sec;
-  aux += OFFSET;
-
-  ntp[0] = htonl((uint32_t)aux);
-#if 0
-  /* let's go with the fraction of second */
-  for (; i < 8; i++)
-  {
-    *--p = aux & 0xff;
-    aux >>= 8;
-  } /* for */
-#endif
-
+  ntp[0] = htonl((uint32_t)(tv->tv_sec + OFFSET));
+  ntp[1] = htonl((uint32_t)((tv->tv_usec << 32) / 1000000L));
 } /* ntp2tv */
 
 void ts2ntp(struct timespec *ts, uint32_t ntp[2])
 {
-  ntp[0] = htonl((uint32_t)((uint64_t)ts->tv_sec + OFFSET));
-  ntp[1] = htonl((uint32_t)(((uint64_t)ts->tv_nsec << 32) / 1000000000));
+  ntp[0] = htonl((uint32_t)(ts->tv_sec + OFFSET));
+  ntp[1] = htonl((uint32_t)((ts->tv_nsec << 32) / 1000000000));
 } /* ts2ntp */
 
 int main(int argc, char **argv)
@@ -220,19 +156,22 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  char str[NI_MAXHOST];
+  char addrtype[6] = "";
+  char addrstr[NI_MAXHOST];
   void *v = NULL;
-  if(ptr->ai_family == AF_INET)
+  if (ptr->ai_family == AF_INET)
   {
     v = &((struct sockaddr_in *)ptr->ai_addr)->sin_addr;
+    snprintf(addrtype, 6, "INET");
   }
-  else
+  else if (ptr->ai_family == AF_INET6)
   {
     v = &((struct sockaddr_in6 *)ptr->ai_addr)->sin6_addr;
+    snprintf(addrtype, 6, "INET6");
   }
-  if (inet_ntop(ptr->ai_family, v, str, NI_MAXHOST) != NULL)
+  if (inet_ntop(ptr->ai_family, v, addrstr, NI_MAXHOST) != NULL)
   {
-    printf("%s\n", str);
+    printf("ip address : %s(%s)\n", addrstr, addrtype);
   }
   freeaddrinfo(res);
 
