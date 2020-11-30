@@ -77,6 +77,7 @@ bin_PROGRAMS= \
 	primeNumber5 \
 	primesearch \
 	printBench \
+	printinttest \
 	read_random \
 	repeated-trials \
 	rsa \
@@ -210,6 +211,9 @@ primesearch_SOURCES=primesearch.c
 printBench_CFLAGS=
 printBench_LDADD=$(LIBSTUDYPATH)
 printBench_SOURCES=printBench.c
+printinttest_CFLAGS=
+printinttest_LDADD=$(LIBSTUDYPATH)
+printinttest_SOURCES=printinttest.c
 read_random_LDADD=$(LIBSTUDYPATH)
 read_random_SOURCES=read_random.c
 rsa1024_SOURCES=rsa1024.c
