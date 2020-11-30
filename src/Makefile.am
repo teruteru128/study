@@ -34,11 +34,6 @@ bin_PROGRAMS= \
 	falcon \
 	fastPrimeNumber \
 	fastPrimeNumber2 \
-	firstThread \
-	firstThread2 \
-	firstThread3 \
-	firstThread4 \
-	firstThread4-1 \
 	fly \
 	fly2 \
 	fly2rwlock \
