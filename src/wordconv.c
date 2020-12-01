@@ -4,6 +4,8 @@
 #include <string.h>
 #include <regex.h>
 
+#define PATTERN "list"
+
 int main(int argc, char *argv[])
 {
   FILE *in = fopen("wordlist.txt", "r");
@@ -17,9 +19,8 @@ int main(int argc, char *argv[])
     goto fail;
   }
   regex_t regex;
-  char *pattern = "list";
   regmatch_t match;
-  ret = regcomp(&regex, pattern, REG_EXTENDED | REG_NEWLINE | REG_ICASE);
+  ret = regcomp(&regex, PATTERN, REG_EXTENDED | REG_NEWLINE | REG_ICASE);
   if (ret != 0)
   {
     size_t len = regerror(ret, &regex, NULL, 0);
@@ -43,7 +44,7 @@ int main(int argc, char *argv[])
     ret = regexec(&regex, line, 1, &match, 0);
     if (ret == 0 && match.rm_so != -1)
     {
-      memcpy(&line[match.rm_so], pattern, 4);
+      memcpy(&line[match.rm_so], PATTERN, 4);
     }
     else
     {

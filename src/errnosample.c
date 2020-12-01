@@ -9,6 +9,6 @@
 int main(int argc, char const *argv[])
 {
     /* code */
-    printf("%p\n", __errno_location());
+    printf("%p\n", (void *)__errno_location());
     return 0;
 }

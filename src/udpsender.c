@@ -17,7 +17,6 @@ int main(int argc, char **argv)
 {
     int sock;
     struct addrinfo hints, *res = NULL, *ptr = NULL;
-    char *msg = NULL;
     ssize_t r = 0;
     hints.ai_flags = 0;
     hints.ai_family = AF_INET;
@@ -46,16 +45,15 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    if (argc >= 2)
+    char *msg = strdup(argc >= 2 ? argv[1] : "HELLO");
+    if(msg == NULL)
     {
-        msg = argv[1];
-    }
-    else
-    {
-        msg = "HELLO";
+        perror("strdup error");
+        return EXIT_FAILURE;
     }
 
     r = sendto(sock, msg, strlen(msg), 0, ptr->ai_addr, ptr->ai_addrlen);
+    free(msg);
 
     printf("%lu\n", r);
 
