@@ -3,6 +3,7 @@ SUBDIRS  =          \
         include     \
         po          \
         src         \
+        pthreads    \
         tests
 
 ACLOCAL_AMFLAGS = -I m4

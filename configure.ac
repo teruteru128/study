@@ -21,7 +21,6 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_PROG_RANLIB
 
 # Checks for libraries.
 AC_CHECK_LIB([crypto], [main], [], [AC_MSG_FAILURE([could not find lib crypto])])
@@ -75,6 +74,7 @@ AC_CONFIG_FILES([Makefile
                  po/Makefile.in
                  src/Makefile
                  src/config/Makefile
+                 pthreads/Makefile
                  tests/Makefile])
 AC_CONFIG_SUBDIRS([libstudy])
 AC_OUTPUT

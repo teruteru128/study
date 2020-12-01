@@ -15,8 +15,6 @@ bin_PROGRAMS= \
 	bouyomi \
 	calc \
 	cl \
-	condTimedWait \
-	condWait \
 	cp2peq \
 	curltest \
 	dappun \
@@ -32,17 +30,6 @@ bin_PROGRAMS= \
 	evpmdtest \
 	evptest \
 	falcon \
-	fastPrimeNumber \
-	fastPrimeNumber2 \
-	firstThread \
-	firstThread2 \
-	firstThread3 \
-	firstThread4 \
-	firstThread4-1 \
-	fly \
-	fly2 \
-	fly2rwlock \
-	fly3 \
 	ftm \
 	ftnr \
 	gettextsample2 \
@@ -70,11 +57,6 @@ bin_PROGRAMS= \
 	prime \
 	prime2 \
 	prime3 \
-	primeNumber \
-	primeNumber2 \
-	primeNumber3 \
-	primeNumber4 \
-	primeNumber5 \
 	primesearch \
 	printBench \
 	printinttest \
@@ -89,9 +71,6 @@ bin_PROGRAMS= \
 	signalsample \
 	signalsample2 \
 	sntpc \
-	soloFly \
-	soloFly2 \
-	soloFly2-2 \
 	string_list_test \
 	strspntest \
 	study \
@@ -110,11 +89,6 @@ bin_PROGRAMS= \
 	udpsender \
 	upnp-port-fowarding-test \
 	uuidtest \
-	variables \
-	variables3 \
-	variables4 \
-	variables5 \
-	variablesProc \
 	wordconv \
 	yattaze
 
@@ -167,8 +141,6 @@ bouyomi_SOURCES=bouyomi.c bouyomi.h gettext.h
 calc_SOURCES=calc.c
 cl_LDADD=$(LIBSTUDYPATH)
 cl_SOURCES=cl.c
-condTimedWait_SOURCES=condTimedWait.c
-condWait_SOURCES=condWait.c
 cp2peq_SOURCES=cp2peq.c
 cp2peq_LDADD=$(LIBSTUDYPATH)
 dice_LDADD=
@@ -180,9 +152,6 @@ encodersa_CFLAGS=
 encodersa_SOURCES=encodersa.c gettext.h
 falcon_LDADD=$(LIBSTUDYPATH)
 falcon_SOURCES=falcon.c
-fly_SOURCES=fly.c
-fly2_SOURCES=fly2.c
-fly2rwlock_SOURCES=fly2.c
 ftnr_LDADD=$(LIBSTUDYPATH)
 gettextsample2_CFLAGS=
 gettextsample2_SOURCES=gettextsample2.c gettextsample2.h gettext.h
@@ -226,9 +195,6 @@ service_sample_SOURCES=service-sample.c server.c server.h
 sntpc_CFLAGS=
 sntpc_LDADD=$(LIBSTUDYPATH)
 sntpc_SOURCES=sntpc.c ntp.c ntp.h
-soloFly_SOURCES=soloFly.c
-soloFly2_SOURCES=soloFly2.c
-soloFly2_2_SOURCES=soloFly2-2.c
 string_list_test_LDADD=$(LIBSTUDYPATH)
 string_list_test_SOURCES=string_list_test.c
 study_CFLAGS=
