@@ -18,17 +18,18 @@ int main(int argc, char **argv)
     printf("%s\n", v);
   }
   char search[21];
-  size_t p;
 
   printf("文字群を入力しなさい。\n");
-  int r = scanf("%20s", search);
-  if (r == EOF)
+  //int r = fscanf(stdin, "%20s", search);
+  //if (r == EOF)
+  char *r = fgets(search, 21, stdin);
+  if(r == NULL)
   {
     perror("scanf");
     return EXIT_FAILURE;
   }
 
-  p = strspn(STR, search);
+  size_t p = strspn(STR, search);
   printf("%zd\n", p);
   return EXIT_SUCCESS;
 }
