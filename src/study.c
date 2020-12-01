@@ -5,23 +5,25 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
+#include <math.h>
 
-#define MAX 134217728
-#define THREAD_NUM 32
-
-size_t sum;
-pthread_mutex_t mutex;
-
-void *func(void *arg)
+double chainCookies(long chain, double cookiesPs, double cookies)
 {
-  for (size_t i = 0; i < MAX; i++)
+  printf("chain!");
+  double digit = 7;
+  double mult = 1;
+  chain++;
+  if (chain <= 1 && chain >= 1)
+    chain += (long)fmax(0, ceil(log10(cookies)) - 10);
+  double maxPayout = fmin(cookiesPs * 60 * 60 * 6, cookies * 0.5) * mult;
+  double moni = fmax(digit, fmin(floor(1. / 9 * pow(10, (double)chain) * digit * mult), maxPayout));
+  double nextMoni = fmax(digit, fmin(floor(1. / 9 * pow(10, (double)(chain + 1)) * digit * mult), maxPayout));
+  printf("%ld, %e, %e, %e\n", chain, maxPayout, moni, nextMoni);
+  if (nextMoni >= maxPayout)
   {
-    pthread_mutex_lock(&mutex);
-    sum++;
-    pthread_mutex_unlock(&mutex);
+    printf("Cookie chain over.\n");
   }
-  return NULL;
+  return moni;
 }
 
 /**
@@ -74,18 +76,9 @@ void *func(void *arg)
  */
 int main(int argc, char *argv[])
 {
-  pthread_t threads[THREAD_NUM];
-  pthread_mutex_init(&mutex, NULL);
-  sum = 0;
-  for (size_t i = 0; i < THREAD_NUM; i++)
-  {
-    pthread_create(&threads[i], NULL, func, NULL);
-  }
-  for (size_t i = 0; i < THREAD_NUM; i++)
-  {
-    pthread_join(threads[i], NULL);
-  }
-  pthread_mutex_destroy(&mutex);
-  printf("%zu\n", sum);
+  long chain = 30;
+  double cookiesPs = 5.587e+26;
+  double cookies = 5.877e+32;
+  printf("%f\n", chainCookies(chain, cookiesPs * 7, cookies));
   return EXIT_SUCCESS;
 }

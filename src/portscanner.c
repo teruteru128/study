@@ -22,6 +22,7 @@ int main(int argc, char **argv)
   hints.ai_flags = 0;
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
 
   int sock = 0;
   char port_str[12];

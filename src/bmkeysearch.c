@@ -120,6 +120,7 @@ void *task(void *arg)
               fprintf(stderr, "%ld, %ld, %ld\n", nlz, ii, jj);
             }
           }
+          /*
           calcRipe(mdctx, sha512md, ripemd160md, cache64, publicKeys, j, i);
           nlz = getNLZ(cache64);
           if (nlz >= minExportThreshold)
@@ -128,6 +129,7 @@ void *task(void *arg)
               fprintf(stderr, "%ld, %ld, %ld\n", nlz, jj, ii);
             }
           }
+          */
         }
       }
     }

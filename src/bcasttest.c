@@ -2,6 +2,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <stddef.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -11,24 +12,26 @@
 #include <string.h>
 #include <stdlib.h>
 #include <netdb.h>
+#include <errno.h>
+
+#define HOSTNAME1 "255.255.255.255"
+#define HOSTNAME2 "FF02::1"
+#define HOSTNAME3 "FF05::1"
 
 /** https://www.geekpage.jp/programming/linux-network/broadcast.php */
 int main(int argc, char **argv)
 {
     struct addrinfo hints, *res = NULL, *ptr = NULL;
     hints.ai_flags = 0;
-    hints.ai_family = AF_INET;
+    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = IPPROTO_UDP;
-    int rc = getaddrinfo("255.255.255.255", "12345", &hints, &res);
+    int rc = getaddrinfo(HOSTNAME2, "12345", &hints, &res);
     if (rc != 0)
     {
         fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(rc));
         return EXIT_FAILURE;
     }
-    int yes = 1;
-    int bcval1 = 0, bcval2 = 0;
-    socklen_t len1 = 4, len2 = 4;
     ssize_t r = 0;
     int ret = 0;
 
@@ -40,25 +43,60 @@ int main(int argc, char **argv)
             break;
     }
 
-    ret = getsockopt(sock, SOL_SOCKET, SO_BROADCAST, (void *)&bcval1, &len1);
-    printf("ret : %d\n", ret);
-    ret = setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (void *)&yes, sizeof(yes));
-    printf("ret : %d\n", ret);
-    ret = getsockopt(sock, SOL_SOCKET, SO_BROADCAST, (void *)&bcval2, &len2);
-    printf("ret : %d\n", ret);
-    printf("%d(%d) -> %d(%d)\n", bcval1, len1, bcval2, len2);
+    /* 
+     * IPv4 マルチキャスト送信
+     * IP_MULTICAST_IF
+     * IP_MULTICAST_LOOP
+     * IPv4 マルチキャスト受信
+     * IP_ADD_MEMBERSHIP
+     * IP_DROP_MEMBERSHIP
+     * IPv6 マルチキャスト送信
+     * IPV6_MULTICAST_HOPS
+     */
+    if (ptr->ai_family == AF_INET)
+    {
+        int yes = 1;
+        int bcval1 = 0, bcval2 = 0;
+        socklen_t len1 = 4, len2 = 4;
+        ret = getsockopt(sock, SOL_SOCKET, SO_BROADCAST, (void *)&bcval1, &len1);
+        printf("ret : %d\n", ret);
+        ret = setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (void *)&yes, sizeof(yes));
+        printf("ret : %d\n", ret);
+        ret = getsockopt(sock, SOL_SOCKET, SO_BROADCAST, (void *)&bcval2, &len2);
+        printf("ret : %d\n", ret);
+        printf("%d(%d) -> %d(%d)\n", bcval1, len1, bcval2, len2);
+    }
+    else if (ptr->ai_family == AF_INET6)
+    {
+    }
 
     char *msg = strdup(argc >= 2 ? argv[1] : "HELLO");
-    if(msg == NULL)
+    if (msg == NULL)
     {
         perror("strdup error");
         return EXIT_FAILURE;
     }
 
-    r = sendto(sock, msg, strlen(msg), 0, ptr->ai_addr, ptr->ai_addrlen);
+    int f = connect(sock, ptr->ai_addr, ptr->ai_addrlen);
+    if (f < 0)
+    {
+        int err = errno;
+        fprintf(stderr, "connect : %d, %s\n", err, strerror(err));
+        //perror("connect");
+        close(sock);
+        return EXIT_FAILURE;
+    }
+
+    r = write(sock, msg, strlen(msg));
+    if (r < 0)
+    {
+        perror("write");
+        close(sock);
+        return EXIT_FAILURE;
+    }
     free(msg);
 
-    printf("send : %lu\n", r);
+    printf("send : %zd\n", r);
 
     ret = close(sock);
 

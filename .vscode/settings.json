@@ -6,6 +6,7 @@
         "cstdio": "cpp",
         "complex": "c",
         "typeinfo": "c",
-        "*.tcc": "c"
+        "*.tcc": "c",
+        "random": "c"
     }
 }
