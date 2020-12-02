@@ -71,7 +71,6 @@ bin_PROGRAMS= \
 	signalsample \
 	signalsample2 \
 	sntpc \
-	string_list_test \
 	strspntest \
 	study \
 	sum \
@@ -195,8 +194,6 @@ service_sample_SOURCES=service-sample.c server.c server.h
 sntpc_CFLAGS=
 sntpc_LDADD=$(LIBSTUDYPATH)
 sntpc_SOURCES=sntpc.c ntp.c ntp.h
-string_list_test_LDADD=$(LIBSTUDYPATH)
-string_list_test_SOURCES=string_list_test.c
 study_CFLAGS=
 study_LDADD=$(LIBSTUDYPATH)
 study_SOURCES=study.c gettext.h
