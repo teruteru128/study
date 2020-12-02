@@ -213,3 +213,4 @@ tsidimprover_LDADD=$(LIBSTUDYPATH)
 tsidimprover_SOURCES=tsidimprover.c
 tsidshowsample_SOURCES=tsidshowsample.c
 udpsender_SOURCES=udpsender.c
+yattaze_SOURCES=yattaze.c yattaze.h

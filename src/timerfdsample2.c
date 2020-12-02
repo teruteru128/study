@@ -73,27 +73,30 @@ int main(int argc, char *argv[])
     // max expiration
     const uint64_t max_exp = 16;
     // total expiration
-    uint64_t tot_exp;
+    uint64_t tot_exp = 0;
     size_t r = 0;
     struct tm tm;
-    for (tot_exp = 0; tot_exp < max_exp;)
+    char buf1[64];
+    char buf2[64];
+    while (tot_exp < max_exp)
     {
         // recvで読み込むと失敗を返す
         // FILEでラップしてfreadはセーフ
         // 一度にuint64_tを2つ分以上freadさせると指定した個数分だけウェイトがかかり、すべての領域に満了回数が書き込まれる
         // freadがこの挙動をすることに依存すべきでないと思う
-        r = fread(exp, sizeof(uint64_t), 2, timerf);
+        r = fread(exp, sizeof(uint64_t), 1, timerf);
         clock_gettime(CLOCK_REALTIME, &cur);
-        if (r != 2)
+        if (r != 1)
         {
             perror("recv");
             ret = EXIT_FAILURE;
             break;
         }
         localtime_r(&cur.tv_sec, &tm);
+        strftime(buf1, 64, "%FT%T.%%09ld%z", &tm);
+        snprintf(buf2, 64, buf1, cur.tv_nsec);
         tot_exp += exp[0] + exp[1];
-        printf("%04d-%02d-%02dT%02d:%02d:%02d.%09ld+09:00, read : %" PRId64 ", %" PRId64 " , total : %" PRIu64 "\n",
-               tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, cur.tv_nsec, exp[0], exp[1], tot_exp);
+        printf("%s, read : %" PRId64 ", %" PRId64 " , total : %" PRIu64 "\n", buf2, exp[0], exp[1], tot_exp);
     }
 
     fclose(timerf);

@@ -27,6 +27,10 @@
  *   そりゃfdだからねえ
  * - pthread_cond_timedwait
  * 
+ * timerfdを使って一定時間ごとにpthread_cond_signalとか
+ * pthread_cond_broadcastとか使ってシグナルを送信するとか……
+ * うーん邪悪
+ * 
  * @param argc 
  * @param argv 
  * @return int 
@@ -65,9 +69,9 @@ int main(int argc, char *argv[])
     // max expiration
     const uint64_t max_exp = 16;
     // total expiration
-    uint64_t tot_exp;
+    uint64_t tot_exp = 0;
     ssize_t r = 0;
-    for (tot_exp = 0; tot_exp < max_exp;)
+    while (tot_exp < max_exp)
     {
         // recvで読み込むと失敗を返す
         // 一度にuint64_tを2つ分以上readさせても1回分の時間しか停止しないし1つしか書き込まれない

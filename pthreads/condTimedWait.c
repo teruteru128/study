@@ -45,7 +45,9 @@ int main(void)
     pthread_create(&thread, NULL, threadFunc, NULL);
     sleep(1);
     fprintf(stderr, "main: Signal\n");
+    pthread_mutex_lock(&mutex);
     pthread_cond_signal(&cond);
+    pthread_mutex_unlock(&mutex);
     pthread_join(thread, NULL);
 
     pthread_mutex_destroy(&mutex);

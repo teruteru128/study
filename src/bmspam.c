@@ -46,35 +46,31 @@ int main(int const argc, const char **const argv)
 {
   /* 次の実行日時を取得する */
   /* 現在時刻を取得する */
-  struct timespec currentTime;
-  clock_gettime(CLOCK_REALTIME, &currentTime);
-  currentTime.tv_nsec = 0;
+  const time_t currentTime = time(NULL);
   tzset();
   // 今年のクリスマスのUNIXタイムスタンプを取得する
   struct tm tm;
-  struct tm *now = localtime_r(&currentTime.tv_sec, &tm);
+  localtime_r(&currentTime, &tm);
   tm.tm_sec = 0;
   tm.tm_min = 0;
   tm.tm_hour = 4;
   tm.tm_mday = 25;
   tm.tm_mon = 11;
-  time_t christmasTime = mktime(now);
-  // 実行判定。現在時刻が今年のクリスマスよりも未来だった場合実行しない
-  double diffsec = difftime(christmasTime, currentTime.tv_sec);
+  const time_t christmasTime = mktime(&tm);
+  // 実行判定。起動時点で現在時刻が今年のクリスマスよりも未来だった場合実行しない
+  double diffsec = difftime(christmasTime, currentTime);
   if (diffsec < 0)
   {
     // 今年のクリスマスは終了済み
     printf("日本は終了しました＼(^o^)／\n");
-    return 0;
+    printf("終了します\n");
+    return EXIT_SUCCESS;
   }
 
-  printf("%.0lf\n", diffsec);
-
   struct itimerspec detonationTime;
-  // クリスマスを有効期限に設定
-  detonationTime.it_value.tv_sec = christmasTime;
+  detonationTime.it_value.tv_sec = currentTime + 1;
   detonationTime.it_value.tv_nsec = 0;
-  detonationTime.it_interval.tv_sec = 0;
+  detonationTime.it_interval.tv_sec = 1;
   detonationTime.it_interval.tv_nsec = 0;
 
   {
@@ -93,15 +89,28 @@ int main(int const argc, const char **const argv)
     }
     // expiration
     uint64_t exp = 0;
-    ssize_t r = read(timerfd, &exp, sizeof(uint64_t));
-    if (r != sizeof(uint64_t))
+    ssize_t r = 0;
+    while (1)
     {
-      perror("recv");
-      close(timerfd);
-      return EXIT_FAILURE;
+      r = read(timerfd, &exp, sizeof(uint64_t));
+      if (r != sizeof(uint64_t))
+      {
+        perror("recv");
+        close(timerfd);
+        return EXIT_FAILURE;
+      }
+      diffsec = difftime(christmasTime, time(NULL));
+      if (diffsec <= 0)
+      {
+        // 現在時刻が起動時刻を超えたらbreak
+        break;
+      }
+      fprintf(stdout, "起動まであと%ld秒\n", (long)diffsec);
     }
     close(timerfd);
   }
+
+  fputs("起動します\n", stdout);
 
   xmlrpc_env env;
   xmlrpc_client *clientP;
