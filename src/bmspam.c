@@ -26,6 +26,51 @@
 #define PASSWORD "testpassword"
 #define ADDRBUFSIZE 64
 
+int countDownToStartupTime(time_t currentTime, time_t targetTime)
+{
+  struct itimerspec detonationTime;
+  detonationTime.it_value.tv_sec = currentTime + 1;
+  detonationTime.it_value.tv_nsec = 0;
+  detonationTime.it_interval.tv_sec = 1;
+  detonationTime.it_interval.tv_nsec = 0;
+  int timerfd = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
+  if (timerfd < 0)
+  {
+    perror("timerfd_create");
+    return EXIT_FAILURE;
+  }
+  int ret = timerfd_settime(timerfd, TFD_TIMER_ABSTIME, &detonationTime, NULL);
+  if (ret != 0)
+  {
+    perror("timerfd_settime");
+    close(timerfd);
+    return EXIT_FAILURE;
+  }
+  // expiration
+  uint64_t exp = 0;
+  ssize_t r = 0;
+  double diffsec = 0;
+  while (1)
+  {
+    r = read(timerfd, &exp, sizeof(uint64_t));
+    if (r != sizeof(uint64_t))
+    {
+      perror("recv");
+      close(timerfd);
+      return EXIT_FAILURE;
+    }
+    diffsec = difftime(targetTime, time(NULL));
+    if (diffsec <= 0)
+    {
+      // 現在時刻が起動時刻を超えたらbreak
+      break;
+    }
+    fprintf(stdout, "起動まであと%ld秒\n", (long)diffsec);
+  }
+  close(timerfd);
+  return EXIT_SUCCESS;
+}
+
 /**
  * int main(int argc, char* argv[])
  * {
@@ -67,47 +112,11 @@ int main(int const argc, const char **const argv)
     return EXIT_SUCCESS;
   }
 
-  struct itimerspec detonationTime;
-  detonationTime.it_value.tv_sec = currentTime + 1;
-  detonationTime.it_value.tv_nsec = 0;
-  detonationTime.it_interval.tv_sec = 1;
-  detonationTime.it_interval.tv_nsec = 0;
-
+  // 起動時間までカウントダウンする
+  int r = countDownToStartupTime(currentTime, christmasTime);
+  if (r != EXIT_SUCCESS)
   {
-    int timerfd = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
-    if (timerfd < 0)
-    {
-      perror("timerfd_create");
-      return EXIT_FAILURE;
-    }
-    int ret = timerfd_settime(timerfd, TFD_TIMER_ABSTIME, &detonationTime, NULL);
-    if (ret != 0)
-    {
-      perror("timerfd_settime");
-      close(timerfd);
-      return EXIT_FAILURE;
-    }
-    // expiration
-    uint64_t exp = 0;
-    ssize_t r = 0;
-    while (1)
-    {
-      r = read(timerfd, &exp, sizeof(uint64_t));
-      if (r != sizeof(uint64_t))
-      {
-        perror("recv");
-        close(timerfd);
-        return EXIT_FAILURE;
-      }
-      diffsec = difftime(christmasTime, time(NULL));
-      if (diffsec <= 0)
-      {
-        // 現在時刻が起動時刻を超えたらbreak
-        break;
-      }
-      fprintf(stdout, "起動まであと%ld秒\n", (long)diffsec);
-    }
-    close(timerfd);
+    return r;
   }
 
   fputs("起動します\n", stdout);
