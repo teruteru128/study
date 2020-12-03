@@ -5,7 +5,10 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
+#include <regex.h>
+#define SRC "551 5 ABCDEFG:2005/03/27 12-34-56:12時34分頃,3,1,4,紀伊半島沖,ごく浅く,3.2,1,N12.3,E45.6,仙台管区気象台:-奈良県,+2,*下北山村,+1,*十津川村,*奈良川上村\r\n"
 
 double chainCookies(long chain, double cookiesPs, double cookies)
 {
@@ -25,6 +28,8 @@ double chainCookies(long chain, double cookiesPs, double cookies)
   }
   return moni;
 }
+
+#define strregerr(r) fputs(#r "\n", stderr)
 
 /**
  * 
@@ -76,11 +81,13 @@ double chainCookies(long chain, double cookiesPs, double cookies)
  */
 int main(int argc, char *argv[])
 {
+  /*
   long chain = 30;
   double cookiesPs = 5.587e+26;
   double cookies = 5.877e+32;
   printf("%f\n", chainCookies(chain, cookiesPs * 7, cookies));
   printf("%f = 10^%f\n", 15., log10(15));
+  */
   /* 
    * y=x/(1+x)
    * y(1+x)=x
@@ -100,6 +107,7 @@ int main(int argc, char *argv[])
    * - 射精量スケール
    * - 安全リミット
    */
+  /*
   double p = 0;
   const double maxp = log10(2000);
   for (double i = 0; i <= 1000; i++)
@@ -107,5 +115,49 @@ int main(int argc, char *argv[])
     p = fmin(6 * (i / 100.0) / (2 + (i / 100.0)), maxp);
     printf("p : %f, %fL\n", p, pow(10, p) / 1000);
   }
+  */
+  int code;
+  int hop;
+  char format[BUFSIZ];
+  snprintf(format, BUFSIZ, "%%d %%d %%%ds", BUFSIZ - 1);
+  char buf[BUFSIZ];
+  // sscanfは空白文字を読めないので不可
+  sscanf(SRC, format, &code, &hop, buf);
+  printf("%d, %d, %s\n", code, hop, buf);
+  regex_t reg;
+  /**
+   * @brief Construct a new regex object
+   * "^[[:digit:]]{3} [[:digit:]]+( .+)?$"
+   * "^[[:digit:]]{3} [[:digit:]]+( .+)?$"
+   * "^[[:digit:]]{3}( [[:digit:]]+( .*)?)?$"
+   * REG_NEWLINEはCRを除外しない
+   */
+  int r = regcomp(&reg, "^([[:digit:]]{3}) ([[:digit:]]+)( (.+))?$", REG_EXTENDED | REG_NEWLINE);
+  if (r != 0)
+  {
+    switch (r)
+    {
+    case REG_BADRPT:
+      fprintf(stderr, "badrpt %d\n", r);
+      break;
+    default:
+      fprintf(stderr, "other %d\n", r);
+      break;
+    }
+    return EXIT_FAILURE;
+  }
+  regmatch_t match[5];
+  if (regexec(&reg, SRC, 5, match, 0) == 0)
+  {
+    printf("matched : %d, %d\n", match[4].rm_so, match[4].rm_eo);
+    strncpy(buf, SRC + match[4].rm_so, match[4].rm_eo - match[4].rm_so);
+    char *p = strpbrk(buf, "\r\n");
+    if (p != NULL)
+    {
+      *p = '\0';
+    }
+    printf("%s\n", buf);
+  }
+  regfree(&reg);
   return EXIT_SUCCESS;
 }

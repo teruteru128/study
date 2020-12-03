@@ -46,9 +46,8 @@ int main(int argc, char *argv[])
         perror("timerfd_create");
         return EXIT_FAILURE;
     }
-    clock_gettime(CLOCK_REALTIME, &cur);
     struct itimerspec spec;
-    spec.it_value.tv_sec = cur.tv_sec + 1;
+    spec.it_value.tv_sec = time(NULL) + 1;
     spec.it_value.tv_nsec = 0;
     // it_intervalを両方0にすると繰り返しタイマーオフ
     spec.it_interval.tv_sec = 1;

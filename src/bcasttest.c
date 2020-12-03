@@ -26,7 +26,7 @@ int main(int argc, char **argv)
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = IPPROTO_UDP;
-    int rc = getaddrinfo(HOSTNAME2, "12345", &hints, &res);
+    int rc = getaddrinfo(HOSTNAME1, "12345", &hints, &res);
     if (rc != 0)
     {
         fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(rc));

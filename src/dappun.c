@@ -1,16 +1,17 @@
 
 #include <stdio.h>
 
+#define RIKO "ン゛ボップ"
+#define PAKA "あああああああああああああああああああああああああああああああ！！！！！！！！！！！（ﾌﾞﾘﾌﾞﾘﾌﾞﾘﾌﾞﾘｭﾘｭﾘｭﾘｭﾘｭﾘｭ！！！！！！ﾌﾞﾂﾁﾁﾌﾞﾌﾞﾌﾞﾁﾁﾁﾁﾌﾞﾘﾘｲﾘﾌﾞﾌﾞﾌﾞﾌﾞｩｩｩｩｯｯｯ！！！！！！！ ）"
+#define BUTTIPPA "ブッチッパ！"
+
 int main(int argc, char **argv)
 {
-  char *riko = "ン゛ボップ";
-  char *paka = "あああああああああああああああああああああああああああああああ！！！！！！！！！！！（ﾌﾞﾘﾌﾞﾘﾌﾞﾘﾌﾞﾘｭﾘｭﾘｭﾘｭﾘｭﾘｭ！！！！！！ﾌﾞﾂﾁﾁﾌﾞﾌﾞﾌﾞﾁﾁﾁﾁﾌﾞﾘﾘｲﾘﾌﾞﾌﾞﾌﾞﾌﾞｩｩｩｩｯｯｯ！！！！！！！ ）";
-  char *buttippa = "ブッチッパ！";
   for (int i = 65535; i; i--)
   {
-    fputs(riko, stdout);
-    fputs(paka, stdout);
-    fputs(buttippa, stdout);
+    fputs(RIKO, stdout);
+    fputs(PAKA, stdout);
+    fputs(BUTTIPPA, stdout);
     fputs("\n", stdout);
   }
 }

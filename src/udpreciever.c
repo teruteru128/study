@@ -14,12 +14,12 @@
 int main()
 {
   struct addrinfo hints, *res = NULL, *ptr = NULL;
-  hints.ai_flags = 0;
+  hints.ai_flags = AI_PASSIVE;
   hints.ai_family = AF_INET;
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_protocol = IPPROTO_UDP;
 
-  int rc = getaddrinfo("0.0.0.0", "12345", &hints, &res);
+  int rc = getaddrinfo(NULL, "12345", &hints, &res);
   if (rc != 0)
   {
     fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(rc));
@@ -42,11 +42,25 @@ int main()
     return EXIT_FAILURE;
   }
 
+  char host[NI_MAXHOST];
+  char port[NI_MAXSERV];
+  rc = getnameinfo(ptr->ai_addr, ptr->ai_addrlen, host, NI_MAXHOST, port, NI_MAXSERV, 0);
+  if (rc != 0)
+  {
+    perror("getnameinfo");
+    freeaddrinfo(res);
+    close(sock);
+    return EXIT_FAILURE;
+  }
+  printf("%s, %s\n", host, port);
+
   int r = bind(sock, ptr->ai_addr, ptr->ai_addrlen);
 
   if (r == -1)
   {
     perror("bind");
+    freeaddrinfo(res);
+    close(sock);
     return EXIT_FAILURE;
   }
 

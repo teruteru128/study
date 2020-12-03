@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
   int answer = 0;
   mpz_inits(number, p, NULL);
   //mpz_set_str(number, "51515155212112155512544451215879794313484631643513515461313510654159642752672634875312153543513515153543513564564984646463564346842311254454685465132211546454881133115554645161516484849874321321348523202152305448405648254896348510549", 10);
-  mpz_set_str(number, "9cfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff4", 16);
+  mpz_set_str(number, "9cfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff3", 16);
   mpz_set(p, number);
   //9cfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff4
   while (1)
