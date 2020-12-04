@@ -9,10 +9,15 @@
 #include <unistd.h>
 #include <signal.h>
 #include <poll.h>
+#include <sys/epoll.h>
 #include "server.h"
 #define MAX_BUF_SIZE 1024
 
-static int sock = -1;
+/**
+ * @brief listening socket
+ * リッスンソケットはどこで保持すべきなんだろうか？
+ */
+//static int listensocket = -1;
 static int running = 1;
 
 /*
@@ -74,16 +79,17 @@ int get_socket(const char *port)
     return sock;
 }
 
-int init_server(char *argv)
+int init_server(int *listensocket, char *argv)
 {
-    if (sock == -1)
+    if (listensocket == NULL)
     {
-        int s = get_socket(argv);
-        if (s < 0)
-            return s;
-        sock = s;
+        return 1;
     }
-    return sock;
+    int sock = get_socket(argv);
+    if (sock < 0)
+        return sock;
+    *listensocket = sock;
+    return 0;
 }
 
 void echo_back(int sock)
@@ -94,6 +100,7 @@ void echo_back(int sock)
     uint32_t *ptr = NULL, tmp;
     ssize_t len;
     int flg = 0;
+    // TODO: epollに書き換え
     struct pollfd fds = {sock, POLLIN | POLLERR, 0};
     struct timespec spec = {3, 0};
     sigset_t sigmask;
@@ -164,11 +171,12 @@ static inline void do_concrete_service(int sock)
 
 void *do_service(void *arg)
 {
+    int *listensocket = (int *)arg;
     char hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
     struct sockaddr_storage from_sock_addr;
     int acc_sock = -1;
     socklen_t addr_len = sizeof(from_sock_addr);
-    struct pollfd fds = {sock, POLLIN | POLLERR, 0};
+    struct pollfd fds = {*listensocket, POLLIN | POLLERR, 0};
     struct timespec spec = {3, 0};
     sigset_t sigmask;
     sigfillset(&sigmask);
@@ -179,7 +187,7 @@ void *do_service(void *arg)
         if (selret == -1)
         {
             perror("select");
-            close(sock);
+            close(*listensocket);
             return NULL;
         }
         if (selret == 0)
@@ -189,10 +197,10 @@ void *do_service(void *arg)
         if (fds.revents & POLLERR)
         {
             perror("isset failed");
-            close(sock);
+            close(*listensocket);
             return NULL;
         }
-        if ((acc_sock = accept(sock, (struct sockaddr *)&from_sock_addr, &addr_len)) != -1)
+        if ((acc_sock = accept(*listensocket, (struct sockaddr *)&from_sock_addr, &addr_len)) != -1)
         {
             getnameinfo((struct sockaddr *)&from_sock_addr, addr_len, hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), NI_NUMERICHOST | NI_NUMERICSERV);
 
@@ -209,8 +217,8 @@ void *do_service(void *arg)
             continue;
         }
     }
-    close(sock);
-    sock = -1;
+    close(*listensocket);
+    *listensocket = -1;
 }
 
 /**

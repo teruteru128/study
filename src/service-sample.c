@@ -35,12 +35,13 @@ int main(int argc, char *argv[])
     {
         usage(EXIT_FAILURE);
     }
-    if (init_server(argv[1]) == -1)
+    int listensocket;
+    if (init_server(&listensocket, argv[1]) < 0)
     {
         fprintf(stderr, "init_server failure.\n");
         exit(EXIT_FAILURE);
     }
-    do_service(NULL);
+    do_service(&listensocket);
     close_server();
     return 0;
 }
