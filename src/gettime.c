@@ -131,11 +131,13 @@ int main(int argc, char **argv)
 
   puts(DEFAULT_SERVER);
 
+  fputs("sending...\n", stderr);
   if (sendto(recv_sd, &sendsntp, sizeof(SNTP), 0, ptr->ai_addr, ptr->ai_addrlen) < 0)
   {
     perror("sendto");
     return EXIT_FAILURE;
   }
+  fputs("sent!\n", stderr);
 
   fputs("successfully send!\nbefore:\n", stdout);
   {
@@ -150,29 +152,46 @@ int main(int argc, char **argv)
     }
   }
 
+  fputs("receiving...\n", stderr);
   if (recvfrom(recv_sd, &recvsntp, sizeof(recvsntp), 0, ptr->ai_addr, &ptr->ai_addrlen) < 0)
   {
     perror("recvfrom");
     return 1;
   }
+  fputs("received!\n", stderr);
+  printf("li : %d\n", recvsntp.li);
+  printf("vn : %d\n", recvsntp.vn);
+  printf("mode : %d\n", recvsntp.mode);
+  printf("stratum : %d\n", recvsntp.stratum);
+  printf("poll : %d\n", recvsntp.poll);
+  printf("precison : %d\n", recvsntp.precison);
+  printf("root delay : %d\n", recvsntp.root_delay);
+  printf("root dispresion : %d\n", recvsntp.root_dispresion);
+  printf("reference identifire : %08x\n", recvsntp.reference_identifire);
 
-  char addrtype[6] = "";
+  char addrtype[16] = "";
   char addrstr[NI_MAXHOST];
-  void *v = NULL;
+  char servstr[NI_MAXSERV];
   if (ptr->ai_family == AF_INET)
   {
-    v = &((struct sockaddr_in *)ptr->ai_addr)->sin_addr;
-    snprintf(addrtype, 6, "INET");
+    strncat(addrtype, "INET", 16);
   }
   else if (ptr->ai_family == AF_INET6)
   {
-    v = &((struct sockaddr_in6 *)ptr->ai_addr)->sin6_addr;
-    snprintf(addrtype, 6, "INET6");
+    strncat(addrtype, "INET6", 16);
   }
-  if (inet_ntop(ptr->ai_family, v, addrstr, NI_MAXHOST) != NULL)
+  else
   {
-    printf("ip address : %s(%s)\n", addrstr, addrtype);
+    snprintf(addrtype, 16, "OTHERS, %d", ptr->ai_family);
   }
+  if (getnameinfo(ptr->ai_addr, ptr->ai_addrlen, addrstr, NI_MAXHOST, servstr, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV) != 0)
+  {
+    perror("getnameinfo");
+    freeaddrinfo(res);
+    close(recv_sd);
+    return EXIT_FAILURE;
+  }
+  printf("ip address : %s(%s)\n", addrstr, addrtype);
   freeaddrinfo(res);
 
   puts("after:");
