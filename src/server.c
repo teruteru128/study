@@ -87,7 +87,6 @@ int init_server(int *listensocket, char *argv)
 
 static void echo_back(int sock)
 {
-
     char buf1[MAX_BUF_SIZE];
     char buf2[MAX_BUF_SIZE];
     uint32_t *ptr = NULL, tmp;
