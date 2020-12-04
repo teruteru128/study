@@ -23,9 +23,9 @@ static int running = 1;
  * killsignal : sigint
  * reloadsignal : sighup
  */
-int get_socket(const char *port)
+static int get_socket(const char *port)
 {
-    struct addrinfo hints, *res;
+    struct addrinfo hints, *res, *ptr;
     int ecode, sock;
     char hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
 
@@ -39,46 +39,41 @@ int get_socket(const char *port)
         fprintf(stderr, "failed getaddrinfo() %s\n", gai_strerror(ecode));
         return -1;
     }
-    if ((ecode = getnameinfo(res->ai_addr, res->ai_addrlen, hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), NI_NUMERICHOST | NI_NUMERICSERV)) != 0)
-    {
-        fprintf(stderr, "failed getnameinfo() %s\n", gai_strerror(ecode));
-        freeaddrinfo(res);
-        return -1;
-    }
-    fprintf(stdout, "port is %s\n", sbuf);
-    fprintf(stdout, "host is %s\n", hbuf);
 
-    if ((sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) < 0)
+    for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
     {
-        perror("socket() failed.");
-        freeaddrinfo(res);
-        return -1;
-    }
+        sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+        if (sock < 0)
+        {
+            continue;
+        }
 
-    if (bind(sock, res->ai_addr, res->ai_addrlen) < 0)
-    {
-        perror("bind() failed.");
-        close(sock);
-        freeaddrinfo(res);
-        return -1;
-    }
+        if (bind(sock, ptr->ai_addr, ptr->ai_addrlen) < 0)
+        {
+            close(sock);
+            sock = -1;
+            continue;
+        }
 
-    if (listen(sock, SOMAXCONN) < 0)
-    {
-        perror("listen() failed.");
-        close(sock);
-        freeaddrinfo(res);
-        return -1;
+        if (listen(sock, SOMAXCONN) < 0)
+        {
+            close(sock);
+            sock = -1;
+            continue;
+        }
     }
+    freeaddrinfo(res);
 
     return sock;
 }
 
 int init_server(char *argv)
 {
+    char port[NI_MAXSERV];
+    strncpy(port, argv, 8192);
     if (sock == -1)
     {
-        int s = get_socket(argv);
+        int s = get_socket(port);
         if (s < 0)
             return s;
         sock = s;
@@ -86,7 +81,7 @@ int init_server(char *argv)
     return sock;
 }
 
-void echo_back(int sock)
+static void echo_back(int sock)
 {
 
     char buf1[MAX_BUF_SIZE];
@@ -102,27 +97,12 @@ void echo_back(int sock)
 
     for (; running;)
     {
-        selret = ppoll(&fds, 1, &spec, &sigmask);
-        if (selret == -1)
-        {
-            perror("select");
-            close(sock);
-            return;
-        }
-        if (selret == 0)
-        {
-            continue;
-        }
-        if (fds.revents & POLLERR)
-        {
-            perror("isset failed");
-            close(sock);
-            return;
-        }
         memset(buf1, 0, MAX_BUF_SIZE);
-        if ((len = recv(sock, buf1, sizeof(buf1), 0)) == -1)
+        len = recv(sock, buf1, sizeof(buf1), 0);
+        if (len == -1)
         {
             perror("recv() failed.");
+            close(sock);
             break;
         }
         else if (len == 0)
@@ -157,7 +137,7 @@ void echo_back(int sock)
     }
 }
 
-static inline void do_concrete_service(int sock)
+static void do_concrete_service(int sock)
 {
     echo_back(sock);
 }

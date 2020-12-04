@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <openssl/evp.h>
 #include <openssl/md5.h>
+#include <printint.h>
 
 #ifndef THREAD_NUM
 #define THREAD_NUM 12
@@ -16,6 +17,7 @@ static pthread_mutex_t mutex;
 
 // 極稀にしか更新しないから大丈夫、多分
 static size_t j;
+static pthread_mutex_t mutex_j;
 
 // 比較基準、null byteで初期化した後は書き込みをしないので共通化
 static unsigned char target[16];
@@ -33,12 +35,13 @@ void *hash(void *arg)
   {
     pthread_mutex_lock(&mutex);
     i = counter;
-    counter += UINT_MAX;
+    counter += 64;
     pthread_mutex_unlock(&mutex);
-    i_max = i + UINT_MAX;
+    i_max = i + 64;
     for (; i < i_max; i++)
     {
-      len = (size_t)snprintf(str, 24, "%zu", i);
+      //len = (size_t)snprintf(str, 24, "%zu", i);
+      len = snprintUInt64(str, 24, i);
       EVP_DigestInit(ctx, md5);
       EVP_DigestUpdate(ctx, str, len);
       EVP_DigestFinal(ctx, buf, NULL);
@@ -56,9 +59,11 @@ void *hash(void *arg)
       if (memcmp(buf, target, j))
         continue;
       fprintf(stdout, "found : %zu\n", i);
+      pthread_mutex_lock(&mutex_j);
       j++;
+      pthread_mutex_unlock(&mutex_j);
     }
-    printf("section finished : %zu\n", i);
+    //printf("section finished : %zu\n", i);
   }
   EVP_MD_CTX_free(ctx);
   return NULL;
@@ -69,10 +74,11 @@ int main(int argc, char **argv)
   pthread_t thread[THREAD_NUM];
 
   counter = 776869784885228UL;
-  j = 4;
+  j = 5;
   memset(target, 0, 16);
 
   pthread_mutex_init(&mutex, NULL);
+  pthread_mutex_init(&mutex_j, NULL);
   for (size_t i = 0; i < THREAD_NUM; i++)
   {
     pthread_create(&thread[i], NULL, hash, &counter);
@@ -82,6 +88,7 @@ int main(int argc, char **argv)
     pthread_join(thread[i], NULL);
   }
   pthread_mutex_destroy(&mutex);
+  pthread_mutex_destroy(&mutex_j);
 
   return EXIT_SUCCESS;
 }

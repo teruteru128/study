@@ -5,9 +5,15 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
+#include <inttypes.h>
 #include <math.h>
 #include <regex.h>
+#include <limits.h>
+#include <time.h>
+#include <printint.h>
 #define SRC "551 5 ABCDEFG:2005/03/27 12-34-56:12時34分頃,3,1,4,紀伊半島沖,ごく浅く,3.2,1,N12.3,E45.6,仙台管区気象台:-奈良県,+2,*下北山村,+1,*十津川村,*奈良川上村\r\n"
 
 double chainCookies(long chain, double cookiesPs, double cookies)
@@ -30,6 +36,14 @@ double chainCookies(long chain, double cookiesPs, double cookies)
 }
 
 #define strregerr(r) fputs(#r "\n", stderr)
+
+int tmcomp(const struct tm *tm1, const struct tm *tm2)
+{
+  if (tm1 == NULL || tm2 == NULL)
+    return 1;
+  if (tm1->tm_sec == tm2->tm_sec && tm1->tm_min == tm2->tm_min && tm1->tm_hour == tm2->tm_hour && tm1->tm_mday == tm2->tm_mday && tm1->tm_mon == tm2->tm_mon && tm1->tm_year == tm2->tm_year)
+    return 0;
+}
 
 /**
  * 
@@ -159,5 +173,24 @@ int main(int argc, char *argv[])
     printf("%s\n", buf);
   }
   regfree(&reg);
+  strcpy(buf, "7777777777");
+  uint64_t p = ULONG_MAX;
+  size_t len = snprintUInt64(buf, BUFSIZ, p);
+  printf("%zu, %s\n", len, buf);
+  struct tm uruu1;
+  uruu1.tm_sec = 0;
+  uruu1.tm_min = 0;
+  uruu1.tm_hour = 0;
+  uruu1.tm_mday = 29;
+  uruu1.tm_mon = 1;
+  uruu1.tm_year = 2020 - 1900;
+  uruu1.tm_wday = 0;
+  uruu1.tm_yday = 0;
+  uruu1.tm_isdst = 0;
+  time_t t = mktime(&uruu1);
+  struct tm uruu2;
+  localtime_r(&t, &uruu2);
+  strftime(buf, BUFSIZ, "%FT%Tz", &uruu2);
+  printf("%s, %d\n", buf, tmcomp(&uruu1, &uruu2));
   return EXIT_SUCCESS;
 }
