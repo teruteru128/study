@@ -48,17 +48,17 @@ void moving_average(int *inarray, const size_t datasize, const size_t windowsize
   {
     return;
   }
-  float sum = 0;
+  int sum = 0;
   for (size_t i = 0; i < windowsize; i++)
   {
     sum += inarray[i];
   }
-  outarray[0] = sum / windowsize;
+  outarray[0] = (float)sum / (float)windowsize;
   for (size_t i = windowsize; i < datasize; i++)
   {
     sum -= inarray[i - windowsize];
     sum += inarray[i];
-    outarray[i - windowsize + 1] = sum / windowsize;
+    outarray[i - windowsize + 1] = (float)sum / (float)windowsize;
   }
   return;
 }

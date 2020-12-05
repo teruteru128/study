@@ -65,6 +65,7 @@ AM_GNU_GETTEXT([external])
 AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_FUNC_MKTIME
+AC_FUNC_MMAP
 AC_FUNC_REALLOC
 AC_FUNC_STRTOD
 AC_CHECK_FUNCS([clock_gettime getcwd gettimeofday inet_ntoa localtime_r memchr memset pow regcomp setlocale socket sqrt strchr strdup strerror strpbrk strspn strstr strtoull tzset])
