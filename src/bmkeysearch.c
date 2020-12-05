@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
 #include <openssl/bn.h>
 #include <openssl/ec.h>
 #include <openssl/err.h>
@@ -148,12 +152,16 @@ int main(int argc, char *argv[])
   setlocale(LC_ALL, "");
   bindtextdomain(PACKAGE, LOCALEDIR);
   textdomain(PACKAGE);
-  unsigned char *publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
-  if (!publicKeys)
+  int fdin = open("publicKeys.bin", O_RDONLY);
+  //unsigned char *publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
+  // 4362076160 == 65 * 16777216 * 4
+  unsigned char *publicKeys = mmap(NULL, 4362076160UL, PROT_READ, MAP_SHARED, fdin, 0);
+  if (publicKeys == MAP_FAILED)
   {
-    perror("calloc(publicKeys)");
+    perror("mmap(publicKeys)");
     return EXIT_FAILURE;
   }
+  /*
   fprintf(stderr, "calloced\n");
   {
     FILE *fin = fopen("publicKeys.bin", "rb");
@@ -169,6 +177,7 @@ int main(int argc, char *argv[])
       fprintf(stderr, "ok\n");
     }
   }
+  */
   fprintf(stderr, "loaded\n");
   /*
    * 67108864
@@ -211,6 +220,6 @@ int main(int argc, char *argv[])
   }
   //shutdown:
   //free(privateKeys);
-  free(publicKeys);
+  //free(publicKeys);
   return EXIT_SUCCESS;
 }

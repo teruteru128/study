@@ -19,8 +19,10 @@ static pthread_mutex_t mutex;
 static size_t j;
 static pthread_mutex_t mutex_j;
 
+#if 0
 // 比較基準、null byteで初期化した後は書き込みをしないので共通化
-static unsigned char target[16];
+static unsigned char target[16] = "";
+#endif
 
 void *hash(void *arg)
 {
@@ -29,22 +31,25 @@ void *hash(void *arg)
   char str[24] = "";
   unsigned char buf[16] = "";
   size_t len = 0;
-  size_t i = 0;
-  size_t i_max = 0;
+  size_t cnt = 0;
+  size_t cnt_max = 0;
+  size_t nlz;
   for (; j < 16;)
   {
     pthread_mutex_lock(&mutex);
-    i = counter;
-    counter += 64;
+    cnt = counter;
+    counter += 1048576;
     pthread_mutex_unlock(&mutex);
-    i_max = i + 64;
-    for (; i < i_max; i++)
+    cnt_max = cnt + 1048576;
+    for (; cnt < cnt_max; cnt++)
     {
-      //len = (size_t)snprintf(str, 24, "%zu", i);
-      len = snprintUInt64(str, 24, i);
+      //len = (size_t)snprintf(str, 24, "%zu", cnt);
+      len = snprintUInt64(str, 24, cnt);
       EVP_DigestInit(ctx, md5);
       EVP_DigestUpdate(ctx, str, len);
       EVP_DigestFinal(ctx, buf, NULL);
+      if (buf[0] || buf[1] || buf[2] || buf[3])
+        continue;
 #if 0
       // とりあえずmemcmpの呼び出し回数を256分の1に減らす
       if (buf[0])
@@ -56,14 +61,24 @@ void *hash(void *arg)
       if (buf[3])
         continue;
 #endif
+#if 0
       if (memcmp(buf, target, j))
         continue;
-      fprintf(stdout, "found : %zu\n", i);
+#endif
+      for (nlz = 4; !buf[nlz] && nlz < 16; nlz++)
+        ;
+      if (nlz < j)
+        continue;
+      fprintf(stdout, "found : %zu, ", cnt);
+      for (size_t k = 0; k < 16; k++)
+        fprintf(stdout, "%02x", buf[k]);
+      fputs("\n", stdout);
       pthread_mutex_lock(&mutex_j);
-      j++;
+      if (nlz > j)
+        j = nlz;
       pthread_mutex_unlock(&mutex_j);
     }
-    //printf("section finished : %zu\n", i);
+    //printf("section finished : %zu\n", cnt);
   }
   EVP_MD_CTX_free(ctx);
   return NULL;
@@ -75,7 +90,6 @@ int main(int argc, char **argv)
 
   counter = 776869784885228UL;
   j = 5;
-  memset(target, 0, 16);
 
   pthread_mutex_init(&mutex, NULL);
   pthread_mutex_init(&mutex_j, NULL);
