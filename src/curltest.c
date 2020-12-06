@@ -8,6 +8,7 @@
 
 int main(int argc, char **argv)
 {
+  curl_global_init(CURL_GLOBAL_ALL);
   struct curl_slist *list = curl_slist_append(NULL, "Accept-Language: ja,en-US;q=0.7,en;q=0.3");
   CURL *curl = curl_easy_init();
   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
@@ -21,5 +22,6 @@ int main(int argc, char **argv)
   curl_easy_perform(curl);
   curl_easy_cleanup(curl);
   curl_slist_free_all(list);
+  curl_global_cleanup();
   return EXIT_SUCCESS;
 }

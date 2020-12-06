@@ -16,6 +16,9 @@ bin_PROGRAMS= \
 	calc \
 	cl \
 	cp2peq \
+	curlonionheadertest \
+	curlonionheadertest2 \
+	curloniontest \
 	curltest \
 	dappun \
 	dice \
@@ -32,6 +35,8 @@ bin_PROGRAMS= \
 	falcon \
 	ftm \
 	ftnr \
+	getnyanpass \
+	getnyanpass2 \
 	gettextsample2 \
 	gettextsample3 \
 	gettime \

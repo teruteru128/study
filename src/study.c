@@ -171,7 +171,7 @@ void leapyeartest()
   time_t t = mktime(&uruu1);
   struct tm uruu2;
   localtime_r(&t, &uruu2);
-  strftime(buf, BUFSIZ, "%FT%Tz", &uruu2);
+  strftime(buf, BUFSIZ, "%FT%T+09:00", &uruu2);
   printf("%s, %d\n", buf, tmcomp(&uruu1, &uruu2));
 }
 
