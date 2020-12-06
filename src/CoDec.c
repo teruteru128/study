@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 {
   if (argc < 2)
   {
-    fputs("", stdout);
+    fputs("コマンドライン引数を指定してください\n", stdout);
     return EXIT_SUCCESS;
   }
   char *in = argv[1];
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
   }
   char *catch = NULL;
   int err = codec_encode(&catch, out);
-  if (!err)
+  if (err)
   {
     return EXIT_FAILURE;
   }
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
   fputc('\n', stdout);
   free(out);
   err = codec_decode(&out, catch);
-  if (!err)
+  if (err)
   {
     return EXIT_FAILURE;
   }
