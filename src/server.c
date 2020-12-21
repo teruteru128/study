@@ -12,6 +12,7 @@
 #include <sys/epoll.h>
 #include "server.h"
 #define MAX_BUF_SIZE 1024
+#define MAX_EVENTS 16
 
 /**
  * @brief listening socket
@@ -148,23 +149,76 @@ static void do_concrete_service(int sock)
 
 void *do_service(void *arg)
 {
-    int *listensocket = (int *)arg;
+    struct service_arg *arg2 = (struct service_arg *)arg;
+    int listen_sock = arg2->listen_socket;
     char hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
     struct sockaddr_storage from_sock_addr;
-    int acc_sock = -1;
+    int conn_sock = -1;
     socklen_t addr_len = sizeof(from_sock_addr);
-    struct pollfd fds = {*listensocket, POLLIN | POLLERR, 0};
+    struct pollfd fds = {listen_sock, POLLIN | POLLERR, 0};
+    struct epoll_event ev, events[MAX_EVENTS];
+    int epollfd;
+    epollfd = epoll_create1(0);
+    if (epollfd == -1)
+    {
+        perror("epoll_create1");
+        exit(EXIT_FAILURE);
+    }
+    ev.events = EPOLLIN;
+    ev.data.fd = listen_sock;
+    if (epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev) == -1)
+    {
+        perror("epoll_ctl: listen_sock");
+        exit(EXIT_FAILURE);
+    }
     struct timespec spec = {3, 0};
+
     sigset_t sigmask;
     sigfillset(&sigmask);
+
     int selret = 0;
+    int nfds, n;
+    for (;;)
+    {
+        nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1);
+        if (nfds == -1)
+        {
+            perror("epoll_wait");
+            exit(EXIT_FAILURE);
+        }
+        for (n = 0; n < nfds; n++)
+        {
+            if (events[n].data.fd == listen_sock)
+            {
+                conn_sock = accept(listen_sock, (struct sockaddr *)&from_sock_addr, &addr_len);
+                if (conn_sock == -1)
+                {
+                    perror("accept");
+                    exit(EXIT_FAILURE);
+                }
+                //setnonblocking(conn_sock);
+                ev.events = EPOLLIN | EPOLLET;
+                ev.data.fd = conn_sock;
+                if (epoll_ctl(epollfd, EPOLL_CTL_ADD, conn_sock,
+                              &ev) == -1)
+                {
+                    perror("epoll_ctl: conn_sock");
+                    exit(EXIT_FAILURE);
+                }
+            }
+            else
+            {
+                //do_use_fd(events[n].data.fd);
+            }
+        }
+    }
     for (;;)
     {
         selret = ppoll(&fds, 1, &spec, &sigmask);
         if (selret == -1)
         {
             perror("select");
-            close(*listensocket);
+            close(listen_sock);
             return NULL;
         }
         if (selret == 0)
@@ -174,19 +228,19 @@ void *do_service(void *arg)
         if (fds.revents & POLLERR)
         {
             perror("isset failed");
-            close(*listensocket);
+            close(listen_sock);
             return NULL;
         }
-        if ((acc_sock = accept(*listensocket, (struct sockaddr *)&from_sock_addr, &addr_len)) != -1)
+        if ((conn_sock = accept(listen_sock, (struct sockaddr *)&from_sock_addr, &addr_len)) != -1)
         {
             getnameinfo((struct sockaddr *)&from_sock_addr, addr_len, hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), NI_NUMERICHOST | NI_NUMERICSERV);
 
             fprintf(stderr, "port is %s\n", sbuf);
             fprintf(stderr, "host is %s\n", hbuf);
 
-            do_concrete_service(acc_sock);
+            do_concrete_service(conn_sock);
 
-            close(acc_sock);
+            close(conn_sock);
         }
         else
         {
@@ -194,8 +248,8 @@ void *do_service(void *arg)
             continue;
         }
     }
-    close(*listensocket);
-    *listensocket = -1;
+    close(listen_sock);
+    listen_sock = -1;
 }
 
 /**

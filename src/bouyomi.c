@@ -48,6 +48,100 @@
 
 #define YATTAZE "やったぜ。"
 
+int encodeHeader(char header[15], char encode, size_t length)
+{
+  short command = 1;
+  short speed = -1;
+  short tone = -1;
+  short volume = -1;
+  short voice = 0;
+#ifdef _DEBUG
+  fprintf(stderr, "length : %ld\n", length);
+#endif
+  if (length > INT_MAX)
+  {
+    fputs("読み上げ文書が長すぎます。\n", stderr);
+    return EXIT_FAILURE;
+  }
+  *((short *)(header + 0)) = (short)htole16((unsigned short)command);
+  *((short *)(header + 2)) = (short)htole16((unsigned short)speed);
+  *((short *)(header + 4)) = (short)htole16((unsigned short)tone);
+  *((short *)(header + 6)) = (short)htole16((unsigned short)volume);
+  *((short *)(header + 8)) = (short)htole16((unsigned short)voice);
+  *((char *)(header + 10)) = encode;
+  *((int *)(header + 11)) = (int)htole32((unsigned int)length);
+  return EXIT_SUCCESS;
+}
+
+int sendToServer(char *host, char *port, char header[15], char *msg, size_t length)
+{
+  struct addrinfo hints, *res = NULL;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_socktype = SOCK_STREAM;
+  int rc = getaddrinfo(host, port, &hints, &res);
+  if (rc != 0)
+  {
+    fprintf(stderr, "getaddrinfo : [%s]:%s %s\n", host, port, gai_strerror(rc));
+    return rc;
+  }
+
+  struct addrinfo *adrinf = NULL;
+  int sock = 0;
+  for (adrinf = res; adrinf != NULL; adrinf = adrinf->ai_next)
+  {
+    sock = socket(adrinf->ai_family, adrinf->ai_socktype, adrinf->ai_protocol);
+    if (sock < 0)
+    {
+      perror("socket()");
+      continue;
+    }
+    rc = connect(sock, adrinf->ai_addr, adrinf->ai_addrlen);
+    if (rc < 0)
+    {
+      close(sock);
+      continue;
+    }
+#ifdef _DEBUG
+    print_addrinfo0(adrinf, stderr);
+#endif
+    break;
+  }
+  freeaddrinfo(res);
+  if (rc < 0)
+  {
+    perror("connect()");
+    close(sock);
+    return rc;
+  }
+
+  ssize_t w = write(sock, header, 15);
+  // 送信
+  if (w != 15)
+  {
+    fprintf(stderr, _("Error! %s\n"), strerror(errno));
+    rc = close(sock);
+    perror("write header");
+    return rc;
+  }
+  w = write(sock, msg, length);
+  if (w != (ssize_t)length)
+  {
+    perror("Error!");
+    rc = close(sock);
+    perror("write header");
+    return rc;
+  }
+  fprintf(stderr, _("Sent!\n"));
+  // ソケットを閉じる
+  rc = close(sock);
+  if (rc != 0)
+  {
+    perror("close");
+    return rc;
+  }
+  return 0;
+}
+
 /**
  * @brief 
  * 
@@ -94,13 +188,27 @@
 int main(int argc, char *argv[])
 {
   int rc = 0;
-  int use_onion = 0;
+  char host[NI_MAXHOST] = DEFAULT_SERV_ADDRESS_2;
+  char port[NI_MAXSERV] = DEFAULT_PORT_STR;
 
   for (int i = 1; i < argc; i++)
   {
-    if (strcmp(argv[i], "--use-onion"))
+    if (strcmp(argv[i], "--host") == 0 && (i + 1) < argc)
     {
-      use_onion = 1;
+      strncpy(host, argv[i + 1], NI_MAXHOST - 1);
+      i++;
+      continue;
+    }
+    if (strcmp(argv[i], "--port") == 0 && (i + 1) < argc)
+    {
+      strncpy(port, argv[i + 1], NI_MAXSERV - 1);
+      i++;
+      continue;
+    }
+    if ((strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--message") == 0) && (i + 1) < argc)
+    {
+      i++;
+      continue;
     }
   }
 
@@ -186,6 +294,7 @@ int main(int argc, char *argv[])
     strlength += len;
     strncat(in, YATTAZE, capacity);
   }
+  // 縮小
   capacity = strlen(in) + 1;
   realloctmp = realloc(in, capacity);
   if (realloctmp == NULL)
@@ -236,25 +345,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  /*
-   * TODO: encode関数に分離
-   * 棒読みちゃん向けにエンコード
-   */
-  short command = 1;
-  short speed = -1;
-  short tone = -1;
-  short volume = -1;
-  short voice = 0;
   size_t length = strlen(out);
-#ifdef _DEBUG
-  fprintf(stderr, "length : %ld\n", length);
-#endif
-  if (length > INT_MAX)
-  {
-    free(out);
-    fputs("読み上げ文書が長すぎます。\n", stderr);
-    return EXIT_FAILURE;
-  }
 
   // なぜhtonsなしで読み上げできるのか謎
   // 棒読みちゃんはリトルエンディアン指定だそうです
@@ -264,90 +355,13 @@ int main(int argc, char *argv[])
   // ヘッダー長が8の倍数じゃないのつらい
 
   char header[15];
-  *((short *)(header + 0)) = (short)htole16((unsigned short)command);
-  *((short *)(header + 2)) = (short)htole16((unsigned short)speed);
-  *((short *)(header + 4)) = (short)htole16((unsigned short)tone);
-  *((short *)(header + 6)) = (short)htole16((unsigned short)volume);
-  *((short *)(header + 8)) = (short)htole16((unsigned short)voice);
-  *((char *)(header + 10)) = encode;
-  *((int *)(header + 11)) = (int)htole32((unsigned int)length);
-
-  char servAddr[NI_MAXHOST];
-  char servPortStr[NI_MAXSERV] = DEFAULT_PORT_STR;
-  if (use_onion == 1)
-  {
-    strncpy(servAddr, ONION_SERV_ADDRESS, NI_MAXHOST);
-  }
-  else
-  {
-    strncpy(servAddr, DEFAULT_SERV_ADDRESS_2, NI_MAXHOST);
-  }
-  struct addrinfo hints, *res = NULL;
-  memset(&hints, 0, sizeof(hints));
-  hints.ai_socktype = SOCK_STREAM;
-  rc = getaddrinfo(servAddr, servPortStr, &hints, &res);
-  if (rc != 0)
+  if (encodeHeader(header, encode, length) != EXIT_SUCCESS)
   {
     free(out);
-    perror("getaddrinfo");
     return EXIT_FAILURE;
   }
 
-  struct addrinfo *adrinf = NULL;
-  int sock = 0;
-  for (adrinf = res; adrinf != NULL; adrinf = adrinf->ai_next)
-  {
-    sock = socket(adrinf->ai_family, adrinf->ai_socktype, adrinf->ai_protocol);
-    if (sock < 0)
-    {
-      perror("socket()");
-      continue;
-    }
-    rc = connect(sock, adrinf->ai_addr, adrinf->ai_addrlen);
-    if (rc < 0)
-    {
-      close(sock);
-      continue;
-    }
-#ifdef _DEBUG
-    print_addrinfo0(adrinf, stderr);
-#endif
-    break;
-  }
-  freeaddrinfo(res);
-  if (rc < 0)
-  {
-    perror("connect()");
-    close(sock);
-    return EXIT_FAILURE;
-  }
-
-  ssize_t w = 0;
-  // 送信
-  if ((w = write(sock, header, 15)) != 15)
-  {
-    fprintf(stderr, _("Error! %s\n"), strerror(errno));
-    rc = close(sock);
-    free(out);
-    perror("write header");
-    return EXIT_FAILURE;
-  }
-  if ((w = write(sock, out, length)) != (ssize_t)length)
-  {
-    fprintf(stderr, _("Error! %s\n"), strerror(errno));
-    rc = close(sock);
-    free(out);
-    perror("write header");
-    return EXIT_FAILURE;
-  }
-  fprintf(stderr, _("Sent!\n"));
-  // ソケットを閉じる
-  rc = close(sock);
-  if (rc != 0)
-  {
-    perror("close");
-    return EXIT_FAILURE;
-  }
+  rc = sendToServer(host, port, header, out, length);
   free(out);
   return rc;
 }

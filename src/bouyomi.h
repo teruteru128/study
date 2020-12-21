@@ -13,7 +13,6 @@
 #define DEFAULT_SERV_ADDRESS_2 "192.168.12.3"
 #define DEFAULT_SERV_ADDRESS4 "127.0.0.1"
 #define DEFAULT_SERV_ADDRESS6 "::1"
-#define ONION_SERV_ADDRESS "2ayu6gqru3xzfzbvud64ezocamykp56kunmkzveqmuxvout2yubeeuad.onion"
 
 /**
  * アライメントが入るためそのまま送信してはいけない

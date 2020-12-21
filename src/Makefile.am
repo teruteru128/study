@@ -40,9 +40,11 @@ bin_PROGRAMS= \
 	gettextsample2 \
 	gettextsample3 \
 	gettime \
+	httpd \
 	hugecollatztest \
 	iconvtest \
 	itoabench \
+	json-c_test \
 	kxsample \
 	list2 \
 	localetest1 \
@@ -163,6 +165,7 @@ gettextsample3_CFLAGS=
 gettextsample3_SOURCES=gettextsample3.c gettextsample3.h textdomain.c textdomain_inner.h mytextdomain.h gettext.h
 gettime_LDADD=$(LIBSTUDYPATH)
 gettime_SOURCES=gettime.c gettime.h
+httpd_LDADD=$(LIBSTUDYPATH)
 iconvtest_SOURCES=iconvtest.c
 itoabench_CFLAGS=
 itoabench_LDADD=$(LIBSTUDYPATH)

@@ -36,9 +36,11 @@ getnyanpass2
 gettextsample2
 gettextsample3
 gettime
+httpd
 hugecollatztest
 iconvtest
 itoabench
+json-c_test
 kxsample
 list2
 localetest1
