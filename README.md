@@ -8,11 +8,11 @@ A garbage dump repository created for studying Teruteru.
 - MySQLクライアント
 - マルチスレッド(pthreads)
 - P2P地震情報プロトコル実装(P2P地震情報のLinux向けC言語実装)作成
-    - P2Pノード
-        - サーバー＆クライアント
-    - 可変長文字列リストもしくはキュー
-    - [パケット(プロトコル)構築](https://github.com/p2pquake/epsp-peer-cs/blob/f3cc70fd199806ced719fb9a692ec39b938924ba/Client/Common/Net/Packet.cs#L72)
-    - [プロトコルパーサ](https://github.com/p2pquake/epsp-specifications)
+  - P2Pノード
+    - サーバー＆クライアント
+  - 可変長文字列リストもしくはキュー
+  - [パケット(プロトコル)構築](https://github.com/p2pquake/epsp-peer-cs/blob/f3cc70fd199806ced719fb9a692ec39b938924ba/Client/Common/Net/Packet.cs#L72)
+  - [プロトコルパーサ](https://github.com/p2pquake/epsp-specifications)
 - コマンドライン引数の解析
 - ファイル名の区切りをハイフンかアンダースコアのどちらかに統一する
 - TODO: signalfdのサンプル作成
@@ -21,10 +21,11 @@ A garbage dump repository created for studying Teruteru.
 
 - libcurl4-gnutls-dev 7.58.0-2ubuntu3.8
 - libgmp-dev 2:6.1.2+dfsg-2
-- libsodium-dev 1.0.16-2 
+- libsodium-dev 1.0.16-2
 - libxmlrpc-core-c3-dev 1.33.14-8build1
 - uuid-dev 2.31.1-0.4ubuntu3.6
 - libupnp-dev 1:1.6.24-4
+- libjson-c-dev
 
 ## このリポジトリに含む~~クソ~~機能
 
@@ -32,35 +33,35 @@ A garbage dump repository created for studying Teruteru.
 - teamspeakのID セキュリティレベル改善ツール。今後使う予定なし。
 - コラッツの問題に関する実験的実装。
 - 各種暗号系プリミティブを実装しようとした残骸。未完成。
-    - AES
-    - SHA-1
-    - SHA-2
-    - SHA-3
-    - MD-5
+  - AES
+  - SHA-1
+  - SHA-2
+  - SHA-3
+  - MD-5
 - コマンドライン引数解析ライブラリを作ろうとした残骸。未完成。
 - Base64 encoder/decoder。確か2箇所に実装があった気がする。
 - 16進数文字列パーサに至ってはもう何箇所にあるのか
 - ネットワーク関係の実験コマンド。
-    - ブロードキャスト送信ツール
-    - UDPパケット送信ツール
-    - UDPパケット受信ツール
-    - sntpクライアント
+  - ブロードキャスト送信ツール
+  - UDPパケット送信ツール
+  - UDPパケット受信ツール
+  - sntpクライアント
 - bitmessage CLI的な何か。
-    - スパムツールか何かで？
+  - スパムツールか何かで？
 - bitsetを実装しようとした残骸。
 - pybitmessage xml-rpcライブラリの残骸。やっぱり未完成。
 - BitMessage向けのアドレスを生成するツール。
 - 棒読みちゃんリモート読み上げツール。パラメータをリトルエンディアンで実装するのやめてくれよ……
 - RSA計算ツールなど
-    - ファイルから改行区切りで16進数整数を2つ読み出して乗算して返すだけのツール
+  - ファイルから改行区切りで16進数整数を2つ読み出して乗算して返すだけのツール
 - iconvを薄くラップするライブラリ() iconvってなんでこんなにめんどくさいの？
 - 某サイトで配布されていた暗号化/復号化()ツールをC言語で実装したライブラリ
 - curl呼び出しテスト
 - きたない台詞を吐き出すクソツール。
-    - ああああああああ！ﾌﾞ
-    - やったぜ。
-    - [ン゛ボ](https://twitter.com/tukushiA/status/844873480805859330)[ップ](https://w.atwiki.jp/aniwotawiki/pages/38145.html#id_73c21301)
-    - ブッチッパ！
+  - ああああああああ！ﾌﾞ
+  - やったぜ。
+  - [ン゛ボ](https://twitter.com/tukushiA/status/844873480805859330)[ップ](https://w.atwiki.jp/aniwotawiki/pages/38145.html#id_73c21301)
+  - ブッチッパ！
 - 乱数テスト
 - Dragon曲線描画ツール。Illustratorじゃ表示できねえぞこんなん！
 - secp256k1鍵ペアを大量に生成するツール。
@@ -95,15 +96,15 @@ A garbage dump repository created for studying Teruteru.
 - stdoutとstderrに書き込むユーティリティシェルスクリプト。
 - 可変長文字列リスト/配列を作ろうとした残骸。
 - 文字列連結を作ろうとした残骸。strcat/strncatで十分。
-    - →区切り文字付き文字列連結は？
-    - JavaのStringJoiner的なライブラリを目指そうとしてたんだっけ？
+  - →区切り文字付き文字列連結は？
+  - JavaのStringJoiner的なライブラリを目指そうとしてたんだっけ？
 - 3立方数の和(Sum of three cubes)の検算ツール
 - TeXのHello World。あれがTeXなのかLaTeXなのかよくわかってない。~~ﾌﾌﾌ……TeX!~~
 - Tweetクライアントを作ろうとした残骸ファイル。
 - UPNPを実装しようとした残骸。このファイルいつから触ってないんだっけ？
 - NicoNamaCommentViewerのUserSettingを変換するために作ろうとしたXSLファイルの残骸。
 - OpenSSL EVP APIを使ってみるテスト。
-    - EVP_Digest
+  - EVP_Digest
 
 ## かつて存在したクソ
 
