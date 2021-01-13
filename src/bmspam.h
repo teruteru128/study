@@ -8,7 +8,7 @@
 #define SERVER_URL "http://192.168.11.3:8442/"
 #define GENELRAL "BM-2cW67GEKkHGonXKZLCzouLLxnLym3azS8r"
 #ifndef SENDTO_ADDRESS_FILE
-#define SENDTO_ADDRESS_FILE "test.txt"
+#define SENDTO_ADDRESS_FILE "/addressbook.txt"
 #endif
 #define MESSAGE_FILE "/greeting.base64.txt"
 #define SUBJECT "TWVycnkgQ2hyaXN0bWFzIQ=="

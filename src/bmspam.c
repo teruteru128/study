@@ -25,6 +25,9 @@
 #define USER_NAME "teruteru128"
 #define PASSWORD "testpassword"
 #define ADDRBUFSIZE 64
+#ifndef STUDYDATADIR
+#define STUDYDATADIR ""
+#endif
 
 int countDownToStartupTime(time_t currentTime, time_t targetTime)
 {
@@ -60,6 +63,7 @@ int countDownToStartupTime(time_t currentTime, time_t targetTime)
 }
 
 /**
+ * @brief HAHAHA!  BM-NB3mUXqpbGXKQHUP95fx7yqWHPkDTQp8
  * int main(int argc, char* argv[])
  * {
  *   // グローバル定数初期化
@@ -99,6 +103,15 @@ int main(int const argc, const char **const argv)
     printf("終了します\n");
     return EXIT_SUCCESS;
   }
+  char msgfilepath[PATH_MAX];
+  char addressfilepath[PATH_MAX];
+  snprintf(msgfilepath, PATH_MAX, "%s%s", STUDYDATADIR, MESSAGE_FILE);
+  snprintf(addressfilepath, PATH_MAX, "%s%s", STUDYDATADIR, SENDTO_ADDRESS_FILE);
+
+#ifdef _DEBUG
+  printf("%s\n", msgfilepath);
+  printf("%s\n", addressfilepath);
+#endif
 
   // 起動時間までカウントダウンする
   int r = countDownToStartupTime(currentTime, christmasTime);
@@ -135,7 +148,7 @@ int main(int const argc, const char **const argv)
   die_if_fault_occurred(&env);
   char message[BUFSIZ];
   char line[BUFSIZ];
-  FILE *msgf = fopen(STUDYDATADIR MESSAGE_FILE, "r");
+  FILE *msgf = fopen(msgfilepath, "r");
   if (msgf == NULL)
   {
     err(EXIT_FAILURE, "fopen");
@@ -157,7 +170,7 @@ int main(int const argc, const char **const argv)
   xmlrpc_value *TTLv = xmlrpc_int_new(&env, 28 * 4 * 24 * 60 * 60);
   die_if_fault_occurred(&env);
   fprintf(stderr, "initialized\n");
-  FILE *toaddrfile = fopen(STUDYDATADIR SENDTO_ADDRESS_FILE, "r");
+  FILE *toaddrfile = fopen(addressfilepath, "r");
   if (toaddrfile == NULL)
   {
     err(EXIT_FAILURE, "fopen");
