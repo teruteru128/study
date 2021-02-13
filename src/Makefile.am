@@ -61,9 +61,12 @@ bin_PROGRAMS= \
 	pgpcrc24sample \
 	portscanner \
 	potest \
-	prime \
+	prime1 \
 	prime2 \
 	prime3 \
+	prime4 \
+	prime5 \
+	prime6 \
 	primesearch \
 	printBench \
 	printinttest \
@@ -184,7 +187,7 @@ mysqlaccesssample2_SOURCES=mysqlaccesssample2.c
 portscanner_SOURCES=portscanner.c
 prime2_SOURCES=prime2.c
 prime3_SOURCES=prime3.c
-prime_SOURCES=prime.c
+prime1_SOURCES=prime1.c
 primesearch_SOURCES=primesearch.c
 printBench_CFLAGS=
 printBench_LDADD=$(LIBSTUDYPATH)
