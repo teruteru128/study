@@ -5,15 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "study",
+            "name": "prime6 (gdb) 接続",
             "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/src/.libs/study",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
+            "request": "attach",
+            "program": "${workspaceFolder}/src/prime6",
+            "processId": "${command:pickProcess}",
             "MIMode": "gdb",
             "setupCommands": [
                 {
@@ -24,57 +20,43 @@
             ]
         },
         {
-            "name": "sntpc 起動",
+            "name": "prime6 (gdb) 起動",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/src/sntpc",
+            "program": "${workspaceFolder}/src/prime6",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/src",
             "environment": [],
-            "externalConsole": false,
+            //"console": "externalTerminal",
             "MIMode": "gdb",
             "setupCommands": [
                 {
-                    "description": "sntp client",
+                    "description": "gdb の再フォーマットを有効にする",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
             ]
         },
         {
-            "name": "(gdb) Attach encodersa",
-            "type": "cppdbg",
-            "request": "attach",
-            "program": "${workspaceFolder}/src/encodersa",
-            "processId": "${command:pickProcess}",
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "(gdb) Launch encodersa",
+            "name": "study (gdb) 起動",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/src/encodersa",
-            "args": [],
+            "program": "${workspaceFolder}/src/.libs/study",
+            "args": [
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
+            //"console": "externalTerminal",
             "MIMode": "gdb",
             "setupCommands": [
                 {
-                    "description": "Enable pretty-printing for gdb",
+                    "description": "gdb の再フォーマットを有効にする",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
             ]
-        },
+        }
     ]
 }

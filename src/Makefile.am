@@ -67,6 +67,8 @@ bin_PROGRAMS= \
 	prime4 \
 	prime5 \
 	prime6 \
+	prime7 \
+	prime8 \
 	primesearch \
 	printBench \
 	printinttest \
@@ -189,6 +191,8 @@ prime1_SOURCES=prime1.c
 prime2_SOURCES=prime2.c
 prime3_SOURCES=prime3.c
 prime6_SOURCES=prime6.c bitsieve.c bitsieve.h
+prime7_SOURCES=prime7.c bitsieve.c bitsieve.h
+prime8_SOURCES=prime8.c bitsieve.c bitsieve.h
 primesearch_SOURCES=primesearch.c
 printBench_CFLAGS=
 printBench_LDADD=$(LIBSTUDYPATH)
@@ -209,8 +213,8 @@ sntpc_CFLAGS=
 sntpc_LDADD=$(LIBSTUDYPATH)
 sntpc_SOURCES=sntpc.c ntp.c ntp.h
 study_CFLAGS=
-study_LDADD=$(LIBSTUDYPATH)
-study_SOURCES=study.c gettext.h
+study_LDADD=
+study_SOURCES=study.c
 sum_LDADD=$(LIBSTUDYPATH)
 sum_SOURCES=sum.c
 teamspeakIdUpgrader_CFLAGS=

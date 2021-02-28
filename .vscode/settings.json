@@ -10,6 +10,9 @@
         "random": "c",
         "tuple": "c",
         "memory_resource": "c",
-        "string_view": "c"
+        "string_view": "c",
+        "config.h": "c",
+        "evp.h": "c",
+        "gmp.h": "c"
     }
 }

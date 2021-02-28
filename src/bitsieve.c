@@ -33,6 +33,14 @@ static int bs_get(struct BitSieve *bs, size_t bitIndex)
     return ((bs->bits[unitIndex] & bit(bitIndex)) != 0);
 }
 
+/**
+ * @brief startの倍数にフラグを立てます.
+ * 
+ * @param bs 
+ * @param limit 
+ * @param start 
+ * @return int 
+ */
 static int bs_sieveSearch(struct BitSieve *bs, size_t limit, size_t start)
 {
     if (start >= limit)
@@ -167,6 +175,7 @@ void bs_free(struct BitSieve *bs)
 
 /**
  * XXX: gmp系とOpenSSL系で両方作るの？やだぁ……
+ * TODO: mpz_probab_prime_p を非同期化してマルチスレッドにしたい
  * @brief Test probable primes in the sieve and return successful candidates.
  * 
  * @see java.math.BitSieve#retrieve(BigInteger, int, Random)
