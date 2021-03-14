@@ -8,6 +8,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <time.h>
 #include "bitsieve.h"
 
 #include <gmp.h>
@@ -40,10 +41,12 @@ struct task
     unsigned int offset;
     int answer;
     size_t index;
+    int tid;
+    time_t timediff;
     struct task *next;
 };
 
-#define QUEUE_SIZE 1048576
+#define QUEUE_SIZE 1048576UL
 /**
  * @brief タスクキュー
  * 
@@ -57,11 +60,9 @@ pthread_mutex_t task_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t task_queue_cond = PTHREAD_COND_INITIALIZER;
 unsigned int q[QUEUE_SIZE] = {0};
 size_t q_head_index = 0;
-size_t q_tail_index = 2121;
-#if 0
+size_t q_tail_index = 0;
 size_t q_num = 0;
 size_t q_tail = 0;
-#endif
 
 /**
  * @brief 完了済みタスクリスト
@@ -74,15 +75,12 @@ size_t q_tail = 0;
 struct task completed_task_queue[QUEUE_SIZE];
 size_t ct_head_index = 0;
 size_t ct_tail_index = 0;
-#if 0
 size_t ct_tail = 0;
 size_t ct_num = 0;
-#endif
 //struct task *completed_task_queue_tail;
 pthread_mutex_t completed_task_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t completed_task_queue_cond = PTHREAD_COND_INITIALIZER;
 
-#if 0
 int task_enqueue(unsigned int offset)
 {
     if (q_num < QUEUE_SIZE)
@@ -96,6 +94,7 @@ int task_enqueue(unsigned int offset)
         return 1;
     }
 }
+
 int task_dequeue(unsigned int *offset)
 {
     if (q_num > 0)
@@ -110,19 +109,45 @@ int task_dequeue(unsigned int *offset)
         return 1;
     }
 }
-int completed_task_enqueue(struct task *data)
+
+/**
+ * @brief 完了済みタスクキューにタスクを追加します.
+ * 
+ * この関数は追加が完了するまでブロックします。
+ * 
+ * @param data 
+ * @param offset 
+ * @param answer 
+ * @param index 
+ * @param tid 
+ * @param timediff 
+ * @return int 
+ */
+int completed_task_enqueue(struct task *data, unsigned int offset, int answer, size_t index, const int tid, time_t timediff)
 {
-    if (ct_num < QUEUE_SIZE)
+    pthread_mutex_lock(&completed_task_queue_mutex);
+    if ((ct_head_index + 1) == ct_tail_index)
     {
-        completed_task_queue[(ct_tail + ct_num) & QUEUE_SIZE] = *data;
-        ct_num++;
-        return 0;
+        pthread_cond_wait(&completed_task_queue_cond, &completed_task_queue_mutex);
     }
-    else
-    {
-        return 1;
-    }
+    completed_task_queue[ct_head_index].offset = offset;
+    completed_task_queue[ct_head_index].answer = answer;
+    completed_task_queue[ct_head_index].index = index;
+    completed_task_queue[ct_head_index].tid = tid;
+    completed_task_queue[ct_head_index].timediff = timediff;
+    completed_task_queue[ct_head_index].next = NULL;
+    ct_head_index = (ct_head_index + 1) % QUEUE_SIZE;
+    pthread_cond_signal(&completed_task_queue_cond);
+    pthread_mutex_unlock(&completed_task_queue_mutex);
+    return 0;
 }
+
+/**
+ * @brief 
+ * 
+ * @param data 
+ * @return int 
+ */
 int completed_task_dequeue(struct task *data)
 {
     if (ct_num > 0)
@@ -137,7 +162,6 @@ int completed_task_dequeue(struct task *data)
         return 1;
     }
 }
-#endif
 
 /**
  * TODO: もうちょっとまともにキューを実装する
@@ -170,22 +194,37 @@ void *produce_prime_candidate(void *arg)
     struct BitSieve searchSieve;
     bs_initInstance(&searchSieve, &base, (size_t)SEARCH_LENGTH);
     unsigned int index = 0;
+    unsigned int offset = 1;
+    //size_t max = searchSieve.length <= 1000? searchSieve.bits_length : 1000;
     pthread_mutex_lock(&task_queue_mutex);
     for (size_t i = 0; i < searchSieve.bits_length; i++)
     {
         unsigned long nextLong = ~searchSieve.bits[i];
         for (size_t j = 0; j < 64; j++)
         {
-            if ((nextLong & 1) == 1)
+            if ((nextLong & 1UL) == 1UL)
             {
-                q[index++] = (i * 64 + j) * 2 + 1;
+                q[index++] = offset;
+                if (offset <= 220001)
+                    q_tail_index++;
             }
             nextLong >>= 1;
+            offset += 2;
         }
     }
     q_head_index = index;
+    printf("initial q_tail_index is %zu\n", q_tail_index);
     pthread_cond_broadcast(&task_queue_cond);
     pthread_mutex_unlock(&task_queue_mutex);
+
+#if 0
+    while(threadpool_live)
+    {
+        pthread_mutex_lock(&task_queue_mutex);
+        /*ここにタスクが減ってきたときのコードを入れる*/
+        pthread_mutex_unlock(&task_queue_mutex);
+    }
+#endif
     bs_free(&searchSieve);
     return NULL;
 }
@@ -214,10 +253,15 @@ void *produce_prime_candidate(void *arg)
  */
 void *consume_prime_candidate(void *arg)
 {
+    const int tid = *((int *)arg);
     mpz_t candidate;
     mpz_init(candidate);
     unsigned int offset = 0;
     size_t index = 0;
+    int answer = 0;
+    time_t start;
+    time_t finish;
+
     while (threadpool_live)
     {
         pthread_mutex_lock(&task_queue_mutex);
@@ -230,14 +274,23 @@ void *consume_prime_candidate(void *arg)
         pthread_mutex_unlock(&task_queue_mutex);
 
         mpz_add_ui(candidate, base, offset);
-        int answer = mpz_probab_prime_p(candidate, DEFAULT_CERTAINTY);
+        start = time(NULL);
+        answer = mpz_probab_prime_p(candidate, DEFAULT_CERTAINTY);
+        finish = time(NULL);
 
+        //completed_task_enqueue(NULL, offset, answer, index, tid, difftime(finish, start));
         pthread_mutex_lock(&completed_task_queue_mutex);
+        if ((ct_head_index + 1) == ct_tail_index)
+        {
+            pthread_cond_wait(&completed_task_queue_cond, &completed_task_queue_mutex);
+        }
         completed_task_queue[ct_head_index].offset = offset;
         completed_task_queue[ct_head_index].answer = answer;
         completed_task_queue[ct_head_index].index = index;
+        completed_task_queue[ct_head_index].tid = tid;
+        completed_task_queue[ct_head_index].timediff = (time_t)difftime(finish, start);
         completed_task_queue[ct_head_index].next = NULL;
-        ct_head_index++;
+        ct_head_index = (ct_head_index + 1) % QUEUE_SIZE;
         pthread_cond_signal(&completed_task_queue_cond);
         pthread_mutex_unlock(&completed_task_queue_mutex);
 
@@ -275,37 +328,45 @@ int main(int argc, char *argv[])
 
     pthread_t producer_thread;
     pthread_t consumer_threads[CONSUMER_THREAD_NUM];
+    int tids[CONSUMER_THREAD_NUM];
 
     pthread_create(&producer_thread, NULL, produce_prime_candidate, NULL);
     for (int i = 0; i < CONSUMER_THREAD_NUM; i++)
     {
-        pthread_create(&consumer_threads[i], NULL, consume_prime_candidate, NULL);
+        tids[i] = i;
+        pthread_create(&consumer_threads[i], NULL, consume_prime_candidate, tids + i);
     }
     pthread_join(producer_thread, NULL);
 
     unsigned int offset = 0;
     int answer = 0;
     size_t index = 0;
+    int tid = 0;
+    time_t timediff = 0;
     while (threadpool_live)
     {
         pthread_mutex_lock(&completed_task_queue_mutex);
-        if (ct_tail_index >= ct_head_index)
+        if (ct_tail_index == ct_head_index)
         {
             pthread_cond_wait(&completed_task_queue_cond, &completed_task_queue_mutex);
         }
-        while (ct_tail_index < ct_head_index)
+        while (ct_tail_index != ct_head_index)
         {
             offset = completed_task_queue[ct_tail_index].offset;
             answer = completed_task_queue[ct_tail_index].answer;
+            tid = completed_task_queue[ct_tail_index].tid;
+            timediff = completed_task_queue[ct_tail_index].timediff;
             index = completed_task_queue[ct_tail_index].index;
             //if (answer == 1 || answer == 2)
             {
-                printf("%zu +%d:%d\n", index, offset, answer);
+                printf("(%2d) %4ld %6zu, %+7d:%d\n", tid, timediff, index, offset, answer);
             }
             completed_task_queue[ct_tail_index].offset = 0;
             completed_task_queue[ct_tail_index].answer = 0;
+            completed_task_queue[ct_tail_index].tid = 0;
+            completed_task_queue[ct_tail_index].timediff = 0;
             completed_task_queue[ct_tail_index].index = 0;
-            ct_tail_index++;
+            ct_tail_index = (ct_tail_index + 1) % QUEUE_SIZE;
         }
         pthread_mutex_unlock(&completed_task_queue_mutex);
     }

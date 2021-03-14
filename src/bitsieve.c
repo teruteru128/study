@@ -73,8 +73,10 @@ static void bs_smallSieve_Constract(void)
      * このふるいの長さはJavaで実装されているものをそのまま流用しているため、最適化するには独自に実験して選択する必要があります。
      */
     // smallSieve.length = 150 * 64; // 9600
-    smallSieve.length = 500 * 64; // 32000
+    // smallSieve.length = 500 * 64; // 32000
+    // smallSieve.length = 512 * 64; // 32768
     // smallSieve.length = 780 * 64; // 49920
+    smallSieve.length = 1024 * 64; // 65536
     smallSieve.bits_length = unitIndex(smallSieve.length - 1) + 1;
     smallSieve.bits = calloc(smallSieve.bits_length, sizeof(unsigned long));
 
@@ -82,9 +84,12 @@ static void bs_smallSieve_Constract(void)
     size_t nextIndex = 1;
     size_t nextPrime = 3;
 
+    /* エラトステネスの篩ループ */
     do
     {
+        // nextPrimeの倍数を塗りつぶす
         bs_sieveSingle(&smallSieve, smallSieve.length, nextIndex + nextPrime, nextPrime);
+        // nextIndexの次から探して塗りつぶされていない最初のindexを探す
         nextIndex = (size_t)bs_sieveSearch(&smallSieve, smallSieve.length, nextIndex + 1);
         nextPrime = 2 * nextIndex + 1;
     } while ((nextIndex > 0) && (nextPrime < smallSieve.length));
@@ -217,4 +222,22 @@ mpz_t *bs_retrieve(struct BitSieve *bs, mpz_t *initValue, int certainty)
     mpz_clear(*candidate);
     free(candidate);
     return NULL;
+}
+
+void bs_foreach(struct BitSieve *bs, void (*function)(mpz_t *base, unsigned long offset, void *arg), mpz_t *base, void *arg)
+{
+    unsigned int offset = 1;
+    for (size_t i = 0; i < bs->bits_length; i++)
+    {
+        unsigned long nextLong = ~bs->bits[i];
+        for (int j = 0; j < 64; j++)
+        {
+            if ((nextLong & 1) == 1)
+            {
+                function(base, offset, arg);
+            }
+            nextLong >>= 1;
+            offset += 2;
+        }
+    }
 }
