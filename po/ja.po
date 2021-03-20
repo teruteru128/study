@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2020-11-22 15:19+0900\n"
+"POT-Creation-Date: 2021-03-09 21:18+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -18,37 +18,37 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/bouyomi.c:98
+#: src/bouyomi.c:121
 #, c-format
 msgid "Error! %s\n"
 msgstr "エラー！ %s\n"
 
-#: src/bouyomi.c:102
+#: src/bouyomi.c:134
 #, c-format
 msgid "Sent!\n"
 msgstr "送信しました！\n"
 
-#: src/eckeygentest.c:45 src/itoabench.c:42 src/itoabench.c:58
+#: src/eckeygentest.c:64 src/itoabench.c:42 src/itoabench.c:58
 #, c-format
 msgid "It took %.8f seconds.\n"
 msgstr "%.8f秒かかりました。\n"
 
-#: src/eckeygentest.c:46 src/itoabench.c:43 src/itoabench.c:59
+#: src/eckeygentest.c:65 src/itoabench.c:43 src/itoabench.c:59
 #, c-format
 msgid "%.1f times per second\n"
 msgstr "1秒あたり %.1f回\n"
 
-#: src/eckeygentest.c:47 src/itoabench.c:44 src/itoabench.c:60
+#: src/eckeygentest.c:66 src/itoabench.c:44 src/itoabench.c:60
 #, c-format
 msgid "%.12f seconds per time\n"
 msgstr "1回あたり %.12f秒\n"
 
-#: src/encodersa.c:104
+#: src/encodersa.c:103
 #, c-format
 msgid "q is larger\n"
 msgstr "qのほうが大きい\n"
 
-#: src/encodersa.c:109
+#: src/encodersa.c:108
 #, c-format
 msgid "p is larger\n"
 msgstr "pのほうが大きい\n"
@@ -58,17 +58,17 @@ msgstr "pのほうが大きい\n"
 msgid "Hello world!\n"
 msgstr "こんにちは世界！\n"
 
-#: src/gettextsample3.c:49
+#: src/gettextsample3.c:45
 #, c-format
 msgid "%dmicro seconds stopping.\n"
 msgstr "%dマイクロ秒停止します。\n"
 
-#: src/gettextsample3.c:63
+#: src/gettextsample3.c:59
 #, c-format
 msgid "%dmicro seconds stoped.\n"
 msgstr "%dマイクロ秒停止しました。\n"
 
-#: src/ntp.c:115
+#: src/ntp.c:125
 #, c-format
 msgid "NTP server time : %s"
 msgstr "NTPサーバ時刻 : %s"
