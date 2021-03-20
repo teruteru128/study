@@ -27,6 +27,19 @@
  *   そりゃfdだからねえ
  * - pthread_cond_timedwait
  * 
+ * データ型とか
+ * time_t
+ * <time.h>
+ * time(2)
+ * 
+ * struct timespec
+ * <time.h>
+ * timespec_get()
+ * 
+ * struct tm
+ * 
+ * char*
+ * 
  * timerfdを使って一定時間ごとにpthread_cond_signalとか
  * pthread_cond_broadcastとか使ってシグナルを送信するとか……
  * うーん邪悪

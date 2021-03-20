@@ -5,6 +5,9 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
+#include <sys/timerfd.h>
 
 /**
  * 
@@ -57,6 +60,8 @@
  * --daemon-mode
  *   デーモン化処理付きでバックグラウンドで起動
  * 
+ * 複数スレッドをpthread_cond_tで止めてメインスレッドでtimerfdを使って指定時刻まで待ち、pthread_cond_broadcastで一斉に起動する
+ * 
  * @brief sanbox func.
  * 
  * @param argc 
@@ -65,5 +70,11 @@
  */
 int main(int argc, char *argv[])
 {
+  // 現在時刻を取得する
+  // 現在時刻とその日の3時34分を比較する
+  // 現在時刻>=3時34分なら1日進める
+  // 
+  int timerfd = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
+  close(timerfd);
   return EXIT_SUCCESS;
 }

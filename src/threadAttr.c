@@ -12,8 +12,8 @@
 
 #define SIZE 16777216
 
-pthread_mutex_t mutex;
-pthread_cond_t cond;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 void *threadFunc(void *arg)
 {
@@ -23,7 +23,10 @@ void *threadFunc(void *arg)
   {
     table[i] = (uint64_t)((double)i * 3.14);
   }
+  fprintf(stderr, "table size is %zu\n", sizeof(table));
+  pthread_mutex_lock(&mutex);
   pthread_cond_signal(&cond);
+  pthread_mutex_unlock(&mutex);
   fprintf(stderr, "準備完了\n");
   pthread_mutex_lock(&mutex);
   pthread_cond_wait(&cond, &mutex);
@@ -41,8 +44,6 @@ int main(int argc, char *argv[])
   pthread_t thread;
 
   pthread_attr_init(&attr);
-  pthread_mutex_init(&mutex, NULL);
-  pthread_cond_init(&cond, NULL);
 
   size_t stacksize;
   pthread_attr_getstacksize(&attr, &stacksize);
@@ -67,8 +68,10 @@ int main(int argc, char *argv[])
   pthread_mutex_unlock(&mutex);
 
   fprintf(stderr, "エンターキーを押して再開...\n");
+  pthread_mutex_lock(&mutex);
   fgetc(stdin);
   pthread_cond_signal(&cond);
+  pthread_mutex_unlock(&mutex);
 
   if (pthread_join(thread, NULL) != 0)
   {
