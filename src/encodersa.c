@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
   {
     FILE *in = NULL;
     int size = 0;
-    char buf[32776];
+    char buf[65537];
     char *trash;
     in = fopen(infile1, "r");
     if (in == NULL)
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
       perror("fopen");
       goto err;
     }
-    trash = fgets(buf, 32776, in);
+    trash = fgets(buf, 65537, in);
     fclose(in);
     if (BN_hex2bn(&p, buf) == 0)
     {
@@ -89,14 +89,14 @@ int main(int argc, char *argv[])
       perror("fopen");
       goto err;
     }
-    trash = fgets(buf, 32776, in);
+    trash = fgets(buf, 65537, in);
     fclose(in);
     if (BN_hex2bn(&q, buf) == 0)
     {
       perror("");
     }
     printf("q : %dbits\n", BN_num_bits(q));
-    memset(buf, 0, 32776);
+    memset(buf, 0, 65537);
   }
   if (BN_cmp(p, q) < 0)
   {
@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
   // ファイル書き出し
 
   char outfile[PATH_MAX];
-  snprintf(outfile, PATH_MAX, "%dbits-%s-priv.pem", BN_num_bits(n), uuidstr);
+  snprintf(outfile, PATH_MAX, "%dbit-%s-priv.pem", BN_num_bits(n), uuidstr);
   BIO *bio = BIO_new_file(outfile, "w");
   if (bio == NULL)
   {
