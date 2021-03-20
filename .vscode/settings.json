@@ -13,6 +13,9 @@
         "string_view": "c",
         "config.h": "c",
         "evp.h": "c",
-        "gmp.h": "c"
+        "gmp.h": "c",
+        "timex.h": "c",
+        "timerfd.h": "c",
+        "uuid.h": "c"
     }
 }
