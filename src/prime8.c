@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <time.h>
 #include "bitsieve.h"
+#include "task_queue.h"
 
 #include <gmp.h>
 
@@ -35,241 +36,7 @@ mpz_t base;
  */
 static int threadpool_live = 1;
 
-struct task;
-struct task
-{
-    unsigned int offset;
-    int answer;
-    int tid;
-    int padding;
-    size_t index;
-    time_t timediff;
-    struct task *next;
-};
-
 #define QUEUE_SIZE 1048576UL
-
-static struct task *area_head = NULL;
-
-/**
- * @brief 未使用領域を並べた連結リスト
- * 
- */
-static struct task *unused_area_list_head = NULL;
-static struct task *unused_area_list_tail = NULL;
-static pthread_mutex_t unused_area_list_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t unused_area_list_cond = PTHREAD_COND_INITIALIZER;
-
-/**
- * @brief タスクキュー
- * タスクキュー
- * 完了済みタスクキュー
- * 
- * キュー1項目の内容
- * . int 素数候補のbaseからのoffset
- * 
- */
-struct task *task_queue_head = NULL;
-struct task *task_queue_tail = NULL;
-static pthread_mutex_t task_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t task_queue_cond = PTHREAD_COND_INITIALIZER;
-static size_t q_head_index = 0;
-
-/**
- * @brief 完了済みタスクリスト
- *
- * キュー1項目の内容
- * . int 素数候補のbaseからのoffset
- * . int 判定結果
- * 
- */
-static struct task *completed_task_queue_head = NULL;
-static struct task *completed_task_queue_tail = NULL;
-static size_t ct_head_index = 0;
-static size_t ct_tail_index = 0;
-static size_t ct_tail = 0;
-static size_t ct_num = 0;
-static pthread_mutex_t completed_task_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t completed_task_queue_cond = PTHREAD_COND_INITIALIZER;
-
-/**
- * @brief 
- * 
- * @return struct task* 
- */
-struct task *unused_area_pop()
-{
-    pthread_mutex_lock(&unused_area_list_mutex);
-    if (unused_area_list_head == NULL)
-    {
-        pthread_cond_wait(&unused_area_list_cond, &unused_area_list_mutex);
-    }
-    struct task *area = unused_area_list_head;
-    unused_area_list_head = area->next;
-    pthread_mutex_unlock(&unused_area_list_mutex);
-    return area;
-}
-
-/**
- * @brief 
- * 
- * @param task 
- */
-void unused_area_push(struct task *task)
-{
-    pthread_mutex_lock(&unused_area_list_mutex);
-    if (unused_area_list_head == NULL)
-    {
-        unused_area_list_head = task;
-    }
-    if (unused_area_list_tail != NULL)
-    {
-        unused_area_list_tail->next = task;
-    }
-    unused_area_list_tail = task;
-    pthread_mutex_unlock(&unused_area_list_mutex);
-}
-
-/**
- * @brief 
- * 
- * @param task 
- * @return int 
- */
-int task_enqueue(struct task *task)
-{
-    pthread_mutex_lock(&task_queue_mutex);
-    if (task_queue_head == NULL)
-    {
-        task_queue_head = task;
-    }
-    if (task_queue_tail != NULL)
-    {
-        task_queue_tail->next = task;
-    }
-    task_queue_tail = task;
-    pthread_mutex_unlock(&task_queue_mutex);
-    return 0;
-}
-
-/**
- * @brief 
- * 
- * @param offset 
- * @return int 
- */
-int add_task(unsigned int offset)
-{
-    // 未使用領域をpop
-    struct task *task = unused_area_pop();
-    // 書き込み
-    task->offset = offset;
-    task->answer = 0;
-    task->tid = 0;
-    task->padding = 0;
-    task->index = 0;
-    task->timediff = 0;
-    task->next = NULL;
-    //タスクキューに追加
-    task_enqueue(task);
-}
-
-/**
- * @brief 
- * 
- * @return struct task* 
- */
-struct task *task_dequeue()
-{
-    pthread_mutex_lock(&task_queue_mutex);
-    if (task_queue_head == NULL)
-    {
-        pthread_cond_wait(&task_queue_cond, &task_queue_mutex);
-    }
-    struct task *task = task_queue_head;
-    task_queue_head = task->next;
-    pthread_mutex_unlock(&task_queue_mutex);
-    return task;
-}
-
-/**
- * @brief 
- * 
- * @param offset 
- * @return int 
- */
-unsigned int pop_task()
-{
-    struct task *task = task_dequeue();
-
-    unsigned int offset = task->offset;
-    task->offset = 0;
-
-    unused_area_push(task);
-    return offset;
-}
-
-int completed_task_enqueue(struct task *task)
-{
-    pthread_mutex_lock(&completed_task_queue_mutex);
-    if (completed_task_queue_head == NULL)
-    {
-        completed_task_queue_head = task;
-    }
-    if (completed_task_queue_tail != NULL)
-    {
-        completed_task_queue_tail->next = task;
-    }
-    completed_task_queue_tail = task;
-    pthread_cond_signal(&completed_task_queue_cond);
-    pthread_mutex_unlock(&completed_task_queue_mutex);
-}
-
-/**
- * @brief 完了済みタスクキューにタスクを追加します.
- * 
- * この関数は追加が完了するまでブロックします。
- * 
- * @param data 
- * @param offset 
- * @param answer 
- * @param index 
- * @param tid 
- * @param timediff 
- * @return int 
- */
-int add_completed_task(unsigned int offset, int answer, size_t index, const int tid, time_t timediff)
-{
-    struct task *task = unused_area_pop();
-    task->offset = offset;
-    task->answer = answer;
-    task->tid = tid;
-    task->padding = 0;
-    task->index = index;
-    task->timediff = timediff;
-    completed_task_enqueue(task);
-    return 0;
-}
-
-/**
- * @brief 
- * 
- * @param data 
- * @return int 
- */
-struct task *completed_task_dequeue()
-{
-    pthread_mutex_lock(&completed_task_queue_mutex);
-    if (completed_task_queue_head == NULL)
-    {
-        pthread_cond_wait(&completed_task_queue_cond, &completed_task_queue_mutex);
-    }
-    struct task *task = completed_task_queue_head;
-    completed_task_queue_head = completed_task_queue_head->next;
-    task->next = NULL;
-    pthread_mutex_unlock(&completed_task_queue_mutex);
-    return task;
-}
 
 /**
  * @brief 素数候補を生成してタスクキューに追加する. 終了時のタスクキューのゴミ掃除係
@@ -300,10 +67,8 @@ void *produce_prime_candidate(void *arg)
 {
     struct BitSieve searchSieve;
     bs_initInstance(&searchSieve, &base, (size_t)SEARCH_LENGTH);
-    unsigned int index = 0;
     unsigned int offset = 1;
     //size_t max = searchSieve.length <= 1000? searchSieve.bits_length : 1000;
-    pthread_mutex_lock(&task_queue_mutex);
 
     size_t q_tail_index = 0;
     for (size_t i = 0; i < searchSieve.bits_length; i++)
@@ -313,21 +78,20 @@ void *produce_prime_candidate(void *arg)
         {
             if ((nextLong & 1UL) == 1UL)
             {
-                add_task(offset);
-                if (offset <= 5559)
+                if (offset <= 24117)
                 {
                     q_tail_index++;
-                    pop_task();
+                }
+                else
+                {
+                    add_task(offset);
                 }
             }
             nextLong >>= 1;
             offset += 2;
         }
     }
-    q_head_index = index;
     printf("initial q_tail_index is %zu\n", q_tail_index);
-    pthread_cond_broadcast(&task_queue_cond);
-    pthread_mutex_unlock(&task_queue_mutex);
 
 #if 0
     while(threadpool_live)
@@ -405,19 +169,6 @@ void *consume_prime_candidate(void *arg)
 
 #define CONSUMER_THREAD_NUM 12
 
-void init_queue(const size_t queue_size)
-{
-    struct task *area = calloc(queue_size, sizeof(struct task));
-    if (area == NULL)
-        exit(EXIT_FAILURE);
-
-    area_head = unused_area_list_head = area;
-    for (size_t i = 1; i < queue_size; i++)
-    {
-        area[i - 1].next = &area[i];
-    }
-}
-
 /**
  * @brief 完了済みタスクキューのゴミ掃除係
  * 
@@ -452,11 +203,6 @@ int main(int argc, char *argv[])
     }
     pthread_join(producer_thread, NULL);
 
-    unsigned int offset = 0;
-    int answer = 0;
-    size_t index = 0;
-    int tid = 0;
-    time_t timediff = 0;
     // TODO: キューからデキューする処理とprintfを分離する
     while (threadpool_live)
     {
@@ -469,14 +215,15 @@ int main(int argc, char *argv[])
         task->index = 0;
         task->timediff = 0;
         task->next = NULL;
-        unused_area_push(task);
+        unused_area_enqueue(task);
     }
     for (int i = 0; i < CONSUMER_THREAD_NUM; i++)
     {
         pthread_join(consumer_threads[i], NULL);
     }
     mpz_clear(base);
-    free(area_head);
+
+    free_queue();
 
     return EXIT_SUCCESS;
 }
