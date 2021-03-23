@@ -70,47 +70,51 @@ void *produce_prime_candidate(void *arg)
     unsigned int offset = 1;
     //size_t max = searchSieve.length <= 1000? searchSieve.bits_length : 1000;
 
-    size_t q_tail_index = 0;
+    size_t skiped_index = 0;
+    size_t task_index = 0;
+    // ここでタスクキューをロックしてまとめて追加したい
     for (size_t i = 0; i < searchSieve.bits_length; i++)
     {
         unsigned long nextLong = ~searchSieve.bits[i];
         for (size_t j = 0; j < 64; j++)
         {
+            // ここの"== 1UL"いらなくない？そのまま"nextLong & 1UL"だけでいいじゃん
             if ((nextLong & 1UL) == 1UL)
             {
-                if (offset <= 24117)
+                if (offset <= 0)
                 {
-                    q_tail_index++;
+                    skiped_index++;
                 }
                 else
                 {
-                    add_task(offset);
+                    // 1回1回ロックしてアンロックしてーってやるの時間の無駄なのでiループの外側でまとめてロックしたい
+                    // でもデッドロックの危険性とか出るんだろうな
+                    add_task(offset, task_index);
                 }
+                task_index++;
             }
             nextLong >>= 1;
             offset += 2;
         }
     }
-    printf("initial q_tail_index is %zu\n", q_tail_index);
+    printf("initial q_tail_index is %zu\n", skiped_index);
 
 #if 0
     while(threadpool_live)
     {
         pthread_mutex_lock(&task_queue_mutex);
-        /*ここにタスクが減ってきたときのコードを入れる*/
+        /*
+        ここに残りタスクが減ってきたときのコードを入れる
+        残りタスク数を別変数で持ちたいけど持ったら連結キューにした意味がなくなるんだよなぁ……
+        完了済みタスクキューに追加したシグナルで未着手タスクキューが空かどうかチェックすればいいのでは！？
+        完了済みタスクキューのシグナルを受け取って未着手タスクキューの状況を確認するってどのmutex取ればいいんですかね？
+        */
         pthread_mutex_unlock(&task_queue_mutex);
     }
 #endif
     bs_free(&searchSieve);
     return NULL;
 }
-
-#if 0
-/**
- * @brief 前方宣言、定義は下
- */
-int task_receiving_thread_live;
-#endif
 
 /**
  * @brief 素数候補をタスクキューから取り出して素数判定して完了済みタスクリストに結果を入れる
@@ -139,29 +143,33 @@ void *consume_prime_candidate(void *arg)
     const int tid = *((int *)arg);
     mpz_t candidate;
     mpz_init(candidate);
+    struct task *task = NULL;
     unsigned int offset = 0;
     size_t index = 0;
     int answer = 0;
-    time_t start;
-    time_t finish;
+    time_t start = 0;
+    time_t finish = 0;
 
     while (threadpool_live)
     {
-        offset = pop_task();
+        task = task_dequeue();
+        offset = task->offset;
+        index = task->index;
+        unused_area_enqueue(task);
 
         mpz_add_ui(candidate, base, offset);
+        printf("(%2d)      0, %6zu, %7d:start\n", tid, index, offset);
         start = time(NULL);
         answer = mpz_probab_prime_p(candidate, DEFAULT_CERTAINTY);
         finish = time(NULL);
 
-        add_completed_task(offset, answer, index, tid, (time_t)difftime(finish, start));
+        // add_completed_task(offset, answer, index, tid, (time_t)difftime(finish, start));
 
-        /*
+        printf("(%2d) %6ld, %6zu, %7d:%d\n", tid, (time_t)difftime(finish, start), index, offset, answer);
         if (answer == 1 || answer == 2)
         {
             threadpool_live = 0;
         }
-        */
     }
     mpz_clear(candidate);
     return NULL;
@@ -203,20 +211,19 @@ int main(int argc, char *argv[])
     }
     pthread_join(producer_thread, NULL);
 
+#if 0
     // TODO: キューからデキューする処理とprintfを分離する
     while (threadpool_live)
     {
         struct task *task = completed_task_dequeue();
-        printf("(%2d) %6ld %6zu, %+7d:%d\n", task->tid, task->timediff, task->index, task->offset, task->answer);
-        task->offset = 0;
-        task->answer = 0;
-        task->tid = 0;
-        task->padding = 0;
-        task->index = 0;
-        task->timediff = 0;
-        task->next = NULL;
+        if (task->answer == 1 || task->answer == 2)
+        {
+            threadpool_live = 0;
+        }
+        printf("(%2d) %6ld, %6zu, %7d:%d\n", task->tid, task->timediff, task->index, task->offset, task->answer);
         unused_area_enqueue(task);
     }
+#endif
     for (int i = 0; i < CONSUMER_THREAD_NUM; i++)
     {
         pthread_join(consumer_threads[i], NULL);

@@ -17,7 +17,7 @@ struct task
 struct task *unused_area_dequeue();
 void unused_area_enqueue(struct task *task);
 int task_enqueue(struct task *task);
-int add_task(unsigned int offset);
+int add_task(unsigned int offset, size_t index);
 struct task *task_dequeue();
 unsigned int pop_task();
 int completed_task_enqueue(struct task *task);

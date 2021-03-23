@@ -25,20 +25,20 @@ static pthread_cond_t unused_area_list_cond = PTHREAD_COND_INITIALIZER;
 
 /**
  * @brief タスクキュー
- * タスクキュー
- * 完了済みタスクキュー
+ * 未着手タスクキュー
  * 
  * キュー1項目の内容
  * . int 素数候補のbaseからのoffset
  * 
  */
-struct task *task_queue_head = NULL;
-struct task *task_queue_tail = NULL;
+static struct task *task_queue_head = NULL;
+static struct task *task_queue_tail = NULL;
 static pthread_mutex_t task_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t task_queue_cond = PTHREAD_COND_INITIALIZER;
 
 /**
- * @brief 完了済みタスクリスト
+ * @brief 完了済みタスクキュー
+ * タスク結果キュー
  *
  * キュー1項目の内容
  * . int 素数候補のbaseからのoffset
@@ -88,6 +88,12 @@ void unused_area_enqueue(struct task *task)
     {
         return;
     }
+    task->offset = 0;
+    task->answer = 0;
+    task->tid = 0;
+    task->padding = 0;
+    task->index = 0;
+    task->timediff = 0;
     pthread_mutex_lock(&unused_area_list_mutex);
     if (unused_area_list_head == NULL)
     {
@@ -135,7 +141,7 @@ int task_enqueue(struct task *task)
  * @param offset 
  * @return int 
  */
-int add_task(unsigned int offset)
+int add_task(unsigned int offset, size_t index)
 {
     // 未使用領域をpop
     struct task *task = unused_area_dequeue();
@@ -144,7 +150,7 @@ int add_task(unsigned int offset)
     task->answer = 0;
     task->tid = 0;
     task->padding = 0;
-    task->index = 0;
+    task->index = index;
     task->timediff = 0;
     task->next = NULL;
     //タスクキューに追加
@@ -191,6 +197,25 @@ unsigned int pop_task()
     return offset;
 }
 
+/**
+ * @brief Returns 1 if the task queue is empty, 0 otherwise.
+ * 
+ * @return int 
+ */
+int task_queue_is_empty()
+{
+    pthread_mutex_lock(&task_queue_mutex);
+    int result = task_queue_head == NULL;
+    pthread_mutex_unlock(&task_queue_mutex);
+    return result;
+}
+
+/**
+ * @brief 
+ * 
+ * @param task 
+ * @return int 
+ */
 int completed_task_enqueue(struct task *task)
 {
     pthread_mutex_lock(&completed_task_queue_mutex);
@@ -203,7 +228,7 @@ int completed_task_enqueue(struct task *task)
         completed_task_queue_tail->next = task;
     }
     completed_task_queue_tail = task;
-    pthread_cond_signal(&completed_task_queue_cond);
+    pthread_cond_broadcast(&completed_task_queue_cond);
     pthread_mutex_unlock(&completed_task_queue_mutex);
     return 0;
 }
