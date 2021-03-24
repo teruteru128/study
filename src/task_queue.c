@@ -18,6 +18,7 @@ static struct task *area_head = NULL;
  * @brief 未使用領域を並べた連結リスト
  * 
  */
+static struct task_list unused_area_list = {NULL, NULL, 0, PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
 static struct task *unused_area_list_head = NULL;
 static struct task *unused_area_list_tail = NULL;
 static pthread_mutex_t unused_area_list_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -31,10 +32,11 @@ static pthread_cond_t unused_area_list_cond = PTHREAD_COND_INITIALIZER;
  * . int 素数候補のbaseからのoffset
  * 
  */
-static struct task *task_queue_head = NULL;
-static struct task *task_queue_tail = NULL;
-static pthread_mutex_t task_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t task_queue_cond = PTHREAD_COND_INITIALIZER;
+static struct task_list unstarted_task_list = {NULL, NULL, 0, PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
+static struct task *unstarted_task_list_head = NULL;
+static struct task *unstarted_task_list_tail = NULL;
+static pthread_mutex_t unstarted_task_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t unstarted_task_list_cond = PTHREAD_COND_INITIALIZER;
 
 /**
  * @brief 完了済みタスクキュー
@@ -46,10 +48,67 @@ static pthread_cond_t task_queue_cond = PTHREAD_COND_INITIALIZER;
  * 
  * completed_taskよりはresultのほうが近い気がする
  */
+static struct task_list completed_task_list = {NULL, NULL, 0, PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
 static struct task *completed_task_queue_head = NULL;
 static struct task *completed_task_queue_tail = NULL;
 static pthread_mutex_t completed_task_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t completed_task_queue_cond = PTHREAD_COND_INITIALIZER;
+
+void task_enqueue(struct task_list *list, struct task *task)
+{
+    if (list == NULL || task == NULL)
+    {
+        return;
+    }
+    pthread_mutex_lock(&list->mutex);
+    struct task *l = list->tail;
+    task->prev = l;
+    task->next = NULL;
+    list->tail = task;
+    if (l == NULL)
+    {
+        list->head = task;
+    }
+    else
+    {
+        l->next = task;
+    }
+    list->size++;
+    pthread_mutex_unlock(&list->mutex);
+}
+
+struct task *task_dequeue(struct task_list *list)
+{
+    if (list == NULL || list->head == NULL)
+    {
+        return NULL;
+    }
+    pthread_mutex_lock(&list->mutex);
+    struct task *task = list->head;
+    struct task *next = task->next;
+    task->next = NULL;
+    list->head = next;
+    if (next == NULL)
+    {
+        list->tail = NULL;
+    }
+    else
+    {
+        next->prev = NULL;
+    }
+    list->size--;
+    pthread_mutex_unlock(&list->mutex);
+    return task;
+}
+
+/**
+ * @brief 未使用領域を複数個まとめてデキューする.
+ * 残り領域数<numの場合はどのような挙動に？
+ * 
+ * @param num 
+ * @return struct task* 
+ */
+struct task *unused_area_bulk_dequeue(size_t num);
 
 /**
  * @brief 
@@ -59,7 +118,7 @@ static pthread_cond_t completed_task_queue_cond = PTHREAD_COND_INITIALIZER;
 struct task *unused_area_dequeue()
 {
     pthread_mutex_lock(&unused_area_list_mutex);
-    if (unused_area_list_head == NULL)
+    while (unused_area_list_head == NULL)
     {
         pthread_cond_wait(&unused_area_list_cond, &unused_area_list_mutex);
     }
@@ -76,6 +135,13 @@ struct task *unused_area_dequeue()
     pthread_mutex_unlock(&unused_area_list_mutex);
     return area;
 }
+
+/**
+ * @brief 
+ * 
+ * @param task 
+ */
+void unused_area_bulk_enqueue(struct task *task);
 
 /**
  * @brief 
@@ -114,24 +180,24 @@ void unused_area_enqueue(struct task *task)
  * @param task 
  * @return int 
  */
-int task_enqueue(struct task *task)
+int unstarted_task_enqueue(struct task *task)
 {
     if (task == NULL)
     {
         return 1;
     }
-    pthread_mutex_lock(&task_queue_mutex);
-    if (task_queue_head == NULL)
+    pthread_mutex_lock(&unstarted_task_list_mutex);
+    if (unstarted_task_list_head == NULL)
     {
-        task_queue_head = task;
+        unstarted_task_list_head = task;
     }
-    if (task_queue_tail != NULL)
+    if (unstarted_task_list_tail != NULL)
     {
-        task_queue_tail->next = task;
+        unstarted_task_list_tail->next = task;
     }
-    task_queue_tail = task;
-    pthread_cond_broadcast(&task_queue_cond);
-    pthread_mutex_unlock(&task_queue_mutex);
+    unstarted_task_list_tail = task;
+    pthread_cond_broadcast(&unstarted_task_list_cond);
+    pthread_mutex_unlock(&unstarted_task_list_mutex);
     return 0;
 }
 
@@ -141,7 +207,7 @@ int task_enqueue(struct task *task)
  * @param offset 
  * @return int 
  */
-int add_task(unsigned int offset, size_t index)
+int add_unstarted_task(unsigned int offset, size_t index)
 {
     // 未使用領域をpop
     struct task *task = unused_area_dequeue();
@@ -154,7 +220,7 @@ int add_task(unsigned int offset, size_t index)
     task->timediff = 0;
     task->next = NULL;
     //タスクキューに追加
-    task_enqueue(task);
+    unstarted_task_enqueue(task);
     return 0;
 }
 
@@ -163,20 +229,25 @@ int add_task(unsigned int offset, size_t index)
  * 
  * @return struct task* 
  */
-struct task *task_dequeue()
+struct task *unstarted_task_dequeue()
 {
-    pthread_mutex_lock(&task_queue_mutex);
-    if (task_queue_head == NULL)
+    pthread_mutex_lock(&unstarted_task_list_mutex);
+    /*
+     * ifだとtaskにNULLが入ってしまうことがある
+     * 未着手タスクキューに入っている件数が CONSUMER_THREAD_NUM 以下のときにwaitから帰ってくると
+     * タスクの取り合いになってしまいキューが空になってtaskにNULLが入りセグフォが起きる
+    */
+    while (unstarted_task_list_head == NULL)
     {
-        pthread_cond_wait(&task_queue_cond, &task_queue_mutex);
+        pthread_cond_wait(&unstarted_task_list_cond, &unstarted_task_list_mutex);
     }
-    struct task *task = task_queue_head;
-    task_queue_head = task->next;
-    if (task == task_queue_tail)
+    struct task *task = unstarted_task_list_head;
+    unstarted_task_list_head = task->next;
+    if (task == unstarted_task_list_tail)
     {
-        task_queue_tail = NULL;
+        unstarted_task_list_tail = NULL;
     }
-    pthread_mutex_unlock(&task_queue_mutex);
+    pthread_mutex_unlock(&unstarted_task_list_mutex);
     return task;
 }
 
@@ -186,9 +257,9 @@ struct task *task_dequeue()
  * @param offset 
  * @return int 
  */
-unsigned int pop_task()
+unsigned int pop_unstarted_task()
 {
-    struct task *task = task_dequeue();
+    struct task *task = unstarted_task_dequeue();
 
     unsigned int offset = task->offset;
     task->offset = 0;
@@ -204,9 +275,9 @@ unsigned int pop_task()
  */
 int task_queue_is_empty()
 {
-    pthread_mutex_lock(&task_queue_mutex);
-    int result = task_queue_head == NULL;
-    pthread_mutex_unlock(&task_queue_mutex);
+    pthread_mutex_lock(&unstarted_task_list_mutex);
+    int result = unstarted_task_list_head == NULL;
+    pthread_mutex_unlock(&unstarted_task_list_mutex);
     return result;
 }
 
@@ -267,7 +338,7 @@ int add_completed_task(unsigned int offset, int answer, size_t index, const int 
 struct task *completed_task_dequeue()
 {
     pthread_mutex_lock(&completed_task_queue_mutex);
-    if (completed_task_queue_head == NULL)
+    while (completed_task_queue_head == NULL)
     {
         pthread_cond_wait(&completed_task_queue_cond, &completed_task_queue_mutex);
     }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2021-03-09 21:18+0900\n"
+"POT-Creation-Date: 2021-03-25 01:36+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -92,6 +92,12 @@ msgstr "1回あたり %e秒\n"
 #, c-format
 msgid "verifier : %<PRIu64>\n"
 msgstr "検証子 : %<PRIu64>\n"
+
+#: src/prime8.c:103
+#, c-format
+msgid "%zu prime candidate have been skipped.\n"
+msgid_plural "%zu prime candidates have been skipped.\n"
+msgstr[0] "%zu個の素数候補がスキップされました。\n"
 
 #~ msgid "Local time : %s"
 #~ msgstr "ローカル時刻 : %s"

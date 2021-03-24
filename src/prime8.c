@@ -11,11 +11,12 @@
 #include <time.h>
 #include "bitsieve.h"
 #include "task_queue.h"
+#include "gettext.h"
+#define _(str) gettext(str)
+#include <locale.h>
 
 #include <gmp.h>
 
-#define BIT_LENGTH 524288
-#define SEARCH_LENGTH (BIT_LENGTH / 20 * 64)
 #define DEFAULT_CERTAINTY 1
 
 struct BitSieve
@@ -65,12 +66,14 @@ static int threadpool_live = 1;
  */
 void *produce_prime_candidate(void *arg)
 {
+    const size_t min_offset = *(size_t *)arg;
     struct BitSieve searchSieve;
-    bs_initInstance(&searchSieve, &base, (size_t)SEARCH_LENGTH);
+    const size_t searchLength = mpz_sizeinbase(base, 2) / 20 * 64;
+    bs_initInstance(&searchSieve, &base, searchLength);
     unsigned int offset = 1;
     //size_t max = searchSieve.length <= 1000? searchSieve.bits_length : 1000;
 
-    size_t skiped_index = 0;
+    size_t skiped_num = 0;
     size_t task_index = 0;
     // ここでタスクキューをロックしてまとめて追加したい
     for (size_t i = 0; i < searchSieve.bits_length; i++)
@@ -81,15 +84,15 @@ void *produce_prime_candidate(void *arg)
             // ここの"== 1UL"いらなくない？そのまま"nextLong & 1UL"だけでいいじゃん
             if ((nextLong & 1UL) == 1UL)
             {
-                if (offset <= 0)
+                if (offset <= min_offset)
                 {
-                    skiped_index++;
+                    skiped_num++;
                 }
                 else
                 {
                     // 1回1回ロックしてアンロックしてーってやるの時間の無駄なのでiループの外側でまとめてロックしたい
                     // でもデッドロックの危険性とか出るんだろうな
-                    add_task(offset, task_index);
+                    add_unstarted_task(offset, task_index);
                 }
                 task_index++;
             }
@@ -97,19 +100,19 @@ void *produce_prime_candidate(void *arg)
             offset += 2;
         }
     }
-    printf("initial q_tail_index is %zu\n", skiped_index);
+    printf(ngettext("%zu prime candidate have been skipped.\n", "%zu prime candidates have been skipped.\n", skiped_num), skiped_num);
 
 #if 0
     while(threadpool_live)
     {
-        pthread_mutex_lock(&task_queue_mutex);
+        pthread_mutex_lock(&unstarted_task_list_mutex);
         /*
         ここに残りタスクが減ってきたときのコードを入れる
         残りタスク数を別変数で持ちたいけど持ったら連結キューにした意味がなくなるんだよなぁ……
         完了済みタスクキューに追加したシグナルで未着手タスクキューが空かどうかチェックすればいいのでは！？
         完了済みタスクキューのシグナルを受け取って未着手タスクキューの状況を確認するってどのmutex取ればいいんですかね？
         */
-        pthread_mutex_unlock(&task_queue_mutex);
+        pthread_mutex_unlock(&unstarted_task_list_mutex);
     }
 #endif
     bs_free(&searchSieve);
@@ -152,13 +155,14 @@ void *consume_prime_candidate(void *arg)
 
     while (threadpool_live)
     {
-        task = task_dequeue();
+        task = unstarted_task_dequeue();
         offset = task->offset;
         index = task->index;
         unused_area_enqueue(task);
 
         mpz_add_ui(candidate, base, offset);
-        printf("(%2d)      0, %6zu, %7d:start\n", tid, index, offset);
+        // 割と邪魔だな
+        //printf("(%2d)      0, %6zu, %7d:start\n", tid, index, offset);
         start = time(NULL);
         answer = mpz_probab_prime_p(candidate, DEFAULT_CERTAINTY);
         finish = time(NULL);
@@ -177,18 +181,11 @@ void *consume_prime_candidate(void *arg)
 
 #define CONSUMER_THREAD_NUM 12
 
-/**
- * @brief 完了済みタスクキューのゴミ掃除係
- * 
- * @param argc 
- * @param argv 
- * @return int 
- */
-int main(int argc, char *argv[])
+int init_base(char *basefilepath)
 {
     mpz_init(base);
     init_queue(QUEUE_SIZE);
-    FILE *fin = fopen("524288bit-7d7a92f9-0a35-4cb2-bc1f-fd0e43486e61-initialValue.txt", "r");
+    FILE *fin = fopen(basefilepath, "r");
     if (fin == NULL)
     {
         mpz_clear(base);
@@ -198,12 +195,46 @@ int main(int argc, char *argv[])
     mpz_inp_str(base, fin, 16);
     fclose(fin);
     fin = NULL;
+    return EXIT_SUCCESS;
+}
+
+/**
+ * @brief スレッド起動
+ * 完了済みタスクキューのゴミ掃除係
+ * prime8 初期値ファイル <offset>
+ * コマンドライン引数のオプションの実装ってどうやるんや？
+ * --threadとか-tとか
+ * --help
+ * --version
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
+int main(int argc, char *argv[])
+{
+    char *basefile = (argc >= 2) ? argv[1] : NULL;
+    if (basefile == NULL)
+    {
+        fprintf(stderr, "basefileは必須です。\n");
+        fprintf(stderr, "%s [初期値ファイル] <offset>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+    if (init_base(basefile) != EXIT_SUCCESS)
+    {
+        return EXIT_FAILURE;
+    }
 
     pthread_t producer_thread;
     pthread_t consumer_threads[CONSUMER_THREAD_NUM];
     int tids[CONSUMER_THREAD_NUM];
 
-    pthread_create(&producer_thread, NULL, produce_prime_candidate, NULL);
+    size_t min_offset = 0;
+    if (argc >= 3)
+    {
+        min_offset = (size_t)strtoul(argv[2], NULL, 10);
+    }
+
+    pthread_create(&producer_thread, NULL, produce_prime_candidate, &min_offset);
     for (int i = 0; i < CONSUMER_THREAD_NUM; i++)
     {
         tids[i] = i;

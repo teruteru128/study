@@ -13,3 +13,4 @@ src/printBench.c
 src/sntpc.c
 src/study.c
 src/teamspeakcalc.c
+src/prime8.c
