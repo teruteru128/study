@@ -565,3 +565,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+## Vim-LSP + ccls
+.cache/
+.ccls-cache/
