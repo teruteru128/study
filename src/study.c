@@ -6,8 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <time.h>
-#include <sys/timerfd.h>
+#include <charset-convert.h>
 
 /**
  * 
@@ -70,12 +69,19 @@
  */
 int main(int argc, char *argv[])
 {
-  time_t t = time(NULL);
-  struct tm tm;
-  localtime_r(&t, &tm);
-  char buf[BUFSIZ] = "";
-  // 2021-04-04T02:11:46+09:00
-  strftime(buf, BUFSIZ, "%FT%T%z", &tm);
-  printf("%s\n", buf);
+  char str[] = "デスクトップ";
+  for (size_t i = 0; str[i] != '\0'; i++)
+  {
+    fprintf(stdout, "\\%03o", str[i] & 0xff);
+  }
+  fputs("\n", stdout);
+  char *a;
+  encode_utf8_2_sjis(&a, str);
+  for (size_t i = 0; a[i] != '\0'; i++)
+  {
+    fprintf(stdout, "\\%03o", a[i] & 0xff);
+  }
+  fputs("\n", stdout);
+  free(a);
   return EXIT_SUCCESS;
 }
