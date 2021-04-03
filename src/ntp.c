@@ -116,9 +116,8 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
       perror("localtime");
       exit(EXIT_FAILURE);
     }
-    char buf[BUFSIZ];
-    memset(buf, 0, BUFSIZ);
-    strftime(buf, BUFSIZ, "%Ex%EX", &machine_tm);
+    char buf[BUFSIZ] = "";
+    strftime(buf, BUFSIZ, "%Ex %EX", &machine_tm);
     fprintf(out, "Local time : %s\n", buf);
     //fprintf(out, _("Local time : %s"), ctime_r(&machine_time, buf));
     memset(buf, 0, BUFSIZ);
