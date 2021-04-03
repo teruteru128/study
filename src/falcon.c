@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <random.h>
 #include <xorshift.h>
 
@@ -14,21 +15,20 @@
 
 uint32_t seed = 0;
 
-void shuffle(void **array, size_t size)
+static void shuffle(char (*array)[4], size_t size)
 {
-  void *t = NULL;
-  for (int i = 0; i < size; i++)
+  char w[4] = "";
+  for (size_t i = 0; i < size; i++)
   {
-    int j = (seed = xorshift(seed)) % size;
-    t = array[i];
-    array[i] = array[j];
-    array[j] = t;
+    size_t j = (seed = xorshift(seed)) % size;
+    memcpy(w, array[i], 3);
+    memcpy(array[i], array[j], 3);
+    memcpy(array[j], w, 3);
   }
 }
 
 int main(int argc, char **argv)
 {
-  int len = 4;
   // /dev/urandom から8192バイトも読み込むことないよね？
   if (read_file(URANDOM_PATH, &seed, sizeof(uint32_t), 1) != 0)
   {
@@ -36,19 +36,17 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
-  char *messages[] = {
-      "フ", "ァ", "ル", "コ", "ン", "・", "パ", "ン", "チ",
-      NULL};
+  char messages[][4] = {"フ", "ァ", "ル", "コ", "ン", "・", "パ", "ン", "チ", ""};
   size_t messages_size = 0;
-  char **tmp = messages;
-  for (; *tmp++ != NULL; messages_size++)
+  while (messages[messages_size][0] != '\0')
   {
+    messages_size++;
   }
   size_t i = 0;
   size_t j = 0;
   for (; j < MAX; j++)
   {
-    shuffle((void **)messages, messages_size);
+    shuffle(messages, messages_size);
     for (i = 0; i < messages_size; i++)
     {
       fputs(messages[i], stdout);
