@@ -71,6 +71,7 @@ bin_PROGRAMS= \
 	prime8 \
 	prime9 \
 	prime10 \
+	prime11 \
 	primesearch \
 	printBench \
 	printinttest \
