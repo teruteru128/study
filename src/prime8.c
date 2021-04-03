@@ -101,7 +101,8 @@ void *produce_prime_candidate(void *arg)
             offset += 2;
         }
     }
-    printf(ngettext("%zu prime candidate have been skipped.\n", "%zu prime candidates have been skipped.\n", skiped_num), skiped_num);
+    printf(ngettext("One prime number candidate was found.\n", "%zu prime number candidates were found.\n", task_index), task_index);
+    printf(ngettext("One prime number candidate have been skipped.\n", "%zu prime number candidates have been skipped.\n", skiped_num), skiped_num);
 
 #if 0
     while(threadpool_live)
@@ -118,6 +119,23 @@ void *produce_prime_candidate(void *arg)
 #endif
     bs_free(&searchSieve);
     return NULL;
+}
+
+#define TIME_FORMAT_BUFFER_SIZE 64
+
+struct timespec *difftimespec(struct timespec *result, struct timespec *time1, struct timespec *time0)
+{
+    if ((time1->tv_nsec - time0->tv_nsec) < 0)
+    {
+        result->tv_sec = time1->tv_sec - time0->tv_sec - 1;
+        result->tv_nsec = time1->tv_nsec - time0->tv_nsec + 1000000000;
+    }
+    else
+    {
+        result->tv_sec = time1->tv_sec - time0->tv_sec;
+        result->tv_nsec = time1->tv_nsec - time0->tv_nsec;
+    }
+    return result;
 }
 
 /**
@@ -151,8 +169,12 @@ void *consume_prime_candidate(void *arg)
     unsigned int offset = 0;
     size_t index = 0;
     int answer = 0;
-    time_t start = 0;
-    time_t finish = 0;
+    struct timespec start;
+    struct timespec finish;
+    struct timespec diff;
+    struct tm tm = {0};
+    char format[TIME_FORMAT_BUFFER_SIZE];
+    char formattedTime[TIME_FORMAT_BUFFER_SIZE];
 
     while (threadpool_live)
     {
@@ -164,13 +186,17 @@ void *consume_prime_candidate(void *arg)
         mpz_add_ui(candidate, base, offset);
         // 割と邪魔だな
         //printf("(%2d)      0, %6zu, %7d:start\n", tid, index, offset);
-        start = time(NULL);
+        clock_gettime(CLOCK_REALTIME, &start);
         answer = mpz_probab_prime_p(candidate, DEFAULT_CERTAINTY);
-        finish = time(NULL);
+        clock_gettime(CLOCK_REALTIME, &finish);
 
         // add_completed_task(offset, answer, index, tid, (time_t)difftime(finish, start));
 
-        printf("(%2d) %6ld, %6zu, %7d:%d\n", tid, (time_t)difftime(finish, start), index, offset, answer);
+        difftimespec(&diff, &finish, &start);
+        localtime_r(&finish.tv_sec, &tm);
+        strftime(format, TIME_FORMAT_BUFFER_SIZE, "%FT%T.%%09ld%z", &tm);
+        snprintf(formattedTime, TIME_FORMAT_BUFFER_SIZE, format, finish.tv_nsec);
+        printf("(%2d) %s, %6ld, %6zu, %7d:%d\n", tid, formattedTime, diff.tv_sec, index, offset, answer);
         if (answer == 1 || answer == 2)
         {
             threadpool_live = 0;
@@ -213,11 +239,14 @@ int init_base(char *basefilepath)
  */
 int main(int argc, char *argv[])
 {
+    setlocale(LC_ALL, "");
+    bindtextdomain(PACKAGE, LOCALEDIR);
+    textdomain(PACKAGE);
     char *basefile = (argc >= 2) ? argv[1] : NULL;
     if (basefile == NULL)
     {
         fprintf(stderr, "basefileは必須です。\n");
-        fprintf(stderr, "%s [初期値ファイル] <offset>\n", argv[0]);
+        fprintf(stderr, "%s [初期値ファイル] <offset to skip> <thread num>\n", argv[0]);
         return EXIT_FAILURE;
     }
     if (init_base(basefile) != EXIT_SUCCESS)
