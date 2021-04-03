@@ -19,6 +19,10 @@
         "uuid.h": "c",
         "task_queue.h": "c",
         "gettext.h": "c",
-        "libintl.h": "c"
+        "libintl.h": "c",
+        "locale.h": "c",
+        "array": "c",
+        "initializer_list": "c",
+        "utility": "c"
     }
 }
