@@ -14,6 +14,7 @@
 #include "gettext.h"
 #define _(str) gettext(str)
 #include <locale.h>
+#include <sys/sysinfo.h>
 
 #include <gmp.h>
 
@@ -179,7 +180,7 @@ void *consume_prime_candidate(void *arg)
     return NULL;
 }
 
-#define CONSUMER_THREAD_NUM 12
+#define CONSUMER_THREAD_NUM 4
 
 int init_base(char *basefilepath)
 {
@@ -224,9 +225,39 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    const size_t threadNum = (argc >= 4) ? (size_t)strtoul(argv[3], NULL, 10) : CONSUMER_THREAD_NUM;
+
+    if (threadNum == 0)
+    {
+        fputs("0個のスレッドは指定することが出来ません。\n", stderr);
+        // fputs("0個のスレッドは許可されていません。\n", stderr);
+        mpz_clear(base);
+        return EXIT_FAILURE;
+    }
+    {
+        const long availableProcessors = sysconf(_SC_NPROCESSORS_ONLN);
+        if (availableProcessors >= 0 && threadNum > (size_t)availableProcessors)
+        {
+            fprintf(stderr, "利用可能なプロセッサ数より多くのスレッド数が指定されています。\n");
+        }
+    }
+
     pthread_t producer_thread;
-    pthread_t consumer_threads[CONSUMER_THREAD_NUM];
-    int tids[CONSUMER_THREAD_NUM];
+    pthread_t *consumer_threads = calloc(threadNum, sizeof(pthread_t));
+    if (consumer_threads == NULL)
+    {
+        perror("consumer_threads = calloc");
+        mpz_clear(base);
+        return EXIT_FAILURE;
+    }
+    int *tids = calloc(threadNum, sizeof(int));
+    if (tids == NULL)
+    {
+        perror("tids = calloc");
+        free(consumer_threads);
+        mpz_clear(base);
+        return EXIT_FAILURE;
+    }
 
     size_t min_offset = 0;
     if (argc >= 3)
@@ -235,9 +266,9 @@ int main(int argc, char *argv[])
     }
 
     pthread_create(&producer_thread, NULL, produce_prime_candidate, &min_offset);
-    for (int i = 0; i < CONSUMER_THREAD_NUM; i++)
+    for (size_t i = 0; i < threadNum; i++)
     {
-        tids[i] = i;
+        tids[i] = (int)i;
         pthread_create(&consumer_threads[i], NULL, consume_prime_candidate, tids + i);
     }
     pthread_join(producer_thread, NULL);
@@ -255,11 +286,13 @@ int main(int argc, char *argv[])
         unused_area_enqueue(task);
     }
 #endif
-    for (int i = 0; i < CONSUMER_THREAD_NUM; i++)
+    for (size_t i = 0; i < threadNum; i++)
     {
         pthread_join(consumer_threads[i], NULL);
     }
     mpz_clear(base);
+    free(consumer_threads);
+    free(tids);
 
     free_queue();
 
