@@ -70,11 +70,12 @@
  */
 int main(int argc, char *argv[])
 {
-  // 現在時刻を取得する
-  // 現在時刻とその日の3時34分を比較する
-  // 現在時刻>=3時34分なら1日進める
-  // 
-  int timerfd = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
-  close(timerfd);
+  time_t t = time(NULL);
+  struct tm tm;
+  localtime_r(&t, &tm);
+  char buf[BUFSIZ] = "";
+  // 2021-04-04T02:11:46+09:00
+  strftime(buf, BUFSIZ, "%FT%T%z", &tm);
+  printf("%s\n", buf);
   return EXIT_SUCCESS;
 }
