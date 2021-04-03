@@ -73,11 +73,16 @@ static void bs_smallSieve_Constract(void)
      * このふるいの長さはJavaで実装されているものをそのまま流用しているため、最適化するには独自に実験して選択する必要があります。
      * 対象のbit lengthが非常に長い場合、smallSieveの長さを大きくしても良いのかも？
      */
+    // smallSieve.length = 1 * 64; // 9600
     // smallSieve.length = 150 * 64; // 9600
     // smallSieve.length = 500 * 64; // 32000
     // smallSieve.length = 512 * 64; // 32768
     // smallSieve.length = 780 * 64; // 49920
-    smallSieve.length = 1024 * 64; // 65536
+    // smallSieve.length = 1024 * 64; // 65536
+    // smallSieve.length = 6554 * 64; //
+    // smallSieve.length = 8192 * 64; // 524288
+    // smallSieve.length = 65536 * 64; // 4,194,304
+    smallSieve.length = 1048576 * 64; // 67,108,864
     smallSieve.bits_length = unitIndex(smallSieve.length - 1) + 1;
     smallSieve.bits = calloc(smallSieve.bits_length, sizeof(unsigned long));
 
