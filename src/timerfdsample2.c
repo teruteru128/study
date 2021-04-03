@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <inttypes.h>
 
+#define TIME_FORMAT_BUFFER_SIZE 64
+
 /**
  * @brief eventfd sample.
  * 
@@ -75,8 +77,8 @@ int main(int argc, char *argv[])
     uint64_t tot_exp = 0;
     size_t r = 0;
     struct tm tm;
-    char buf1[64];
-    char buf2[64];
+    char format[TIME_FORMAT_BUFFER_SIZE];
+    char formattedTime[TIME_FORMAT_BUFFER_SIZE];
     while (tot_exp < max_exp)
     {
         // recvで読み込むと失敗を返す
@@ -92,10 +94,10 @@ int main(int argc, char *argv[])
             break;
         }
         localtime_r(&cur.tv_sec, &tm);
-        strftime(buf1, 64, "%FT%T.%%09ld%z", &tm);
-        snprintf(buf2, 64, buf1, cur.tv_nsec);
+        strftime(format, TIME_FORMAT_BUFFER_SIZE, "%FT%T.%%09ld%z", &tm);
+        snprintf(formattedTime, TIME_FORMAT_BUFFER_SIZE, format, cur.tv_nsec);
         tot_exp += exp[0] + exp[1];
-        printf("%s, read : %" PRId64 ", %" PRId64 " , total : %" PRIu64 "\n", buf2, exp[0], exp[1], tot_exp);
+        printf("%s, read : %" PRId64 ", %" PRId64 " , total : %" PRIu64 "\n", formattedTime, exp[0], exp[1], tot_exp);
     }
 
     fclose(timerf);
