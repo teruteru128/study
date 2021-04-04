@@ -15,6 +15,28 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#define CONST_E 65537
+#define BUFFERSIZE 65537
+
+/*
+RSA *buildRSA()
+{
+  return NULL;
+}
+
+int readHexBN(BIGNUM *a, char *filename)
+{
+  return EXIT_FAILURE;
+}
+*/
+
+/**
+ * @brief 
+ * TODO: --enable-validate
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char *argv[])
 {
   setlocale(LC_ALL, "");
@@ -32,12 +54,7 @@ int main(int argc, char *argv[])
   }
   char *infile1 = argv[1];
   char *infile2 = argv[2];
-  uuid_t uuid;
-  char uuidstr[UUID_STR_LEN];
-  uuid_generate_random(uuid);
-  uuid_unparse_lower(uuid, uuidstr);
-  BN_CTX *ctx = NULL;
-  ctx = BN_CTX_new();
+  BN_CTX *ctx = BN_CTX_new();
   if (ctx == NULL)
   {
     perror("BN_CTX_new");
@@ -51,7 +68,7 @@ int main(int argc, char *argv[])
     perror("BN_new");
     goto err;
   }
-  if (!BN_set_word(e, 65537))
+  if (!BN_set_word(e, CONST_E))
   {
     perror("BN_set_word");
     goto err;
@@ -65,21 +82,22 @@ int main(int argc, char *argv[])
   }
 
   {
-    FILE *in = NULL;
-    int size = 0;
-    char buf[65537];
-    char *trash;
-    in = fopen(infile1, "r");
+    FILE *in = fopen(infile1, "r");
     if (in == NULL)
     {
       perror("fopen");
       goto err;
     }
-    trash = fgets(buf, 65537, in);
+    char buf[BUFFERSIZE];
+    char *trash = fgets(buf, BUFFERSIZE, in);
+    if (trash == NULL)
+    {
+      return EXIT_FAILURE;
+    }
     fclose(in);
     if (BN_hex2bn(&p, buf) == 0)
     {
-      perror("");
+      perror("a");
     }
     printf("p : %dbits\n", BN_num_bits(p));
 
@@ -89,14 +107,14 @@ int main(int argc, char *argv[])
       perror("fopen");
       goto err;
     }
-    trash = fgets(buf, 65537, in);
+    trash = fgets(buf, BUFFERSIZE, in);
     fclose(in);
     if (BN_hex2bn(&q, buf) == 0)
     {
       perror("");
     }
     printf("q : %dbits\n", BN_num_bits(q));
-    memset(buf, 0, 65537);
+    memset(buf, 0, BUFFERSIZE);
   }
   if (BN_cmp(p, q) < 0)
   {
@@ -109,14 +127,15 @@ int main(int argc, char *argv[])
   }
   BN_mul(n, p, q, ctx);
   // 計算
+  // p - 1
   if (!BN_sub(r1, p, BN_value_one()))
   {
     goto err;
   }
-  /* q - 1 */
+  // q - 1
   if (!BN_sub(r2, q, BN_value_one()))
     goto err;
-  /* (p - 1)(q - 1) */
+  // (p - 1)(q - 1)
   if (!BN_mul(r0, r1, r2, ctx))
     goto err;
   {
@@ -136,7 +155,7 @@ int main(int argc, char *argv[])
     BN_free(pr0);
   }
   {
-    BIGNUM *dtmp = BN_new();
+    BIGNUM *dtmp = BN_secure_new();
 
     if (d == NULL)
       goto err;
@@ -155,7 +174,7 @@ int main(int argc, char *argv[])
   }
 
   {
-    BIGNUM *ptmp = BN_new();
+    BIGNUM *ptmp = BN_secure_new();
 
     if (p == NULL)
       goto err;
@@ -171,13 +190,13 @@ int main(int argc, char *argv[])
     /* We MUST free p before any further use of rsa->p */
     BN_free(ptmp);
   }
+  printf("bit size: %d\n", BN_num_bits(n));
   RSA *rsa = RSA_new();
   if (rsa == NULL)
   {
     perror("RSA_new");
     goto err;
   }
-  printf("bit size: %d\n", BN_num_bits(n));
   RSA_set0_key(rsa, n, e, d);
   RSA_set0_factors(rsa, p, q);
   RSA_set0_crt_params(rsa, dmp, dmq, iqmp);
@@ -202,8 +221,13 @@ int main(int argc, char *argv[])
 #endif
   // ファイル書き出し
 
-  char outfile[PATH_MAX];
-  snprintf(outfile, PATH_MAX, "%dbit-%s-priv.pem", BN_num_bits(n), uuidstr);
+  uuid_t uuid;
+  char uuidstr[UUID_STR_LEN];
+  uuid_generate_random(uuid);
+  uuid_unparse_lower(uuid, uuidstr);
+  int bitLength = BN_num_bits(n);
+  char outfile[FILENAME_MAX];
+  snprintf(outfile, FILENAME_MAX, "%dbit-%s-priv.pem", bitLength, uuidstr);
   BIO *bio = BIO_new_file(outfile, "w");
   if (bio == NULL)
   {
@@ -217,6 +241,7 @@ int main(int argc, char *argv[])
   BIO_flush(bio);
   BIO_free(bio);
   ret = EXIT_SUCCESS;
+  RSA_free(rsa);
 err:
   BN_CTX_end(ctx);
   BN_CTX_free(ctx);
@@ -230,6 +255,5 @@ err:
   BN_free(dmq);
   BN_free(iqmp);
 #endif
-  RSA_free(rsa);
   return ret;
 }
