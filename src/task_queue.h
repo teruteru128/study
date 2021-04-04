@@ -12,7 +12,7 @@ struct task
     int tid;
     int padding;
     size_t index;
-    time_t timediff;
+    struct timespec diff;
     struct task *next;
     struct task *prev;
 };
@@ -43,7 +43,7 @@ struct task *unstarted_task_dequeue();
 unsigned int pop_unstarted_task();
 
 int completed_task_enqueue(struct task *task);
-int add_completed_task(unsigned int offset, int answer, size_t index, const int tid, time_t timediff);
+int add_completed_task(unsigned int offset, int answer, size_t index, const int tid, struct timespec *timediff);
 struct task *completed_task_dequeue();
 
 // 初期化/破棄

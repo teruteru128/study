@@ -199,11 +199,13 @@ void *consume_prime_candidate(void *arg)
         printf("(%2d) %s, %6ld, %6zu, %7d:%d\n", tid, formattedTime, diff.tv_sec, index, offset, answer);
         if (answer == 1 || answer == 2)
         {
+            task = unused_area_dequeue();
+            task->offset = offset;
             threadpool_live = 0;
         }
     }
     mpz_clear(candidate);
-    return NULL;
+    return task;
 }
 
 #define CONSUMER_THREAD_NUM 4
@@ -225,23 +227,23 @@ int init_base(char *basefilepath)
     return EXIT_SUCCESS;
 }
 
-/**
- * @brief スレッド起動
- * 完了済みタスクキューのゴミ掃除係
- * prime8 初期値ファイル <offset>
- * コマンドライン引数のオプションの実装ってどうやるんや？
- * --threadとか-tとか
- * --help
- * --version
- * @param argc 
- * @param argv 
- * @return int 
- */
-int main(int argc, char *argv[])
+void initGettext()
 {
     setlocale(LC_ALL, "");
     bindtextdomain(PACKAGE, LOCALEDIR);
     textdomain(PACKAGE);
+}
+
+/**
+ * @brief 
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
+int searchPrime_main(int argc, char *argv[])
+{
+    initGettext();
     char *basefile = (argc >= 2) ? argv[1] : NULL;
     if (basefile == NULL)
     {
@@ -315,9 +317,16 @@ int main(int argc, char *argv[])
         unused_area_enqueue(task);
     }
 #endif
+    struct task *task = NULL;
     for (size_t i = 0; i < threadNum; i++)
     {
-        pthread_join(consumer_threads[i], NULL);
+        pthread_join(consumer_threads[i], (void **)&task);
+        if (task != NULL)
+        {
+            printf("prime found! offset:%u\n", task->offset);
+            //export_found_prime(task->offset);
+            unused_area_enqueue(task);
+        }
     }
     mpz_clear(base);
     free(consumer_threads);
@@ -326,4 +335,21 @@ int main(int argc, char *argv[])
     free_queue();
 
     return EXIT_SUCCESS;
+}
+
+/**
+ * @brief スレッド起動
+ * 完了済みタスクキューのゴミ掃除係
+ * prime8 初期値ファイル <offset>
+ * コマンドライン引数のオプションの実装ってどうやるんや？
+ * --threadとか-tとか
+ * --help
+ * --version
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
+int main(int argc, char *argv[])
+{
+    return searchPrime_main(argc, argv);
 }

@@ -159,7 +159,8 @@ void unused_area_enqueue(struct task *task)
     task->tid = 0;
     task->padding = 0;
     task->index = 0;
-    task->timediff = 0;
+    task->diff.tv_sec = 0;
+    task->diff.tv_nsec = 0;
     pthread_mutex_lock(&unused_area_list_mutex);
     if (unused_area_list_head == NULL)
     {
@@ -217,7 +218,8 @@ int add_unstarted_task(unsigned int offset, size_t index)
     task->tid = 0;
     task->padding = 0;
     task->index = index;
-    task->timediff = 0;
+    task->diff.tv_sec = 0;
+    task->diff.tv_nsec = 0;
     task->next = NULL;
     //タスクキューに追加
     unstarted_task_enqueue(task);
@@ -317,14 +319,15 @@ int completed_task_enqueue(struct task *task)
  * @param timediff 
  * @return int 
  */
-int add_completed_task(unsigned int offset, int answer, size_t index, const int tid, time_t timediff)
+int add_completed_task(unsigned int offset, int answer, size_t index, const int tid, struct timespec *diff)
 {
     struct task *task = unused_area_dequeue();
     task->offset = offset;
     task->answer = answer;
     task->tid = tid;
     task->index = index;
-    task->timediff = timediff;
+    task->diff.tv_sec = diff->tv_sec;
+    task->diff.tv_nsec = diff->tv_nsec;
     completed_task_enqueue(task);
     return 0;
 }
