@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2021-03-25 01:36+0900\n"
+"POT-Creation-Date: 2021-04-04 21:30+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -43,12 +43,12 @@ msgstr "1秒あたり %.1f回\n"
 msgid "%.12f seconds per time\n"
 msgstr "1回あたり %.12f秒\n"
 
-#: src/encodersa.c:103
+#: src/encodersa.c:121
 #, c-format
 msgid "q is larger\n"
 msgstr "qのほうが大きい\n"
 
-#: src/encodersa.c:108
+#: src/encodersa.c:126
 #, c-format
 msgid "p is larger\n"
 msgstr "pのほうが大きい\n"
@@ -68,7 +68,7 @@ msgstr "%dマイクロ秒停止します。\n"
 msgid "%dmicro seconds stoped.\n"
 msgstr "%dマイクロ秒停止しました。\n"
 
-#: src/ntp.c:125
+#: src/ntp.c:124
 #, c-format
 msgid "NTP server time : %s"
 msgstr "NTPサーバ時刻 : %s"
@@ -93,10 +93,16 @@ msgstr "1回あたり %e秒\n"
 msgid "verifier : %<PRIu64>\n"
 msgstr "検証子 : %<PRIu64>\n"
 
-#: src/prime8.c:103
+#: src/prime8.c:104
 #, c-format
-msgid "%zu prime candidate have been skipped.\n"
-msgid_plural "%zu prime candidates have been skipped.\n"
+msgid "One prime number candidate was found.\n"
+msgid_plural "%zu prime number candidates were found.\n"
+msgstr[0] "%zu個の素数候補が見つかりました。\n"
+
+#: src/prime8.c:105
+#, fuzzy, c-format
+msgid "One prime number candidate have been skipped.\n"
+msgid_plural "%zu prime number candidates have been skipped.\n"
 msgstr[0] "%zu個の素数候補がスキップされました。\n"
 
 #~ msgid "Local time : %s"

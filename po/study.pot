@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.1\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2021-03-25 01:36+0900\n"
+"POT-Creation-Date: 2021-04-04 21:30+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,12 +43,12 @@ msgstr ""
 msgid "%.12f seconds per time\n"
 msgstr ""
 
-#: src/encodersa.c:103
+#: src/encodersa.c:121
 #, c-format
 msgid "q is larger\n"
 msgstr ""
 
-#: src/encodersa.c:108
+#: src/encodersa.c:126
 #, c-format
 msgid "p is larger\n"
 msgstr ""
@@ -68,7 +68,7 @@ msgstr ""
 msgid "%dmicro seconds stoped.\n"
 msgstr ""
 
-#: src/ntp.c:125
+#: src/ntp.c:124
 #, c-format
 msgid "NTP server time : %s"
 msgstr ""
@@ -93,9 +93,16 @@ msgstr ""
 msgid "verifier : %<PRIu64>\n"
 msgstr ""
 
-#: src/prime8.c:103
+#: src/prime8.c:104
 #, c-format
-msgid "%zu prime candidate have been skipped.\n"
-msgid_plural "%zu prime candidates have been skipped.\n"
+msgid "One prime number candidate was found.\n"
+msgid_plural "%zu prime number candidates were found.\n"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/prime8.c:105
+#, c-format
+msgid "One prime number candidate have been skipped.\n"
+msgid_plural "%zu prime number candidates have been skipped.\n"
 msgstr[0] ""
 msgstr[1] ""
