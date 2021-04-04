@@ -10,7 +10,12 @@
 
 int main(int argc, char *argv[])
 {
-    FILE *fin1 = fopen("262144bit-prime1.txt", "r");
+    if (argc < 2)
+    {
+        fprintf(stderr, "%s [a]\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+    FILE *fin1 = fopen(argv[1], "r");
     if (fin1 == NULL)
     {
         if (fin1 != NULL)
