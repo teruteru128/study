@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <charset-convert.h>
 
 /**
@@ -70,18 +71,20 @@
 int main(int argc, char *argv[])
 {
   char str[] = "デスクトップ";
-  for (size_t i = 0; str[i] != '\0'; i++)
+  const size_t l1 = strlen(str);
+  for (size_t i = 0; i < l1; i++)
   {
     fprintf(stdout, "\\%03o", str[i] & 0xff);
   }
   fputs("\n", stdout);
-  char *a;
-  encode_utf8_2_sjis(&a, str);
-  for (size_t i = 0; a[i] != '\0'; i++)
+  char *sjis = NULL;
+  encode_utf8_2_sjis(&sjis, str);
+  const size_t l2 = strlen(sjis);
+  for (size_t i = 0; i < l2; i++)
   {
-    fprintf(stdout, "\\%03o", a[i] & 0xff);
+    fprintf(stdout, "\\%03o", sjis[i] & 0xff);
   }
   fputs("\n", stdout);
-  free(a);
+  free(sjis);
   return EXIT_SUCCESS;
 }
