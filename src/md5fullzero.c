@@ -7,25 +7,28 @@
 #include <openssl/evp.h>
 #include <openssl/md5.h>
 #include <printint.h>
+#include <nlz.h>
 
 #ifndef THREAD_NUM
 #define THREAD_NUM 12
 #endif
 
-static size_t counter;
-static pthread_mutex_t mutex;
-
-// 極稀にしか更新しないから大丈夫、多分
-static size_t j;
-static pthread_mutex_t mutex_j;
+struct globalConfig
+{
+  size_t counter;
+  pthread_mutex_t mutex;
+  size_t require_nlz;
+  pthread_rwlock_t require_nlz_rwlock;
+};
 
 #if 0
 // 比較基準、null byteで初期化した後は書き込みをしないので共通化
-static unsigned char target[16] = "";
+static const unsigned char target[16] = "";
 #endif
 
 void *hash(void *arg)
 {
+  struct globalConfig *config = (struct globalConfig *)arg;
   const EVP_MD *md5 = EVP_md5();
   EVP_MD_CTX *ctx = EVP_MD_CTX_new();
   char str[24] = "";
@@ -34,12 +37,14 @@ void *hash(void *arg)
   size_t cnt = 0;
   size_t cnt_max = 0;
   size_t nlz;
-  for (; j < 16;)
+  pthread_rwlock_rdlock(&config->require_nlz_rwlock);
+  for (; config->require_nlz < 16;)
   {
-    pthread_mutex_lock(&mutex);
-    cnt = counter;
-    counter += 1048576;
-    pthread_mutex_unlock(&mutex);
+    pthread_rwlock_unlock(&config->require_nlz_rwlock);
+    pthread_mutex_lock(&config->mutex);
+    cnt = config->counter;
+    config->counter += 1048576;
+    pthread_mutex_unlock(&config->mutex);
     cnt_max = cnt + 1048576;
     for (; cnt < cnt_max; cnt++)
     {
@@ -62,24 +67,25 @@ void *hash(void *arg)
         continue;
 #endif
 #if 0
-      if (memcmp(buf, target, j))
+      if (memcmp(buf, target, require_nlz))
         continue;
 #endif
-      for (nlz = 4; !buf[nlz] && nlz < 16; nlz++)
-        ;
-      if (nlz < j)
+      nlz = getNLZ(buf, 16);
+      if (nlz < config->require_nlz)
         continue;
       fprintf(stdout, "found : %zu, ", cnt);
       for (size_t k = 0; k < 16; k++)
         fprintf(stdout, "%02x", buf[k]);
       fputs("\n", stdout);
-      pthread_mutex_lock(&mutex_j);
-      if (nlz > j)
-        j = nlz;
-      pthread_mutex_unlock(&mutex_j);
+      pthread_rwlock_wrlock(&config->require_nlz_rwlock);
+      if (nlz > config->require_nlz)
+        config->require_nlz = nlz;
+      pthread_rwlock_unlock(&config->require_nlz_rwlock);
     }
     //printf("section finished : %zu\n", cnt);
+    pthread_rwlock_rdlock(&config->require_nlz_rwlock);
   }
+  pthread_rwlock_unlock(&config->require_nlz_rwlock);
   EVP_MD_CTX_free(ctx);
   return NULL;
 }
@@ -88,11 +94,8 @@ int main(int argc, char **argv)
 {
   pthread_t thread[THREAD_NUM];
 
-  counter = 776869784885228UL;
-  j = 5;
+  struct globalConfig counter = {776869784885228UL, PTHREAD_MUTEX_INITIALIZER, 5, PTHREAD_RWLOCK_INITIALIZER};
 
-  pthread_mutex_init(&mutex, NULL);
-  pthread_mutex_init(&mutex_j, NULL);
   for (size_t i = 0; i < THREAD_NUM; i++)
   {
     pthread_create(&thread[i], NULL, hash, &counter);
@@ -101,8 +104,8 @@ int main(int argc, char **argv)
   {
     pthread_join(thread[i], NULL);
   }
-  pthread_mutex_destroy(&mutex);
-  pthread_mutex_destroy(&mutex_j);
+  pthread_mutex_destroy(&counter.mutex);
+  pthread_rwlock_destroy(&counter.require_nlz_rwlock);
 
   return EXIT_SUCCESS;
 }

@@ -1,0 +1,32 @@
+
+#ifndef QUEUE_H
+#define QUEUE_H
+
+#include <limits.h>
+#include <pthread.h>
+
+struct node;
+
+/* headとtailをvoid *型にしてstruct task型とstruct node型を分離したい */
+struct queue
+{
+    struct node *head;
+    struct node *tail;
+    size_t capacity;
+    size_t size;
+    pthread_mutex_t sizeLock;
+    pthread_mutex_t takeLock;
+    pthread_cond_t notEmpty;
+    pthread_mutex_t putLock;
+    pthread_cond_t notFull;
+};
+
+#define QUEUE_INITIALIZER2(MAX) {NULL, NULL, MAX, 0, PTHREAD_MUTEX_INITIALIZER, PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER, PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER}
+#define QUEUE_INITIALIZER QUEUE_INITIALIZER2(INT_MAX)
+#define QUEUE_DECLARE(name) struct queue name = QUEUE_INITIALIZER
+#define QUEUE_DECLARE2(name, MAX) struct queue name = QUEUE_INITIALIZER2(MAX)
+
+void put(struct queue *list, void *node);
+void *take(struct queue *list);
+
+#endif

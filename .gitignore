@@ -150,6 +150,9 @@ tags
 *.aux
 *.dvi
 *.pdf
+*.gz
+*.fdb_latexmk
+*.fls
 TAGS
 publicKeys.bin
 

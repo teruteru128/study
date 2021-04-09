@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <minecraft.h>
 #include <time.h>
+#include "timeutil.h"
+#include <math.h>
 
 /* http://tdual.hatenablog.com/entry/2018/05/02/113110 */
 struct searchArea
@@ -66,8 +68,9 @@ void startMCSlimeChunkSearch()
   size_t bitindex = 0;
   struct timespec start;
   struct timespec end;
-  clock_gettime(CLOCK_REALTIME, &start);
+  struct timespec diff;
   int64_t ctx;
+  clock_gettime(CLOCK_REALTIME, &start);
   for (int32_t z = -625; z < 625; z++)
   {
     for (int32_t x = -625; x < 625; x++)
@@ -80,13 +83,7 @@ void startMCSlimeChunkSearch()
     }
   }
   clock_gettime(CLOCK_REALTIME, &end);
-  long nsec = end.tv_nsec - start.tv_nsec;
-  long sec = end.tv_sec - start.tv_sec;
-  if (nsec < 0)
-  {
-    sec -= 1;
-    nsec += 1000000000;
-  }
-  printf("%f\n", sec + (nsec / 1e9));
+  difftimespec(&diff, &end, &start);
+  printf("%f\n", fma(diff.tv_sec, 1e9, diff.tv_nsec)/1e9);
   free(set);
 }

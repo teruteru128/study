@@ -29,7 +29,7 @@ int codec_encode(char **out, const char *in)
   {
     for (j = 0; j < 8; j++)
     {
-      work[i * 8 + j] = '0' + ((in[i] >> j) & 0x01);
+      work[i * 8 + j] = (char)('0' + ((in[i] >> j) & 0x01));
     }
   }
   work[len * 8] = 0;
@@ -51,7 +51,7 @@ int codec_decode(char **out, char *in)
   size_t i = 0;
   for (i = 0; i < len; i++)
   {
-    work[i / 8] |= (in[i] & 0x01) << (i % 8);
+    work[i / 8] |= (char)((in[i] & 0x01) << (i % 8));
   }
   work[outlen] = 0;
   *out = work;

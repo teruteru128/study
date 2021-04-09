@@ -7,7 +7,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <charset-convert.h>
+#include <changebase.h>
+#include <gmp.h>
+#include <openssl/evp.h>
 
 /**
  * 
@@ -62,6 +64,8 @@
  * 
  * 複数スレッドをpthread_cond_tで止めてメインスレッドでtimerfdを使って指定時刻まで待ち、pthread_cond_broadcastで一斉に起動する
  * 
+ * ファイルからGMPのmpzに整数を読み込んだりOpenSSLのBIGNUMに整数を読み込んだり乱数を読み込んだりを共通化したい
+ * 
  * @brief sanbox func.
  * 
  * @param argc 
@@ -70,21 +74,20 @@
  */
 int main(int argc, char *argv[])
 {
-  char str[] = "デスクトップ";
-  const size_t l1 = strlen(str);
-  for (size_t i = 0; i < l1; i++)
+  char a[] = "解けばわかる";
+  const EVP_MD *md5 = EVP_md5();
+  EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+  EVP_DigestInit(ctx, md5);
+  EVP_DigestUpdate(ctx, a, strlen(a));
+  unsigned char buf[16];
+  unsigned int length = 0;
+  EVP_DigestFinal(ctx, buf, &length);
+  EVP_MD_CTX_free(ctx);
+  printf("%u\n", length);
+  for (size_t i = 0; i < length; i++)
   {
-    fprintf(stdout, "\\%03o", str[i] & 0xff);
+    printf("%02x", buf[i]);
   }
   fputs("\n", stdout);
-  char *sjis = NULL;
-  encode_utf8_2_sjis(&sjis, str);
-  const size_t l2 = strlen(sjis);
-  for (size_t i = 0; i < l2; i++)
-  {
-    fprintf(stdout, "\\%03o", sjis[i] & 0xff);
-  }
-  fputs("\n", stdout);
-  free(sjis);
   return EXIT_SUCCESS;
 }

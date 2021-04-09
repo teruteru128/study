@@ -14,7 +14,7 @@
 #include "gettext.h"
 #define _(str) gettext(str)
 #include <locale.h>
-#include <sys/sysinfo.h>
+#include "timeutil.h"
 
 #include <gmp.h>
 
@@ -123,20 +123,7 @@ void *produce_prime_candidate(void *arg)
 
 #define TIME_FORMAT_BUFFER_SIZE 64
 
-struct timespec *difftimespec(struct timespec *result, struct timespec *time1, struct timespec *time0)
-{
-    if ((time1->tv_nsec - time0->tv_nsec) < 0)
-    {
-        result->tv_sec = time1->tv_sec - time0->tv_sec - 1;
-        result->tv_nsec = time1->tv_nsec - time0->tv_nsec + 1000000000;
-    }
-    else
-    {
-        result->tv_sec = time1->tv_sec - time0->tv_sec;
-        result->tv_nsec = time1->tv_nsec - time0->tv_nsec;
-    }
-    return result;
-}
+pthread_barrier_t barrier;
 
 /**
  * @brief 素数候補をタスクキューから取り出して素数判定して完了済みタスクリストに結果を入れる
@@ -181,9 +168,10 @@ void *consume_prime_candidate(void *arg)
         task = unstarted_task_dequeue();
         offset = task->offset;
         index = task->index;
-        unused_area_enqueue(task);
+        free(task);
 
         mpz_add_ui(candidate, base, offset);
+        pthread_barrier_wait(&barrier);
         // 割と邪魔だな
         //printf("(%2d)      0, %6zu, %7d:start\n", tid, index, offset);
         clock_gettime(CLOCK_REALTIME, &start);
@@ -196,10 +184,10 @@ void *consume_prime_candidate(void *arg)
         localtime_r(&finish.tv_sec, &tm);
         strftime(format, TIME_FORMAT_BUFFER_SIZE, "%FT%T.%%09ld%z", &tm);
         snprintf(formattedTime, TIME_FORMAT_BUFFER_SIZE, format, finish.tv_nsec);
-        printf("(%2d) %s, %6ld, %6zu, %7d:%d\n", tid, formattedTime, diff.tv_sec, index, offset, answer);
+        printf("(%2d) %s, %6ld.%09ld, %6zu, %7d:%d\n", tid, formattedTime, diff.tv_sec, diff.tv_nsec, index, offset, answer);
         if (answer == 1 || answer == 2)
         {
-            task = unused_area_dequeue();
+            task = calloc(1, sizeof(struct task));
             task->offset = offset;
             threadpool_live = 0;
         }
@@ -213,7 +201,6 @@ void *consume_prime_candidate(void *arg)
 int init_base(char *basefilepath)
 {
     mpz_init(base);
-    init_queue(QUEUE_SIZE);
     FILE *fin = fopen(basefilepath, "r");
     if (fin == NULL)
     {
@@ -272,6 +259,7 @@ int searchPrime_main(int argc, char *argv[])
             fprintf(stderr, "利用可能なプロセッサ数より多くのスレッド数が指定されています。\n");
         }
     }
+    pthread_barrier_init(&barrier, NULL, (unsigned int)threadNum);
 
     pthread_t producer_thread;
     pthread_t *consumer_threads = calloc(threadNum, sizeof(pthread_t));
@@ -325,14 +313,12 @@ int searchPrime_main(int argc, char *argv[])
         {
             printf("prime found! offset:%u\n", task->offset);
             //export_found_prime(task->offset);
-            unused_area_enqueue(task);
+            free(task);
         }
     }
     mpz_clear(base);
     free(consumer_threads);
     free(tids);
-
-    free_queue();
 
     return EXIT_SUCCESS;
 }
@@ -345,6 +331,11 @@ int searchPrime_main(int argc, char *argv[])
  * --threadとか-tとか
  * --help
  * --version
+ * 524288bit-7d7a92f9-0a35-4cb2-bc1f-fd0e43486e61-initialValue.txt 78481
+ * (11) 2021-04-09T00:52:16.827287200+0900,   3363.858296900,   2332,   78481:0
+ * ( 8) 2021-04-09T06:57:20.838852200+0900,   3175.324085300,   2428,   82137:0
+ * 1スレッド, 1800s -> 1時間あたり2タスク
+ * 16スレッド, 3100s -> 1時間あたり18.6タスク
  * @param argc 
  * @param argv 
  * @return int 

@@ -75,6 +75,7 @@ bin_PROGRAMS= \
 	primesearch \
 	printBench \
 	printinttest \
+	randomcolor \
 	read_random \
 	repeated-trials \
 	rsa \
@@ -124,7 +125,7 @@ EXTRA_DIST=gettextsample.c
 studydatadir = $(datadir)/study
 
 # see https://www.gnu.org/software/automake/manual/html_node/Subpackages.html
-AM_CPPFLAGS=-Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wconversion -Wdisabled-optimization -Wendif-labels -Wfloat-equal -Winit-self -Winline -Wlogical-op -Wmissing-include-dirs -Wpacked -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wswitch-enum -Wunsafe-loop-optimizations -Wvariadic-macros -Wwrite-strings -I$(top_srcdir)/libstudy/include -DLOCALEDIR='"$(localedir)"' -DSTUDYDATADIR='"$(studydatadir)"'
+AM_CPPFLAGS=-Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wconversion -Wdisabled-optimization -Wendif-labels -Wfloat-equal -Winit-self -Winline -Wlogical-op -Wmissing-include-dirs -Wpacked -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wswitch-enum -Wunsafe-loop-optimizations -Wvariadic-macros -Wwrite-strings -I$(top_srcdir)/libstudy/include -DLOCALEDIR='"\"$(localedir)\""' -DSTUDYDATADIR='"\"$(studydatadir)\""'
 LIBSTUDYPATH=$(top_builddir)/libstudy/src/libstudy.la
 CoDec_LDADD=$(LIBSTUDYPATH)
 CoDec_SOURCES=CoDec.c CoDec.h
@@ -144,7 +145,7 @@ bmkeygen_LDADD=
 bmkeygen_SOURCES=bmkeygen.c
 bmkeysearch_CFLAGS=
 bmkeysearch_LDADD=$(LIBSTUDYPATH)
-bmkeysearch_SOURCES=bmkeysearch.c
+bmkeysearch_SOURCES=bmkeysearch.c queue.c queue.h
 bmspam_CFLAGS=`xmlrpc-c-config libwww-client --cflags`
 bmspam_LDADD=$(LIBSTUDYPATH)
 bmspam_LDFLAGS=`xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
@@ -161,7 +162,7 @@ dice_LDADD=
 dragon_LDADD=$(LIBSTUDYPATH)
 dragon_SOURCES=dragon.c
 eckeygentest_CFLAGS=
-eckeygentest_SOURCES=eckeygentest.c gettext.h
+eckeygentest_SOURCES=eckeygentest.c gettext.h timeutil.c timeutil.h
 encodersa_CFLAGS=
 encodersa_SOURCES=encodersa.c gettext.h
 falcon_LDADD=$(LIBSTUDYPATH)
@@ -195,11 +196,12 @@ prime2_SOURCES=prime2.c
 prime3_SOURCES=prime3.c
 prime6_SOURCES=prime6.c bitsieve.c bitsieve.h
 prime7_SOURCES=prime7.c bitsieve.c bitsieve.h
-prime8_SOURCES=prime8.c bitsieve.c bitsieve.h task_queue.c task_queue.h
+prime8_SOURCES=prime8.c bitsieve.c bitsieve.h task_queue.c task_queue.h queue.c queue.h timeutil.c timeutil.h
+#prime8_LDFLAGS=-static
 primesearch_SOURCES=primesearch.c
 printBench_CFLAGS=
 printBench_LDADD=$(LIBSTUDYPATH)
-printBench_SOURCES=printBench.c
+printBench_SOURCES=printBench.c timeutil.c timeutil.h
 printinttest_CFLAGS=
 printinttest_LDADD=$(LIBSTUDYPATH)
 printinttest_SOURCES=printinttest.c

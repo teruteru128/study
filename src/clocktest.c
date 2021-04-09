@@ -1,4 +1,10 @@
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 #define a(a)  \
@@ -8,7 +14,7 @@
 
 struct cid
 {
-    const char *name;
+    const char name[32];
     clockid_t id;
 };
 
@@ -16,7 +22,7 @@ void clocktest()
 {
     struct timespec res;
     struct timespec spec;
-    struct cid cid[] = {a(CLOCK_REALTIME),
+    static const struct cid cid[] = {a(CLOCK_REALTIME),
                         a(CLOCK_REALTIME_COARSE),
                         a(CLOCK_MONOTONIC),
                         a(CLOCK_MONOTONIC_COARSE),
@@ -24,11 +30,21 @@ void clocktest()
                         a(CLOCK_BOOTTIME),
                         a(CLOCK_PROCESS_CPUTIME_ID),
                         a(CLOCK_THREAD_CPUTIME_ID),
-                        {NULL, 0}};
-    for (size_t i = 0; cid[i].name != NULL; i++)
+                        a(CLOCK_REALTIME_ALARM),
+                        a(CLOCK_BOOTTIME_ALARM),
+                        // {"No.10, what is this?", 10},
+                        a(CLOCK_TAI),
+                        {"", 0}};
+    for (size_t i = 0; cid[i].name[0] != '\0'; i++)
     {
-        clock_getres(cid[i].id, &res);
-        clock_gettime(cid[i].id, &spec);
+        if (clock_getres(cid[i].id, &res) != 0)
+        {
+            perror("clock_getres");
+        }
+        if (clock_gettime(cid[i].id, &spec))
+        {
+            perror("clock_gettime");
+        }
         printf("%s : %ld.%09ld, %ld.%09ld\n", cid[i].name, res.tv_sec, res.tv_nsec, spec.tv_sec, spec.tv_nsec);
     }
 }

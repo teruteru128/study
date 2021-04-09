@@ -10,6 +10,7 @@
 #include <openssl/ec.h>
 #include <openssl/err.h>
 #include <openssl/objects.h>
+#include "timeutil.h"
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
@@ -43,6 +44,7 @@ int main(int argc, char **argv)
     int i = 0;
     struct timespec start;
     struct timespec end;
+    struct timespec d;
 
     clock_gettime(CLOCK_REALTIME, &start);
     for (; i < MAX; i++)
@@ -52,6 +54,7 @@ int main(int argc, char **argv)
         //r = EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, NULL, PUBLIC_KEY_LENGTH, ctx);
     }
     clock_gettime(CLOCK_REALTIME, &end);
+    difftimespec(&d, &end, &start);
     double diff = difftime(end.tv_sec, start.tv_sec);
     long ndiff = end.tv_nsec - start.tv_nsec;
     if (ndiff < 0)
@@ -59,9 +62,8 @@ int main(int argc, char **argv)
         ndiff += 1000000000;
         diff--;
     }
-    double passed = fma(diff, 1e9, (double)ndiff);
-    double seconds = passed / 1e9;
-    fprintf(stderr, _("It took %.8f seconds.\n"), seconds);
+    double seconds = fma((double)d.tv_sec, 1e9, (double)d.tv_nsec) / 1e9;
+    fprintf(stderr, _("It took %ld.%09ld seconds.\n"), d.tv_sec, d.tv_nsec);
     fprintf(stderr, _("%.1f times per second\n"), MAX / seconds);
     fprintf(stderr, _("%.12f seconds per time\n"), seconds / MAX);
     printf("%ld.%09ld\n", (long)diff, ndiff);

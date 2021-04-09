@@ -8,7 +8,7 @@
 
 int main(int argc, char const *argv[])
 {
-    /* code */
     printf("%p\n", (void *)__errno_location());
+    printf("%d\n", *__errno_location());
     return 0;
 }

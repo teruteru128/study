@@ -41,7 +41,6 @@ void *threadFunc(void *arg)
 int main(int argc, char *argv[])
 {
   pthread_attr_t attr;
-  pthread_t thread;
 
   pthread_attr_init(&attr);
 
@@ -58,6 +57,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  pthread_t thread;
   if (pthread_create(&thread, &attr, threadFunc, NULL) != 0)
   {
     perror("Error: Failed to create new thread.");

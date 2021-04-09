@@ -70,6 +70,22 @@
         "streambuf": "c",
         "cinttypes": "c",
         "cstdbool": "c",
-        "bit": "c"
+        "bit": "c",
+        "string.h": "c",
+        "stddef.h": "c",
+        "condition_variable": "c",
+        "mutex": "c",
+        "queue.h": "c",
+        "stdlib.h": "c",
+        "stdbool.h": "c",
+        "random.h": "c",
+        "fcntl.h": "c",
+        "features.h": "c",
+        "changebase.h": "c",
+        "unistd.h": "c",
+        "limits.h": "c",
+        "nlz.h": "c",
+        "bm.h": "c",
+        "timeutil.h": "c"
     }
 }

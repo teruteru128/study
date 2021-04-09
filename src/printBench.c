@@ -9,6 +9,8 @@
 #include <time.h>
 #include <limits.h>
 #include <printint.h>
+#include <math.h>
+#include "timeutil.h"
 
 #define BUF_SIZE 21
 #define LOOP_COUNT 100000000ULL
@@ -27,6 +29,7 @@ int main(int argc, char **argv)
     textdomain(PACKAGE);
     struct timespec start;
     struct timespec end;
+    struct timespec diff;
     clock_gettime(CLOCK_REALTIME, &start);
     for (i = 0; i < LOOP_COUNT; i++)
     {
@@ -35,10 +38,8 @@ int main(int argc, char **argv)
         //len = strlen(buf);
     }
     clock_gettime(CLOCK_REALTIME, &end);
-    time_t sec = end.tv_sec - start.tv_sec;
-    long nsec = end.tv_nsec - start.tv_nsec;
-    double passed = (sec * 1e9) + nsec;
-    double seconds = passed / 1e9;
+    difftimespec(&diff, &end, &start);
+    double seconds = fma((double)diff.tv_sec, 1e9, (double)diff.tv_nsec) / 1e9;
     fprintf(stderr, _("It took %g seconds.\n"), seconds);
     fprintf(stderr, _("%g times per second\n"), LOOP_COUNT / seconds);
     fprintf(stderr, _("%e seconds per time\n"), seconds / LOOP_COUNT);
