@@ -6,10 +6,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <string.h>
-#include <changebase.h>
-#include <gmp.h>
-#include <openssl/evp.h>
+#include <pthread.h>
+
+struct a
+{
+  int tid;
+  pthread_barrier_t *barrier;
+};
+
+void *function(void *arg)
+{
+  struct a *a = (struct a *)arg;
+  for (int i = 0; i < 16; i++)
+  {
+    printf("%d\n", a->tid);
+    pthread_barrier_wait(a->barrier);
+    sleep(1);
+  }
+  return NULL;
+}
+
+#define THREAD_NUM 8
 
 /**
  * 
@@ -74,20 +91,21 @@
  */
 int main(int argc, char *argv[])
 {
-  char a[] = "解けばわかる";
-  const EVP_MD *md5 = EVP_md5();
-  EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-  EVP_DigestInit(ctx, md5);
-  EVP_DigestUpdate(ctx, a, strlen(a));
-  unsigned char buf[16];
-  unsigned int length = 0;
-  EVP_DigestFinal(ctx, buf, &length);
-  EVP_MD_CTX_free(ctx);
-  printf("%u\n", length);
-  for (size_t i = 0; i < length; i++)
+  pthread_t threads[THREAD_NUM];
+  struct a a[THREAD_NUM];
+  pthread_barrier_t barrier;
+  pthread_barrier_init(&barrier, NULL, THREAD_NUM);
+
+  for (int i = 0; i < THREAD_NUM; i++)
   {
-    printf("%02x", buf[i]);
+    a[i].tid = i;
+    a[i].barrier = &barrier;
+    pthread_create(&threads[i], NULL, function, &a[i]);
   }
-  fputs("\n", stdout);
+  for (int i = 0; i < THREAD_NUM; i++)
+  {
+    pthread_join(threads[i], NULL);
+  }
+  pthread_barrier_destroy(&barrier);
   return EXIT_SUCCESS;
 }
