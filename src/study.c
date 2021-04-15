@@ -6,27 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <pthread.h>
-
-struct a
-{
-  int tid;
-  pthread_barrier_t *barrier;
-};
-
-void *function(void *arg)
-{
-  struct a *a = (struct a *)arg;
-  for (int i = 0; i < 16; i++)
-  {
-    printf("%d\n", a->tid);
-    pthread_barrier_wait(a->barrier);
-    sleep(1);
-  }
-  return NULL;
-}
-
-#define THREAD_NUM 8
+#include <time.h>
 
 /**
  * 
@@ -91,21 +71,15 @@ void *function(void *arg)
  */
 int main(int argc, char *argv[])
 {
-  pthread_t threads[THREAD_NUM];
-  struct a a[THREAD_NUM];
-  pthread_barrier_t barrier;
-  pthread_barrier_init(&barrier, NULL, THREAD_NUM);
-
-  for (int i = 0; i < THREAD_NUM; i++)
-  {
-    a[i].tid = i;
-    a[i].barrier = &barrier;
-    pthread_create(&threads[i], NULL, function, &a[i]);
-  }
-  for (int i = 0; i < THREAD_NUM; i++)
-  {
-    pthread_join(threads[i], NULL);
-  }
-  pthread_barrier_destroy(&barrier);
+  time_t a = time(NULL);
+  struct tm tm;
+  localtime_r(&a, &tm);
+  char b[32];
+  strftime(b, 32, "%FT%T%z", &tm);
+  printf("%s\n", b);
+  a = ((a + 1800 - 1) / 1800) * 1800;
+  localtime_r(&a, &tm);
+  strftime(b, 32, "%FT%T%z", &tm);
+  printf("%s\n", b);
   return EXIT_SUCCESS;
 }
