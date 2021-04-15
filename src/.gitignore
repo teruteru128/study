@@ -1,6 +1,7 @@
 CoDec
 FizzBuzz
 Nabeatsu
+TSIdentityTool
 ankokudan_decode
 argparsesample
 bcasttest
@@ -10,6 +11,7 @@ bmkeysearch
 bmkeygen
 bmspam
 bouyomi
+chainCookiesTest
 calc
 cl
 cp2peq
@@ -81,6 +83,7 @@ service-sample
 sha1rngsample
 signalsample
 signalsample2
+slimesearch
 sntpc
 stamp-h1
 strspntest
@@ -93,6 +96,8 @@ threadcount
 timerfdsample
 timerfdsample2
 timesample
+totp
+tsidbench
 tsidimprover
 tsidshowsample
 tweet

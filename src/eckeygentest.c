@@ -31,6 +31,7 @@ int main(int argc, char **argv)
     // curve 生成
     EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
     //const EC_POINT *g = EC_GROUP_get0_generator(secp256k1);
+    //const EC_METHOD *secp256r1 = EC_GFp_nistp256_method();
     EC_POINT *pubkey = EC_POINT_new(secp256k1);
     BN_CTX *ctx = BN_CTX_new();
     BN_CTX_start(ctx);

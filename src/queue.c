@@ -1,4 +1,14 @@
 
+/**
+ * @file queue.c
+ * @author your name (you@domain.com)
+ * @brief 
+ * @version 0.1
+ * @date 2021-04-15
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -45,7 +55,7 @@ static void enqueue(struct queue *queue, struct node *node)
 static void signalNotEmpty(struct queue *queue)
 {
     pthread_mutex_lock(&queue->takeLock);
-    pthread_cond_signal(&queue->notEmpty);
+    pthread_cond_broadcast(&queue->notEmpty);
     pthread_mutex_unlock(&queue->takeLock);
 }
 
@@ -54,6 +64,16 @@ static void signalNotFull(struct queue *queue)
     pthread_mutex_lock(&queue->putLock);
     pthread_cond_signal(&queue->notFull);
     pthread_mutex_unlock(&queue->putLock);
+}
+
+void put_nolock(struct queue *queue, void *e)
+{
+    struct node *node = calloc(1, sizeof(struct node));
+    node->item = e;
+    enqueue(queue, node);
+    size_t c = queue->size++;
+    if (c == 0)
+        signalNotEmpty(queue);
 }
 
 void put(struct queue *queue, void *e)

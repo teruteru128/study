@@ -13,44 +13,33 @@
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <math.h>
 
 #include <openssl/bio.h>
 #include <openssl/asn1.h>
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
 #include <assert.h>
+#define USE_LTM
+#define LTM_DESC
+#include <tomcrypt.h>
 
 #define STD_BUF_SIZE 0x1000
-#define CRYPT_OK 0
-#define PK_PUBLIC 0
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 
-typedef struct ecc_point_t
-{
-    unsigned char *x;
-    unsigned char *y;
-    unsigned char *z;
-} ecc_point;
-typedef struct ecc_key_t
-{
-    int has_private_key;
-    ecc_point public_key;
-    unsigned char *private_key;
-} ecc_key;
-
-#define TSKEY ("b9dfaa7bee6ac57ac7b65f1094a1c155" \
-               "e747327bc2fe5d51c512023fe54a2802" \
-               "01004e90ad1daaae1075d53b7d571c30" \
-               "e063b5a62a4a017bb394833aa0983e6e")
+static const char TSKEY[] = "b9dfaa7bee6ac57ac7b65f1094a1c155"
+                            "e747327bc2fe5d51c512023fe54a2802"
+                            "01004e90ad1daaae1075d53b7d571c30"
+                            "e063b5a62a4a017bb394833aa0983e6e";
 
 static void *safealloc(size_t len)
 {
-    void *result = calloc(1, len);
+    void *result = calloc(len, sizeof(char));
     if (result == NULL)
     {
         printf("A memory allocation error occurred.\n");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     return result;
@@ -63,11 +52,12 @@ static void safefree(void *ptr)
         free(ptr);
     }
 }
+
 size_t calcDecodeLength(const char *b64input)
 { //Calculates the length of a decoded string
-    size_t len = strlen(b64input),
-           padding = 0;
-
+    size_t len = strlen(b64input);
+    size_t padding = 0;
+    //padding = (b64input[len - 1] == '=' ? (b64input[len - 2] == '=' ? 2 : 1) : 0);
     if (b64input[len - 1] == '=' && b64input[len - 2] == '=') //last two chars are =
         padding = 2;
     else if (b64input[len - 1] == '=') //last char is =
@@ -76,53 +66,18 @@ size_t calcDecodeLength(const char *b64input)
     return (len * 3) / 4 - padding;
 }
 
-int base64_decode(const char *in, size_t len, unsigned char **out, size_t *outlen)
-{
-    BIO *b64 = NULL;
-    BIO *bio = NULL;
-    size_t decodeLen = calcDecodeLength(in);
-    *out = malloc(decodeLen + 1);
-    memset(*out, 0, decodeLen + 1);
-
-    bio = BIO_new_mem_buf(in, -1);
-    b64 = BIO_new(BIO_f_base64());
-    bio = BIO_push(b64, bio);
-
-    BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
-    *outlen = BIO_read(bio, *out, strlen(in));
-    BIO_free_all(bio);
-
-    return 0;
-}
-int base64_encode(const unsigned char *in, size_t len, char **out, size_t *outlen)
-{
-    BIO *bio;
-    BIO *b64;
-    BUF_MEM *bufferPtr = NULL;
-
-    b64 = BIO_new(BIO_f_base64());
-    bio = BIO_new(BIO_s_mem());
-    bio = BIO_push(b64, bio);
-
-    BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
-    BIO_write(bio, out, len);
-    BIO_flush(bio);
-    BIO_get_mem_ptr(bio, &bufferPtr);
-    BIO_set_close(bio, BIO_NOCLOSE);
-    BIO_free_all(bio);
-    *out = bufferPtr->data;
-    *outlen = strlen(*out) + 1;
-    return 0;
-}
-static int deObfuscateInplace(char *data, uint32_t length)
+static int deObfuscateInplace(unsigned char *data, uint32_t length)
 {
     unsigned char hash[SHA_DIGEST_LENGTH];
+    const EVP_MD *sha1 = EVP_sha1();
+    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+    EVP_MD_CTX_free(mdctx);
     SHA_CTX ctx;
     if (SHA1_Init(&ctx) != 1)
     {
         return -1;
     }
-    if (SHA1_Update(&ctx, data + 20, strlen(data + 20)) != 1)
+    if (SHA1_Update(&ctx, data + 20, strlen((char *)(data + 20))) != 1)
     {
         return -1;
     }
@@ -136,7 +91,7 @@ static int deObfuscateInplace(char *data, uint32_t length)
         data[i] ^= hash[i];
     }
 
-    int dataSize = min(100, length);
+    uint32_t dataSize = min(100, length);
     for (int i = 0; i < dataSize; i++)
     {
         data[i] ^= TSKEY[i];
@@ -177,45 +132,18 @@ static int deObfuscateInplace(char *data, uint32_t length)
                    "0123456789abcdef" \
                    "0123456789abcdef")
 
-int ecc_import(unsigned char *in, size_t inlen, ecc_key *key)
-{
-    /**
-     * 
-    */
-    size_t i;
-    //int has_private = 0;
-    //unsigned char *public_x = NULL;
-    //unsigned char *public_y = NULL;
-    //unsigned char *private = NULL;
-    for (i = 0; i < inlen; i++)
-    {
-        printf("%c%c", DigitTens[in[i]], DigitOnes[in[i]]);
-    }
-    printf("\n");
-    key->has_private_key = 1;
-    key->private_key = NULL;
-    key->public_key.x = NULL;
-    key->public_key.y = NULL;
-    key->public_key.z = NULL;
-
-    return 0;
-}
-int ecc_export(unsigned char *out, size_t *outlen, int type, ecc_key *key)
-{
-    return 0;
-}
 static int deObfuscateKey(const char *obfuscatedIdentity_base64,
                           ecc_key *ecckey)
 {
     int ret = 0;
-
-    char *actualIdentity = NULL;
     unsigned char *eccKeyString = NULL;
 
-    size_t actualIdentitySize = 0;
+    size_t actualIdentitySize = STD_BUF_SIZE;
+    unsigned char *actualIdentity = safealloc(actualIdentitySize);
+
     if (base64_decode(obfuscatedIdentity_base64,
                       strlen(obfuscatedIdentity_base64),
-                      (unsigned char **)&actualIdentity,
+                      actualIdentity,
                       &actualIdentitySize) != 0)
     {
         ret = -1;
@@ -228,17 +156,19 @@ static int deObfuscateKey(const char *obfuscatedIdentity_base64,
     }
 
     size_t eccKeyStringSize = STD_BUF_SIZE;
-    eccKeyString = NULL;
+    eccKeyString = safealloc(eccKeyStringSize);
     if (base64_decode(actualIdentity,
                       strlen(actualIdentity),
-                      &eccKeyString,
+                      eccKeyString,
                       &eccKeyStringSize) != 0)
     {
         ret = -1;
         goto done;
     }
 
-    if (ecc_import(eccKeyString, eccKeyStringSize, ecckey) != 0)
+    if (ecc_import(eccKeyString,
+                   eccKeyStringSize,
+                   ecckey) != CRYPT_OK)
     {
         ret = -1;
     }
@@ -250,26 +180,20 @@ done:
     return ret;
 }
 
-static int extractPublicKeyBase64(ecc_key *ecckey,
-                                  char **out,
-                                  long unsigned int *outlen)
+static int extractPublicKeyBase64(ecc_key *ecckey, unsigned char *out, long unsigned int *outlen)
 {
     int ret = 0;
 
-    uint64_t ecc_public_asn1_size = STD_BUF_SIZE;
-    char *ecc_public_asn1 = (char *)safealloc(ecc_public_asn1_size);
-    if (ecc_export((uint8_t *)ecc_public_asn1,
-                   &ecc_public_asn1_size,
-                   PK_PUBLIC /* we export the public (!) key */,
-                   ecckey) != CRYPT_OK)
+    size_t ecc_public_asn1_size = STD_BUF_SIZE;
+    unsigned char *ecc_public_asn1 = safealloc(ecc_public_asn1_size);
+    /* we export the public (!) key */
+    if (ecc_export(ecc_public_asn1, &ecc_public_asn1_size, PK_PUBLIC, ecckey) != CRYPT_OK)
     {
         ret = -1;
         goto done;
     }
 
-    if (base64_encode((uint8_t *)ecc_public_asn1,
-                      ecc_public_asn1_size,
-                      out, outlen) != CRYPT_OK)
+    if (base64_encode(ecc_public_asn1, ecc_public_asn1_size, out, outlen) != CRYPT_OK)
     {
         ret = -1;
         goto done;
@@ -380,7 +304,7 @@ done:
 }
 
 static int getIDFingerprint(const char *publickey,
-                            char **out,
+                            unsigned char *out,
                             long unsigned int *outlen)
 {
     unsigned char hash[SHA_DIGEST_LENGTH];
@@ -389,9 +313,7 @@ static int getIDFingerprint(const char *publickey,
     {
         return 1;
     }
-    if (SHA1_Update(&ctx,
-                    publickey,
-                    strlen(publickey)) != 1)
+    if (SHA1_Update(&ctx, publickey, strlen(publickey)) != 1)
     {
         return 1;
     }
@@ -400,9 +322,7 @@ static int getIDFingerprint(const char *publickey,
         return 1;
     }
 
-    if (base64_encode(hash,
-                      sizeof(hash) / sizeof(hash[0]),
-                      out, outlen) != 0)
+    if (base64_encode(hash, sizeof(hash) / sizeof(hash[0]), out, outlen) != 0)
     {
         return 1;
     }
@@ -429,19 +349,19 @@ static uint8_t getSecurityLevel(const char *publickey, uint64_t counter)
         goto done;
     }
 
-    char hash[20];
+    unsigned char hash[20];
     SHA_CTX ctx;
-    if (SHA1_Init(&ctx) != CRYPT_OK)
+    if (SHA1_Init(&ctx) != 1)
     {
         goto done;
     }
     if (SHA1_Update(&ctx,
                     (uint8_t *)hashinput,
-                    publickey_len + (size_t)counter_len) != CRYPT_OK)
+                    publickey_len + (size_t)counter_len) != 1)
     {
         goto done;
     }
-    if (SHA1_Final((uint8_t *)hash, &ctx) != CRYPT_OK)
+    if (SHA1_Final((uint8_t *)hash, &ctx) != 1)
     {
         goto done;
     }
@@ -454,7 +374,7 @@ static uint8_t getSecurityLevel(const char *publickey, uint64_t counter)
     zerobits = 0;
     if (zerobytes < 20)
     {
-        uint8_t lastbyte = hash[zerobytes];
+        char lastbyte = hash[zerobytes];
         while (!(lastbyte & 1))
         {
             zerobits++;
@@ -471,7 +391,7 @@ done:
 static void readIdentity(char *filename)
 {
     char *obfuscatedIdentity_base64 = (char *)safealloc(STD_BUF_SIZE);
-    uint64_t counter;
+    size_t counter;
 
     if (access(filename, F_OK) != 0)
     {
@@ -485,39 +405,34 @@ static void readIdentity(char *filename)
         exit(1);
     }
 
-    if (parseIni(filename,
-                 obfuscatedIdentity_base64,
-                 STD_BUF_SIZE, &counter))
+    if (parseIni(filename, obfuscatedIdentity_base64, STD_BUF_SIZE, &counter))
     {
         printf("An error occurred while parsing the ini file.\n");
         exit(1);
     }
 
-    ecc_key *ecckey = (ecc_key *)safealloc(sizeof(ecc_key));
-    if (deObfuscateKey(obfuscatedIdentity_base64, ecckey))
+    ecc_key ecckey = {0, 0, NULL, {NULL, NULL, NULL}, NULL};
+    if (deObfuscateKey(obfuscatedIdentity_base64, &ecckey))
     {
         printf("An error occurred while deobfuscating the identity.\n");
         exit(1);
     }
 
-    uint64_t ecc_public_base64_size = 0;
-    char *ecc_public_base64 = NULL;
+    size_t ecc_public_base64_size = STD_BUF_SIZE;
+    char *ecc_public_base64 = safealloc(ecc_public_base64_size);
 
-    if (extractPublicKeyBase64(ecckey,
-                               &ecc_public_base64,
+    if (extractPublicKeyBase64(&ecckey,
+                               ecc_public_base64,
                                &ecc_public_base64_size))
     {
-        printf("An error occurred while processing "
-               "the obfuscated identity string.\n");
+        printf("An error occurred while processing the obfuscated identity string.\n");
         exit(1);
     }
 
     long unsigned int idfingerprintlength = STD_BUF_SIZE;
-    char *idfingerprint = NULL;
+    unsigned char *idfingerprint = safealloc(idfingerprintlength);
 
-    if (getIDFingerprint(ecc_public_base64,
-                         &idfingerprint,
-                         &idfingerprintlength))
+    if (getIDFingerprint(ecc_public_base64, idfingerprint, &idfingerprintlength))
     {
         printf("An error occurred while generating "
                "the fingerprint of the identity.\n");
@@ -532,12 +447,19 @@ static void readIdentity(char *filename)
 
     safefree(ecc_public_base64);
     safefree(obfuscatedIdentity_base64);
-    safefree(ecckey);
     safefree(idfingerprint);
 }
 
+/**
+ * @brief https://github.com/landave/TSIdentityTool
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char **argv)
 {
+    ltc_mp = ltm_desc;
     int rc = EXIT_SUCCESS;
     if (argc < 2)
     {

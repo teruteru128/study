@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.1\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2021-04-04 21:30+0900\n"
+"POT-Creation-Date: 2021-04-13 21:30+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,17 +28,17 @@ msgstr ""
 msgid "Sent!\n"
 msgstr ""
 
-#: src/eckeygentest.c:64 src/itoabench.c:42 src/itoabench.c:58
+#: src/eckeygentest.c:67
 #, c-format
-msgid "It took %.8f seconds.\n"
+msgid "It took %ld.%09ld seconds.\n"
 msgstr ""
 
-#: src/eckeygentest.c:65 src/itoabench.c:43 src/itoabench.c:59
+#: src/eckeygentest.c:68 src/itoabench.c:43 src/itoabench.c:59
 #, c-format
 msgid "%.1f times per second\n"
 msgstr ""
 
-#: src/eckeygentest.c:66 src/itoabench.c:44 src/itoabench.c:60
+#: src/eckeygentest.c:69 src/itoabench.c:44 src/itoabench.c:60
 #, c-format
 msgid "%.12f seconds per time\n"
 msgstr ""
@@ -68,22 +68,27 @@ msgstr ""
 msgid "%dmicro seconds stoped.\n"
 msgstr ""
 
+#: src/itoabench.c:42 src/itoabench.c:58
+#, c-format
+msgid "It took %.8f seconds.\n"
+msgstr ""
+
 #: src/ntp.c:124
 #, c-format
 msgid "NTP server time : %s"
 msgstr ""
 
-#: src/printBench.c:42
+#: src/printBench.c:43
 #, c-format
 msgid "It took %g seconds.\n"
 msgstr ""
 
-#: src/printBench.c:43
+#: src/printBench.c:44
 #, c-format
 msgid "%g times per second\n"
 msgstr ""
 
-#: src/printBench.c:44
+#: src/printBench.c:45
 #, c-format
 msgid "%e seconds per time\n"
 msgstr ""
@@ -93,14 +98,14 @@ msgstr ""
 msgid "verifier : %<PRIu64>\n"
 msgstr ""
 
-#: src/prime8.c:104
+#: src/prime8.c:106
 #, c-format
 msgid "One prime number candidate was found.\n"
 msgid_plural "%zu prime number candidates were found.\n"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/prime8.c:105
+#: src/prime8.c:107
 #, c-format
 msgid "One prime number candidate have been skipped.\n"
 msgid_plural "%zu prime number candidates have been skipped.\n"

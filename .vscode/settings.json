@@ -86,6 +86,14 @@
         "limits.h": "c",
         "nlz.h": "c",
         "bm.h": "c",
-        "timeutil.h": "c"
+        "timeutil.h": "c",
+        "strings.h": "c",
+        "tomcrypt.h": "c",
+        "tomcrypt_cfg.h": "c",
+        "tomcrypt_misc.h": "c",
+        "ec.h": "c",
+        "internal_random.h": "c",
+        "stdint.h": "c",
+        "java_random.h": "c"
     }
 }

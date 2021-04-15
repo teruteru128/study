@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 {
     const EVP_MD *sha1 = EVP_sha1();
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-    unsigned char md[SHA_DIGEST_LENGTH];
+    unsigned char md[EVP_MAX_MD_SIZE];
     int i;
     char in1[125] = "MEsDAgcAAgEgAiAoQPNcS7L4k+q2qf3U7uyujtwRQNS3pLKN/zrRGERGagIgFjdV1JlqHF8BiIQne0/E3jVM7hWda/USrFI58per45s=";
     uint64_t in1Length = strlen(in1);

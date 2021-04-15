@@ -51,10 +51,6 @@
 int main(int argc, char *argv[])
 {
     struct timespec cur;
-    clock_gettime(CLOCK_MONOTONIC, &cur);
-    printf("%ld.%09ld, %lf\n", cur.tv_sec, cur.tv_nsec, (double)cur.tv_sec / 86400);
-    clock_gettime(CLOCK_MONOTONIC, &cur);
-    printf("%ld.%09ld\n", cur.tv_sec, cur.tv_nsec);
 
     int timerfd = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
     if (timerfd < 0)

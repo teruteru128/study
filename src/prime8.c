@@ -14,6 +14,8 @@
 #include "gettext.h"
 #define _(str) gettext(str)
 #include <locale.h>
+#include <ctype.h>
+#include <errno.h>
 #include "timeutil.h"
 
 #include <gmp.h>
@@ -77,6 +79,7 @@ void *produce_prime_candidate(void *arg)
     size_t skiped_num = 0;
     size_t task_index = 0;
     // ここでタスクキューをロックしてまとめて追加したい
+    unstarted_task_enqueue_putLock();
     for (size_t i = 0; i < searchSieve.bits_length; i++)
     {
         unsigned long nextLong = ~searchSieve.bits[i];
@@ -93,7 +96,7 @@ void *produce_prime_candidate(void *arg)
                 {
                     // 1回1回ロックしてアンロックしてーってやるの時間の無駄なのでiループの外側でまとめてロックしたい
                     // でもデッドロックの危険性とか出るんだろうな
-                    add_unstarted_task(offset, task_index);
+                    add_unstarted_task_nolock(offset, task_index);
                 }
                 task_index++;
             }
@@ -101,6 +104,7 @@ void *produce_prime_candidate(void *arg)
             offset += 2;
         }
     }
+    unstarted_task_enqueue_putUnlock();
     printf(ngettext("One prime number candidate was found.\n", "%zu prime number candidates were found.\n", task_index), task_index);
     printf(ngettext("One prime number candidate have been skipped.\n", "%zu prime number candidates have been skipped.\n", skiped_num), skiped_num);
 
@@ -123,7 +127,7 @@ void *produce_prime_candidate(void *arg)
 
 #define TIME_FORMAT_BUFFER_SIZE 64
 
-pthread_barrier_t barrier;
+static pthread_barrier_t barrier;
 
 /**
  * @brief 素数候補をタスクキューから取り出して素数判定して完了済みタスクリストに結果を入れる
@@ -149,7 +153,7 @@ pthread_barrier_t barrier;
  */
 void *consume_prime_candidate(void *arg)
 {
-    const int tid = *((int *)arg);
+    const size_t tid = *((size_t *)arg);
     mpz_t candidate;
     mpz_init(candidate);
     struct task *task = NULL;
@@ -184,13 +188,14 @@ void *consume_prime_candidate(void *arg)
         localtime_r(&finish.tv_sec, &tm);
         strftime(format, TIME_FORMAT_BUFFER_SIZE, "%FT%T.%%09ld%z", &tm);
         snprintf(formattedTime, TIME_FORMAT_BUFFER_SIZE, format, finish.tv_nsec);
-        printf("(%2d) %s, %6ld.%09ld, %6zu, %7d:%d\n", tid, formattedTime, diff.tv_sec, diff.tv_nsec, index, offset, answer);
+        printf("(%2lu) %s, %6ld.%09ld, %6zu, %7d:%d\n", tid, formattedTime, diff.tv_sec, diff.tv_nsec, index, offset, answer);
         if (answer == 1 || answer == 2)
         {
             task = calloc(1, sizeof(struct task));
             task->offset = offset;
             threadpool_live = 0;
         }
+        pthread_barrier_wait(&barrier);
     }
     mpz_clear(candidate);
     return task;
@@ -243,7 +248,19 @@ int searchPrime_main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    const size_t threadNum = (argc >= 4) ? (size_t)strtoul(argv[3], NULL, 10) : CONSUMER_THREAD_NUM;
+    unsigned long tmp = CONSUMER_THREAD_NUM;
+    if (argc >= 4)
+    {
+        errno = 0;
+        tmp = strtoul(argv[3], NULL, 10);
+        if (errno != 0)
+        {
+            perror("strtoul");
+            tmp = CONSUMER_THREAD_NUM;
+        }
+    }
+
+    const size_t threadNum = (size_t)tmp;
 
     if (threadNum == 0)
     {
@@ -269,7 +286,7 @@ int searchPrime_main(int argc, char *argv[])
         mpz_clear(base);
         return EXIT_FAILURE;
     }
-    int *tids = calloc(threadNum, sizeof(int));
+    size_t *tids = calloc(threadNum, sizeof(size_t));
     if (tids == NULL)
     {
         perror("tids = calloc");
@@ -287,7 +304,7 @@ int searchPrime_main(int argc, char *argv[])
     pthread_create(&producer_thread, NULL, produce_prime_candidate, &min_offset);
     for (size_t i = 0; i < threadNum; i++)
     {
-        tids[i] = (int)i;
+        tids[i] = i;
         pthread_create(&consumer_threads[i], NULL, consume_prime_candidate, tids + i);
     }
     pthread_join(producer_thread, NULL);
@@ -317,6 +334,7 @@ int searchPrime_main(int argc, char *argv[])
         }
     }
     mpz_clear(base);
+    pthread_barrier_destroy(&barrier);
     free(consumer_threads);
     free(tids);
 

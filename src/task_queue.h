@@ -20,7 +20,10 @@ struct task
 void task_bulk_enqueue(struct queue *list, struct task *task);
 struct task *task_bulk_dequeue(struct queue *list);
 
+int unstarted_task_enqueue_putLock();
+int unstarted_task_enqueue_putUnlock();
 int unstarted_task_enqueue(struct task *task);
+int add_unstarted_task_nolock(unsigned int offset, size_t index);
 int add_unstarted_task(unsigned int offset, size_t index);
 struct task *unstarted_task_dequeue();
 unsigned int pop_unstarted_task();

@@ -13,7 +13,7 @@
  * 未着手タスクキュー
  * 
  */
-static QUEUE_DECLARE(unstarted_task_list);
+static QUEUE_DEFINE(unstarted_task_queue);
 
 /**
  * @brief 完了済みタスクキュー
@@ -21,7 +21,7 @@ static QUEUE_DECLARE(unstarted_task_list);
  *
  * completed_taskよりはresultのほうが近い気がする
  */
-static QUEUE_DECLARE(completed_task_list);
+static QUEUE_DEFINE(completed_task_queue);
 
 /**
  * @brief 未使用領域を複数個まとめてデキューする.
@@ -50,6 +50,26 @@ void clear_task(struct task *task)
     task->diff.tv_nsec = 0;
 }
 
+int unstarted_task_enqueue_putLock()
+{
+    pthread_mutex_lock(&unstarted_task_queue.putLock);
+    pthread_mutex_lock(&unstarted_task_queue.sizeLock);
+    return 0;
+}
+
+int unstarted_task_enqueue_putUnlock()
+{
+    pthread_mutex_unlock(&unstarted_task_queue.sizeLock);
+    pthread_mutex_unlock(&unstarted_task_queue.putLock);
+    return 0;
+}
+
+int unstarted_task_enqueue_nolock(struct task *task)
+{
+    put_nolock(&unstarted_task_queue, task);
+    return 0;
+}
+
 /**
  * @brief 
  * 
@@ -62,7 +82,22 @@ int unstarted_task_enqueue(struct task *task)
     {
         return 1;
     }
-    put(&unstarted_task_list, task);
+    put(&unstarted_task_queue, task);
+    return 0;
+}
+
+int add_unstarted_task_nolock(unsigned int offset, size_t index)
+{
+    struct task *task = calloc(1, sizeof(struct task));
+    // 書き込み
+    task->offset = offset;
+    task->answer = 0;
+    task->tid = 0;
+    task->padding = 0;
+    task->index = index;
+    task->diff.tv_sec = 0;
+    task->diff.tv_nsec = 0;
+    unstarted_task_enqueue_nolock(task);
     return 0;
 }
 
@@ -95,7 +130,7 @@ int add_unstarted_task(unsigned int offset, size_t index)
  */
 struct task *unstarted_task_dequeue()
 {
-    return take(&unstarted_task_list);
+    return take(&unstarted_task_queue);
 }
 
 #if 0
@@ -128,7 +163,7 @@ int completed_task_enqueue(struct task *task)
     {
         return 1;
     }
-    put(&completed_task_list, task);
+    put(&completed_task_queue, task);
     return 0;
 }
 
@@ -166,5 +201,5 @@ int add_completed_task(unsigned int offset, int answer, size_t index, const int 
  */
 struct task *completed_task_dequeue()
 {
-    return take(&completed_task_list);
+    return take(&completed_task_queue);
 }

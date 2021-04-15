@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
    * threads[3]:58117980<=x<67108864
    */
 
-  QUEUE_DECLARE(queue);
+  QUEUE_DEFINE(queue);
   pthread_t prucude_thread;
   pthread_t consume_threads[THREAD_NUM];
   struct threadArg arg[THREAD_NUM];

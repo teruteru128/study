@@ -4,6 +4,7 @@ bin_PROGRAMS= \
 	CoDec \
 	FizzBuzz \
 	Nabeatsu \
+	TSIdentityTool \
 	ankokudan_decode \
 	argparsesample \
 	bcasttest \
@@ -86,6 +87,7 @@ bin_PROGRAMS= \
 	sha1rngsample \
 	signalsample \
 	signalsample2 \
+	slimesearch \
 	sntpc \
 	strspntest \
 	study \
@@ -97,6 +99,8 @@ bin_PROGRAMS= \
 	timerfdsample \
 	timerfdsample2 \
 	timesample \
+	totp \
+	tsidbench \
 	tsidimprover \
 	tsidshowsample \
 	tweet \
@@ -125,7 +129,32 @@ EXTRA_DIST=gettextsample.c
 studydatadir = $(datadir)/study
 
 # see https://www.gnu.org/software/automake/manual/html_node/Subpackages.html
-AM_CPPFLAGS=-Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wconversion -Wdisabled-optimization -Wendif-labels -Wfloat-equal -Winit-self -Winline -Wlogical-op -Wmissing-include-dirs -Wpacked -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wswitch-enum -Wunsafe-loop-optimizations -Wvariadic-macros -Wwrite-strings -I$(top_srcdir)/libstudy/include -DLOCALEDIR='"\"$(localedir)\""' -DSTUDYDATADIR='"\"$(studydatadir)\""'
+AM_CPPFLAGS=-Wall \
+    -Wextra \
+    -pedantic \
+    -Wcast-align \
+    -Wcast-qual \
+    -Wconversion \
+    -Wdisabled-optimization \
+    -Wendif-labels \
+    -Wfloat-equal \
+    -Winit-self \
+    -Winline \
+    -Wlogical-op \
+    -Wmissing-include-dirs \
+    -Wpacked \
+    -Wpointer-arith \
+    -Wredundant-decls \
+    -Wshadow \
+    -Wswitch-default \
+    -Wswitch-enum \
+    -Wunsafe-loop-optimizations \
+    -Wvariadic-macros \
+    -Wwrite-strings \
+    -I$(top_srcdir)/libstudy/include \
+    -DLOCALEDIR='"\"$(localedir)\""' \
+    -DSTUDYDATADIR='"\"$(studydatadir)\""'
+
 LIBSTUDYPATH=$(top_builddir)/libstudy/src/libstudy.la
 CoDec_LDADD=$(LIBSTUDYPATH)
 CoDec_SOURCES=CoDec.c CoDec.h
@@ -135,6 +164,7 @@ FizzBuzz_SOURCES=FizzBuzz.c
 Nabeatsu_CFLAGS=
 Nabeatsu_LDADD=$(LIBSTUDYPATH)
 Nabeatsu_SOURCES=Nabeatsu.c gettext.h
+TSIdentityTool_LDADD=-ltommath -ltomcrypt
 ankokudan_decode_SOURCES=ankokudan_decode.c
 argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c
@@ -194,8 +224,8 @@ portscanner_SOURCES=portscanner.c
 prime1_SOURCES=prime1.c
 prime2_SOURCES=prime2.c
 prime3_SOURCES=prime3.c
-prime6_SOURCES=prime6.c bitsieve.c bitsieve.h
-prime7_SOURCES=prime7.c bitsieve.c bitsieve.h
+prime6_SOURCES=prime6.c bitsieve.c bitsieve.h  timeutil.c timeutil.h
+prime7_SOURCES=prime7.c bitsieve.c bitsieve.h timeutil.c timeutil.h
 prime8_SOURCES=prime8.c bitsieve.c bitsieve.h task_queue.c task_queue.h queue.c queue.h timeutil.c timeutil.h
 #prime8_LDFLAGS=-static
 primesearch_SOURCES=primesearch.c
@@ -214,6 +244,8 @@ selfmadelibsha_SOURCES=self-made-libsha.c self-made-libsha.h
 seq_CFLAGS=
 seq_SOURCES=seq.c
 service_sample_SOURCES=service-sample.c server.c server.h
+slimesearch_SOURCES=slimesearch.c timeutil.c timeutil.h
+slimesearch_LDADD=$(LIBSTUDYPATH)
 sntpc_CFLAGS=
 sntpc_LDADD=$(LIBSTUDYPATH)
 sntpc_SOURCES=sntpc.c ntp.c ntp.h
@@ -229,8 +261,10 @@ teamspeakcalc_CFLAGS=
 teamspeakcalc_LDADD=$(LIBSTUDYPATH)
 teamspeakcalc_SOURCES=teamspeakcalc.c
 threadcount_SOURCES=threadcount.c
+totp_LDADD=$(LIBSTUDYPATH)
 tsidimprover_LDADD=$(LIBSTUDYPATH)
 tsidimprover_SOURCES=tsidimprover.c
 tsidshowsample_SOURCES=tsidshowsample.c
+tsidshowsample_LDADD=-ltommath -ltomcrypt
 udpsender_SOURCES=udpsender.c
 yattaze_SOURCES=yattaze.c yattaze.h

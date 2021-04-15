@@ -14,6 +14,9 @@
 #include "timeutil.h"
 #include <math.h>
 
+#define unitIndex(bitIndex) ((bitIndex) >> 6)
+#define bit(bitIndex) (1UL << ((bitIndex) & ((1 << 6) - 1)))
+
 /* http://tdual.hatenablog.com/entry/2018/05/02/113110 */
 struct searchArea
 {
@@ -26,10 +29,7 @@ struct searchArea
   int32_t threshold;
 };
 
-static size_t calcArrayOffset(int32_t x, int32_t z)
-{
-  return (z + 625) * 1250 + x + 625;
-}
+#define calcArrayOffset(x, z) (((z) + 625) * 1250 + (x) + 625)
 
 void *searchTask(void *arg)
 {
@@ -84,6 +84,11 @@ void startMCSlimeChunkSearch()
   }
   clock_gettime(CLOCK_REALTIME, &end);
   difftimespec(&diff, &end, &start);
-  printf("%f\n", fma(diff.tv_sec, 1e9, diff.tv_nsec)/1e9);
+  printf("%f\n", fma(diff.tv_sec, 1e9, diff.tv_nsec) / 1e9);
   free(set);
+}
+
+int main(void)
+{
+  return 0;
 }
