@@ -5,9 +5,8 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <time.h>
-
+#include <limits.h>
+#include <gmp.h>
 /**
  * 
  * 対称鍵暗号
@@ -71,15 +70,40 @@
  */
 int main(int argc, char *argv[])
 {
-  time_t a = time(NULL);
-  struct tm tm;
-  localtime_r(&a, &tm);
-  char b[32];
-  strftime(b, 32, "%FT%T%z", &tm);
-  printf("%s\n", b);
-  a = ((a + 1800 - 1) / 1800) * 1800;
-  localtime_r(&a, &tm);
-  strftime(b, 32, "%FT%T%z", &tm);
-  printf("%s\n", b);
+  mpz_t a;
+  mpz_init(a);
+  mpz_inp_str(a, stdin, 16);
+  mpz_dump(a);
+  printf("%d\n", mpz_probab_prime_p(a, 10));
+  printf("%ld\n", mpz_sizeinbase(a, 2));
+  size_t length = 0;
+  int sign = mpz_sgn(a);
+  unsigned char *ptr = mpz_export(NULL, &length, 1, sizeof(unsigned char), 0, 0, a);
+  mpz_clear(a);
+  if (sign > 0)
+  {
+    fputs("+", stdout);
+  }
+  else if (sign < 0)
+  {
+    fputs("-", stdout);
+  }
+  else if (sign == 0)
+  {
+    fputs(" ", stdout);
+  }
+  for (size_t i = 0; i < length; i++)
+  {
+    printf("%02x", ptr[i]);
+  }
+  printf("\n");
+  free(ptr);
+  printf("%a\n", 0x1.fp4);
+  printf("%a\n", __FLT_MAX__);
+  printf("%a\n", __DBL_MAX__);
+  printf("%La\n", __LDBL_MAX__);
+  printf("%a\n", __FLT_EPSILON__);
+  printf("%la\n", __DBL_EPSILON__);
+  printf("%La\n", __LDBL_EPSILON__);
   return EXIT_SUCCESS;
 }

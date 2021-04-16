@@ -9,6 +9,7 @@ src/gettextsample3.c
 src/itoabench.c
 src/localetest1.c
 src/ntp.c
+src/potest.c
 src/printBench.c
 src/sntpc.c
 src/study.c

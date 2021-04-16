@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.1\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2021-04-13 21:30+0900\n"
+"POT-Creation-Date: 2021-04-16 23:03+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -78,6 +78,11 @@ msgstr ""
 msgid "NTP server time : %s"
 msgstr ""
 
+#: src/potest.c:17
+#, c-format
+msgid "Help me!\n"
+msgstr ""
+
 #: src/printBench.c:43
 #, c-format
 msgid "It took %g seconds.\n"
@@ -98,14 +103,14 @@ msgstr ""
 msgid "verifier : %<PRIu64>\n"
 msgstr ""
 
-#: src/prime8.c:106
+#: src/prime8.c:108
 #, c-format
 msgid "One prime number candidate was found.\n"
 msgid_plural "%zu prime number candidates were found.\n"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/prime8.c:107
+#: src/prime8.c:109
 #, c-format
 msgid "One prime number candidate have been skipped.\n"
 msgid_plural "%zu prime number candidates have been skipped.\n"

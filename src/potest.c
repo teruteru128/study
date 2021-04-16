@@ -1,9 +1,13 @@
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "gettext.h"
 #define _(str) gettext(str)
 #include <locale.h>
-#include <stdio.h>
 
 int main(int argc, char const *argv[])
 {

@@ -94,6 +94,8 @@
         "ec.h": "c",
         "internal_random.h": "c",
         "stdint.h": "c",
-        "java_random.h": "c"
+        "java_random.h": "c",
+        "gettextsample2.h": "c",
+        "pthread.h": "c"
     }
 }

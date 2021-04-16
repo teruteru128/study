@@ -52,6 +52,7 @@ bin_PROGRAMS= \
 	localetest2 \
 	log-sample \
 	loop-bench \
+	main \
 	mappingsample \
 	maxmovingsum \
 	md5fullzero \
@@ -212,6 +213,7 @@ itoabench_SOURCES=itoabench.c
 localetest1_CFLAGS=
 localetest1_SOURCES=localetest1.c localetest1.h
 localetest2_SOURCES=localetest2.c
+main_SOURCES=main.cpp
 mappingsample_SOURCES=mappingsample.c
 maxmovingsum_SOURCES=maxmovingsum.c
 maxmovingsum_LDADD=$(LIBSTUDYPATH)

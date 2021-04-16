@@ -28,7 +28,7 @@ jobs:
       - name: make distcheck
         run: make distcheck -j
       - name: Save artifact
-        uses: actions/upload-artifact@v2.0.1
+        uses: actions/upload-artifact@v2.2.3
         with:
           name: study.tar.gz
-          path: study.tar.gz
+          path: study-1.0.1.tar.gz
