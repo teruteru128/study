@@ -96,6 +96,11 @@
         "stdint.h": "c",
         "java_random.h": "c",
         "gettextsample2.h": "c",
-        "pthread.h": "c"
+        "pthread.h": "c",
+        "bitsieve.h": "c",
+        "byteswap.h": "c",
+        "time.h": "c",
+        "stdio.h": "c",
+        "endian.h": "c"
     }
 }

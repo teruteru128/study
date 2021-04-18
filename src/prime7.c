@@ -8,18 +8,13 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
+#define PUBLISH_STRUCT_BS
 #include "bitsieve.h"
 
 #include <gmp.h>
 
 #define BIT_LENGTH 262144
 #define SEARCH_LENGTH (BIT_LENGTH / 20 * 64)
-struct BitSieve
-{
-    unsigned long *bits;
-    size_t bits_length;
-    size_t length;
-};
 
 static int threadpool_live = 1;
 

@@ -5,8 +5,10 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
-#include <gmp.h>
+#include <string.h>
+
+#define INPUT_FILE_NAME "82589934bit-791433f6-33ff-4282-90c8-6ad2e6e31447-initialValue.txt"
+
 /**
  * 
  * 対称鍵暗号
@@ -70,40 +72,14 @@
  */
 int main(int argc, char *argv[])
 {
-  mpz_t a;
-  mpz_init(a);
-  mpz_inp_str(a, stdin, 16);
-  mpz_dump(a);
-  printf("%d\n", mpz_probab_prime_p(a, 10));
-  printf("%ld\n", mpz_sizeinbase(a, 2));
-  size_t length = 0;
-  int sign = mpz_sgn(a);
-  unsigned char *ptr = mpz_export(NULL, &length, 1, sizeof(unsigned char), 0, 0, a);
-  mpz_clear(a);
-  if (sign > 0)
-  {
-    fputs("+", stdout);
-  }
-  else if (sign < 0)
-  {
-    fputs("-", stdout);
-  }
-  else if (sign == 0)
-  {
-    fputs(" ", stdout);
-  }
-  for (size_t i = 0; i < length; i++)
-  {
-    printf("%02x", ptr[i]);
-  }
-  printf("\n");
-  free(ptr);
-  printf("%a\n", 0x1.fp4);
-  printf("%a\n", __FLT_MAX__);
-  printf("%a\n", __DBL_MAX__);
-  printf("%La\n", __LDBL_MAX__);
-  printf("%a\n", __FLT_EPSILON__);
-  printf("%la\n", __DBL_EPSILON__);
-  printf("%La\n", __LDBL_EPSILON__);
+  char outfilename[FILENAME_MAX] = "";
+  char *a = strrchr(INPUT_FILE_NAME, '.');
+  size_t len = (a == NULL) ? strlen(INPUT_FILE_NAME) : (a - INPUT_FILE_NAME);
+  memcpy(outfilename, INPUT_FILE_NAME, len);
+  outfilename[len] = 0;
+
+  memcpy(outfilename + len, ".bs", 4);
+
+  printf("%s\n", outfilename);
   return EXIT_SUCCESS;
 }

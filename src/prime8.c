@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
+#define PUBLISH_STRUCT_BS
 #include "bitsieve.h"
 #include "task_queue.h"
 #include "gettext.h"
@@ -21,13 +22,6 @@
 #include <gmp.h>
 
 #define DEFAULT_CERTAINTY 1
-
-struct BitSieve
-{
-    unsigned long *bits;
-    size_t bits_length;
-    size_t length;
-};
 
 /**
  * @brief offsetの基準値。offset+baseが素数候補の値になる
@@ -72,6 +66,8 @@ void *produce_prime_candidate(void *arg)
     const size_t min_offset = *(size_t *)arg;
     struct BitSieve searchSieve;
     const size_t searchLength = mpz_sizeinbase(base, 2) / 20 * 64;
+    printf("search Length is %lu\n", searchLength);
+    // あんまり大きな素因数篩はエクスポート/インポートしたほうがいいのかも？
     bs_initInstance(&searchSieve, &base, searchLength);
     unsigned int offset = 1;
     //size_t max = searchSieve.length <= 1000? searchSieve.bits_length : 1000;

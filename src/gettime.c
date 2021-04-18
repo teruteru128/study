@@ -98,7 +98,7 @@ int main(int argc, char **argv)
       printf("%02x", (tmp[i] & 0xff));
       if (i % 16 == 15)
       {
-        puts("");
+        fputs("\n", stdout);
       }
     }
   }
@@ -202,7 +202,7 @@ int main(int argc, char **argv)
       printf("%02x", (tmp[i] & 0xff));
       if (i % 16 == 15)
       {
-        puts("");
+        fputs("\n", stdout);
       }
     }
   }

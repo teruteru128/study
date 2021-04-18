@@ -154,7 +154,9 @@ tags
 *.fdb_latexmk
 *.fls
 TAGS
-publicKeys.bin
+*.bin
+*.bz2
+*.xz
 
 ## https://github.com/github/gitignore/blob/master/CMake.gitignore
 CMakeLists.txt.user

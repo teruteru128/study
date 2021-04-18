@@ -12,6 +12,8 @@
 
 #include <gmp.h>
 
+#include "bitsieve.h"
+
 #define unitIndex(bitIndex) ((bitIndex) >> 6)
 #define bit(bitIndex) (1UL << ((bitIndex) & ((1 << 6) - 1)))
 
@@ -77,26 +79,24 @@ static void bs_smallSieve_Constract(void)
      * このふるいの長さはJavaで実装されているものをそのまま流用しているため、最適化するには独自に実験して選択する必要があります。
      * 対象のbit lengthが非常に長い場合、smallSieveの長さを大きくしても良いのかも？
      */
-    // smallSieve.length = 1 * 64; // 9600
+    // smallSieve.length = 1 * 64; // 64
     // smallSieve.length = 150 * 64; // 9600
     // smallSieve.length = 500 * 64; // 32000
     // smallSieve.length = 512 * 64; // 32768
     // smallSieve.length = 780 * 64; // 49920
     // smallSieve.length = 1024 * 64; // 65536
-    // smallSieve.length = 6554 * 64; //
+    // smallSieve.length = 6554 * 64; // 419456
     // smallSieve.length = 8192 * 64; // 524288
     // smallSieve.length = 65536 * 64; // 4,194,304
-    smallSieve.length = 1048576 * 64; // 67,108,864
-    // smallSieve.length = 67108864 * 64UL; // 4,294,967,296
+    // smallSieve.length = 1048576 * 64; // 67,108,864
+    smallSieve.length = 67108864 * 64UL; // 4,294,967,296
     smallSieve.bits_length = unitIndex(smallSieve.length - 1) + 1;
     smallSieve.bits = calloc(smallSieve.bits_length, sizeof(unsigned long));
-    /*
-    if(smallSieve.bits == NULL)
+    if (smallSieve.bits == NULL)
     {
-        perror("");
+        perror("smallSieve.bits = calloc");
         exit(1);
     }
-    */
 
     bs_set(&smallSieve, 0);
     size_t nextIndex = 1;
@@ -115,40 +115,10 @@ static void bs_smallSieve_Constract(void)
     clock_gettime(CLOCK_MONOTONIC, &finish);
     struct timespec diff;
     difftimespec(&diff, &finish, &start);
-    printf("small sieveの初期化を完了しました. %ld.%09ld\n", diff.tv_sec, diff.tv_nsec);
+    printf("small sieveの初期化を完了しました. %ld.%09lds\n", diff.tv_sec, diff.tv_nsec);
 }
 
 static pthread_once_t once_control = PTHREAD_ONCE_INIT;
-
-struct BitSieve *bs_getInstance(mpz_t *base, size_t searchLen)
-{
-    pthread_once(&once_control, bs_smallSieve_Constract);
-    struct BitSieve *instance = calloc(1, sizeof(struct BitSieve));
-    instance->bits_length = unitIndex(searchLen - 1UL) + 1UL;
-    instance->bits = calloc(instance->bits_length, sizeof(unsigned long));
-    instance->length = searchLen;
-    size_t start = 0;
-
-    size_t step = bs_sieveSearch(&smallSieve, smallSieve.length, start);
-    unsigned long convertedStep = step * 2UL + 1UL;
-
-    mpz_t b, q;
-    mpz_init_set(b, *base);
-    mpz_init(q);
-    do
-    {
-        start = mpz_mod_ui(q, b, convertedStep);
-        start = convertedStep - start;
-        if (start % 2 == 0)
-            start += convertedStep;
-        bs_sieveSingle(instance, searchLen, (start - 1) / 2, convertedStep);
-
-        step = bs_sieveSearch(&smallSieve, smallSieve.length, step + 1);
-        convertedStep = (step * 2) + 1;
-    } while (step != (size_t)-1);
-    mpz_clears(b, q, NULL);
-    return instance;
-}
 
 /**
  * XXX: 初期化済みのBitSieveをbs_freeせずに再度初期化するとメモリリークが起きる
@@ -160,9 +130,14 @@ struct BitSieve *bs_getInstance(mpz_t *base, size_t searchLen)
  */
 void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
 {
+    printf("篩の初期化を開始します...\n");
     pthread_once(&once_control, bs_smallSieve_Constract);
     struct timespec startt;
     clock_gettime(CLOCK_MONOTONIC, &startt);
+    if (bs == NULL || base == NULL)
+    {
+        return;
+    }
     bs->bits_length = unitIndex(searchLen - 1) + 1;
     bs->bits = calloc(bs->bits_length, sizeof(unsigned long));
     bs->length = searchLen;
@@ -178,7 +153,7 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
     {
         start = mpz_fdiv_r_ui(q, b, convertedStep);
         start = convertedStep - start;
-        if (start % 2 == 0)
+        if ((start & 1UL) == 0UL)
             start += convertedStep;
         bs_sieveSingle(bs, searchLen, (start - 1UL) / 2UL, convertedStep);
 
@@ -190,7 +165,14 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
     clock_gettime(CLOCK_MONOTONIC, &finish);
     struct timespec diff;
     difftimespec(&diff, &finish, &startt);
-    printf("%ld.%09ld\n", diff.tv_sec, diff.tv_nsec);
+    printf("篩の初期化を完了しました. %ld.%09lds\n", diff.tv_sec, diff.tv_nsec);
+}
+
+struct BitSieve *bs_getInstance(mpz_t *base, size_t searchLen)
+{
+    struct BitSieve *instance = calloc(1, sizeof(struct BitSieve));
+    bs_initInstance(instance, base, searchLen);
+    return instance;
 }
 
 void bs_free(struct BitSieve *bs)
@@ -270,4 +252,111 @@ void bs_foreach(struct BitSieve *bs, void (*function)(mpz_t *base, unsigned long
             offset += 2;
         }
     }
+}
+
+void bs_import()
+{
+}
+
+/**
+ * @brief 
+ * 
+ * @param out 
+ * @param outsize 
+ * @param bs 
+ * @return unsigned char* 
+ */
+unsigned char *bs_export(unsigned char *out, size_t *outsize, const struct BitSieve *bs)
+{
+    return NULL;
+}
+
+size_t bs_fileout(FILE *stream, struct BitSieve *bs)
+{
+    if (bs == NULL || stream == NULL)
+        return 0;
+
+    const size_t length = htobe64(bs->length);
+    const size_t bits_length = htobe64(bs->bits_length);
+
+    size_t sumofwritensize = 0;
+    size_t writensize = 0;
+
+    writensize = fwrite(&length, sizeof(size_t), 1, stream);
+    if (writensize < 1)
+    {
+        perror("frwite");
+        return 0;
+    }
+    sumofwritensize += writensize * sizeof(size_t);
+
+    writensize = fwrite(&bits_length, sizeof(size_t), 1, stream);
+    if (writensize < 1)
+    {
+        perror("frwite");
+        return sumofwritensize + writensize * sizeof(size_t);
+    }
+    sumofwritensize += writensize * sizeof(size_t);
+
+    unsigned long w = 0;
+    const size_t c = bs->bits_length;
+
+    for (size_t i = 0; i < c; i++)
+    {
+        w = htobe64(bs->bits[i]);
+        writensize = fwrite(&w, sizeof(unsigned long), 1, stream);
+        if (writensize < 1)
+        {
+            perror("fwrite");
+            return sumofwritensize + sizeof(unsigned long);
+        }
+        sumofwritensize += sizeof(unsigned long);
+    }
+
+    return sumofwritensize;
+}
+
+size_t bs_filein(struct BitSieve *bs, FILE *stream)
+{
+    if (bs == NULL || stream == NULL)
+        return 0;
+
+    size_t sumofsize = 0;
+    size_t readsize = 0;
+
+    size_t length;
+    readsize = fread(&length, sizeof(size_t), 1, stream);
+    if (readsize < 1)
+    {
+        return 0;
+    }
+    sumofsize = readsize * sizeof(size_t);
+
+    size_t bits_length;
+    readsize = fread(&bits_length, sizeof(size_t), 1, stream);
+    if (readsize < 1)
+    {
+        return sumofsize + readsize * sizeof(size_t);
+    }
+    sumofsize += readsize * sizeof(size_t);
+
+    bs->length = be64toh(length);
+    const size_t c = bs->bits_length = be64toh(bits_length);
+    bs->bits = calloc(bs->bits_length, sizeof(unsigned long));
+
+    unsigned long w = 0;
+    for (size_t i = 0; i < c; i++)
+    {
+        readsize = fread(&w, sizeof(unsigned long), bs->bits_length, stream);
+        if (readsize < 1)
+        {
+            free(bs->bits);
+            perror("fwrite");
+            return sumofsize + sizeof(unsigned long);
+        }
+        bs->bits[i] = be64toh(w);
+        sumofsize += sizeof(unsigned long);
+    }
+
+    return sumofsize;
 }

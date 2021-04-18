@@ -110,7 +110,7 @@ static const unsigned int small_primes[] = {
 
 int checkSmallPrime(mpz_t r, mpz_t p)
 {
-  size_t mod = 0;
+  unsigned long mod = 0;
   for (size_t k = 0; k < 1000; k++)
   {
     mod = mpz_mod_ui(r, p, small_primes[k]);
