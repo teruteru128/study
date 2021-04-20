@@ -16,8 +16,6 @@
 #define BIT_LENGTH 262144
 #define SEARCH_LENGTH (BIT_LENGTH / 20 * 64)
 
-static int threadpool_live = 1;
-
 /*
 スレッドプール終了変数を初期化する
 タスクキューと完了済みタスクキューを生成する

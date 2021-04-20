@@ -160,7 +160,7 @@ int main(int const argc, const char **const argv)
     {
       *p = '\0';
     }
-    strcat(message, tmp);
+    strncat(message, tmp, BUFSIZ - 1);
   }
   fclose(msgf);
   xmlrpc_value *messagev = xmlrpc_string_new(&env, message);

@@ -20,7 +20,7 @@ void bs_free(struct BitSieve *bs);
 mpz_t *bs_retrieve(struct BitSieve *bs, mpz_t *initValue, int certainty);
 void bs_foreach(struct BitSieve *bs, void (*function)(mpz_t *base, unsigned long offset, void *arg), mpz_t *base, void *arg);
 
-size_t bs_fileout(FILE *stream, struct BitSieve *bs);
+size_t bs_fileout(FILE *stream, const struct BitSieve *bs);
 size_t bs_filein(struct BitSieve *bs, FILE *stream);
 
 #endif

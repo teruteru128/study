@@ -64,17 +64,24 @@ static int threadpool_live = 1;
 void *produce_prime_candidate(void *arg)
 {
     const size_t min_offset = *(size_t *)arg;
+    char *bs_filename = (char *)((size_t *)arg)[1];
     struct BitSieve searchSieve;
     const size_t searchLength = mpz_sizeinbase(base, 2) / 20 * 64;
-    printf("search Length is %lu\n", searchLength);
-    // あんまり大きな素因数篩はエクスポート/インポートしたほうがいいのかも？
-    bs_initInstance(&searchSieve, &base, searchLength);
+    fprintf(stderr, "search Length is %lu\n", searchLength);
+    FILE *fin = fopen(bs_filename, "rb");
+    if (fin == NULL)
+    {
+        perror("fin in produce_prime_candidate");
+        return NULL;
+    }
+    bs_filein(&searchSieve, fin);
+    fputs("篩を読み込みました。\n", stderr);
+    fclose(fin);
     unsigned int offset = 1;
     //size_t max = searchSieve.length <= 1000? searchSieve.bits_length : 1000;
 
     size_t skiped_num = 0;
     size_t task_index = 0;
-    // ここでタスクキューをロックしてまとめて追加したい
     unstarted_task_enqueue_putLock();
     for (size_t i = 0; i < searchSieve.bits_length; i++)
     {
@@ -99,8 +106,8 @@ void *produce_prime_candidate(void *arg)
         }
     }
     unstarted_task_enqueue_putUnlock();
-    printf(ngettext("One prime number candidate was found.\n", "%zu prime number candidates were found.\n", task_index), task_index);
-    printf(ngettext("One prime number candidate have been skipped.\n", "%zu prime number candidates have been skipped.\n", skiped_num), skiped_num);
+    fprintf(stderr, ngettext("One prime number candidate was found.\n", "%zu prime number candidates were found.\n", task_index), task_index);
+    fprintf(stderr, ngettext("One prime number candidate have been skipped.\n", "%zu prime number candidates have been skipped.\n", skiped_num), skiped_num);
 
 #if 0
     while(threadpool_live)
@@ -182,7 +189,7 @@ void *consume_prime_candidate(void *arg)
         localtime_r(&finish.tv_sec, &tm);
         strftime(format, TIME_FORMAT_BUFFER_SIZE, "%FT%T.%%09ld%z", &tm);
         snprintf(formattedTime, TIME_FORMAT_BUFFER_SIZE, format, finish.tv_nsec);
-        printf("(%2lu) %s, %6ld.%09ld, %6zu, %7d:%d\n", tid, formattedTime, diff.tv_sec, diff.tv_nsec, index, offset, answer);
+        fprintf(stderr, "(%2lu) %s, %6ld.%09ld, %6zu, %7d:%d\n", tid, formattedTime, diff.tv_sec, diff.tv_nsec, index, offset, answer);
         if (answer == 1 || answer == 2)
         {
             task = calloc(1, sizeof(struct task));
@@ -197,7 +204,7 @@ void *consume_prime_candidate(void *arg)
 
 #define CONSUMER_THREAD_NUM 4
 
-int init_base(char *basefilepath)
+int init_base(const char *basefilepath)
 {
     mpz_init(base);
     FILE *fin = fopen(basefilepath, "r");
@@ -227,10 +234,10 @@ void initGettext()
  * @param argv 
  * @return int 
  */
-int searchPrime_main(int argc, char *argv[])
+int searchPrime_main(const int argc, const char *argv[])
 {
     initGettext();
-    char *basefile = (argc >= 2) ? argv[1] : NULL;
+    const char *basefile = (argc >= 2) ? argv[1] : NULL;
     if (basefile == NULL)
     {
         fprintf(stderr, "basefileは必須です。\n");
@@ -289,11 +296,30 @@ int searchPrime_main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    size_t min_offset = 0;
+    size_t min_offset[2] = {0};
     if (argc >= 3)
     {
-        min_offset = (size_t)strtoul(argv[2], NULL, 10);
+        min_offset[0] = (size_t)strtoul(argv[2], NULL, 10);
     }
+    char *bs_pathname = malloc(FILENAME_MAX);
+    bs_pathname[0] = 0;
+    {
+        // 拡張子書き換え
+        char *work = strdup(basefile);
+        char *dot = strrchr(work, '.');
+        if (dot != NULL)
+        {
+            *dot = '\0';
+        }
+        if (strlen(work) > FILENAME_MAX)
+        {
+            fputs("path nameが長すぎます！\n", stderr);
+            return EXIT_FAILURE;
+        }
+        snprintf(bs_pathname, FILENAME_MAX, "%s.bs", work);
+        free(work);
+    }
+    min_offset[1] = (size_t)bs_pathname;
 
     pthread_create(&producer_thread, NULL, produce_prime_candidate, &min_offset);
     for (size_t i = 0; i < threadNum; i++)
@@ -322,7 +348,7 @@ int searchPrime_main(int argc, char *argv[])
         pthread_join(consumer_threads[i], (void **)&task);
         if (task != NULL)
         {
-            printf("prime found! offset:%u\n", task->offset);
+            fprintf(stderr, "prime found! offset:%u\n", task->offset);
             //export_found_prime(task->offset);
             free(task);
         }
@@ -336,7 +362,7 @@ int searchPrime_main(int argc, char *argv[])
 }
 
 /**
- * @brief スレッド起動
+ * @brief bitsieveをエクスポートして毎回使い回せば早くなるんじゃねえか？作戦 その2
  * 完了済みタスクキューのゴミ掃除係
  * prime8 初期値ファイル <offset>
  * コマンドライン引数のオプションの実装ってどうやるんや？
@@ -346,14 +372,13 @@ int searchPrime_main(int argc, char *argv[])
  * 524288bit-7d7a92f9-0a35-4cb2-bc1f-fd0e43486e61-initialValue.txt 78481
  * (11) 2021-04-09T00:52:16.827287200+0900,   3363.858296900,   2332,   78481:0
  * ( 8) 2021-04-09T06:57:20.838852200+0900,   3175.324085300,   2428,   82137:0
- * 1スレッド, 1800s -> 1時間あたり2タスク, 2倍
- * 8スレッド, 2440s -> 1時間あたり11.8タスク, 1.4倍
- * 16スレッド, 3100s -> 1時間あたり18.6タスク, 1.16倍
+ * 1スレッド, 1800s -> 1時間あたり2タスク
+ * 16スレッド, 3100s -> 1時間あたり18.6タスク
  * @param argc 
  * @param argv 
  * @return int 
  */
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
     return searchPrime_main(argc, argv);
 }

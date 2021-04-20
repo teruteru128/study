@@ -32,10 +32,11 @@ int exportBitSieve_main(int argc, const char *argv[])
     bs_initInstance(&bitSieve, &base, searchLength);
 
     char outfilename[FILENAME_MAX] = "";
+#if 1
     {
         // 拡張子書き換え
         char *work = strdup(argv[1]);
-        char *dot = strchr(work, '.');
+        char *dot = strrchr(work, '.');
         if (dot != NULL)
         {
             *dot = '\0';
@@ -43,6 +44,10 @@ int exportBitSieve_main(int argc, const char *argv[])
         snprintf(outfilename, FILENAME_MAX, "%s.bs", work);
         free(work);
     }
+#else
+    // 拡張子追加して置き換え
+    snprintf(outfilename, FILENAME_MAX, "%s.bs", argv[1]);
+#endif
     FILE *fout = fopen(outfilename, "wb");
     bs_fileout(fout, &bitSieve);
     fclose(fout);

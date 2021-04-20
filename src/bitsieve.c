@@ -12,17 +12,11 @@
 
 #include <gmp.h>
 
+#define PUBLISH_STRUCT_BS
 #include "bitsieve.h"
 
 #define unitIndex(bitIndex) ((bitIndex) >> 6)
 #define bit(bitIndex) (1UL << ((bitIndex) & ((1 << 6) - 1)))
-
-struct BitSieve
-{
-    unsigned long *bits;
-    size_t bits_length;
-    size_t length;
-};
 
 static void bs_set(struct BitSieve *bs, size_t bitIndex)
 {
@@ -271,18 +265,18 @@ unsigned char *bs_export(unsigned char *out, size_t *outsize, const struct BitSi
     return NULL;
 }
 
-size_t bs_fileout(FILE *stream, struct BitSieve *bs)
+size_t bs_fileout(FILE *stream, const struct BitSieve *bs)
 {
     if (bs == NULL || stream == NULL)
         return 0;
 
-    const size_t length = htobe64(bs->length);
-    const size_t bits_length = htobe64(bs->bits_length);
+    const size_t swaped_length = htobe64(bs->length);
+    const size_t swaped_bits_length = htobe64(bs->bits_length);
 
     size_t sumofwritensize = 0;
     size_t writensize = 0;
 
-    writensize = fwrite(&length, sizeof(size_t), 1, stream);
+    writensize = fwrite(&swaped_length, sizeof(size_t), 1, stream);
     if (writensize < 1)
     {
         perror("frwite");
@@ -290,7 +284,7 @@ size_t bs_fileout(FILE *stream, struct BitSieve *bs)
     }
     sumofwritensize += writensize * sizeof(size_t);
 
-    writensize = fwrite(&bits_length, sizeof(size_t), 1, stream);
+    writensize = fwrite(&swaped_bits_length, sizeof(size_t), 1, stream);
     if (writensize < 1)
     {
         perror("frwite");
@@ -298,10 +292,11 @@ size_t bs_fileout(FILE *stream, struct BitSieve *bs)
     }
     sumofwritensize += writensize * sizeof(size_t);
 
-    unsigned long w = 0;
-    const size_t c = bs->bits_length;
+    const size_t bits_length = bs->bits_length;
+#if 0
 
-    for (size_t i = 0; i < c; i++)
+    unsigned long w = 0;
+    for (size_t i = 0; i < bits_length; i++)
     {
         w = htobe64(bs->bits[i]);
         writensize = fwrite(&w, sizeof(unsigned long), 1, stream);
@@ -312,6 +307,21 @@ size_t bs_fileout(FILE *stream, struct BitSieve *bs)
         }
         sumofwritensize += sizeof(unsigned long);
     }
+#else
+    unsigned long *work = calloc(sizeof(unsigned long) , bits_length);
+    memcpy(work, bs->bits, sizeof(unsigned long) * bits_length);
+
+    for (size_t i = 0; i < bits_length; i++)
+    {
+        work[i] = htobe64(work[i]);
+    }
+    writensize = fwrite(work, sizeof(unsigned long), bits_length, stream);
+    if (writensize < bits_length)
+    {
+        perror("fwrite");
+    }
+    sumofwritensize += sizeof(unsigned long) * writensize;
+#endif
 
     return sumofwritensize;
 }
@@ -324,39 +334,62 @@ size_t bs_filein(struct BitSieve *bs, FILE *stream)
     size_t sumofsize = 0;
     size_t readsize = 0;
 
-    size_t length;
-    readsize = fread(&length, sizeof(size_t), 1, stream);
+    size_t swaped_length;
+    readsize = fread(&swaped_length, sizeof(size_t), 1, stream);
     if (readsize < 1)
     {
+        perror("fread");
         return 0;
     }
     sumofsize = readsize * sizeof(size_t);
+    bs->length = be64toh(swaped_length);
 
-    size_t bits_length;
-    readsize = fread(&bits_length, sizeof(size_t), 1, stream);
+    size_t swaped_bits_length;
+    readsize = fread(&swaped_bits_length, sizeof(size_t), 1, stream);
     if (readsize < 1)
     {
+        perror("fread");
         return sumofsize + readsize * sizeof(size_t);
     }
     sumofsize += readsize * sizeof(size_t);
+    const size_t bits_length = bs->bits_length = be64toh(swaped_bits_length);
 
-    bs->length = be64toh(length);
-    const size_t c = bs->bits_length = be64toh(bits_length);
-    bs->bits = calloc(bs->bits_length, sizeof(unsigned long));
-
+    bs->bits = calloc(bits_length, sizeof(unsigned long));
+    /*
+      早いのはどっち？
+    */
+#if 0
     unsigned long w = 0;
-    for (size_t i = 0; i < c; i++)
+    for (size_t i = 0; i < bits_length; i++)
     {
-        readsize = fread(&w, sizeof(unsigned long), bs->bits_length, stream);
+        // 1個読んで
+        readsize = fread(&w, sizeof(unsigned long), 1, stream);
         if (readsize < 1)
         {
             free(bs->bits);
-            perror("fwrite");
+            perror("fread");
             return sumofsize + sizeof(unsigned long);
         }
+        // バイトオーダーを変換して書き込む
         bs->bits[i] = be64toh(w);
         sumofsize += sizeof(unsigned long);
     }
+#else
+    // 一括で全部読んで
+    readsize = fread(bs->bits, sizeof(unsigned long), bits_length, stream);
+    if (readsize < bits_length)
+    {
+        free(bs->bits);
+        perror("fread");
+        return sumofsize;
+    }
+    sumofsize += sizeof(unsigned long) * bits_length;
+    for (size_t i = 0; i < bits_length; i++)
+    {
+        // あとからバイトオーダーを変換する
+        bs->bits[i] = be64toh(bs->bits[i]);
+    }
+#endif
 
     return sumofsize;
 }
