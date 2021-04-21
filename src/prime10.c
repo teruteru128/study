@@ -8,6 +8,13 @@
 
 #include <gmp.h>
 
+/**
+ * @brief 単一数について素数判定
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char *argv[])
 {
     if (argc < 2)
@@ -23,13 +30,14 @@ int main(int argc, char *argv[])
         perror("fin");
         return EXIT_FAILURE;
     }
-    mpz_t base;
-    mpz_init(base);
-    mpz_inp_str(base, fin1, 16);
+    mpz_t primeNumberCandidate;
+    mpz_init(primeNumberCandidate);
+    mpz_inp_str(primeNumberCandidate, fin1, 16);
     fclose(fin1);
 
-    int answer = mpz_probab_prime_p(base, 100);
+    int answer = mpz_probab_prime_p(primeNumberCandidate, 100);
     printf("%d\n", answer);
+    mpz_clear(primeNumberCandidate);
 
     return EXIT_SUCCESS;
 }

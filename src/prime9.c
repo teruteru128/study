@@ -10,24 +10,24 @@
 
 int main(int argc, char *argv[])
 {
-    FILE *fin1 = fopen("262144bit-initialValue1.txt", "r");
-    FILE *fin2 = fopen("262144bit-prime1.txt", "w");
-    if (fin1 == NULL || fin2 == NULL)
+    FILE *fin = fopen("524288bit-7d7a92f9-0a35-4cb2-bc1f-fd0e43486e61-initialValue.txt", "r");
+    FILE *fout = fopen("524288bit-7d7a92f9-0a35-4cb2-bc1f-fd0e43486e61-prime.txt", "w");
+    if (fin == NULL || fout == NULL)
     {
-        if (fin1 != NULL)
-            fclose(fin1);
-        if (fin2 != NULL)
-            fclose(fin2);
+        if (fin != NULL)
+            fclose(fin);
+        if (fout != NULL)
+            fclose(fout);
         perror("fin");
         return EXIT_FAILURE;
     }
     mpz_t base;
     mpz_init(base);
-    mpz_inp_str(base, fin1, 16);
-    fclose(fin1);
-    mpz_add_ui(base, base, 40203);
-    mpz_out_str(fin2, 16, base);
-    fclose(fin2);
+    mpz_inp_str(base, fin, 16);
+    fclose(fin);
+    mpz_add_ui(base, base, 191319);
+    mpz_out_str(fout, 16, base);
+    fclose(fout);
 
     return EXIT_SUCCESS;
 }

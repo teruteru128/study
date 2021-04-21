@@ -56,6 +56,13 @@ int exportBitSieve_main(int argc, const char *argv[])
     return 0;
 }
 
+/**
+ * @brief ビット篩を生成してファイルに書き出し
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, const char *argv[])
 {
     return exportBitSieve_main(argc, argv);

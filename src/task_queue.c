@@ -50,6 +50,16 @@ void clear_task(struct task *task)
     task->diff.tv_nsec = 0;
 }
 
+void unstarted_task_signal_not_empty()
+{
+    signalNotEmpty(&unstarted_task_queue);
+}
+
+size_t unstarted_task_getSize_nolock()
+{
+    return q_getSize_nolock(&unstarted_task_queue);
+}
+
 int unstarted_task_enqueue_putLock()
 {
     pthread_mutex_lock(&unstarted_task_queue.putLock);

@@ -6,8 +6,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <gmp.h>
 
-#define INPUT_FILE_NAME "82589934bit-791433f6-33ff-4282-90c8-6ad2e6e31447-initialValue.txt"
+void *func(void *arg)
+{
+  size_t *arg_size_t = (size_t *)arg;
+  size_t num = arg_size_t[0];
+  char *path = (char *)arg_size_t[1];
+  printf("%p, %lu, %s\n", arg, num, path);
+  return NULL;
+}
 
 /**
  * 
@@ -72,14 +80,16 @@
  */
 int main(int argc, char *argv[])
 {
-  char outfilename[FILENAME_MAX] = "";
-  char *a = strrchr(INPUT_FILE_NAME, '.');
-  size_t len = (a == NULL) ? strlen(INPUT_FILE_NAME) : (a - INPUT_FILE_NAME);
-  memcpy(outfilename, INPUT_FILE_NAME, len);
-  outfilename[len] = 0;
-
-  memcpy(outfilename + len, ".bs", 4);
-
-  printf("%s\n", outfilename);
+  char msg[] = "テストですわ";
+  size_t args[2] = {0};
+  args[0] = 334;
+  args[1] = (size_t)msg;
+  func(args);
+  func(&args);
+  mpz_t a;
+  mpz_init_set_ui(a, 17);
+  unsigned long b = mpz_fdiv_r_ui(a, a, 3);
+  printf("%lu\n", b);
+  mpz_clear(a);
   return EXIT_SUCCESS;
 }

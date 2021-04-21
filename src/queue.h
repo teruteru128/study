@@ -31,5 +31,8 @@ struct queue
 void put_nolock(struct queue *list, void *node);
 void put(struct queue *list, void *node);
 void *take(struct queue *list);
+size_t q_getSize_nolock(struct queue *queue);
+void signalNotEmpty(struct queue *queue);
+void signalNotFull(struct queue *queue);
 
 #endif

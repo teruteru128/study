@@ -20,14 +20,12 @@
 
 static void bs_set(struct BitSieve *bs, size_t bitIndex)
 {
-    size_t unitIndex = unitIndex(bitIndex);
-    bs->bits[unitIndex] |= bit(bitIndex);
+    bs->bits[unitIndex(bitIndex)] |= bit(bitIndex);
 }
 
 static int bs_get(struct BitSieve *bs, size_t bitIndex)
 {
-    size_t unitIndex = unitIndex(bitIndex);
-    return ((bs->bits[unitIndex] & bit(bitIndex)) != 0);
+    return ((bs->bits[unitIndex(bitIndex)] & bit(bitIndex)) != 0);
 }
 
 /**
@@ -140,13 +138,11 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
     size_t step = bs_sieveSearch(&smallSieve, smallSieve.length, start);
     size_t convertedStep = ((step * 2) + 1);
 
-    mpz_t b, q;
+    mpz_t b;
     mpz_init_set(b, *base);
-    mpz_init(q);
     do
     {
-        start = mpz_fdiv_r_ui(q, b, convertedStep);
-        start = convertedStep - start;
+        start = convertedStep - mpz_fdiv_ui(b, convertedStep);
         if ((start & 1UL) == 0UL)
             start += convertedStep;
         bs_sieveSingle(bs, searchLen, (start - 1UL) / 2UL, convertedStep);
@@ -154,7 +150,7 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
         step = bs_sieveSearch(&smallSieve, smallSieve.length, step + 1UL);
         convertedStep = step * 2UL + 1UL;
     } while (step != (size_t)-1);
-    mpz_clears(b, q, NULL);
+    mpz_clears(b, NULL);
     struct timespec finish;
     clock_gettime(CLOCK_MONOTONIC, &finish);
     struct timespec diff;
@@ -308,7 +304,7 @@ size_t bs_fileout(FILE *stream, const struct BitSieve *bs)
         sumofwritensize += sizeof(unsigned long);
     }
 #else
-    unsigned long *work = calloc(sizeof(unsigned long) , bits_length);
+    unsigned long *work = calloc(sizeof(unsigned long), bits_length);
     memcpy(work, bs->bits, sizeof(unsigned long) * bits_length);
 
     for (size_t i = 0; i < bits_length; i++)
@@ -320,6 +316,7 @@ size_t bs_fileout(FILE *stream, const struct BitSieve *bs)
     {
         perror("fwrite");
     }
+    free(work);
     sumofwritensize += sizeof(unsigned long) * writensize;
 #endif
 

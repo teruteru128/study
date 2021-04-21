@@ -52,14 +52,14 @@ static void enqueue(struct queue *queue, struct node *node)
     queue->tail = node;
 }
 
-static void signalNotEmpty(struct queue *queue)
+void signalNotEmpty(struct queue *queue)
 {
     pthread_mutex_lock(&queue->takeLock);
     pthread_cond_broadcast(&queue->notEmpty);
     pthread_mutex_unlock(&queue->takeLock);
 }
 
-static void signalNotFull(struct queue *queue)
+void signalNotFull(struct queue *queue)
 {
     pthread_mutex_lock(&queue->putLock);
     pthread_cond_signal(&queue->notFull);
@@ -71,9 +71,7 @@ void put_nolock(struct queue *queue, void *e)
     struct node *node = calloc(1, sizeof(struct node));
     node->item = e;
     enqueue(queue, node);
-    size_t c = queue->size++;
-    if (c == 0)
-        signalNotEmpty(queue);
+    queue->size++;
 }
 
 void put(struct queue *queue, void *e)
@@ -125,4 +123,17 @@ void *take(struct queue *queue)
     if (c == queue->capacity)
         signalNotFull(queue);
     return item;
+}
+
+size_t q_getSize(struct queue *queue)
+{
+    pthread_mutex_lock(&queue->sizeLock);
+    size_t size = queue->size;
+    pthread_mutex_unlock(&queue->sizeLock);
+    return size;
+}
+
+size_t q_getSize_nolock(struct queue *queue)
+{
+    return queue->size;
 }
