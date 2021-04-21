@@ -12,6 +12,7 @@ bin_PROGRAMS= \
 	bm \
 	bmkeygen \
 	bmkeysearch \
+	bmkeysearch2 \
 	bmspam \
 	bouyomi \
 	calc \
@@ -75,7 +76,6 @@ bin_PROGRAMS= \
 	prime10 \
 	prime11 \
 	prime12 \
-	prime13 \
 	primesearch \
 	printBench \
 	printinttest \
@@ -179,6 +179,8 @@ bmkeygen_SOURCES=bmkeygen.c
 bmkeysearch_CFLAGS=
 bmkeysearch_LDADD=$(LIBSTUDYPATH)
 bmkeysearch_SOURCES=bmkeysearch.c queue.c queue.h
+bmkeysearch2_LDADD=$(LIBSTUDYPATH)
+bmkeysearch2_SOURCES=bmkeysearch2.c queue.c queue.h
 bmspam_CFLAGS=`xmlrpc-c-config libwww-client --cflags`
 bmspam_LDADD=$(LIBSTUDYPATH)
 bmspam_LDFLAGS=`xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
@@ -233,7 +235,6 @@ prime7_SOURCES=prime7.c bitsieve.c bitsieve.h timeutil.c timeutil.h
 prime8_SOURCES=prime8.c bitsieve.c bitsieve.h task_queue.c task_queue.h queue.c queue.h timeutil.c timeutil.h
 #prime8_LDFLAGS=-static
 prime12_SOURCES=prime12.c bitsieve.c bitsieve.h timeutil.c timeutil.h
-prime13_SOURCES=prime13.c bitsieve.c bitsieve.h task_queue.c task_queue.h queue.c queue.h timeutil.c timeutil.h
 primesearch_SOURCES=primesearch.c
 printBench_CFLAGS=
 printBench_LDADD=$(LIBSTUDYPATH)
