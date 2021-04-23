@@ -318,7 +318,7 @@ int searchPrime_main(const int argc, const char *argv[])
         return EXIT_FAILURE;
     }
 
-    struct producer_arg arg;
+    struct producer_arg arg = {0, NULL};
     if (argc >= 3)
     {
         arg.offset = (size_t)strtoul(argv[2], NULL, 10);

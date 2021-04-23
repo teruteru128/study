@@ -5,6 +5,7 @@ bin_PROGRAMS= \
 	FizzBuzz \
 	Nabeatsu \
 	TSIdentityTool \
+	addpadding \
 	ankokudan_decode \
 	argparsesample \
 	bcasttest \
@@ -76,6 +77,7 @@ bin_PROGRAMS= \
 	prime10 \
 	prime11 \
 	prime12 \
+	prime13 \
 	primesearch \
 	printBench \
 	printinttest \
@@ -235,6 +237,7 @@ prime7_SOURCES=prime7.c bitsieve.c bitsieve.h timeutil.c timeutil.h
 prime8_SOURCES=prime8.c bitsieve.c bitsieve.h task_queue.c task_queue.h queue.c queue.h timeutil.c timeutil.h
 #prime8_LDFLAGS=-static
 prime12_SOURCES=prime12.c bitsieve.c bitsieve.h timeutil.c timeutil.h
+prime13_SOURCES=prime13.c bitsieve.c bitsieve.h queue.c queue.h timeutil.c timeutil.h
 primesearch_SOURCES=primesearch.c
 printBench_CFLAGS=
 printBench_LDADD=$(LIBSTUDYPATH)

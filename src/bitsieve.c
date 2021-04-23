@@ -29,7 +29,7 @@ static int bs_get(struct BitSieve *bs, size_t bitIndex)
 }
 
 /**
- * @brief startの倍数にフラグを立てます.
+ * @brief startから開始して最初にフラグの立っていない数を探します.
  * 
  * @param bs 
  * @param limit 
@@ -51,6 +51,14 @@ static size_t bs_sieveSearch(struct BitSieve *bs, size_t limit, size_t start)
     return (size_t)-1;
 }
 
+/**
+ * @brief startの倍数にフラグを立てます.
+ * 
+ * @param bs 
+ * @param limit 
+ * @param start 
+ * @param step 
+ */
 static void bs_sieveSingle(struct BitSieve *bs, size_t limit, size_t start, size_t step)
 {
     while (start < limit)
@@ -72,7 +80,7 @@ static void bs_smallSieve_Constract(void)
      * 対象のbit lengthが非常に長い場合、smallSieveの長さを大きくしても良いのかも？
      */
     // smallSieve.length = 1 * 64; // 64
-    // smallSieve.length = 150 * 64; // 9600
+    smallSieve.length = 150 * 64; // 9600
     // smallSieve.length = 500 * 64; // 32000
     // smallSieve.length = 512 * 64; // 32768
     // smallSieve.length = 780 * 64; // 49920
@@ -81,7 +89,7 @@ static void bs_smallSieve_Constract(void)
     // smallSieve.length = 8192 * 64; // 524288
     // smallSieve.length = 65536 * 64; // 4,194,304
     // smallSieve.length = 1048576 * 64; // 67,108,864
-    smallSieve.length = 67108864 * 64UL; // 4,294,967,296
+    // smallSieve.length = 67108864 * 64UL; // 4,294,967,296
     smallSieve.bits_length = unitIndex(smallSieve.length - 1) + 1;
     smallSieve.bits = calloc(smallSieve.bits_length, sizeof(unsigned long));
     if (smallSieve.bits == NULL)
@@ -110,7 +118,12 @@ static void bs_smallSieve_Constract(void)
     printf("small sieveの初期化を完了しました. %ld.%09lds\n", diff.tv_sec, diff.tv_nsec);
 }
 
-static pthread_once_t once_control = PTHREAD_ONCE_INIT;
+static pthread_once_t smallSieveInitialize = PTHREAD_ONCE_INIT;
+
+void bs_initSmallSieve()
+{
+    pthread_once(&smallSieveInitialize, bs_smallSieve_Constract);
+}
 
 /**
  * XXX: 初期化済みのBitSieveをbs_freeせずに再度初期化するとメモリリークが起きる
@@ -123,26 +136,24 @@ static pthread_once_t once_control = PTHREAD_ONCE_INIT;
 void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
 {
     printf("篩の初期化を開始します...\n");
-    pthread_once(&once_control, bs_smallSieve_Constract);
+    bs_initSmallSieve();
     struct timespec startt;
     clock_gettime(CLOCK_MONOTONIC, &startt);
     if (bs == NULL || base == NULL)
     {
         return;
     }
+    bs->length = searchLen;
     bs->bits_length = unitIndex(searchLen - 1) + 1;
     bs->bits = calloc(bs->bits_length, sizeof(unsigned long));
-    bs->length = searchLen;
     size_t start = 0;
 
     size_t step = bs_sieveSearch(&smallSieve, smallSieve.length, start);
     size_t convertedStep = ((step * 2) + 1);
 
-    mpz_t b;
-    mpz_init_set(b, *base);
     do
     {
-        start = convertedStep - mpz_fdiv_ui(b, convertedStep);
+        start = convertedStep - mpz_fdiv_ui(*base, convertedStep);
         if ((start & 1UL) == 0UL)
             start += convertedStep;
         bs_sieveSingle(bs, searchLen, (start - 1UL) / 2UL, convertedStep);
@@ -150,7 +161,6 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
         step = bs_sieveSearch(&smallSieve, smallSieve.length, step + 1UL);
         convertedStep = step * 2UL + 1UL;
     } while (step != (size_t)-1);
-    mpz_clears(b, NULL);
     struct timespec finish;
     clock_gettime(CLOCK_MONOTONIC, &finish);
     struct timespec diff;
@@ -389,4 +399,13 @@ size_t bs_filein(struct BitSieve *bs, FILE *stream)
 #endif
 
     return sumofsize;
+}
+
+size_t bs_getNextStep(struct bs_ctx *ctx)
+{
+    pthread_mutex_lock(&ctx->mutex);
+    size_t returnstep = bs_sieveSearch(&smallSieve, smallSieve.length, ctx->start);
+    ctx->start = returnstep + 1UL;
+    pthread_mutex_unlock(&ctx->mutex);
+    return returnstep;
 }

@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <gmp.h>
-#include <byteswap.h>
 #include <string.h>
 #define PUBLISH_STRUCT_BS
 #include "bitsieve.h"

@@ -8,7 +8,7 @@
 #include <gmp.h>
 #include <uuid/uuid.h>
 
-#define BIT_LENGTH 82589934
+#define BIT_LENGTH 1024
 #define BUFFER_SIZE (((BIT_LENGTH - 1) >> 3) + 1)
 
 static void generate_output_filename(char *filename, size_t maxlen)
