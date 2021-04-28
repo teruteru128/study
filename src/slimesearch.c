@@ -54,7 +54,7 @@ void startMCSlimeChunkSearch()
   if (!set)
   {
     perror("calloc");
-    return 1;
+    return;
   }
 
   // 0~624

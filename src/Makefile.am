@@ -32,7 +32,8 @@ bin_PROGRAMS= \
 	encodersa \
 	enginetest \
 	envgettest \
-	errnosample \
+	errnosample1 \
+	errnosample2 \
 	evpmdtest \
 	evptest \
 	falcon \
@@ -50,8 +51,9 @@ bin_PROGRAMS= \
 	json-c_test \
 	kxsample \
 	list2 \
-	localetest1 \
-	localetest2 \
+	localesample1 \
+	localesample2 \
+	localesample3 \
 	log-sample \
 	loop-bench \
 	main \
@@ -216,9 +218,10 @@ iconvtest_SOURCES=iconvtest.c
 itoabench_CFLAGS=
 itoabench_LDADD=$(LIBSTUDYPATH)
 itoabench_SOURCES=itoabench.c
-localetest1_CFLAGS=
-localetest1_SOURCES=localetest1.c localetest1.h
-localetest2_SOURCES=localetest2.c
+localesample1_CFLAGS=
+localesample1_SOURCES=localesample1.c localesample1.h
+localesample2_SOURCES=localesample2.c
+localesample3_SOURCES=localesample3.c
 main_SOURCES=main.cpp
 mappingsample_SOURCES=mappingsample.c
 maxmovingsum_SOURCES=maxmovingsum.c

@@ -29,7 +29,8 @@ eckeygentest
 encodersa
 enginetest
 envgettest
-errnosample
+errnosample1
+errnosample2
 evpmdtest
 evptest
 falcon
@@ -47,8 +48,9 @@ itoabench
 json-c_test
 kxsample
 list2
-localetest1
-localetest2
+localesample1
+localesample2
+localesample3
 log-sample
 loop-bench
 main
@@ -59,6 +61,7 @@ mysqlaccesssample
 mysqlaccesssample2
 mysqlfast
 pgpcrc24sample
+pointersample
 portscanner
 potest
 prime1

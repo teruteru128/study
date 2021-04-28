@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <inttypes.h>
+#include <netdb.h>
 
 #define MSGSIZE 1024
 #define BUFSIZE (MSGSIZE + 1)
@@ -67,8 +68,8 @@ struct args
 {
   int ignore_errors;
   int loglevel;
-  char *servAddr;
-  char *servPortStr;
+  char servHost[NI_MAXHOST];
+  char servPort[NI_MAXSERV];
 };
 
 #endif

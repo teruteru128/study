@@ -75,7 +75,7 @@ void *produce_prime_candidate(void *arg)
     struct BitSieve searchSieve;
     const size_t searchLength = mpz_sizeinbase(base, 2) / 20 * 64;
     fprintf(stderr, "search Length is %lu\n", searchLength);
-    if (bs_filename != NULL)
+    if (access(bs_filename, F_OK | R_OK) == 0)
     {
         // bsファイルアクセス可能
         FILE *fin = fopen(bs_filename, "rb");
@@ -86,14 +86,22 @@ void *produce_prime_candidate(void *arg)
         }
         bs_filein(&searchSieve, fin);
         // fputs("篩を読み込みました。\n", stderr);
-        fputs("Bit sieve was loaded.\n", stderr);
+        fputs("The bit sieve has been loaded.\n", stderr);
         fclose(fin);
     }
     else
     {
         // bsファイルアクセス不可能
         bs_initInstance(&searchSieve, &base, searchLength);
-        fputs("Bit sieve was generated.\n", stderr);
+        fputs("The bit sieve has been generated.\n", stderr);
+        // ファイルへbit篩をエクスポート
+        FILE *fout = fopen(bs_filename, "wb");
+        if (fout != NULL)
+        {
+            bs_fileout(fout, &searchSieve);
+            fclose(fout);
+            fputs("The bit sieve has been exported.\n", stderr);
+        }
     }
     unsigned int offset = 1;
     //size_t max = searchSieve.length <= 1000? searchSieve.bits_length : 1000;
@@ -149,7 +157,11 @@ void *produce_prime_candidate(void *arg)
 
 #define TIME_FORMAT_BUFFER_SIZE 64
 
-static pthread_barrier_t barrier;
+struct consumer_args
+{
+    pthread_barrier_t *barrier;
+    size_t tid;
+};
 
 /**
  * @brief 素数候補をタスクキューから取り出して素数判定して完了済みタスクリストに結果を入れる
@@ -175,7 +187,8 @@ static pthread_barrier_t barrier;
  */
 void *consume_prime_candidate(void *arg)
 {
-    const size_t tid = *((size_t *)arg);
+    struct consumer_args *args = (struct consumer_args *)arg;
+    const size_t tid = args->tid;
     mpz_t candidate;
     mpz_init(candidate);
     struct task *task = NULL;
@@ -194,11 +207,12 @@ void *consume_prime_candidate(void *arg)
         task = unstarted_task_dequeue();
         offset = task->offset;
         index = task->index;
+        clear_task(task);
         free(task);
         task = NULL;
 
         mpz_add_ui(candidate, base, offset);
-        pthread_barrier_wait(&barrier);
+        pthread_barrier_wait(args->barrier);
         // 割と邪魔だな
         //printf("(%2d)      0, %6zu, %7d:start\n", tid, index, offset);
         clock_gettime(CLOCK_REALTIME, &start);
@@ -218,7 +232,7 @@ void *consume_prime_candidate(void *arg)
             task->offset = offset;
             threadpool_live = 0;
         }
-        pthread_barrier_wait(&barrier);
+        pthread_barrier_wait(args->barrier);
     }
     mpz_clear(candidate);
     return task;
@@ -299,7 +313,8 @@ int searchPrime_main(const int argc, const char *argv[])
             fprintf(stderr, "利用可能なプロセッサ数より多くのスレッド数が指定されています。\n");
         }
     }
-    pthread_barrier_init(&barrier, NULL, (unsigned int)threadNum);
+    pthread_barrier_t *barrier = malloc(sizeof(pthread_barrier_t));
+    pthread_barrier_init(barrier, NULL, (unsigned int)threadNum);
 
     pthread_t producer_thread;
     pthread_t *consumer_threads = calloc(threadNum, sizeof(pthread_t));
@@ -309,10 +324,10 @@ int searchPrime_main(const int argc, const char *argv[])
         mpz_clear(base);
         return EXIT_FAILURE;
     }
-    size_t *tids = calloc(threadNum, sizeof(size_t));
-    if (tids == NULL)
+    struct consumer_args *args = calloc(threadNum, sizeof(struct consumer_args));
+    if (args == NULL)
     {
-        perror("tids = calloc");
+        perror("consumer args = calloc");
         free(consumer_threads);
         mpz_clear(base);
         return EXIT_FAILURE;
@@ -333,30 +348,23 @@ int searchPrime_main(const int argc, const char *argv[])
         {
             *dot = '\0';
         }
-        if (strlen(work) > FILENAME_MAX)
+        if (strlen(work) >= FILENAME_MAX)
         {
+            // strlen(work) == FILENAME_MAX -> NULL文字を入れる場所がないのでアウト
             fputs("path nameが長すぎます！\n", stderr);
             return EXIT_FAILURE;
         }
         snprintf(bs_pathname, FILENAME_MAX, "%s.bs", work);
         free(work);
     }
-    if (access(bs_pathname, F_OK | R_OK) == 0)
-    {
-        arg.path = bs_pathname;
-    }
-    else
-    {
-        free(bs_pathname);
-        bs_pathname = NULL;
-        arg.path = NULL;
-    }
+    arg.path = bs_pathname;
 
     pthread_create(&producer_thread, NULL, produce_prime_candidate, &arg);
     for (size_t i = 0; i < threadNum; i++)
     {
-        tids[i] = i;
-        pthread_create(&consumer_threads[i], NULL, consume_prime_candidate, tids + i);
+        (args + i)->tid = i;
+        (args + i)->barrier = barrier;
+        pthread_create(&consumer_threads[i], NULL, consume_prime_candidate, args + i);
     }
     pthread_join(producer_thread, NULL);
 
@@ -381,13 +389,15 @@ int searchPrime_main(const int argc, const char *argv[])
         {
             fprintf(stderr, "prime found! offset:%u\n", task->offset);
             //export_found_prime(task->offset);
+            clear_task(task);
             free(task);
         }
     }
     mpz_clear(base);
-    pthread_barrier_destroy(&barrier);
+    pthread_barrier_destroy(barrier);
+    free(barrier);
     free(consumer_threads);
-    free(tids);
+    free(args);
     free(bs_pathname);
 
     return EXIT_SUCCESS;

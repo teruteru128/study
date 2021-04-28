@@ -271,6 +271,15 @@ unsigned char *bs_export(unsigned char *out, size_t *outsize, const struct BitSi
     return NULL;
 }
 
+/**
+ * @brief ビット篩をストリームへエクスポートする。
+ * もしかしたら一つのストリームへ複数のビット篩がエクスポート可能かもしれない。
+ * ほとんどすべての用途において必要ではないと思われるが。
+ * 
+ * @param stream 
+ * @param bs 
+ * @return size_t 
+ */
 size_t bs_fileout(FILE *stream, const struct BitSieve *bs)
 {
     if (bs == NULL || stream == NULL)

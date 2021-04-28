@@ -8,12 +8,9 @@
 #include <gmp.h>
 #include <uuid/uuid.h>
 
-#define BIT_LENGTH 1024
-#define BUFFER_SIZE (((BIT_LENGTH - 1) >> 3) + 1)
-
-static void generate_output_filename(char *filename, size_t maxlen)
+static void generate_output_filename(char *dest, size_t maxlen, size_t bit_length)
 {
-    if (filename == NULL)
+    if (dest == NULL)
         return;
 
     uuid_t uuid;
@@ -21,7 +18,7 @@ static void generate_output_filename(char *filename, size_t maxlen)
     uuid_generate_random(uuid);
     uuid_unparse(uuid, uuid_str);
 
-    snprintf(filename, maxlen, "%dbit-%s-initialValue.txt", BIT_LENGTH, uuid_str);
+    snprintf(dest, maxlen, "%lubit-%s-initialValue.txt", bit_length, uuid_str);
 }
 
 /**
@@ -33,21 +30,25 @@ static void generate_output_filename(char *filename, size_t maxlen)
  */
 int main(int argc, char *argv[])
 {
+    const size_t bit_length = 1024;
+    const size_t buffer_size = ((bit_length - 1) >> 3) + 1;
     mpz_t base;
     mpz_inits(base, NULL);
-    unsigned char *p = calloc(BUFFER_SIZE, sizeof(char));
+    unsigned char *p = calloc(buffer_size, sizeof(char));
     FILE *fin = fopen("/dev/urandom", "rb");
-    fread(p, sizeof(unsigned char), BUFFER_SIZE, fin);
+    fread(p, sizeof(unsigned char), buffer_size, fin);
     fclose(fin);
-    mpz_import(base, BUFFER_SIZE, 1, sizeof(char), 0, 0, p);
+    mpz_import(base, buffer_size, 1, sizeof(char), 0, 0, p);
+    free(p);
+    p = NULL;
 
-    mpz_setbit(base, BIT_LENGTH - 1);
+    mpz_setbit(base, bit_length - 1);
     mpz_clrbit(base, 0);
 
-    char filename[PATH_MAX];
-    generate_output_filename(filename, PATH_MAX);
+    char dest[PATH_MAX];
+    generate_output_filename(dest, PATH_MAX, bit_length);
 
-    FILE *fout = fopen(filename, "w");
+    FILE *fout = fopen(dest, "w");
     if (fout == NULL)
     {
         perror("Failed to open the output file.");
@@ -58,6 +59,5 @@ int main(int argc, char *argv[])
     fputs("\n", fout);
     fclose(fout);
     mpz_clear(base);
-    free(p);
     return EXIT_SUCCESS;
 }

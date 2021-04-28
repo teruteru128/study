@@ -83,9 +83,14 @@ int main(int argc, char *argv[])
   }
   int64_t seed = ts.tv_nsec + ts.tv_sec;
   int64_t rnd = initialScramble(seed);
-  char *domains[] = {"p2pquake.dyndns.info", "www.p2pquake.net", "p2pquake.dnsalias.net", "p2pquake.ddo.jp"};
+  char domainsin[4][24] = {"p2pquake.dyndns.info", "www.p2pquake.net", "p2pquake.dnsalias.net", "p2pquake.ddo.jp"};
+  char *domains[4];
+  for (int i = 0; i < 4; i++)
+  {
+    domains[i] = domainsin[i];
+  }
 
-  size_t i = 0, j = 0;
+  int i = 0, j = 0;
   char *swap;
   for (i = 3; i > 0; i--)
   {

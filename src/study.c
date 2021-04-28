@@ -5,17 +5,6 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <gmp.h>
-
-void *func(void *arg)
-{
-  size_t *arg_size_t = (size_t *)arg;
-  size_t num = arg_size_t[0];
-  char *path = (char *)arg_size_t[1];
-  printf("%p, %lu, %s\n", arg, num, path);
-  return NULL;
-}
 
 /**
  * 
@@ -80,16 +69,5 @@ void *func(void *arg)
  */
 int main(int argc, char *argv[])
 {
-  char msg[] = "テストですわ";
-  size_t args[2] = {0};
-  args[0] = 334;
-  args[1] = (size_t)msg;
-  func(args);
-  func(&args);
-  mpz_t a;
-  mpz_init_set_ui(a, 17);
-  unsigned long b = mpz_fdiv_r_ui(a, a, 3);
-  printf("%lu\n", b);
-  mpz_clear(a);
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
