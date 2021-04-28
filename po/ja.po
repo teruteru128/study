@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2021-04-16 23:03+0900\n"
+"POT-Creation-Date: 2021-04-28 17:00+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -18,12 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/bouyomi.c:121
-#, c-format
-msgid "Error! %s\n"
-msgstr "エラー！ %s\n"
-
-#: src/bouyomi.c:134
+#: src/bouyomi.c:358
 #, c-format
 msgid "Sent!\n"
 msgstr "送信しました！\n"
@@ -53,7 +48,7 @@ msgstr "qのほうが大きい\n"
 msgid "p is larger\n"
 msgstr "pのほうが大きい\n"
 
-#: src/gettextsample.c:14 src/gettextsample2.c:15 src/localetest1.c:15
+#: src/gettextsample.c:14 src/gettextsample2.c:15 src/localesample1.c:15
 #, c-format
 msgid "Hello world!\n"
 msgstr "こんにちは世界！\n"
@@ -103,17 +98,20 @@ msgstr "1回あたり %e秒\n"
 msgid "verifier : %<PRIu64>\n"
 msgstr "検証子 : %<PRIu64>\n"
 
-#: src/prime8.c:108
+#: src/prime8.c:138
 #, c-format
 msgid "One prime number candidate was found.\n"
 msgid_plural "%zu prime number candidates were found.\n"
 msgstr[0] "%zu個の素数候補が見つかりました。\n"
 
-#: src/prime8.c:109
+#: src/prime8.c:139
 #, c-format
 msgid "One prime number candidate have been skipped.\n"
 msgid_plural "%zu prime number candidates have been skipped.\n"
 msgstr[0] "%zu個の素数候補がスキップされました。\n"
+
+#~ msgid "Error! %s\n"
+#~ msgstr "エラー！ %s\n"
 
 #~ msgid "Local time : %s"
 #~ msgstr "ローカル時刻 : %s"

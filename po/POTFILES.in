@@ -7,7 +7,7 @@ src/gettextsample.c
 src/gettextsample2.c
 src/gettextsample3.c
 src/itoabench.c
-src/localetest1.c
+src/localesample1.c
 src/ntp.c
 src/potest.c
 src/printBench.c
