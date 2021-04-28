@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.1\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2021-04-28 17:00+0900\n"
+"POT-Creation-Date: 2021-04-28 17:16+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,6 +49,7 @@ msgid "p is larger\n"
 msgstr ""
 
 #: src/gettextsample.c:14 src/gettextsample2.c:15 src/localesample1.c:15
+#: src/potest.c:18
 #, c-format
 msgid "Hello world!\n"
 msgstr ""
@@ -78,6 +79,20 @@ msgstr ""
 msgid "Help me!\n"
 msgstr ""
 
+#: src/prime8.c:138
+#, c-format
+msgid "One prime number candidate was found.\n"
+msgid_plural "%zu prime number candidates were found.\n"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/prime8.c:139
+#, c-format
+msgid "One prime number candidate have been skipped.\n"
+msgid_plural "%zu prime number candidates have been skipped.\n"
+msgstr[0] ""
+msgstr[1] ""
+
 #: src/printBench.c:43
 #, c-format
 msgid "It took %g seconds.\n"
@@ -97,17 +112,3 @@ msgstr ""
 #, c-format
 msgid "verifier : %<PRIu64>\n"
 msgstr ""
-
-#: src/prime8.c:138
-#, c-format
-msgid "One prime number candidate was found.\n"
-msgid_plural "%zu prime number candidates were found.\n"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/prime8.c:139
-#, c-format
-msgid "One prime number candidate have been skipped.\n"
-msgid_plural "%zu prime number candidates have been skipped.\n"
-msgstr[0] ""
-msgstr[1] ""

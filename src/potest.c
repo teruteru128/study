@@ -15,5 +15,6 @@ int main(int argc, char const *argv[])
     bindtextdomain(PACKAGE, LOCALEDIR);
     textdomain(PACKAGE);
     printf(_("Help me!\n"));
+    printf(_("Hello world!\n"));
     return 0;
 }

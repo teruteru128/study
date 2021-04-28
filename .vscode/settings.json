@@ -1,9 +1,9 @@
 {
     "files.associations": {
-        "*.classpath": "xml",
-        "*.tcc": "c",
         "*.ts": "xml",
         ".classpath": "xml",
+        "*.classpath": "xml",
+        "*.tcc": "c",
         "algorithm": "c",
         "array": "c",
         "atomic": "c",
@@ -103,6 +103,7 @@
         "unordered_map": "c",
         "utility": "c",
         "uuid.h": "c",
-        "vector": "c"
+        "vector": "c",
+        "gettextsample.h": "c"
     }
 }
