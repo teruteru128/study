@@ -7,6 +7,7 @@ bin_PROGRAMS= \
 	TSIdentityTool \
 	addpadding \
 	ankokudan_decode \
+	argsample \
 	argparsesample \
 	bcasttest \
 	bino \
@@ -173,6 +174,8 @@ Nabeatsu_LDADD=$(LIBSTUDYPATH)
 Nabeatsu_SOURCES=Nabeatsu.c gettext.h
 TSIdentityTool_LDADD=-ltommath -ltomcrypt
 ankokudan_decode_SOURCES=ankokudan_decode.c
+argsample_SOURCES=argsample.c
+argsample_LDADD=$(LIBSTUDYPATH)
 argparsesample_SOURCES=argparsesample.c
 bcasttest_SOURCES=bcasttest.c
 bino_SOURCES=bino.c
