@@ -104,6 +104,11 @@
         "utility": "c",
         "uuid.h": "c",
         "vector": "c",
-        "gettextsample.h": "c"
+        "gettextsample.h": "c",
+        "args_parse.h": "c",
+        "args.h": "c",
+        "err.h": "c",
+        "chrono": "c",
+        "gettextsample4.h": "c"
     }
 }
