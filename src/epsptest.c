@@ -7,49 +7,49 @@
 int epsptest()
 {
 
-  int code;
-  int hop;
-  char format[BUFSIZ];
-  snprintf(format, BUFSIZ, "%%d %%d %%%ds", BUFSIZ - 1);
-  char buf[BUFSIZ];
-  // sscanfは空白文字を読めないので不可
-  sscanf(SRC, format, &code, &hop, buf);
-  printf("%d, %d, %s\n", code, hop, buf);
-  regex_t reg;
-  /**
-   * @brief Construct a new regex object
-   * "^[[:digit:]]{3} [[:digit:]]+( .+)?$"
-   * "^[[:digit:]]{3} [[:digit:]]+( .+)?$"
-   * "^[[:digit:]]{3}( [[:digit:]]+( .*)?)?$"
-   * REG_NEWLINEはCRを除外しない
-   */
-  int r = regcomp(&reg, "^([[:digit:]]{3}) ([[:digit:]]+)( (.+))?$", REG_EXTENDED | REG_NEWLINE);
-  if (r != 0)
-  {
-    switch (r)
+    int code;
+    int hop;
+    char format[BUFSIZ];
+    snprintf(format, BUFSIZ, "%%d %%d %%%ds", BUFSIZ - 1);
+    char buf[BUFSIZ];
+    // sscanfは空白文字を読めないので不可
+    sscanf(SRC, format, &code, &hop, buf);
+    printf("%d, %d, %s\n", code, hop, buf);
+    regex_t reg;
+    /**
+     * @brief Construct a new regex object
+     * "^[[:digit:]]{3} [[:digit:]]+( .+)?$"
+     * "^[[:digit:]]{3} [[:digit:]]+( .+)?$"
+     * "^[[:digit:]]{3}( [[:digit:]]+( .*)?)?$"
+     * REG_NEWLINEはCRを除外しない
+     */
+    int r = regcomp(&reg, "^([[:digit:]]{3}) ([[:digit:]]+)( (.+))?$", REG_EXTENDED | REG_NEWLINE);
+    if (r != 0)
     {
-    case REG_BADRPT:
-      fprintf(stderr, "badrpt %d\n", r);
-      break;
-    default:
-      fprintf(stderr, "other %d\n", r);
-      break;
+        switch (r)
+        {
+        case REG_BADRPT:
+            fprintf(stderr, "badrpt %d\n", r);
+            break;
+        default:
+            fprintf(stderr, "other %d\n", r);
+            break;
+        }
+        return EXIT_FAILURE;
     }
-    return EXIT_FAILURE;
-  }
-  regmatch_t match[5];
-  if (regexec(&reg, SRC, 5, match, 0) == 0)
-  {
-    printf("matched : %d, %d\n", match[4].rm_so, match[4].rm_eo);
-    regoff_t diff = match[4].rm_eo - match[4].rm_so;
-    strncpy(buf, SRC + match[4].rm_so, (size_t)diff);
-    char *crlfptr = strpbrk(buf, "\r\n");
-    if (crlfptr != NULL)
+    regmatch_t match[5];
+    if (regexec(&reg, SRC, 5, match, 0) == 0)
     {
-      *crlfptr = '\0';
+        printf("matched : %d, %d\n", match[4].rm_so, match[4].rm_eo);
+        regoff_t diff = match[4].rm_eo - match[4].rm_so;
+        strncpy(buf, SRC + match[4].rm_so, (size_t)diff);
+        char *crlfptr = strpbrk(buf, "\r\n");
+        if (crlfptr != NULL)
+        {
+            *crlfptr = '\0';
+        }
+        printf("%s\n", buf);
     }
-    printf("%s\n", buf);
-  }
-  regfree(&reg);
-  return EXIT_SUCCESS;
+    regfree(&reg);
+    return EXIT_SUCCESS;
 }

@@ -74,105 +74,105 @@ void connecttopeer();
  */
 int main(int argc, char *argv[])
 {
-  struct timespec ts;
-  int r = clock_gettime(CLOCK_REALTIME, &ts);
-  if (r != 0)
-  {
-    perror("clock_gettime");
-    return EXIT_FAILURE;
-  }
-  int64_t seed = ts.tv_nsec + ts.tv_sec;
-  int64_t rnd = initialScramble(seed);
-  char domainsin[4][24] = {"p2pquake.dyndns.info", "www.p2pquake.net", "p2pquake.dnsalias.net", "p2pquake.ddo.jp"};
-  char *domains[4];
-  for (int i = 0; i < 4; i++)
-  {
-    domains[i] = domainsin[i];
-  }
-
-  int i = 0, j = 0;
-  char *swap;
-  for (i = 3; i > 0; i--)
-  {
-    j = nextIntWithBounds(&rnd, i);
-    swap = domains[i];
-    domains[i] = domains[j];
-    domains[j] = swap;
-  }
-
-  struct addrinfo hints, *res = NULL, *ptr = NULL;
-  //memset(&hints, 0, sizeof(struct addrinfo));
-
-  int err;
-  int sock = 0;
-  for (i = 0; i < 4; i++)
-  {
-    hints.ai_flags = 0;
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
-    err = getaddrinfo(domains[i], SERVER_PORT, &hints, &res);
-    if (err != 0)
+    struct timespec ts;
+    int r = clock_gettime(CLOCK_REALTIME, &ts);
+    if (r != 0)
     {
-      perror("getaddrinfo");
-      fprintf(stderr, "%d, %s\n", err, gai_strerror(err));
-      continue;
+        perror("clock_gettime");
+        return EXIT_FAILURE;
     }
-    for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
+    int64_t seed = ts.tv_nsec + ts.tv_sec;
+    int64_t rnd = initialScramble(seed);
+    char domainsin[4][24] = {"p2pquake.dyndns.info", "www.p2pquake.net", "p2pquake.dnsalias.net", "p2pquake.ddo.jp"};
+    char *domains[4];
+    for (int i = 0; i < 4; i++)
     {
-      sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-      if (sock == -1)
-        continue;
+        domains[i] = domainsin[i];
+    }
 
-      if (connect(sock, ptr->ai_addr, ptr->ai_addrlen) != -1)
+    int i = 0, j = 0;
+    char *swap;
+    for (i = 3; i > 0; i--)
+    {
+        j = nextIntWithBounds(&rnd, i);
+        swap = domains[i];
+        domains[i] = domains[j];
+        domains[j] = swap;
+    }
+
+    struct addrinfo hints, *res = NULL, *ptr = NULL;
+    //memset(&hints, 0, sizeof(struct addrinfo));
+
+    int err;
+    int sock = 0;
+    for (i = 0; i < 4; i++)
+    {
+        hints.ai_flags = 0;
+        hints.ai_family = AF_UNSPEC;
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_protocol = IPPROTO_TCP;
+        err = getaddrinfo(domains[i], SERVER_PORT, &hints, &res);
+        if (err != 0)
+        {
+            perror("getaddrinfo");
+            fprintf(stderr, "%d, %s\n", err, gai_strerror(err));
+            continue;
+        }
+        for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
+        {
+            sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+            if (sock == -1)
+                continue;
+
+            if (connect(sock, ptr->ai_addr, ptr->ai_addrlen) != -1)
+                break;
+
+            close(sock);
+        }
+        if (ptr == NULL)
+        {
+            fprintf(stderr, "connect failed : %s, %s\n", strerror(errno), domains[i]);
+            close(sock);
+            continue;
+        }
         break;
-
-      close(sock);
     }
     if (ptr == NULL)
     {
-      fprintf(stderr, "connect failed : %s, %s\n", strerror(errno), domains[i]);
-      close(sock);
-      continue;
+        perror("connect failed");
+        return EXIT_FAILURE;
     }
-    break;
-  }
-  if (ptr == NULL)
-  {
-    perror("connect failed");
-    return EXIT_FAILURE;
-  }
-  printf("%s\n", domains[i]);
-  char readbuf[BUFSIZ];
-  ssize_t s = read(sock, readbuf, BUFSIZ);
-  printf("%s", readbuf);
+    printf("%s\n", domains[i]);
+    char readbuf[BUFSIZ];
+    ssize_t s = read(sock, readbuf, BUFSIZ);
+    printf("%s", readbuf);
 
-  char writebuf[BUFSIZ];
-  size_t writelen = (size_t)snprintf(writebuf, BUFSIZ, "131 1 0.34:%s:%s\r\n", PEER_NAME, PEER_VERSION);
-  ssize_t w = write(sock, writebuf, writelen);
+    char writebuf[BUFSIZ];
+    size_t writelen = (size_t)snprintf(writebuf, BUFSIZ, "131 1 0.34:%s:%s\r\n", PEER_NAME, PEER_VERSION);
+    ssize_t w = write(sock, writebuf, writelen);
 
-  memset(readbuf, 0, BUFSIZ);
-  s = read(sock, readbuf, BUFSIZ);
-  printf("%s", readbuf);
-  writelen = (size_t)snprintf(writebuf, BUFSIZ, "113 1\r\n");
-  w = write(sock, writebuf, writelen);
-  memset(readbuf, 0, BUFSIZ);
-  s = read(sock, readbuf, BUFSIZ);
-  printf("%s", readbuf);
-  int code;
-  int rep;
-  int peerid;
-  sscanf(readbuf, "%d %d %d\r\n", &code, &rep, &peerid);
-  writelen = (size_t)snprintf(writebuf, BUFSIZ, "115 1 %d\r\n", peerid);
-  w = write(sock, writebuf, writelen);
-  memset(readbuf, 0, BUFSIZ);
-  s = read(sock, readbuf, BUFSIZ);
-  printf("%s", readbuf);
-  writelen = (size_t)snprintf(writebuf, BUFSIZ, "119 1\r\n");
-  w = write(sock, writebuf, writelen);
-  memset(readbuf, 0, BUFSIZ);
-  s = read(sock, readbuf, BUFSIZ);
-  printf("%s", readbuf);
-  close(sock);
-  return EXIT_SUCCESS;
+    memset(readbuf, 0, BUFSIZ);
+    s = read(sock, readbuf, BUFSIZ);
+    printf("%s", readbuf);
+    writelen = (size_t)snprintf(writebuf, BUFSIZ, "113 1\r\n");
+    w = write(sock, writebuf, writelen);
+    memset(readbuf, 0, BUFSIZ);
+    s = read(sock, readbuf, BUFSIZ);
+    printf("%s", readbuf);
+    int code;
+    int rep;
+    int peerid;
+    sscanf(readbuf, "%d %d %d\r\n", &code, &rep, &peerid);
+    writelen = (size_t)snprintf(writebuf, BUFSIZ, "115 1 %d\r\n", peerid);
+    w = write(sock, writebuf, writelen);
+    memset(readbuf, 0, BUFSIZ);
+    s = read(sock, readbuf, BUFSIZ);
+    printf("%s", readbuf);
+    writelen = (size_t)snprintf(writebuf, BUFSIZ, "119 1\r\n");
+    w = write(sock, writebuf, writelen);
+    memset(readbuf, 0, BUFSIZ);
+    s = read(sock, readbuf, BUFSIZ);
+    printf("%s", readbuf);
+    close(sock);
+    return EXIT_SUCCESS;
 }

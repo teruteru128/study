@@ -5,6 +5,10 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 /**
  * 
@@ -67,7 +71,57 @@
  * @param argv 
  * @return int 
  */
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
+    const char *path = "..";
+    if (argc > 1)
+    {
+        path = argv[1];
+    }
+
+    int fd1 = open(path, O_DIRECTORY | O_RDONLY);
+    if (fd1 < 0)
+    {
+        perror("fopen fd1");
+        return EXIT_FAILURE;
+    }
+    int fd2 = open(".", O_DIRECTORY | O_RDONLY);
+    if (fd2 < 0)
+    {
+        perror("fopen .");
+        close(fd1);
+        return EXIT_FAILURE;
+    }
+    char *cwd = getcwd(NULL, 0);
+    printf("初期位置:%s\n", cwd);
+    free(cwd);
+    cwd = NULL;
+
+    if (fchdir(fd1) != 0)
+    {
+        perror("fchdir fd1");
+        close(fd1);
+        close(fd2);
+        return EXIT_FAILURE;
+    }
+    cwd = getcwd(NULL, 0);
+    printf("CWD変更:%s\n", cwd);
+    free(cwd);
+    cwd = NULL;
+
+    if (fchdir(fd2) != 0)
+    {
+        perror("fchdir fd2");
+        close(fd1);
+        close(fd2);
+        return EXIT_FAILURE;
+    }
+    cwd = getcwd(NULL, 0);
+    printf("CWDを戻す:%s\n", cwd);
+    free(cwd);
+    cwd = NULL;
+
+    close(fd2);
+    close(fd1);
     return EXIT_SUCCESS;
 }

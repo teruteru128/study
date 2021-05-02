@@ -4,11 +4,11 @@
 
 void printYattaze(void)
 {
-  fputs(YATTAZE, stdout);
+    fputs(YATTAZE, stdout);
 }
 
 int main(void)
 {
-  printYattaze();
-  return 0;
+    printYattaze();
+    return 0;
 }

@@ -21,26 +21,26 @@ typedef long crc24;
  */
 crc24 crc_octets(unsigned char *octets, size_t len)
 {
-  crc24 crc = CRC24_INIT;
-  int i;
-  while (len--)
-  {
-    crc ^= (*octets++) << 16;
-    for (i = 0; i < 8; i++)
+    crc24 crc = CRC24_INIT;
+    int i;
+    while (len--)
     {
-      crc <<= 1;
-      if (crc & 0x1000000)
-        crc ^= CRC24_POLY;
+        crc ^= (*octets++) << 16;
+        for (i = 0; i < 8; i++)
+        {
+            crc <<= 1;
+            if (crc & 0x1000000)
+                crc ^= CRC24_POLY;
+        }
     }
-  }
-  return crc & 0xFFFFFFL;
+    return crc & 0xFFFFFFL;
 }
 
 int main(int argc, char *argv[])
 {
-  char text[] = "test";
-  size_t len = strlen(text);
-  crc24 crc = crc_octets((unsigned char *)text, len);
-  printf("%06lx\n", crc);
-  return EXIT_SUCCESS;
+    char text[] = "test";
+    size_t len = strlen(text);
+    crc24 crc = crc_octets((unsigned char *)text, len);
+    printf("%06lx\n", crc);
+    return EXIT_SUCCESS;
 }

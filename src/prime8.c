@@ -86,21 +86,21 @@ void *produce_prime_candidate(void *arg)
         }
         bs_filein(&searchSieve, fin);
         // fputs("篩を読み込みました。\n", stderr);
-        fputs("The bit sieve has been loaded.\n", stderr);
+        fputs(_("The bit sieve has been loaded.\n"), stderr);
         fclose(fin);
     }
     else
     {
         // bsファイルアクセス不可能
         bs_initInstance(&searchSieve, &base, searchLength);
-        fputs("The bit sieve has been generated.\n", stderr);
+        fputs(_("The bit sieve has been generated.\n"), stderr);
         // ファイルへbit篩をエクスポート
         FILE *fout = fopen(bs_filename, "wb");
         if (fout != NULL)
         {
             bs_fileout(fout, &searchSieve);
             fclose(fout);
-            fputs("The bit sieve has been exported.\n", stderr);
+            fputs(_("The bit sieve has been exported.\n"), stderr);
         }
     }
     unsigned int offset = 1;
@@ -199,8 +199,11 @@ void *consume_prime_candidate(void *arg)
     struct timespec finish;
     struct timespec diff;
     struct tm tm = {0};
-    char format[TIME_FORMAT_BUFFER_SIZE];
-    char formattedTime[TIME_FORMAT_BUFFER_SIZE];
+    char formattedTime[TIME_FORMAT_BUFFER_SIZE] = "";
+    char timezonestr[TIME_FORMAT_BUFFER_SIZE] = "";
+    time_t hours = 0;
+    time_t minutes = 0;
+    time_t seconds = 0;
 
     while (threadpool_live)
     {
@@ -222,13 +225,17 @@ void *consume_prime_candidate(void *arg)
         // add_completed_task(offset, answer, index, tid, (time_t)difftime(finish, start));
 
         difftimespec(&diff, &finish, &start);
+        hours = diff.tv_sec / 3600;
+        minutes = (diff.tv_sec % 3600) / 60;
+        seconds = diff.tv_sec % 60;
         localtime_r(&finish.tv_sec, &tm);
-        strftime(format, TIME_FORMAT_BUFFER_SIZE, "%FT%T.%%09ld%z", &tm);
-        snprintf(formattedTime, TIME_FORMAT_BUFFER_SIZE, format, finish.tv_nsec);
-        fprintf(stderr, "(%2lu) %s, %6ld.%09ld, %6zu, %7d:%d\n", tid, formattedTime, diff.tv_sec, diff.tv_nsec, index, offset, answer);
+        strftime(formattedTime, TIME_FORMAT_BUFFER_SIZE, "%FT%T", &tm);
+        strftime(timezonestr, TIME_FORMAT_BUFFER_SIZE, "%z", &tm);
+        fprintf(stderr, "(%1$2lu) %2$s.%3$09ld%4$s, %5$02ld:%6$02ld:%7$02ld.%9$09ld, %8$6ld.%9$09ld, %10$6zu, %11$7d:%12$d\n", tid, formattedTime, finish.tv_nsec, timezonestr, hours, minutes, seconds, diff.tv_sec, diff.tv_nsec, index, offset, answer);
         if (answer == 1 || answer == 2)
         {
             task = calloc(1, sizeof(struct task));
+            clear_task(task);
             task->offset = offset;
             threadpool_live = 0;
         }
@@ -301,7 +308,7 @@ int searchPrime_main(const int argc, const char *argv[])
 
     if (threadNum == 0)
     {
-        fputs("0個のスレッドは指定することが出来ません。\n", stderr);
+        fputs("0個のスレッドは指定出来ません。\n", stderr);
         // fputs("0個のスレッドは許可されていません。\n", stderr);
         mpz_clear(base);
         return EXIT_FAILURE;

@@ -7,11 +7,11 @@
 
 int main(int argc, char **argv)
 {
-  for (int i = 65535; i; i--)
-  {
-    fputs(RIKO, stdout);
-    fputs(PAKA, stdout);
-    fputs(BUTTIPPA, stdout);
-    fputs("\n", stdout);
-  }
+    for (int i = 65535; i; i--)
+    {
+        fputs(RIKO, stdout);
+        fputs(PAKA, stdout);
+        fputs(BUTTIPPA, stdout);
+        fputs("\n", stdout);
+    }
 }

@@ -14,40 +14,40 @@
 int loadNumber(mpz_t num, const char *fname)
 {
 
-  if (access(fname, F_OK) != 0)
-  {
-    fprintf(stderr, "%s is not exists!\n", fname);
-    perror("access(F_OK)");
-    return 2;
-  }
+    if (access(fname, F_OK) != 0)
+    {
+        fprintf(stderr, "%s is not exists!\n", fname);
+        perror("access(F_OK)");
+        return 2;
+    }
 
-  if (access(fname, R_OK) != 0)
-  {
-    fprintf(stderr, "%s can not open!\n", fname);
-    perror("access(F_OK)");
-    return 3;
-  }
-  char *buf = calloc(BUFSIZE, sizeof(char));
+    if (access(fname, R_OK) != 0)
+    {
+        fprintf(stderr, "%s can not open!\n", fname);
+        perror("access(F_OK)");
+        return 3;
+    }
+    char *buf = calloc(BUFSIZE, sizeof(char));
 
-  FILE *fp = fopen(fname, "r");
-  if (fp == NULL)
-  {
-    fprintf(stderr, "%s can not open!\n", fname);
-    perror("fopen");
-    return 2;
-  }
-  char *f = fgets(buf, BUFSIZE, fp);
-  if (f == NULL)
-  {
-    perror("fgets");
+    FILE *fp = fopen(fname, "r");
+    if (fp == NULL)
+    {
+        fprintf(stderr, "%s can not open!\n", fname);
+        perror("fopen");
+        return 2;
+    }
+    char *f = fgets(buf, BUFSIZE, fp);
+    if (f == NULL)
+    {
+        perror("fgets");
+        fclose(fp);
+        free(buf);
+        return 3;
+    }
+    mpz_set_str(num, buf, 16);
     fclose(fp);
     free(buf);
-    return 3;
-  }
-  mpz_set_str(num, buf, 16);
-  fclose(fp);
-  free(buf);
-  return 0;
+    return 0;
 }
 static const unsigned int small_primes[] = {
     2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
@@ -153,83 +153,83 @@ static const unsigned int small_primes[] = {
 
 int primeModtest(mpz_t num)
 {
-  mpz_t d, r;
-  mpz_inits(d, r, NULL);
-  size_t mod = 0;
-  for (size_t i = 1; i < 1000; i++)
-  {
-    mod = mpz_mod_ui(r, num, small_primes[i]);
-    //mpz_out_str(stdout, 10, r);
-    //puts("");
-    if (mod == 0)
+    mpz_t d, r;
+    mpz_inits(d, r, NULL);
+    size_t mod = 0;
+    for (size_t i = 1; i < 1000; i++)
     {
-      printf("mod test is ng, ");
-      return 1;
+        mod = mpz_mod_ui(r, num, small_primes[i]);
+        //mpz_out_str(stdout, 10, r);
+        //puts("");
+        if (mod == 0)
+        {
+            printf("mod test is ng, ");
+            return 1;
+        }
     }
-  }
-  return 0;
+    return 0;
 }
 
 // 2 ^ a + 2 ^ b + 1 が素数かどうか調べる
 int main(const int argc, const char *argv[])
 {
-  if (argc < 2)
-  {
-    fprintf(stderr, "usage: %s [file path]\n", argv[0]);
-    return 1;
-  }
+    if (argc < 2)
+    {
+        fprintf(stderr, "usage: %s [file path]\n", argv[0]);
+        return 1;
+    }
 
-  const char *fname = argv[1];
+    const char *fname = argv[1];
 
-  mpz_t num;
-  mpz_t tmp;
-  mpz_t r;
-  int answer = 0;
-  mpz_inits(num, r, tmp, NULL);
-  if (loadNumber(num, fname) != 0)
-  {
-    return EXIT_FAILURE;
-  }
-  puts("readed");
-  mpz_mul_ui(tmp, num, 4);
-  printf("size : %ld\n", mpz_sizeinbase(tmp, 2));
-  mpz_add_ui(num, tmp, 1);
+    mpz_t num;
+    mpz_t tmp;
+    mpz_t r;
+    int answer = 0;
+    mpz_inits(num, r, tmp, NULL);
+    if (loadNumber(num, fname) != 0)
+    {
+        return EXIT_FAILURE;
+    }
+    puts("readed");
+    mpz_mul_ui(tmp, num, 4);
+    printf("size : %ld\n", mpz_sizeinbase(tmp, 2));
+    mpz_add_ui(num, tmp, 1);
 start_prime_check:
-  if (mpz_tstbit(num, 0) != 1)
-  {
-    printf("num is even.\n");
-    answer = 0;
-    goto print_answer;
-  }
-  if (primeModtest(num))
-  {
-    answer = 0;
-    goto print_answer;
-  }
-  printf("mod test is ok, \n");
-  answer = mpz_probab_prime_p(num, 25);
+    if (mpz_tstbit(num, 0) != 1)
+    {
+        printf("num is even.\n");
+        answer = 0;
+        goto print_answer;
+    }
+    if (primeModtest(num))
+    {
+        answer = 0;
+        goto print_answer;
+    }
+    printf("mod test is ok, \n");
+    answer = mpz_probab_prime_p(num, 25);
 print_answer:
-  switch (answer)
-  {
-  case 0:
-    puts("n is not prime");
-    break;
-  case 1:
-    puts("n is probably prime");
-    break;
-  case 2:
-    puts("n is definitely prime");
-    break;
-  default:
-    fprintf(stderr, "mpz_probab_prime_p is broken! answer is %d\n", answer);
-    break;
-  }
-  if (answer == 0)
-  {
-    mpz_add_ui(tmp, num, 2);
-    mpz_set(num, tmp);
-    goto start_prime_check;
-  }
+    switch (answer)
+    {
+    case 0:
+        puts("n is not prime");
+        break;
+    case 1:
+        puts("n is probably prime");
+        break;
+    case 2:
+        puts("n is definitely prime");
+        break;
+    default:
+        fprintf(stderr, "mpz_probab_prime_p is broken! answer is %d\n", answer);
+        break;
+    }
+    if (answer == 0)
+    {
+        mpz_add_ui(tmp, num, 2);
+        mpz_set(num, tmp);
+        goto start_prime_check;
+    }
 
-  return 0;
+    return 0;
 }

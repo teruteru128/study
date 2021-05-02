@@ -10,26 +10,26 @@
 
 int main(int argc, char **argv)
 {
-  int c = 0;
-  char *v = NULL;
-  for (c = 1; c < argc; c++)
-  {
-    v = argv[c];
-    printf("%s\n", v);
-  }
-  char search[21];
+    int c = 0;
+    char *v = NULL;
+    for (c = 1; c < argc; c++)
+    {
+        v = argv[c];
+        printf("%s\n", v);
+    }
+    char search[21];
 
-  printf("文字群を入力しなさい。\n");
-  //int r = fscanf(stdin, "%20s", search);
-  //if (r == EOF)
-  char *r = fgets(search, 21, stdin);
-  if(r == NULL)
-  {
-    perror("scanf");
-    return EXIT_FAILURE;
-  }
+    printf("文字群を入力しなさい。\n");
+    //int r = fscanf(stdin, "%20s", search);
+    //if (r == EOF)
+    char *r = fgets(search, 21, stdin);
+    if (r == NULL)
+    {
+        perror("scanf");
+        return EXIT_FAILURE;
+    }
 
-  size_t p = strspn(STR, search);
-  printf("%zd\n", p);
-  return EXIT_SUCCESS;
+    size_t p = strspn(STR, search);
+    printf("%zd\n", p);
+    return EXIT_SUCCESS;
 }

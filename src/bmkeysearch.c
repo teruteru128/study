@@ -43,153 +43,153 @@ static unsigned char *publicKeys = NULL;
 static int threadpool_live = 1;
 
 #define errchk(v, f)                                            \
-  if (!v)                                                       \
-  {                                                             \
-    unsigned long err = ERR_get_error();                        \
-    fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL)); \
-    return EXIT_FAILURE;                                        \
-  }
+    if (!v)                                                       \
+    {                                                             \
+        unsigned long err = ERR_get_error();                        \
+        fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL)); \
+        return EXIT_FAILURE;                                        \
+    }
 
 struct threadArg
 {
-  unsigned char *publicKeys;
-  size_t pubKeyNmemb;
-  size_t signBegin;
-  size_t signEnd;
-  size_t encBegin;
-  size_t encEnd;
-  size_t minExportThreshold;
-  const EVP_MD *sha512md;
-  const EVP_MD *ripemd160md;
-  struct queue *queue;
+    unsigned char *publicKeys;
+    size_t pubKeyNmemb;
+    size_t signBegin;
+    size_t signEnd;
+    size_t encBegin;
+    size_t encEnd;
+    size_t minExportThreshold;
+    const EVP_MD *sha512md;
+    const EVP_MD *ripemd160md;
+    struct queue *queue;
 };
 
 struct task;
 struct task
 {
-  size_t signkeyindex;
-  size_t encryptkeyindex;
-  size_t numberOfLeadingZero;
+    size_t signkeyindex;
+    size_t encryptkeyindex;
+    size_t numberOfLeadingZero;
 };
 
 void *produce(void *arg)
 {
-  struct queue *queue = (struct queue *)arg;
+    struct queue *queue = (struct queue *)arg;
 
-  for (size_t j = 0; j < 100000 * TASK_SIZE; j += TASK_SIZE)
-  {
-    struct task *task = calloc(1, sizeof(struct task));
-    task->signkeyindex = 0;
-    task->encryptkeyindex = j;
-    task->numberOfLeadingZero = 0;
-    put(queue, queue);
-  }
-
-  /*
-  for (size_t i = 0; i < KEY_CACHE_SIZE; i += TASK_SIZE)
-  {
-    for (size_t j = 0; j < KEY_CACHE_SIZE; j += TASK_SIZE)
+    for (size_t j = 0; j < 100000 * TASK_SIZE; j += TASK_SIZE)
     {
-      struct task *task = calloc(1, sizeof(struct task));
-      task->signkeyindex = i;
-      task->encryptkeyindex = j;
-      task->numberOfLeadingZero = 0;
+        struct task *task = calloc(1, sizeof(struct task));
+        task->signkeyindex = 0;
+        task->encryptkeyindex = j;
+        task->numberOfLeadingZero = 0;
+        put(queue, queue);
     }
-  }
-  */
-  return NULL;
+
+    /*
+    for (size_t i = 0; i < KEY_CACHE_SIZE; i += TASK_SIZE)
+    {
+        for (size_t j = 0; j < KEY_CACHE_SIZE; j += TASK_SIZE)
+        {
+            struct task *task = calloc(1, sizeof(struct task));
+            task->signkeyindex = i;
+            task->encryptkeyindex = j;
+            task->numberOfLeadingZero = 0;
+        }
+    }
+    */
+    return NULL;
 }
 
 struct task *getTask(struct queue *queue)
 {
-  return take(queue);
+    return take(queue);
 }
 
 void *consume(void *arg)
 {
-  struct threadArg *targ = (struct threadArg *)arg;
-  const EVP_MD *sha512md = targ->sha512md;
-  const EVP_MD *ripemd160md = targ->ripemd160md;
-  unsigned char cache64[EVP_MAX_MD_SIZE];
-  size_t ii;
-  size_t ii_max = targ->signEnd;
-  size_t signIndex;
-  size_t signIndexMax;
-  size_t i_max;
-  size_t jj;
-  size_t jj_max = targ->encEnd;
-  size_t encIndex;
-  size_t encIndexMax;
-  size_t j_max;
-  size_t nlz;
-  size_t minExportThreshold = targ->minExportThreshold;
-  size_t maxNLZ = 0;
-  struct queue *queue = targ->queue;
-  EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
-  while (1)
-  {
-    struct task *task = getTask(queue);
-    if (task == NULL)
+    struct threadArg *targ = (struct threadArg *)arg;
+    const EVP_MD *sha512md = targ->sha512md;
+    const EVP_MD *ripemd160md = targ->ripemd160md;
+    unsigned char cache64[EVP_MAX_MD_SIZE];
+    size_t ii;
+    size_t ii_max = targ->signEnd;
+    size_t signIndex;
+    size_t signIndexMax;
+    size_t i_max;
+    size_t jj;
+    size_t jj_max = targ->encEnd;
+    size_t encIndex;
+    size_t encIndexMax;
+    size_t j_max;
+    size_t nlz;
+    size_t minExportThreshold = targ->minExportThreshold;
+    size_t maxNLZ = 0;
+    struct queue *queue = targ->queue;
+    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+    while (1)
     {
-      continue;
-    }
-    signIndex = task->signkeyindex;
-    signIndexMax = signIndex + TASK_SIZE;
-    encIndex = task->encryptkeyindex;
-    encIndexMax = encIndex + TASK_SIZE;
-    free(task);
+        struct task *task = getTask(queue);
+        if (task == NULL)
+        {
+            continue;
+        }
+        signIndex = task->signkeyindex;
+        signIndexMax = signIndex + TASK_SIZE;
+        encIndex = task->encryptkeyindex;
+        encIndexMax = encIndex + TASK_SIZE;
+        free(task);
 
-    for (; signIndex < signIndexMax; signIndex++)
-    {
-      for (; encIndex < encIndexMax; encIndex++)
-      {
-        calcRipe(mdctx, sha512md, ripemd160md, cache64, publicKeys, signIndex, encIndex);
-        nlz = getNLZ(cache64, 20);
-        if (nlz >= minExportThreshold)
+        for (; signIndex < signIndexMax; signIndex++)
         {
-          {
-            fprintf(stderr, "%ld, %ld, %ld\n", nlz, signIndex, encIndex);
-          }
+            for (; encIndex < encIndexMax; encIndex++)
+            {
+                calcRipe(mdctx, sha512md, ripemd160md, cache64, publicKeys, signIndex, encIndex);
+                nlz = getNLZ(cache64, 20);
+                if (nlz >= minExportThreshold)
+                {
+                    {
+                        fprintf(stderr, "%ld, %ld, %ld\n", nlz, signIndex, encIndex);
+                    }
+                }
+                if (maxNLZ < nlz)
+                {
+                    maxNLZ = nlz;
+                }
+                calcRipe(mdctx, sha512md, ripemd160md, cache64, publicKeys, encIndex, signIndex);
+                nlz = getNLZ(cache64, 20);
+                if (nlz >= minExportThreshold)
+                {
+                    {
+                        fprintf(stderr, "%ld, %ld, %ld\n", nlz, encIndex, signIndex);
+                    }
+                }
+                if (maxNLZ < nlz)
+                {
+                    maxNLZ = nlz;
+                }
+            }
         }
-        if (maxNLZ < nlz)
-        {
-          maxNLZ = nlz;
-        }
-        calcRipe(mdctx, sha512md, ripemd160md, cache64, publicKeys, encIndex, signIndex);
-        nlz = getNLZ(cache64, 20);
-        if (nlz >= minExportThreshold)
-        {
-          {
-            fprintf(stderr, "%ld, %ld, %ld\n", nlz, encIndex, signIndex);
-          }
-        }
-        if (maxNLZ < nlz)
-        {
-          maxNLZ = nlz;
-        }
-      }
+        printf("%zu->%zu, %zu->%zu : %zu\n", task->signkeyindex, signIndexMax, task->encryptkeyindex, encIndexMax, maxNLZ);
     }
-    printf("%zu->%zu, %zu->%zu : %zu\n", task->signkeyindex, signIndexMax, task->encryptkeyindex, encIndexMax, maxNLZ);
-  }
-  EVP_MD_CTX_free(mdctx);
-  return NULL;
+    EVP_MD_CTX_free(mdctx);
+    return NULL;
 }
 
 int loadPublicKey(unsigned char *area, const char *path)
 {
-  FILE *fin = fopen(path, "rb");
-  if (fin == NULL)
-  {
-    return 1;
-  }
-  size_t l = fread(area, PUBLIC_KEY_LENGTH, KEY_CACHE_SIZE, fin);
-  if (l != KEY_CACHE_SIZE)
-  {
-    perror("fread");
-    return 1;
-  }
-  fclose(fin);
-  return 0;
+    FILE *fin = fopen(path, "rb");
+    if (fin == NULL)
+    {
+        return 1;
+    }
+    size_t l = fread(area, PUBLIC_KEY_LENGTH, KEY_CACHE_SIZE, fin);
+    if (l != KEY_CACHE_SIZE)
+    {
+        perror("fread");
+        return 1;
+    }
+    fclose(fin);
+    return 0;
 }
 
 /**
@@ -199,67 +199,67 @@ int loadPublicKey(unsigned char *area, const char *path)
  */
 int main(int argc, char *argv[])
 {
-  setlocale(LC_ALL, "");
-  bindtextdomain(PACKAGE, LOCALEDIR);
-  textdomain(PACKAGE);
-  publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
-  if (publicKeys == NULL)
-  {
-    perror("calloc");
-    return EXIT_FAILURE;
-  }
-  // 4362076160 == 65 * 16777216 * 4
-  fprintf(stderr, "calloced\n");
-  if (loadPublicKey(publicKeys, "publicKeys.bin") != 0)
-  {
-    free(publicKeys);
-    return EXIT_FAILURE;
-  }
-  fprintf(stderr, "loaded\n");
-  /*
-   * 67108864
-   * 67108864(67108864+1)/2 = 2251799847239680
-   * x(x+1)/2 = 562949961809920
-   * x≈33554432
-   * x≈47453132
-   * x≈58117980
-   * threads[0]:0<=x<33554432
-   * threads[1]:33554432<=x<47453132
-   * threads[2]:47453132<=x<58117980
-   * threads[3]:58117980<=x<67108864
-   */
+    setlocale(LC_ALL, "");
+    bindtextdomain(PACKAGE, LOCALEDIR);
+    textdomain(PACKAGE);
+    publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
+    if (publicKeys == NULL)
+    {
+        perror("calloc");
+        return EXIT_FAILURE;
+    }
+    // 4362076160 == 65 * 16777216 * 4
+    fprintf(stderr, "calloced\n");
+    if (loadPublicKey(publicKeys, "publicKeys.bin") != 0)
+    {
+        free(publicKeys);
+        return EXIT_FAILURE;
+    }
+    fprintf(stderr, "loaded\n");
+    /*
+     * 67108864
+     * 67108864(67108864+1)/2 = 2251799847239680
+     * x(x+1)/2 = 562949961809920
+     * x≈33554432
+     * x≈47453132
+     * x≈58117980
+     * threads[0]:0<=x<33554432
+     * threads[1]:33554432<=x<47453132
+     * threads[2]:47453132<=x<58117980
+     * threads[3]:58117980<=x<67108864
+     */
 
-  QUEUE_DEFINE(queue);
-  pthread_t prucude_thread;
-  pthread_t consume_threads[THREAD_NUM];
-  struct threadArg arg[THREAD_NUM];
-  const EVP_MD *sha512md = EVP_sha512();
-  const EVP_MD *ripemd160md = EVP_ripemd160();
-  for (size_t i = 0; i < THREAD_NUM; i++)
-  {
-    arg[i].publicKeys = publicKeys;
-    arg[i].pubKeyNmemb = 0;
-    arg[i].signBegin = LARGE_BLOCK_SIZE * (i / 4);
-    arg[i].signEnd = LARGE_BLOCK_SIZE * ((i / 4) + 1);
-    arg[i].encBegin = LARGE_BLOCK_SIZE * (i % 4);
-    arg[i].encEnd = LARGE_BLOCK_SIZE * ((i % 4) + 1);
-    arg[i].minExportThreshold = 4;
-    arg[i].sha512md = sha512md;
-    arg[i].ripemd160md = ripemd160md;
-    arg[i].queue = &queue;
-  }
-  pthread_create(&prucude_thread, NULL, produce, &queue);
-  for (size_t i = 0; i < THREAD_NUM; i++)
-  {
-    pthread_create(&consume_threads[i], NULL, consume, &arg[i]);
-  }
-  pthread_join(prucude_thread, NULL);
-  for (size_t i = 0; i < THREAD_NUM; i++)
-  {
-    pthread_join(consume_threads[i], NULL);
-  }
-  //shutdown:
-  //free(privateKeys);
-  free(publicKeys);
-  return EXIT_SUCCESS;
+    QUEUE_DEFINE(queue);
+    pthread_t prucude_thread;
+    pthread_t consume_threads[THREAD_NUM];
+    struct threadArg arg[THREAD_NUM];
+    const EVP_MD *sha512md = EVP_sha512();
+    const EVP_MD *ripemd160md = EVP_ripemd160();
+    for (size_t i = 0; i < THREAD_NUM; i++)
+    {
+        arg[i].publicKeys = publicKeys;
+        arg[i].pubKeyNmemb = 0;
+        arg[i].signBegin = LARGE_BLOCK_SIZE * (i / 4);
+        arg[i].signEnd = LARGE_BLOCK_SIZE * ((i / 4) + 1);
+        arg[i].encBegin = LARGE_BLOCK_SIZE * (i % 4);
+        arg[i].encEnd = LARGE_BLOCK_SIZE * ((i % 4) + 1);
+        arg[i].minExportThreshold = 4;
+        arg[i].sha512md = sha512md;
+        arg[i].ripemd160md = ripemd160md;
+        arg[i].queue = &queue;
+    }
+    pthread_create(&prucude_thread, NULL, produce, &queue);
+    for (size_t i = 0; i < THREAD_NUM; i++)
+    {
+        pthread_create(&consume_threads[i], NULL, consume, &arg[i]);
+    }
+    pthread_join(prucude_thread, NULL);
+    for (size_t i = 0; i < THREAD_NUM; i++)
+    {
+        pthread_join(consume_threads[i], NULL);
+    }
+    //shutdown:
+    //free(privateKeys);
+    free(publicKeys);
+    return EXIT_SUCCESS;
 }

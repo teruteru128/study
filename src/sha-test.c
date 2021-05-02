@@ -12,14 +12,14 @@
 int main(int argc, char *argv[])
 {
 
-  SHA_CTX sha;
+    SHA_CTX sha;
 
-  sha_init(&sha);
-  sha_update(&sha, DATA, strlen(DATA));
+    sha_init(&sha);
+    sha_update(&sha, DATA, strlen(DATA));
 
-  char buf[20];
-  char txt[41];
-  sha_finish(buf, &sha);
+    char buf[20];
+    char txt[41];
+    sha_finish(buf, &sha);
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

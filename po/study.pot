@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.1\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2021-04-28 17:16+0900\n"
+"POT-Creation-Date: 2021-05-02 17:26+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,12 +38,12 @@ msgstr ""
 msgid "%.12f seconds per time\n"
 msgstr ""
 
-#: src/encodersa.c:121
+#: src/encodersa.c:172
 #, c-format
 msgid "q is larger\n"
 msgstr ""
 
-#: src/encodersa.c:126
+#: src/encodersa.c:177
 #, c-format
 msgid "p is larger\n"
 msgstr ""
@@ -54,12 +54,12 @@ msgstr ""
 msgid "Hello world!\n"
 msgstr ""
 
-#: src/gettextsample3.c:45
+#: src/gettextsample3.c:19 src/gettextsample4.c:38
 #, c-format
 msgid "%dmicro seconds stopping.\n"
 msgstr ""
 
-#: src/gettextsample3.c:59
+#: src/gettextsample3.c:21 src/gettextsample4.c:48
 #, c-format
 msgid "%dmicro seconds stoped.\n"
 msgstr ""
@@ -77,6 +77,18 @@ msgstr ""
 #: src/potest.c:17
 #, c-format
 msgid "Help me!\n"
+msgstr ""
+
+#: src/prime8.c:89
+msgid "The bit sieve has been loaded.\n"
+msgstr ""
+
+#: src/prime8.c:96
+msgid "The bit sieve has been generated.\n"
+msgstr ""
+
+#: src/prime8.c:103
+msgid "The bit sieve has been exported.\n"
 msgstr ""
 
 #: src/prime8.c:138

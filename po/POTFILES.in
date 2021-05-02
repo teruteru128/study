@@ -11,6 +11,7 @@ src/errnosample2.c
 src/gettextsample.c
 src/gettextsample2.c
 src/gettextsample3.c
+src/gettextsample4.c
 src/itoabench.c
 src/localesample1.c
 src/localesample3.c

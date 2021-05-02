@@ -110,61 +110,61 @@ static const unsigned int small_primes[] = {
 
 int checkSmallPrime(mpz_t r, mpz_t p)
 {
-  unsigned long mod = 0;
-  for (size_t k = 0; k < 1000; k++)
-  {
-    mod = mpz_mod_ui(r, p, small_primes[k]);
-    if (mod == 0)
-      return 0;
-  }
-  return 1;
+    unsigned long mod = 0;
+    for (size_t k = 0; k < 1000; k++)
+    {
+        mod = mpz_mod_ui(r, p, small_primes[k]);
+        if (mod == 0)
+            return 0;
+    }
+    return 1;
 }
 
 int main(int argc, char *argv[])
 {
-  mpz_t num;
-  mpz_t p;
-  mpz_t r;
-  mpz_t one;
-  //mpz_inits(num, p, one,NULL);
-  mpz_init2(one, 1);
-  mpz_init(num);
-  mpz_init(p);
-  mpz_init(r);
-  size_t j;
-  //printf("%lu\n", mpz_sizeinbase(num, 2));
-  //printf("%s\n", mpz_odd_p(num) != 0 ? "odd" : "even");
-  int isprime = 0;
-  const char *msg[] = {"is not prime", "is probably prime", "is definitely prime"};
+    mpz_t num;
+    mpz_t p;
+    mpz_t r;
+    mpz_t one;
+    //mpz_inits(num, p, one,NULL);
+    mpz_init2(one, 1);
+    mpz_init(num);
+    mpz_init(p);
+    mpz_init(r);
+    size_t j;
+    //printf("%lu\n", mpz_sizeinbase(num, 2));
+    //printf("%s\n", mpz_odd_p(num) != 0 ? "odd" : "even");
+    int isprime = 0;
+    const char *msg[] = {"is not prime", "is probably prime", "is definitely prime"};
 
-  for (size_t i = 8193; i <= 8195; i++)
-  {
-    mpz_set(num, one);
-    mpz_setbit(num, i);
-    for (j = 1; j < i; j++)
+    for (size_t i = 8193; i <= 8195; i++)
     {
-      isprime = 0;
-      mpz_set(p, num);
-      mpz_setbit(p, j);
-      printf("?\n");
-      if (checkSmallPrime(r, p) != 0)
-      {
-        isprime = mpz_probab_prime_p(p, 15);
-      }
-      if (1 <= isprime && isprime <= 2)
-      {
-        printf("%s(i: %lu, j: %lu)\n", msg[isprime], i, j);
-      }
-      else if (isprime == 0)
-      {
-        //
-      }
-      else
-      {
-        printf("error! %d(i: %lu, j: %lu)\n", isprime, i, j);
-      }
+        mpz_set(num, one);
+        mpz_setbit(num, i);
+        for (j = 1; j < i; j++)
+        {
+            isprime = 0;
+            mpz_set(p, num);
+            mpz_setbit(p, j);
+            printf("?\n");
+            if (checkSmallPrime(r, p) != 0)
+            {
+                isprime = mpz_probab_prime_p(p, 15);
+            }
+            if (1 <= isprime && isprime <= 2)
+            {
+                printf("%s(i: %lu, j: %lu)\n", msg[isprime], i, j);
+            }
+            else if (isprime == 0)
+            {
+                //
+            }
+            else
+            {
+                printf("error! %d(i: %lu, j: %lu)\n", isprime, i, j);
+            }
+        }
     }
-  }
-  mpz_clears(one, num, p, r, NULL);
-  return EXIT_SUCCESS;
+    mpz_clears(one, num, p, r, NULL);
+    return EXIT_SUCCESS;
 }

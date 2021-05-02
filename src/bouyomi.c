@@ -51,18 +51,18 @@
 
 void encode_header_in_detail(unsigned char *header, short command, short speed, short tone, short volume, short voice, char encode, int length)
 {
-  *((short *)(header + 0)) = (short)htole16((unsigned short)command);
-  *((short *)(header + 2)) = (short)htole16((unsigned short)speed);
-  *((short *)(header + 4)) = (short)htole16((unsigned short)tone);
-  *((short *)(header + 6)) = (short)htole16((unsigned short)volume);
-  *((short *)(header + 8)) = (short)htole16((unsigned short)voice);
-  *((char *)(header + 10)) = encode;
-  *((int *)(header + 11)) = (int)htole32((unsigned int)length);
+    *((short *)(header + 0)) = (short)htole16((unsigned short)command);
+    *((short *)(header + 2)) = (short)htole16((unsigned short)speed);
+    *((short *)(header + 4)) = (short)htole16((unsigned short)tone);
+    *((short *)(header + 6)) = (short)htole16((unsigned short)volume);
+    *((short *)(header + 8)) = (short)htole16((unsigned short)voice);
+    *((char *)(header + 10)) = encode;
+    *((int *)(header + 11)) = (int)htole32((unsigned int)length);
 }
 
 void encode_header(unsigned char *header, char encode, int length)
 {
-  encode_header_in_detail(header, 1, -1, -1, -1, 0, encode, length);
+    encode_header_in_detail(header, 1, -1, -1, -1, 0, encode, length);
 }
 
 /**
@@ -113,256 +113,256 @@ void encode_header(unsigned char *header, char encode, int length)
  */
 int main(int argc, char *argv[])
 {
-  int rc = 0;
+    int rc = 0;
 
-  // gettextを初期化する
-  setlocale(LC_ALL, "");
-  /*
-  if (setlocale(LC_ALL, "ja_JP.UTF-8") == NULL)
-  {
-    perror("setlocale");
-    return EXIT_FAILURE;
-  }
-  */
-  bindtextdomain(PACKAGE, LOCALEDIR);
-  textdomain(PACKAGE);
+    // gettextを初期化する
+    setlocale(LC_ALL, "");
+    /*
+    if (setlocale(LC_ALL, "ja_JP.UTF-8") == NULL)
+    {
+        perror("setlocale");
+        return EXIT_FAILURE;
+    }
+    */
+    bindtextdomain(PACKAGE, LOCALEDIR);
+    textdomain(PACKAGE);
 
-  // コマンドライン引数をパースする
-  struct args args = {0, 0, DEFAULT_SERV_ADDRESS_2, DEFAULT_PORT_STR};
+    // コマンドライン引数をパースする
+    struct args args = {0, 0, DEFAULT_SERV_ADDRESS_2, DEFAULT_PORT_STR};
 
-  for (int i = 1; i < argc; i++)
-  {
-    if ((strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--host") == 0) && (i + 1) < argc)
+    for (int i = 1; i < argc; i++)
     {
-      strncpy(args.servHost, argv[i + 1], NI_MAXHOST - 1);
-      i++;
-      continue;
+        if ((strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--host") == 0) && (i + 1) < argc)
+        {
+            strncpy(args.servHost, argv[i + 1], NI_MAXHOST - 1);
+            i++;
+            continue;
+        }
+        if ((strcmp(argv[i], "-p") == 0 || strcmp(argv[i], "--port") == 0) && (i + 1) < argc)
+        {
+            strncpy(args.servPort, argv[i + 1], NI_MAXSERV - 1);
+            i++;
+            continue;
+        }
+        if ((strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--message") == 0) && (i + 1) < argc)
+        {
+            i++;
+            continue;
+        }
     }
-    if ((strcmp(argv[i], "-p") == 0 || strcmp(argv[i], "--port") == 0) && (i + 1) < argc)
-    {
-      strncpy(args.servPort, argv[i + 1], NI_MAXSERV - 1);
-      i++;
-      continue;
-    }
-    if ((strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--message") == 0) && (i + 1) < argc)
-    {
-      i++;
-      continue;
-    }
-  }
 
-  // 読み上げメッセージを読み込む
-  // 文字コード変換前読み上げ文書
-  char *reading_message_before_encode = malloc(BUFSIZ);
-  if (!reading_message_before_encode)
-  {
-    perror("malloc, reading_message_before_encode");
-    return EXIT_FAILURE;
-  }
-  // memset()で初期化するところを最初の文字だけ消して代用
-  reading_message_before_encode[0] = 0;
-  char *realloctmp = NULL;
-  size_t strlength = 0;
-  size_t len = 0;
-  size_t capacity = BUFSIZ;
-  char buf[BUFSIZ];
-  size_t minnewcapa = 0;
-  // VS Codeのターミナルは端末じゃなくて何なんだろうな？
-  // 標準入力から読み上げ文書読み込み
-  while (fgets(buf, BUFSIZ, stdin) != NULL)
-  {
-    len = strlen(buf);
-    if (len == 0)
+    // 読み上げメッセージを読み込む
+    // 文字コード変換前読み上げ文書
+    char *reading_message_before_encode = malloc(BUFSIZ);
+    if (!reading_message_before_encode)
     {
-      // 無限ループの可能性……？
-      continue;
+        perror("malloc, reading_message_before_encode");
+        return EXIT_FAILURE;
     }
-    // strncatするのに最低限必要なメモリ領域サイズ
-    minnewcapa = strlength + len + 1;
-    if (minnewcapa > capacity)
+    // memset()で初期化するところを最初の文字だけ消して代用
+    reading_message_before_encode[0] = 0;
+    char *realloctmp = NULL;
+    size_t strlength = 0;
+    size_t len = 0;
+    size_t capacity = BUFSIZ;
+    char buf[BUFSIZ];
+    size_t minnewcapa = 0;
+    // VS Codeのターミナルは端末じゃなくて何なんだろうな？
+    // 標準入力から読み上げ文書読み込み
+    while (fgets(buf, BUFSIZ, stdin) != NULL)
     {
-      // 領域サイズが足りないときは拡張
-      while (minnewcapa > capacity)
-      {
-        capacity *= 2;
-      }
-      realloctmp = realloc(reading_message_before_encode, capacity);
-      if (!realloctmp)
-      {
-        perror("realloc");
-        exit(EXIT_FAILURE);
-      }
-      reading_message_before_encode = realloctmp;
+        len = strlen(buf);
+        if (len == 0)
+        {
+            // 無限ループの可能性……？
+            continue;
+        }
+        // strncatするのに最低限必要なメモリ領域サイズ
+        minnewcapa = strlength + len + 1;
+        if (minnewcapa > capacity)
+        {
+            // 領域サイズが足りないときは拡張
+            while (minnewcapa > capacity)
+            {
+                capacity *= 2;
+            }
+            realloctmp = realloc(reading_message_before_encode, capacity);
+            if (!realloctmp)
+            {
+                perror("realloc");
+                exit(EXIT_FAILURE);
+            }
+            reading_message_before_encode = realloctmp;
+        }
+        // 連結
+        strncat(reading_message_before_encode + strlength, buf, capacity - (strlength + 1));
+        // 読み込み済み文字列長
+        strlength += len;
     }
-    // 連結
-    strncat(reading_message_before_encode + strlength, buf, capacity - (strlength + 1));
-    // 読み込み済み文字列長
-    strlength += len;
-  }
-  // メッセージが空ならデフォルトメッセージを読ませる
-  if (strlength == 0)
-  {
-    // ここまでに入力がされなかった
+    // メッセージが空ならデフォルトメッセージを読ませる
+    if (strlength == 0)
+    {
+        // ここまでに入力がされなかった
 
-    // デフォルトのメッセージを読ませる
-    len = strlen(YATTAZE);
+        // デフォルトのメッセージを読ませる
+        len = strlen(YATTAZE);
 #if 0
-    // strlength == 0 をチェック済みなんだから足さなくてもいいんじゃないかな
-    size_t reqlen = /* strlength + */ len + 1;
-    if (reqlen > capacity)
-    {
-      // デフォルトのキャパシティが8192なので十中八九デッドコード
-      realloctmp = realloc(reading_message_before_encode, reqlen);
-      if (!realloctmp)
-      {
-        exit(EXIT_FAILURE);
-      }
-      reading_message_before_encode = realloctmp;
-    }
+        // strlength == 0 をチェック済みなんだから足さなくてもいいんじゃないかな
+        size_t reqlen = /* strlength + */ len + 1;
+        if (reqlen > capacity)
+        {
+            // デフォルトのキャパシティが8192なので十中八九デッドコード
+            realloctmp = realloc(reading_message_before_encode, reqlen);
+            if (!realloctmp)
+            {
+                exit(EXIT_FAILURE);
+            }
+            reading_message_before_encode = realloctmp;
+        }
 #endif
-    strlength += len;
-    strncat(reading_message_before_encode, YATTAZE, capacity);
-  }
+        strlength += len;
+        strncat(reading_message_before_encode, YATTAZE, capacity);
+    }
 
-  // テキストバッファ縮小(最適化)
-  capacity = strlength + 1;
-  realloctmp = realloc(reading_message_before_encode, capacity);
-  if (realloctmp == NULL)
-  {
-    perror("realloc(strlen(reading_message_before_encode) + 1)");
-    return EXIT_FAILURE;
-  }
-  else
-  {
-    reading_message_before_encode = realloctmp;
-  }
+    // テキストバッファ縮小(最適化)
+    capacity = strlength + 1;
+    realloctmp = realloc(reading_message_before_encode, capacity);
+    if (realloctmp == NULL)
+    {
+        perror("realloc(strlen(reading_message_before_encode) + 1)");
+        return EXIT_FAILURE;
+    }
+    else
+    {
+        reading_message_before_encode = realloctmp;
+    }
 
-  /*
-   * 文字コード変換
-   */
-  // ホストの文字コードをUTF-8に仮定していいんだろうか
-  charset_t charset = UTF_8;
-  char *reading_message_after_encode = NULL;
-  char encode = 0;
+    /*
+     * 文字コード変換
+     */
+    // ホストの文字コードをUTF-8に仮定していいんだろうか
+    charset_t charset = UTF_8;
+    char *reading_message_after_encode = NULL;
+    char encode = 0;
 
-  switch (charset)
-  {
-  case UTF_8:
-    //  エンコード用変数にそのまま代入
-    reading_message_after_encode = reading_message_before_encode;
-    encode = 0;
-    break;
-  case UNICODE:
-    //  文字コードを変換してから代入
-    encode_utf8_2_unicode(&reading_message_after_encode, reading_message_before_encode);
-    encode = 1;
-    break;
-  case SHIFT_JIS:
-    //  文字コードを変換してから代入
-    encode_utf8_2_sjis(&reading_message_after_encode, reading_message_before_encode);
-    encode = 2;
-    break;
-  default:
-    //  エンコード用変数にそのまま代入
-    reading_message_after_encode = reading_message_before_encode;
-    break;
-  }
+    switch (charset)
+    {
+    case UTF_8:
+        //  エンコード用変数にそのまま代入
+        reading_message_after_encode = reading_message_before_encode;
+        encode = 0;
+        break;
+    case UNICODE:
+        //  文字コードを変換してから代入
+        encode_utf8_2_unicode(&reading_message_after_encode, reading_message_before_encode);
+        encode = 1;
+        break;
+    case SHIFT_JIS:
+        //  文字コードを変換してから代入
+        encode_utf8_2_sjis(&reading_message_after_encode, reading_message_before_encode);
+        encode = 2;
+        break;
+    default:
+        //  エンコード用変数にそのまま代入
+        reading_message_after_encode = reading_message_before_encode;
+        break;
+    }
 
-  if (reading_message_before_encode != reading_message_after_encode)
-    free(reading_message_before_encode);
-  if (reading_message_after_encode == NULL)
-  {
-    perror("reading_message_after_encode encode OR copy failed");
-    return EXIT_FAILURE;
-  }
+    if (reading_message_before_encode != reading_message_after_encode)
+        free(reading_message_before_encode);
+    if (reading_message_after_encode == NULL)
+    {
+        perror("reading_message_after_encode encode OR copy failed");
+        return EXIT_FAILURE;
+    }
 
-  size_t length = strlen(reading_message_after_encode);
+    size_t length = strlen(reading_message_after_encode);
 
-  // ヘッダーをエンコード
-  // なぜhtonsなしで読み上げできるのか謎
-  // 棒読みちゃんはリトルエンディアン指定だそうです
-  // c#サンプルでBinaryWriterを使ってたから
-  // 本体でもBinaryReader使ってるんじゃないんですか？
-  // 知らんけど
-  // ヘッダー長が8の倍数じゃないの~~つらい~~どうなんですかね？
-  // アライメントされてないのが辛いんだよ
+    // ヘッダーをエンコード
+    // なぜhtonsなしで読み上げできるのか謎
+    // 棒読みちゃんはリトルエンディアン指定だそうです
+    // c#サンプルでBinaryWriterを使ってたから
+    // 本体でもBinaryReader使ってるんじゃないんですか？
+    // 知らんけど
+    // ヘッダー長が8の倍数じゃないの~~つらい~~どうなんですかね？
+    // アライメントされてないのが辛いんだよ
 
-  unsigned char header[BOUYOMI_HEADER_SIZE];
+    unsigned char header[BOUYOMI_HEADER_SIZE];
 #ifdef _DEBUG
-  fprintf(stderr, "length : %ld\n", length);
+    fprintf(stderr, "length : %ld\n", length);
 #endif
-  if (length > INT_MAX)
-  {
-    fputs("読み上げ文書が長すぎます。\n", stderr);
-    return EXIT_FAILURE;
-  }
-  encode_header(header, encode, (int)length);
-
-  // 棒読みちゃんサーバーに接続して送信
-  // ホストとサービスを変換して接続
-  struct addrinfo hints = {0, 0, 0, 0, 0, NULL, NULL, NULL};
-  struct addrinfo *res = NULL;
-  hints.ai_socktype = SOCK_STREAM;
-  rc = getaddrinfo(args.servHost, args.servPort, &hints, &res);
-  if (rc != 0)
-  {
-    fprintf(stderr, "getaddrinfo : [%s]:%s %s\n", args.servHost, args.servPort, gai_strerror(rc));
-    return rc;
-  }
-
-  struct addrinfo *adrinf = NULL;
-  int sock = 0;
-  for (adrinf = res; adrinf != NULL; adrinf = adrinf->ai_next)
-  {
-    sock = socket(adrinf->ai_family, adrinf->ai_socktype, adrinf->ai_protocol);
-    if (sock < 0)
+    if (length > INT_MAX)
     {
-      perror("socket()");
-      continue;
+        fputs("読み上げ文書が長すぎます。\n", stderr);
+        return EXIT_FAILURE;
     }
-    rc = connect(sock, adrinf->ai_addr, adrinf->ai_addrlen);
+    encode_header(header, encode, (int)length);
+
+    // 棒読みちゃんサーバーに接続して送信
+    // ホストとサービスを変換して接続
+    struct addrinfo hints = {0, 0, 0, 0, 0, NULL, NULL, NULL};
+    struct addrinfo *res = NULL;
+    hints.ai_socktype = SOCK_STREAM;
+    rc = getaddrinfo(args.servHost, args.servPort, &hints, &res);
+    if (rc != 0)
+    {
+        fprintf(stderr, "getaddrinfo : [%s]:%s %s\n", args.servHost, args.servPort, gai_strerror(rc));
+        return rc;
+    }
+
+    struct addrinfo *adrinf = NULL;
+    int sock = 0;
+    for (adrinf = res; adrinf != NULL; adrinf = adrinf->ai_next)
+    {
+        sock = socket(adrinf->ai_family, adrinf->ai_socktype, adrinf->ai_protocol);
+        if (sock < 0)
+        {
+            perror("socket()");
+            continue;
+        }
+        rc = connect(sock, adrinf->ai_addr, adrinf->ai_addrlen);
+        if (rc < 0)
+        {
+            perror("connect");
+            close(sock);
+            continue;
+        }
+#ifdef _DEBUG
+        print_addrinfo0(adrinf, stderr);
+#endif
+        break;
+    }
+    freeaddrinfo(res);
     if (rc < 0)
     {
-      perror("connect");
-      close(sock);
-      continue;
+        perror("connect()");
+        close(sock);
+        return EXIT_FAILURE;
     }
-#ifdef _DEBUG
-    print_addrinfo0(adrinf, stderr);
-#endif
-    break;
-  }
-  freeaddrinfo(res);
-  if (rc < 0)
-  {
-    perror("connect()");
-    close(sock);
-    return EXIT_FAILURE;
-  }
 
-  // 送信
-  ssize_t w = write(sock, header, BOUYOMI_HEADER_SIZE);
-  if (w != BOUYOMI_HEADER_SIZE)
-  {
-    perror("write header");
-    close(sock);
-    return EXIT_FAILURE;
-  }
-  w = write(sock, reading_message_after_encode, length);
-  if (w != (ssize_t)length)
-  {
-    perror("write header");
-    close(sock);
-    return EXIT_FAILURE;
-  }
-  fprintf(stderr, _("Sent!\n"));
-  // ソケットを閉じる
-  rc = close(sock);
-  if (rc != 0)
-  {
-    perror("close");
-    return EXIT_FAILURE;
-  }
-  free(reading_message_after_encode);
-  return EXIT_SUCCESS;
+    // 送信
+    ssize_t w = write(sock, header, BOUYOMI_HEADER_SIZE);
+    if (w != BOUYOMI_HEADER_SIZE)
+    {
+        perror("write header");
+        close(sock);
+        return EXIT_FAILURE;
+    }
+    w = write(sock, reading_message_after_encode, length);
+    if (w != (ssize_t)length)
+    {
+        perror("write header");
+        close(sock);
+        return EXIT_FAILURE;
+    }
+    fprintf(stderr, _("Sent!\n"));
+    // ソケットを閉じる
+    rc = close(sock);
+    if (rc != 0)
+    {
+        perror("close");
+        return EXIT_FAILURE;
+    }
+    free(reading_message_after_encode);
+    return EXIT_SUCCESS;
 }

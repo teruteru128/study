@@ -22,45 +22,45 @@
  */
 int moving_sum(const int *inarray, const size_t datasize, const size_t windowsize, int *outarray, size_t outarraysize)
 {
-  if (inarray == NULL || datasize == 0 || windowsize == 0 || outarray == NULL || outarraysize == 0)
-  {
-    return 1;
-  }
-  int sum = 0;
-  for (size_t i = 0; i < windowsize; i++)
-  {
-    sum += inarray[i];
-  }
-  outarray[0] = sum;
-  for (size_t i = windowsize; i < datasize; i++)
-  {
-    sum -= inarray[i - windowsize];
-    sum += inarray[i];
-    outarray[i - windowsize + 1] = sum;
-  }
-  return 0;
+    if (inarray == NULL || datasize == 0 || windowsize == 0 || outarray == NULL || outarraysize == 0)
+    {
+        return 1;
+    }
+    int sum = 0;
+    for (size_t i = 0; i < windowsize; i++)
+    {
+        sum += inarray[i];
+    }
+    outarray[0] = sum;
+    for (size_t i = windowsize; i < datasize; i++)
+    {
+        sum -= inarray[i - windowsize];
+        sum += inarray[i];
+        outarray[i - windowsize + 1] = sum;
+    }
+    return 0;
 }
 
 /* 移動平均 */
 void moving_average(int *inarray, const size_t datasize, const size_t windowsize, float *outarray, size_t outarraysize)
 {
-  if (inarray == NULL || datasize == 0 || windowsize == 0 || outarray == NULL || outarraysize == 0)
-  {
+    if (inarray == NULL || datasize == 0 || windowsize == 0 || outarray == NULL || outarraysize == 0)
+    {
+        return;
+    }
+    int sum = 0;
+    for (size_t i = 0; i < windowsize; i++)
+    {
+        sum += inarray[i];
+    }
+    outarray[0] = (float)sum / (float)windowsize;
+    for (size_t i = windowsize; i < datasize; i++)
+    {
+        sum -= inarray[i - windowsize];
+        sum += inarray[i];
+        outarray[i - windowsize + 1] = (float)sum / (float)windowsize;
+    }
     return;
-  }
-  int sum = 0;
-  for (size_t i = 0; i < windowsize; i++)
-  {
-    sum += inarray[i];
-  }
-  outarray[0] = (float)sum / (float)windowsize;
-  for (size_t i = windowsize; i < datasize; i++)
-  {
-    sum -= inarray[i - windowsize];
-    sum += inarray[i];
-    outarray[i - windowsize + 1] = (float)sum / (float)windowsize;
-  }
-  return;
 }
 
 /**
@@ -70,61 +70,44 @@ void moving_average(int *inarray, const size_t datasize, const size_t windowsize
  */
 int moving_sum_max(const int *inarray, const size_t datasize, const size_t windowsize)
 {
-  int sum = 0;
-  for (size_t i = 0; i < windowsize; i++)
-  {
-    sum += inarray[i];
-  }
-  int max = INT_MIN;
-  for (size_t i = windowsize; i < datasize; i++)
-  {
-    sum -= inarray[i - windowsize];
-    sum += inarray[i];
-    if (max < sum)
+    int sum = 0;
+    for (size_t i = 0; i < windowsize; i++)
     {
-      max = sum;
+        sum += inarray[i];
     }
-  }
-  return max;
+    int max = INT_MIN;
+    for (size_t i = windowsize; i < datasize; i++)
+    {
+        sum -= inarray[i - windowsize];
+        sum += inarray[i];
+        if (max < sum)
+        {
+            max = sum;
+        }
+    }
+    return max;
 }
 
 int main(int argc, char *argv[])
 {
-  int rawchunk[625];
-  int movingsum[621];
-  float movingsum_f[621];
-  int maxtmp = 0;
-  srand(114514);
-  int64_t seed = n(114514);
-  for (int i = 0; i < 625; i++)
-  {
-    rawchunk[i] = nextIntWithBounds(&seed, 10) == 0;
-    printf("%d", rawchunk[i]);
-  }
-  printf("\n");
-  int max = moving_sum_max(rawchunk, 625, 5);
-  printf("%d\n", max);
-  moving_sum(rawchunk, 625, 5, movingsum, 621);
-  moving_average(rawchunk, 625, 5, movingsum_f, 621);
-  /*
-  // https://www.ei.fukui-nct.ac.jp/2018/06/05/moving-average-program/
-  int bp = 0;
-  //const int winsize=5;
-  int buf[WIDTH];
-  int sum = 0;
-  int widz = MAXZ - MINZ;
-  int z;
-  int widx = MAXX - MINX;
-  int x;
-  for (z = MINZ; z < MAXZ; z++)
-  {
-    i = (z + widz) % WIDTH;
-    sum = sum - buf[i];
-    buf[i] = (rand() % 10) == 0;
-  }
-  fputs("\n", stdout);
-  */
+    int rawchunk[625];
+    int movingsum[621];
+    float movingsum_f[621];
+    int maxtmp = 0;
+    srand(114514);
+    int64_t seed = n(114514);
+    for (int i = 0; i < 625; i++)
+    {
+        rawchunk[i] = nextIntWithBounds(&seed, 10) == 0;
+        printf("%d", rawchunk[i]);
+    }
+    printf("\n");
+    int max = moving_sum_max(rawchunk, 625, 5);
+    printf("%d\n", max);
+    moving_sum(rawchunk, 625, 5, movingsum, 621);
+    moving_average(rawchunk, 625, 5, movingsum_f, 621);
+    // https://www.ei.fukui-nct.ac.jp/2018/06/05/moving-average-program/
 
-  //
-  return EXIT_SUCCESS;
+    //
+    return EXIT_SUCCESS;
 }

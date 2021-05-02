@@ -1,0 +1,5 @@
+
+#ifndef GETTEXTSAMPLE4_H
+#define GETTEXTSAMPLE4_H
+
+#endif
