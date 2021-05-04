@@ -1,4 +1,5 @@
 
+#include <openssl/ossl_typ.h>
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -78,7 +79,7 @@ int readBigNum(BIGNUM *num, const char *filename)
     fclose(in);
     if (BN_hex2bn(&num, buf) == 0)
     {
-        perror("a");
+        perror("BN_hex2bn");
         free(catbuf);
         return EXIT_FAILURE;
     }
@@ -88,26 +89,6 @@ int readBigNum(BIGNUM *num, const char *filename)
     return 0;
 }
 
-int calc_phi_n(BIGNUM *phiN, BIGNUM *p, BIGNUM *q, BN_CTX *ctx)
-{
-    BIGNUM *psub1 = BN_secure_new();
-    BIGNUM *qsub1 = BN_secure_new();
-    const BIGNUM *constOne = BN_value_one();
-
-    // p - 1
-    BN_sub(psub1, p, constOne);
-    // q - 1
-    BN_sub(qsub1, q, constOne);
-
-    // (p - 1)(q - 1)
-    BN_mul(phiN, psub1, qsub1, ctx);
-
-    BN_free(psub1);
-    BN_free(qsub1);
-
-    return EXIT_SUCCESS;
-}
-
 static void generate_output_filename(char *dest, size_t maxlen, int bitLength)
 {
     uuid_t uuid;
@@ -115,6 +96,89 @@ static void generate_output_filename(char *dest, size_t maxlen, int bitLength)
     uuid_generate_random(uuid);
     uuid_unparse_lower(uuid, uuidstr);
     snprintf(dest, maxlen, "%dbit-%s-priv.pem", bitLength, uuidstr);
+}
+
+static RSA *calc_RSA(RSA *dest, BIGNUM *e, BIGNUM *p, BIGNUM *q, BN_CTX *ctx)
+{
+    if (BN_cmp(p, q) < 0)
+    {
+        printf(_("q is larger\n"));
+        BN_swap(p, q);
+    }
+    else
+    {
+        printf(_("p is larger\n"));
+    }
+    BIGNUM *n = BN_new();
+    BIGNUM *psub1 = BN_secure_new();
+    BIGNUM *qsub1 = BN_secure_new();
+    BIGNUM *phiN = BN_secure_new();
+    BIGNUM *d = BN_secure_new();
+    BIGNUM *dmp = BN_secure_new();
+    BIGNUM *dmq = BN_secure_new();
+    BIGNUM *iqmp = BN_secure_new();
+    if (iqmp == NULL)
+    {
+        perror("BN_new");
+        return NULL;
+    }
+
+    // 法nを計算
+    if (!BN_mul(n, p, q, ctx))
+        goto err2;
+
+    printf("bit size: %d\n", BN_num_bits(n));
+
+    // p - 1
+    if (!BN_sub(psub1, p, BN_value_one()))
+        goto err2;
+    // q - 1
+    if (!BN_sub(qsub1, q, BN_value_one()))
+        goto err2;
+    // オイラーのトーシェント関数
+    // φ(n)計算
+    if (!BN_mul(phiN, p, q, ctx))
+        goto err2;
+
+    // 秘密指数dを計算
+    if (!BN_mod_inverse(d, e, phiN, ctx))
+    {
+        perror(ERR_reason_error_string(ERR_get_error()));
+        goto err2; /* d */
+    }
+
+    // CRTパラメータ計算
+    // d mod (p-1), d mod (q-1)
+    /* calculate d mod (p-1) and d mod (q - 1) */
+    if (!BN_mod(dmp, d, psub1, ctx))
+        goto err2;
+
+    if (!BN_mod(dmq, d, qsub1, ctx))
+        goto err2;
+
+    // q mod p
+    fprintf(stderr, "p flag : %d\n", BN_get_flags(p, -1));
+    // BN_set_flags(p, BN_FLG_CONSTTIME | BN_FLG_SECURE);
+
+    /* calculate inverse of q mod p */
+    if (!BN_mod_inverse(iqmp, q, p, ctx))
+        goto err2;
+
+    RSA *work = (dest == NULL) ? RSA_new() : dest;
+    RSA_set0_key(work, n, e, d);
+    RSA_set0_factors(work, p, q);
+    RSA_set0_crt_params(work, dmp, dmq, iqmp);
+    return work;
+err2:
+    BN_free(n);
+    BN_free(psub1);
+    BN_free(qsub1);
+    BN_free(phiN);
+    BN_free(d);
+    BN_free(dmp);
+    BN_free(dmp);
+    BN_free(iqmp);
+    return NULL;
 }
 
 int encode_rsa_main(const int argc, const char *argv[])
@@ -136,18 +200,10 @@ int encode_rsa_main(const int argc, const char *argv[])
         goto err;
     }
     BN_CTX_start(ctx);
-    BIGNUM *phiN = NULL;
-    BIGNUM *psub1 = NULL;
-    BIGNUM *qsub1 = NULL;
-    BIGNUM *n = BN_new();
     BIGNUM *e = BN_new();
-    BIGNUM *d = BN_secure_new();
     BIGNUM *p = BN_secure_new();
     BIGNUM *q = BN_secure_new();
-    BIGNUM *dmp = BN_secure_new();
-    BIGNUM *dmq = BN_secure_new();
-    BIGNUM *iqmp = BN_secure_new();
-    if (iqmp == NULL)
+    if (q == NULL)
     {
         perror("BN_new");
         goto err;
@@ -157,112 +213,27 @@ int encode_rsa_main(const int argc, const char *argv[])
         perror("BN_set_word");
         goto err;
     }
-    phiN = BN_CTX_get(ctx);
-    psub1 = BN_CTX_get(ctx);
-    qsub1 = BN_CTX_get(ctx);
-    if (qsub1 == NULL)
-    {
-        perror("BN_CTX_get");
-    }
 
     readBigNum(p, infile1);
     readBigNum(q, infile2);
 
-    // 並び替え
-    if (BN_cmp(p, q) < 0)
+    RSA *rsa = calc_RSA(NULL, e, p, q, ctx);
+    if(rsa == NULL)
     {
-        printf(_("q is larger\n"));
-        BN_swap(p, q);
-    }
-    else
-    {
-        printf(_("p is larger\n"));
+        // perror("calc_RSA");
+        fprintf(stderr, "calc_RSA : %s\n", ERR_reason_error_string(ERR_get_error()));
+        return EXIT_FAILURE;
     }
 
-    // 法nを計算
-    BN_mul(n, p, q, ctx);
-
-    // p - 1
-    if (!BN_sub(psub1, p, BN_value_one()))
-        goto err;
-    // q - 1
-    if (!BN_sub(qsub1, q, BN_value_one()))
-        goto err;
-    // オイラーのトーシェント関数
-    // φ(n)計算
-    calc_phi_n(phiN, p, q, ctx);
-
-    // 秘密指数dを計算
-    BN_set_flags(phiN, BN_FLG_CONSTTIME | BN_FLG_SECURE);
-    if (!BN_mod_inverse(d, e, phiN, ctx))
-    {
-        perror(ERR_reason_error_string(ERR_get_error()));
-        goto err; /* d */
-    }
-
-    // CRTパラメータ計算
-    // d mod (p-1), d mod (q-1)
-    BN_set_flags(d, BN_FLG_CONSTTIME | BN_FLG_SECURE);
-
-    /* calculate d mod (p-1) and d mod (q - 1) */
-    if (!BN_mod(dmp, d, psub1, ctx))
-    {
-        BN_free(d);
-        goto err;
-    }
-
-    if (!BN_mod(dmq, d, qsub1, ctx))
-    {
-        BN_free(d);
-        goto err;
-    }
-
-    // q mod p
-    BN_set_flags(p, BN_FLG_CONSTTIME | BN_FLG_SECURE);
-
-    /* calculate inverse of q mod p */
-    if (!BN_mod_inverse(iqmp, q, p, ctx))
-    {
-        goto err;
-    }
-
-    printf("bit size: %d\n", BN_num_bits(n));
-    RSA *rsa = RSA_new();
-    if (rsa == NULL)
-    {
-        perror("RSA_new");
-        goto err;
-    }
-    RSA_set0_key(rsa, n, e, d);
-    RSA_set0_factors(rsa, p, q);
-    RSA_set0_crt_params(rsa, dmp, dmq, iqmp);
-#if 0
-    // 検証
-    int err = RSA_check_key(rsa);
-    printf("RSA_check_key is %d\n", err);
-    if (err == 1)
-    {
-        printf("RSA is OK\n");
-    }
-    else if (err == 0)
-    {
-        printf("RSA is NG : %s\n", ERR_reason_error_string(ERR_get_error()));
-        goto err;
-    }
-    else
-    {
-        perror(ERR_reason_error_string(ERR_get_error()));
-        goto err;
-    }
-#endif
     // ファイル書き出し
 
+    const BIGNUM *n = RSA_get0_n(rsa);
     int bitLength = BN_num_bits(n);
     char outfile[FILENAME_MAX];
     generate_output_filename(outfile, FILENAME_MAX, bitLength);
 
     FILE *fout = fopen(outfile, "w");
-    if(fout == NULL)
+    if (fout == NULL)
     {
         perror("fout outfile");
         goto err;

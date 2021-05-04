@@ -287,11 +287,14 @@ int searchPrime_main(const int argc, const char *argv[])
         fprintf(stderr, "%s [初期値ファイル] <offset to skip> <thread num>\n", argv[0]);
         return EXIT_FAILURE;
     }
+
+    // base初期化
     if (init_base(basefile) != EXIT_SUCCESS)
     {
         return EXIT_FAILURE;
     }
 
+    // スレッド数
     size_t tmp = CONSUMER_THREAD_NUM;
     if (argc >= 4)
     {
@@ -320,6 +323,7 @@ int searchPrime_main(const int argc, const char *argv[])
             fprintf(stderr, "利用可能なプロセッサ数より多くのスレッド数が指定されています。\n");
         }
     }
+    // バリア初期化
     pthread_barrier_t *barrier = malloc(sizeof(pthread_barrier_t));
     pthread_barrier_init(barrier, NULL, (unsigned int)threadNum);
 
@@ -328,6 +332,8 @@ int searchPrime_main(const int argc, const char *argv[])
     if (consumer_threads == NULL)
     {
         perror("consumer_threads = calloc");
+        pthread_barrier_destroy(barrier);
+        free(barrier);
         mpz_clear(base);
         return EXIT_FAILURE;
     }
@@ -335,6 +341,8 @@ int searchPrime_main(const int argc, const char *argv[])
     if (args == NULL)
     {
         perror("consumer args = calloc");
+        pthread_barrier_destroy(barrier);
+        free(barrier);
         free(consumer_threads);
         mpz_clear(base);
         return EXIT_FAILURE;
