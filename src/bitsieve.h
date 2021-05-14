@@ -3,9 +3,11 @@
 #define BITSIEVE_H
 
 #include <stdio.h>
+#include <pthread.h>
 #include <gmp.h>
+#include "bitset.h"
 
-struct BitSieve;
+typedef struct BitSieve BitSieve;
 #ifdef PUBLISH_STRUCT_BS
 struct BitSieve
 {

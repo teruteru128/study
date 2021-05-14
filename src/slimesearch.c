@@ -14,9 +14,6 @@
 #include "timeutil.h"
 #include <math.h>
 
-#define unitIndex(bitIndex) ((bitIndex) >> 6)
-#define bit(bitIndex) (1UL << ((bitIndex) & ((1 << 6) - 1)))
-
 /* http://tdual.hatenablog.com/entry/2018/05/02/113110 */
 struct searchArea
 {

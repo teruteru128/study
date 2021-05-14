@@ -11,8 +11,6 @@
 #define PUBLISH_STRUCT_BS
 #include "bitsieve.h"
 #include "queue.h"
-#define unitIndex(bitIndex) ((bitIndex) >> 6)
-#define bit(bitIndex) (1UL << ((bitIndex) & ((1 << 6) - 1)))
 
 QUEUE_DEFINE(primes);
 

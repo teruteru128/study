@@ -1,5 +1,4 @@
 
-#include <openssl/ossl_typ.h>
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -9,6 +8,7 @@
 #include <fcntl.h>
 #include <locale.h>
 #include <openssl/err.h>
+#include <openssl/ossl_typ.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include <stdio.h>
@@ -113,10 +113,14 @@ static RSA *calc_RSA(RSA *dest, BIGNUM *e, BIGNUM *p, BIGNUM *q, BN_CTX *ctx)
     BIGNUM *psub1 = BN_secure_new();
     BIGNUM *qsub1 = BN_secure_new();
     BIGNUM *phiN = BN_secure_new();
+    BN_set_flags(phiN, BN_FLG_CONSTTIME);
     BIGNUM *d = BN_secure_new();
+    BN_set_flags(d, BN_FLG_CONSTTIME);
     BIGNUM *dmp = BN_secure_new();
     BIGNUM *dmq = BN_secure_new();
     BIGNUM *iqmp = BN_secure_new();
+    BIGNUM *qSecure = BN_dup(q);
+    BN_set_flags(qSecure, BN_FLG_CONSTTIME | BN_FLG_SECURE);
     if (iqmp == NULL)
     {
         perror("BN_new");
@@ -157,11 +161,8 @@ static RSA *calc_RSA(RSA *dest, BIGNUM *e, BIGNUM *p, BIGNUM *q, BN_CTX *ctx)
         goto err2;
 
     // q mod p
-    fprintf(stderr, "p flag : %d\n", BN_get_flags(p, -1));
-    // BN_set_flags(p, BN_FLG_CONSTTIME | BN_FLG_SECURE);
-
     /* calculate inverse of q mod p */
-    if (!BN_mod_inverse(iqmp, q, p, ctx))
+    if (!BN_mod_inverse(iqmp, qSecure, p, ctx))
         goto err2;
 
     RSA *work = (dest == NULL) ? RSA_new() : dest;
@@ -178,6 +179,16 @@ err2:
     BN_free(dmp);
     BN_free(dmp);
     BN_free(iqmp);
+#if 0
+    BN_free(n);
+    BN_free(e);
+    BN_free(d);
+    BN_free(p);
+    BN_free(q);
+    BN_free(dmp);
+    BN_free(dmq);
+    BN_free(iqmp);
+#endif
     return NULL;
 }
 
@@ -186,9 +197,9 @@ int encode_rsa_main(const int argc, const char *argv[])
     init_gettext();
     int ret = EXIT_FAILURE;
     // ファイルから素数を読み込む
-    if (argc != 3)
+    if (argc < 3)
     {
-        printf("%s file1 file2\n", argv[0]);
+        fprintf(stderr, "%s file1 file2\n", argv[0]);
         return EXIT_SUCCESS;
     }
     const char *infile1 = argv[1];
@@ -196,8 +207,9 @@ int encode_rsa_main(const int argc, const char *argv[])
     BN_CTX *ctx = BN_CTX_new();
     if (ctx == NULL)
     {
-        perror("BN_CTX_new");
-        goto err;
+        fprintf(stderr, "BN_CTX_new : %s\n",
+                ERR_reason_error_string(ERR_get_error()));
+        return EXIT_FAILURE;
     }
     BN_CTX_start(ctx);
     BIGNUM *e = BN_new();
@@ -218,11 +230,12 @@ int encode_rsa_main(const int argc, const char *argv[])
     readBigNum(q, infile2);
 
     RSA *rsa = calc_RSA(NULL, e, p, q, ctx);
-    if(rsa == NULL)
+    if (rsa == NULL)
     {
         // perror("calc_RSA");
-        fprintf(stderr, "calc_RSA : %s\n", ERR_reason_error_string(ERR_get_error()));
-        return EXIT_FAILURE;
+        fprintf(stderr, "calc_RSA : %s\n",
+                ERR_reason_error_string(ERR_get_error()));
+        goto err;
     }
 
     // ファイル書き出し
@@ -236,39 +249,24 @@ int encode_rsa_main(const int argc, const char *argv[])
     if (fout == NULL)
     {
         perror("fout outfile");
-        goto err;
-    }
-    BIO *bio = BIO_new_file(outfile, "w");
-    if (bio == NULL)
-    {
-        perror(ERR_reason_error_string(ERR_get_error()));
+        RSA_free(rsa);
         goto err;
     }
     if (!PEM_write_RSAPrivateKey(fout, rsa, NULL, NULL, 0, NULL, NULL))
     {
         perror(ERR_reason_error_string(ERR_get_error()));
     }
-    if (!PEM_write_bio_RSAPrivateKey(bio, rsa, NULL, NULL, 0, NULL, NULL))
-    {
-        perror(ERR_reason_error_string(ERR_get_error()));
-    }
-    BIO_flush(bio);
-    BIO_free(bio);
+    fclose(fout);
     ret = EXIT_SUCCESS;
-    RSA_free(rsa);
 err:
     BN_CTX_end(ctx);
     BN_CTX_free(ctx);
-#if 0
-    BN_free(n);
-    BN_free(e);
-    BN_free(d);
-    BN_free(p);
-    BN_free(q);
-    BN_free(dmp);
-    BN_free(dmq);
-    BN_free(iqmp);
-#endif
+    if (ret != EXIT_SUCCESS)
+    {
+        BN_clear_free(e);
+        BN_clear_free(p);
+        BN_clear_free(q);
+    }
     return ret;
 }
 

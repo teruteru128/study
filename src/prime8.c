@@ -2,22 +2,22 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <pthread.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <pthread.h>
 #include <time.h>
+#include <unistd.h>
 #define PUBLISH_STRUCT_BS
 #include "bitsieve.h"
-#include "task_queue.h"
 #include "gettext.h"
+#include "task_queue.h"
 #define _(str) gettext(str)
-#include <locale.h>
+#include "timeutil.h"
 #include <ctype.h>
 #include <errno.h>
-#include "timeutil.h"
+#include <locale.h>
 
 #include <gmp.h>
 
@@ -25,7 +25,7 @@
 
 /**
  * @brief offsetの基準値。offset+baseが素数候補の値になる
- * 
+ *
  */
 mpz_t base;
 
@@ -43,17 +43,18 @@ struct producer_arg
 };
 
 /**
- * @brief 素数候補を生成してタスクキューに追加する. 終了時のタスクキューのゴミ掃除係
- * 
+ * @brief 素数候補を生成してタスクキューに追加する.
+ * 終了時のタスクキューのゴミ掃除係
+ *
  * タスク件数はどれくらいの数をキープするべきなんだろうか？
  * . 最初に8万件ぐらい入れて追加はしない
  * . 最初に1000件ぐらい入れてそれ以降は16件未満になったら16件まで追加
- * . 
- * 
+ * .
+ *
  * タスクキューのmutexを取る
  * 初期タスクとして1000件タスクを追加する
  * タスクキューのmutexを開放する
- * 
+ *
  * while(threadpool_live)
  * {
  * キューのmutexを取る
@@ -61,11 +62,11 @@ struct producer_arg
  * 16未満だったら16まで候補を補充する
  * mutexを開放する
  * }
- * 
+ *
  * 素数が見つかったらタスクキューを含めてゴミ掃除する
- * 
- * @param arg 
- * @return void* 
+ *
+ * @param arg
+ * @return void*
  */
 void *produce_prime_candidate(void *arg)
 {
@@ -104,7 +105,7 @@ void *produce_prime_candidate(void *arg)
         }
     }
     unsigned int offset = 1;
-    //size_t max = searchSieve.length <= 1000? searchSieve.bits_length : 1000;
+    // size_t max = searchSieve.length <= 1000? searchSieve.bits_length : 1000;
 
     size_t skiped_num = 0;
     size_t task_index = 0;
@@ -115,7 +116,8 @@ void *produce_prime_candidate(void *arg)
         unsigned long nextLong = ~searchSieve.bits[i];
         for (size_t j = 0; j < 64; j++)
         {
-            // ここの"== 1UL"いらなくない？そのまま"nextLong & 1UL"だけでいいじゃん
+            // ここの"== 1UL"いらなくない？そのまま"nextLong &
+            // 1UL"だけでいいじゃん
             if ((nextLong & 1UL) == 1UL)
             {
                 if (offset <= min_offset)
@@ -135,8 +137,15 @@ void *produce_prime_candidate(void *arg)
     unstarted_task_enqueue_putUnlock();
     if (size == 0)
         unstarted_task_signal_not_empty();
-    fprintf(stderr, ngettext("One prime number candidate was found.\n", "%zu prime number candidates were found.\n", task_index), task_index);
-    fprintf(stderr, ngettext("One prime number candidate have been skipped.\n", "%zu prime number candidates have been skipped.\n", skiped_num), skiped_num);
+    fprintf(stderr,
+            ngettext("One prime number candidate was found.\n",
+                     "%zu prime number candidates were found.\n", task_index),
+            task_index);
+    fprintf(stderr,
+            ngettext("One prime number candidate have been skipped.\n",
+                     "%zu prime number candidates have been skipped.\n",
+                     skiped_num),
+            skiped_num);
 
 #if 0
     while(threadpool_live)
@@ -164,26 +173,27 @@ struct consumer_args
 };
 
 /**
- * @brief 素数候補をタスクキューから取り出して素数判定して完了済みタスクリストに結果を入れる
- * 
+ * @brief
+ * 素数候補をタスクキューから取り出して素数判定して完了済みタスクリストに結果を入れる
+ *
  * コンシューマスレッドって何スレッドぐらいよ？12?
- * 
+ *
  * タスクキューのmutexを取る→キューの中身が空か調べる
  *   空だったらcondで待つ
  *   シグナルが来たらキューからタスクを取り出す
  * 空でなかったらタスクキューからタスクを取り出す
  * タスクキューのシグナルを送信する
  * タスクキューのmutexを開放する
- * 
+ *
  * 候補が素数か判定する
- * 
+ *
  * 完了済みタスクリストのmutexを取得してリストに結果を追加する
  * signalを送信する
- * 
+ *
  * 素数が見つかったらthreadpool_liveに0を入れて終了させる
- * 
- * @param arg 
- * @return void* 
+ *
+ * @param arg
+ * @return void*
  */
 void *consume_prime_candidate(void *arg)
 {
@@ -198,7 +208,7 @@ void *consume_prime_candidate(void *arg)
     struct timespec start;
     struct timespec finish;
     struct timespec diff;
-    struct tm tm = {0};
+    struct tm tm = { 0 };
     char formattedTime[TIME_FORMAT_BUFFER_SIZE] = "";
     char timezonestr[TIME_FORMAT_BUFFER_SIZE] = "";
     time_t hours = 0;
@@ -217,12 +227,13 @@ void *consume_prime_candidate(void *arg)
         mpz_add_ui(candidate, base, offset);
         pthread_barrier_wait(args->barrier);
         // 割と邪魔だな
-        //printf("(%2d)      0, %6zu, %7d:start\n", tid, index, offset);
+        // printf("(%2d)      0, %6zu, %7d:start\n", tid, index, offset);
         clock_gettime(CLOCK_REALTIME, &start);
         answer = mpz_probab_prime_p(candidate, DEFAULT_CERTAINTY);
         clock_gettime(CLOCK_REALTIME, &finish);
 
-        // add_completed_task(offset, answer, index, tid, (time_t)difftime(finish, start));
+        // add_completed_task(offset, answer, index, tid,
+        // (time_t)difftime(finish, start));
 
         difftimespec(&diff, &finish, &start);
         hours = diff.tv_sec / 3600;
@@ -231,7 +242,12 @@ void *consume_prime_candidate(void *arg)
         localtime_r(&finish.tv_sec, &tm);
         strftime(formattedTime, TIME_FORMAT_BUFFER_SIZE, "%FT%T", &tm);
         strftime(timezonestr, TIME_FORMAT_BUFFER_SIZE, "%z", &tm);
-        fprintf(stderr, "(%1$2lu) %2$s.%3$09ld%4$s, %5$02ld:%6$02ld:%7$02ld.%9$09ld, %8$6ld.%9$09ld, %10$6zu, %11$7d:%12$d\n", tid, formattedTime, finish.tv_nsec, timezonestr, hours, minutes, seconds, diff.tv_sec, diff.tv_nsec, index, offset, answer);
+        fprintf(stderr,
+                "(%1$2lu) %2$s.%3$09ld%4$s, %5$2ld:%6$02ld:%7$02ld.%9$09ld, "
+                "%8$6ld.%9$09ld, %10$6zu, %11$7d:%12$d\n",
+                tid, formattedTime, finish.tv_nsec, timezonestr, hours,
+                minutes, seconds, diff.tv_sec, diff.tv_nsec, index, offset,
+                answer);
         if (answer == 1 || answer == 2)
         {
             task = calloc(1, sizeof(struct task));
@@ -271,11 +287,11 @@ void initGettext()
 }
 
 /**
- * @brief 
- * 
- * @param argc 
- * @param argv 
- * @return int 
+ * @brief
+ *
+ * @param argc
+ * @param argv
+ * @return int
  */
 int searchPrime_main(const int argc, const char *argv[])
 {
@@ -284,7 +300,8 @@ int searchPrime_main(const int argc, const char *argv[])
     if (basefile == NULL)
     {
         fprintf(stderr, "basefileは必須です。\n");
-        fprintf(stderr, "%s [初期値ファイル] <offset to skip> <thread num>\n", argv[0]);
+        fprintf(stderr, "%s [初期値ファイル] <offset to skip> <thread num>\n",
+                argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -318,9 +335,11 @@ int searchPrime_main(const int argc, const char *argv[])
     }
     {
         const long availableProcessors = sysconf(_SC_NPROCESSORS_ONLN);
-        if (availableProcessors >= 0 && threadNum > (size_t)availableProcessors)
+        if (availableProcessors >= 0
+            && threadNum > (size_t)availableProcessors)
         {
-            fprintf(stderr, "利用可能なプロセッサ数より多くのスレッド数が指定されています。\n");
+            fprintf(stderr, "利用可能なプロセッサ数より多くのスレッド数が指定"
+                            "されています。\n");
         }
     }
     // バリア初期化
@@ -337,7 +356,8 @@ int searchPrime_main(const int argc, const char *argv[])
         mpz_clear(base);
         return EXIT_FAILURE;
     }
-    struct consumer_args *args = calloc(threadNum, sizeof(struct consumer_args));
+    struct consumer_args *args
+        = calloc(threadNum, sizeof(struct consumer_args));
     if (args == NULL)
     {
         perror("consumer args = calloc");
@@ -348,7 +368,7 @@ int searchPrime_main(const int argc, const char *argv[])
         return EXIT_FAILURE;
     }
 
-    struct producer_arg arg = {0, NULL};
+    struct producer_arg arg = { 0, NULL };
     if (argc >= 3)
     {
         arg.offset = (size_t)strtoul(argv[2], NULL, 10);
@@ -365,7 +385,8 @@ int searchPrime_main(const int argc, const char *argv[])
         }
         if (strlen(work) >= FILENAME_MAX)
         {
-            // strlen(work) == FILENAME_MAX -> NULL文字を入れる場所がないのでアウト
+            // strlen(work) == FILENAME_MAX ->
+            // NULL文字を入れる場所がないのでアウト
             fputs("path nameが長すぎます！\n", stderr);
             return EXIT_FAILURE;
         }
@@ -379,7 +400,8 @@ int searchPrime_main(const int argc, const char *argv[])
     {
         (args + i)->tid = i;
         (args + i)->barrier = barrier;
-        pthread_create(&consumer_threads[i], NULL, consume_prime_candidate, args + i);
+        pthread_create(&consumer_threads[i], NULL, consume_prime_candidate,
+                       args + i);
     }
     pthread_join(producer_thread, NULL);
 
@@ -403,7 +425,7 @@ int searchPrime_main(const int argc, const char *argv[])
         if (task != NULL)
         {
             fprintf(stderr, "prime found! offset:%u\n", task->offset);
-            //export_found_prime(task->offset);
+            // export_found_prime(task->offset);
             clear_task(task);
             free(task);
         }
@@ -435,11 +457,11 @@ int searchPrime_main(const int argc, const char *argv[])
  * 1スレッド, 1800s -> 1時間あたり2タスク, 2倍
  * 8スレッド, 2440s -> 1時間あたり11.8タスク, 1.4倍
  * 16スレッド, 3100s -> 1時間あたり18.6タスク, 1.16倍
- * @param argc 
- * @param argv 
- * @return int 
+ *
+ * TODO: ミラーラビン素数判定法をマルチスレッド化、もしくはAKS素数判定法を自作
+ *
+ * @param argc
+ * @param argv
+ * @return int
  */
-int main(int argc, const char *argv[])
-{
-    return searchPrime_main(argc, argv);
-}
+int main(const int argc, const char *argv[]) { return searchPrime_main(argc, argv); }

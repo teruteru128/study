@@ -6,9 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include <math.h>
+#include <gmp.h>
 
 /**
  * 
@@ -73,55 +72,29 @@
  */
 int main(int argc, const char *argv[])
 {
-    const char *path = "..";
-    if (argc > 1)
+    if(argc < 2)
     {
-        path = argv[1];
+        return EXIT_SUCCESS;
     }
-
-    int fd1 = open(path, O_DIRECTORY | O_RDONLY);
-    if (fd1 < 0)
-    {
-        perror("fopen fd1");
+    FILE *fin = fopen(argv[1], "r");
+    if(fin == NULL)
         return EXIT_FAILURE;
-    }
-    int fd2 = open(".", O_DIRECTORY | O_RDONLY);
-    if (fd2 < 0)
-    {
-        perror("fopen .");
-        close(fd1);
-        return EXIT_FAILURE;
-    }
-    char *cwd = getcwd(NULL, 0);
-    printf("初期位置:%s\n", cwd);
-    free(cwd);
-    cwd = NULL;
+    mpz_t a;
+    mpz_init(a);
+    size_t r = mpz_inp_str(a, fin, 16);
+    fclose(fin);
 
-    if (fchdir(fd1) != 0)
-    {
-        perror("fchdir fd1");
-        close(fd1);
-        close(fd2);
-        return EXIT_FAILURE;
-    }
-    cwd = getcwd(NULL, 0);
-    printf("CWD変更:%s\n", cwd);
-    free(cwd);
-    cwd = NULL;
+    long exp;
+    //     a  =     d * 2^exp
+    // log(a) = log(d * 2^exp)
+    //        = log(d) + exp * log(2)
+    // log(2, a) = log(2, d * 2^exp)
+    //           = log(2, d) + exp * log(2, 2)
+    //           = log(2, d) + exp
+    double d = mpz_get_d_2exp(&exp, a);
+    double e = log(d) + log(2) * (double) exp;
+    printf("%lf, %lf\n", e, log2(d) + exp);
+    mpz_clear(a);
 
-    if (fchdir(fd2) != 0)
-    {
-        perror("fchdir fd2");
-        close(fd1);
-        close(fd2);
-        return EXIT_FAILURE;
-    }
-    cwd = getcwd(NULL, 0);
-    printf("CWDを戻す:%s\n", cwd);
-    free(cwd);
-    cwd = NULL;
-
-    close(fd2);
-    close(fd1);
     return EXIT_SUCCESS;
 }

@@ -3,20 +3,18 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include "timeutil.h"
+#include <pthread.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
-#include <timeutil.h>
+#include <unistd.h>
 
 #include <gmp.h>
 
 #define PUBLISH_STRUCT_BS
 #include "bitsieve.h"
-
-#define unitIndex(bitIndex) ((bitIndex) >> 6)
-#define bit(bitIndex) (1UL << ((bitIndex) & ((1 << 6) - 1)))
 
 static void bs_set(struct BitSieve *bs, size_t bitIndex)
 {
@@ -30,11 +28,11 @@ static int bs_get(struct BitSieve *bs, size_t bitIndex)
 
 /**
  * @brief startから開始して最初にフラグの立っていない数を探します.
- * 
- * @param bs 
- * @param limit 
- * @param start 
- * @return int 
+ *
+ * @param bs
+ * @param limit
+ * @param start
+ * @return int
  */
 static size_t bs_sieveSearch(struct BitSieve *bs, size_t limit, size_t start)
 {
@@ -53,13 +51,14 @@ static size_t bs_sieveSearch(struct BitSieve *bs, size_t limit, size_t start)
 
 /**
  * @brief startの倍数にフラグを立てます.
- * 
- * @param bs 
- * @param limit 
- * @param start 
- * @param step 
+ *
+ * @param bs
+ * @param limit
+ * @param start
+ * @param step
  */
-static void bs_sieveSingle(struct BitSieve *bs, size_t limit, size_t start, size_t step)
+static void bs_sieveSingle(struct BitSieve *bs, size_t limit, size_t start,
+                           size_t step)
 {
     while (start < limit)
     {
@@ -74,10 +73,23 @@ static void bs_smallSieve_Constract(void)
 {
     printf("small sieveの初期化を開始します...\n");
     struct timespec start;
+    struct timespec finish;
+    struct timespec diff;
     clock_gettime(CLOCK_MONOTONIC, &start);
+    if (access("../0x800000000smallsieve.bs", F_OK | R_OK) != 0)
+    {
+        fputs("既知素数ファイルが見つかりました。ロードを行います...\n", stderr);
+        FILE *fin = fopen("0x800000000smallsieve.bs", "rb");
+        bs_filein(&smallSieve, fin);
+        fclose(fin);
+        goto fin;
+    }else{
+        fputs("?\n", stderr);
+    }
     /*
      * このふるいの長さはJavaで実装されているものをそのまま流用しているため、最適化するには独自に実験して選択する必要があります。
-     * 対象のbit lengthが非常に長い場合、smallSieveの長さを大きくしても良いのかも？
+     * 対象のbit
+     * lengthが非常に長い場合、smallSieveの長さを大きくしても良いのかも？
      */
     // smallSieve.length = 1 * 64; // 64
     smallSieve.length = 150 * 64; // 9600
@@ -106,16 +118,18 @@ static void bs_smallSieve_Constract(void)
     do
     {
         // nextPrimeの倍数を塗りつぶす
-        bs_sieveSingle(&smallSieve, smallSieve.length, nextIndex + nextPrime, nextPrime);
+        bs_sieveSingle(&smallSieve, smallSieve.length, nextIndex + nextPrime,
+                       nextPrime);
         // nextIndexの次から探して塗りつぶされていない最初のindexを探す
-        nextIndex = bs_sieveSearch(&smallSieve, smallSieve.length, nextIndex + 1);
+        nextIndex
+            = bs_sieveSearch(&smallSieve, smallSieve.length, nextIndex + 1);
         nextPrime = 2 * nextIndex + 1;
     } while ((nextIndex != (size_t)-1) && (nextPrime < smallSieve.length));
-    struct timespec finish;
+fin:
     clock_gettime(CLOCK_MONOTONIC, &finish);
-    struct timespec diff;
     difftimespec(&diff, &finish, &start);
-    printf("small sieveの初期化を完了しました. %ld.%09lds\n", diff.tv_sec, diff.tv_nsec);
+    printf("small sieveの初期化を完了しました. %ld.%09lds\n", diff.tv_sec,
+           diff.tv_nsec);
 }
 
 static pthread_once_t smallSieveInitialize = PTHREAD_ONCE_INIT;
@@ -127,11 +141,11 @@ void bs_initSmallSieve()
 
 /**
  * XXX: 初期化済みのBitSieveをbs_freeせずに再度初期化するとメモリリークが起きる
- * @brief 
- * 
- * @param bs 
- * @param base 
- * @param searchLen 
+ * @brief
+ *
+ * @param bs
+ * @param base
+ * @param searchLen
  */
 void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
 {
@@ -165,7 +179,8 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
     clock_gettime(CLOCK_MONOTONIC, &finish);
     struct timespec diff;
     difftimespec(&diff, &finish, &startt);
-    printf("篩の初期化を完了しました. %ld.%09lds\n", diff.tv_sec, diff.tv_nsec);
+    printf("篩の初期化を完了しました. %ld.%09lds\n", diff.tv_sec,
+           diff.tv_nsec);
 }
 
 struct BitSieve *bs_getInstance(mpz_t *base, size_t searchLen)
@@ -194,12 +209,12 @@ void bs_free(struct BitSieve *bs)
  * XXX: gmp系とOpenSSL系で両方作るの？やだぁ……
  * TODO: mpz_probab_prime_p を非同期化してマルチスレッドにしたい
  * @brief Test probable primes in the sieve and return successful candidates.
- * 
+ *
  * @see java.math.BitSieve#retrieve(BigInteger, int, Random)
- * @param p 
- * @param offset 
- * @param certainty 
- * @return mpz_t* 
+ * @param p
+ * @param offset
+ * @param certainty
+ * @return mpz_t*
  */
 mpz_t *bs_retrieve(struct BitSieve *bs, mpz_t *initValue, int certainty)
 {
@@ -236,7 +251,9 @@ mpz_t *bs_retrieve(struct BitSieve *bs, mpz_t *initValue, int certainty)
     return NULL;
 }
 
-void bs_foreach(struct BitSieve *bs, void (*function)(mpz_t *base, unsigned long offset, void *arg), mpz_t *base, void *arg)
+void bs_foreach(struct BitSieve *bs,
+                void (*function)(mpz_t *base, unsigned long offset, void *arg),
+                mpz_t *base, void *arg)
 {
     unsigned long offset = 1;
     for (size_t i = 0; i < bs->bits_length; i++)
@@ -254,19 +271,18 @@ void bs_foreach(struct BitSieve *bs, void (*function)(mpz_t *base, unsigned long
     }
 }
 
-void bs_import()
-{
-}
+void bs_import() {}
 
 /**
- * @brief 
- * 
- * @param out 
- * @param outsize 
- * @param bs 
- * @return unsigned char* 
+ * @brief
+ *
+ * @param out
+ * @param outsize
+ * @param bs
+ * @return unsigned char*
  */
-unsigned char *bs_export(unsigned char *out, size_t *outsize, const struct BitSieve *bs)
+unsigned char *bs_export(unsigned char *out, size_t *outsize,
+                         const struct BitSieve *bs)
 {
     return NULL;
 }
@@ -275,10 +291,10 @@ unsigned char *bs_export(unsigned char *out, size_t *outsize, const struct BitSi
  * @brief ビット篩をストリームへエクスポートする。
  * もしかしたら一つのストリームへ複数のビット篩がエクスポート可能かもしれない。
  * ほとんどすべての用途において必要ではないと思われるが。
- * 
- * @param stream 
- * @param bs 
- * @return size_t 
+ *
+ * @param stream
+ * @param bs
+ * @return size_t
  */
 size_t bs_fileout(FILE *stream, const struct BitSieve *bs)
 {
@@ -413,7 +429,8 @@ size_t bs_filein(struct BitSieve *bs, FILE *stream)
 size_t bs_getNextStep(struct bs_ctx *ctx)
 {
     pthread_mutex_lock(&ctx->mutex);
-    size_t returnstep = bs_sieveSearch(&smallSieve, smallSieve.length, ctx->start);
+    size_t returnstep
+        = bs_sieveSearch(&smallSieve, smallSieve.length, ctx->start);
     ctx->start = returnstep + 1UL;
     pthread_mutex_unlock(&ctx->mutex);
     return returnstep;

@@ -81,6 +81,7 @@ bin_PROGRAMS= \
 	prime11 \
 	prime12 \
 	prime13 \
+	prime14 \
 	primesearch \
 	printBench \
 	printinttest \
@@ -97,6 +98,7 @@ bin_PROGRAMS= \
 	signalsample2 \
 	slimesearch \
 	sntpc \
+	ssh-keyconvert \
 	strspntest \
 	study \
 	sum \
@@ -139,7 +141,7 @@ studydatadir = $(datadir)/study
 # see https://www.gnu.org/software/automake/manual/html_node/Subpackages.html
 AM_CPPFLAGS=-Wall \
     -Wextra \
-    -pedantic \
+    -pedantic-errors \
     -Wcast-align \
     -Wcast-qual \
     -Wconversion \
@@ -238,12 +240,13 @@ portscanner_SOURCES=portscanner.c
 prime1_SOURCES=prime1.c
 prime2_SOURCES=prime2.c
 prime3_SOURCES=prime3.c
-prime6_SOURCES=prime6.c bitsieve.c bitsieve.h  timeutil.c timeutil.h
-prime7_SOURCES=prime7.c bitsieve.c bitsieve.h timeutil.c timeutil.h
-prime8_SOURCES=prime8.c bitsieve.c bitsieve.h task_queue.c task_queue.h queue.c queue.h timeutil.c timeutil.h
+prime6_SOURCES=prime6.c bitsieve.c bitsieve.h timeutil.c timeutil.h bitset.h
+prime7_SOURCES=prime7.c bitsieve.c bitsieve.h timeutil.c timeutil.h bitset.h
+prime8_SOURCES=prime8.c bitsieve.c bitsieve.h task_queue.c task_queue.h queue.c queue.h timeutil.c timeutil.h bitset.h
 #prime8_LDFLAGS=-static
 prime12_SOURCES=prime12.c bitsieve.c bitsieve.h timeutil.c timeutil.h
-prime13_SOURCES=prime13.c bitsieve.c bitsieve.h queue.c queue.h timeutil.c timeutil.h
+prime13_SOURCES=prime13.c bitsieve.c bitsieve.h queue.c queue.h timeutil.c timeutil.h bitset.h
+prime14_SOURCES=prime14.c bitsieve.c bitsieve.h timeutil.c timeutil.h bitset.h
 primesearch_SOURCES=primesearch.c
 printBench_CFLAGS=
 printBench_LDADD=$(LIBSTUDYPATH)

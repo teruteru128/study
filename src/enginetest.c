@@ -1,7 +1,7 @@
 
 #include "config.h"
-#include <stdio.h>
 #include <openssl/engine.h>
+#include <stdio.h>
 
 int main(int argc, char **argv)
 {
@@ -21,9 +21,17 @@ int main(int argc, char **argv)
     ENGINE *first = ENGINE_get_first();
     if (first != NULL)
     {
-        for (ENGINE *engine = first; (engine = ENGINE_get_next(engine)) != NULL;)
+        /*
+        for (ENGINE *engine = first;
+             (engine = ENGINE_get_next(engine)) != NULL;)
         {
             printf("%s\n", ENGINE_get_id(engine));
+        }
+        */
+        while (first != NULL)
+        {
+            printf("%s\n", ENGINE_get_id(first));
+            first = ENGINE_get_next(first);
         }
     }
     else

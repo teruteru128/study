@@ -1,13 +1,13 @@
 
 #include "config.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <pthread.h>
+#include <nlz.h>
 #include <openssl/evp.h>
 #include <openssl/md5.h>
 #include <printint.h>
-#include <nlz.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifndef THREAD_NUM
 #define THREAD_NUM 12
@@ -48,8 +48,8 @@ void *hash(void *arg)
         cnt_max = cnt + 1048576;
         for (; cnt < cnt_max; cnt++)
         {
-            //len = (size_t)snprintf(str, 24, "%zu", cnt);
-            len = snprintUInt64(str, 24, cnt);
+            len = (size_t)snprintf(str, 24, "%zu", cnt);
+            // len = snprintUInt64(str, 24, cnt);
             EVP_DigestInit(ctx, md5);
             EVP_DigestUpdate(ctx, str, len);
             EVP_DigestFinal(ctx, buf, NULL);
@@ -82,7 +82,7 @@ void *hash(void *arg)
                 config->require_nlz = nlz;
             pthread_rwlock_unlock(&config->require_nlz_rwlock);
         }
-        //printf("section finished : %zu\n", cnt);
+        // printf("section finished : %zu\n", cnt);
         pthread_rwlock_rdlock(&config->require_nlz_rwlock);
     }
     pthread_rwlock_unlock(&config->require_nlz_rwlock);
@@ -90,22 +90,46 @@ void *hash(void *arg)
     return NULL;
 }
 
+static struct globalConfig *globalConfig_new(size_t counter, size_t nlz)
+{
+    struct globalConfig *config = malloc(sizeof(struct globalConfig));
+    config->counter = counter;
+    pthread_mutex_init(&config->mutex, NULL);
+    config->require_nlz = nlz;
+    pthread_rwlock_init(&config->require_nlz_rwlock, NULL);
+    return config;
+}
+
+static void globalConfig_destory(struct globalConfig *config)
+{
+    config->counter = 0;
+    pthread_mutex_destroy(&config->mutex);
+    config->require_nlz = 0;
+    pthread_rwlock_destroy(&config->require_nlz_rwlock);
+}
+
 int main(int argc, char **argv)
 {
-    pthread_t thread[THREAD_NUM];
+    size_t threadNum = THREAD_NUM;
+    if (argc > 2)
+    {
+        threadNum = (size_t)strtoul(argv[1], NULL, 0);
+    }
+    pthread_t *threads = malloc(threadNum * sizeof(pthread_t));
 
-    struct globalConfig counter = {776869784885228UL, PTHREAD_MUTEX_INITIALIZER, 5, PTHREAD_RWLOCK_INITIALIZER};
+    struct globalConfig *config = globalConfig_new(776869784885228UL, 5);
 
     for (size_t i = 0; i < THREAD_NUM; i++)
     {
-        pthread_create(&thread[i], NULL, hash, &counter);
+        pthread_create(&threads[i], NULL, hash, &config);
     }
     for (size_t i = 0; i < THREAD_NUM; i++)
     {
-        pthread_join(thread[i], NULL);
+        pthread_join(threads[i], NULL);
     }
-    pthread_mutex_destroy(&counter.mutex);
-    pthread_rwlock_destroy(&counter.require_nlz_rwlock);
+    globalConfig_destory(config);
+    free(config);
+    free(threads);
 
     return EXIT_SUCCESS;
 }
