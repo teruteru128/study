@@ -9,31 +9,21 @@
 #include <math.h>
 #include <gmp.h>
 
-/**
+/*
  * 
- * 対称鍵暗号
- *   EVP_CIPHER
- *   https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
- * 認証付き暗号
- *   https://wiki.openssl.org/index.php/EVP_Authenticated_Encryption_and_Decryption
- * エンベロープ暗号化(ハイブリッド暗号？)
- *   https://wiki.openssl.org/index.php/EVP_Asymmetric_Encryption_and_Decryption_of_an_Envelope
- * 署名と検証
- *   EVP_DigestSign
- *   https://wiki.openssl.org/index.php/EVP_Signing_and_Verifying
- * メッセージダイジェスト
- *   https://wiki.openssl.org/index.php/EVP_Message_Digests
- * 鍵合意(鍵交換)
- *   EVP_PKEY_CTX
- *   EVP_PKEY_derive
- *   https://wiki.openssl.org/index.php/EVP_Key_Derivation
- * メッセージ認証符号 (OpenSSL 3～)
- *   EVP_MAC_new_ctx
- * 鍵導出関数
- *   EVP_KDF
- *   https://wiki.openssl.org/index.php/EVP_Key_Derivation
- * strsep
- *   トークン分割(空フィールド対応版)
+ * 対称鍵暗号,EVP_CIPHER:https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
+ * 認証付き暗号:https://wiki.openssl.org/index.php/EVP_Authenticated_Encryption_and_Decryption
+ * エンベロープ暗号化(ハイブリッド暗号？):https://wiki.openssl.org/index.php/EVP_Asymmetric_Encryption_and_Decryption_of_an_Envelope
+ * 署名と検証,EVP_DigestSign:https://wiki.openssl.org/index.php/EVP_Signing_and_Verifying
+ * メッセージダイジェスト:https://wiki.openssl.org/index.php/EVP_Message_Digests
+ * 鍵合意(鍵交換),EVP_PKEY_CTX,EVP_PKEY_derive:https://wiki.openssl.org/index.php/EVP_Key_Derivation
+ * EVPとRSAを使って署名/検証
+ * EVP+ed25519(EdDSA)
+ * EVP+X25519(EdDH)
+ * EVP+ChaCha20/Poly1305
+ * メッセージ認証符号 (OpenSSL 3～),EVP_MAC_new_ctx
+ * 鍵導出関数,EVP_KDF:https://wiki.openssl.org/index.php/EVP_Key_Derivation
+ * strsep,トークン分割(空フィールド対応版)
  * versionsort
  * strverscmp
  * alphasort
@@ -63,7 +53,8 @@
  * 複数スレッドをpthread_cond_tで止めてメインスレッドでtimerfdを使って指定時刻まで待ち、pthread_cond_broadcastで一斉に起動する
  * 
  * ファイルからGMPのmpzに整数を読み込んだりOpenSSLのBIGNUMに整数を読み込んだり乱数を読み込んだりを共通化したい
- * 
+ */
+/**
  * @brief sanbox func.
  * 
  * @param argc 
@@ -83,6 +74,10 @@ int main(int argc, const char *argv[])
     mpz_init(a);
     size_t r = mpz_inp_str(a, fin, 16);
     fclose(fin);
+    if(r == 0)
+    {
+        return EXIT_FAILURE;
+    }
 
     long exp;
     //     a  =     d * 2^exp
@@ -93,7 +88,7 @@ int main(int argc, const char *argv[])
     //           = log(2, d) + exp
     double d = mpz_get_d_2exp(&exp, a);
     double e = log(d) + log(2) * (double) exp;
-    printf("%lf, %lf\n", e, log2(d) + exp);
+    printf("%lf, %lf\n", e, log2(d) + (double)exp);
     mpz_clear(a);
 
     return EXIT_SUCCESS;

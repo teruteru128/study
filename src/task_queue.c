@@ -63,13 +63,13 @@ size_t unstarted_task_getSize_nolock()
 int unstarted_task_enqueue_putLock()
 {
     pthread_mutex_lock(&unstarted_task_queue.putLock);
-    pthread_mutex_lock(&unstarted_task_queue.sizeLock);
+    pthread_rwlock_wrlock(&unstarted_task_queue.sizeLock);
     return 0;
 }
 
 int unstarted_task_enqueue_putUnlock()
 {
-    pthread_mutex_unlock(&unstarted_task_queue.sizeLock);
+    pthread_rwlock_unlock(&unstarted_task_queue.sizeLock);
     pthread_mutex_unlock(&unstarted_task_queue.putLock);
     return 0;
 }

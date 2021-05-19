@@ -4,6 +4,8 @@ bin_PROGRAMS= \
 	CoDec \
 	FizzBuzz \
 	Nabeatsu \
+	Nabeatsu2 \
+	Nabeatsu3 \
 	TSIdentityTool \
 	addpadding \
 	ankokudan_decode \
@@ -36,10 +38,13 @@ bin_PROGRAMS= \
 	errnosample1 \
 	errnosample2 \
 	evpmdtest \
+	evprsasignsample \
+	evprsaverifysample \
 	evptest \
 	falcon \
 	ftm \
 	ftnr \
+	genericsample \
 	getnyanpass \
 	getnyanpass2 \
 	gettextsample2 \
@@ -66,6 +71,7 @@ bin_PROGRAMS= \
 	mysqlaccesssample2 \
 	mysqlfast \
 	pgpcrc24sample \
+	pkeyencsample \
 	portscanner \
 	potest \
 	prime1 \
@@ -174,6 +180,8 @@ FizzBuzz_SOURCES=FizzBuzz.c
 Nabeatsu_CFLAGS=
 Nabeatsu_LDADD=$(LIBSTUDYPATH)
 Nabeatsu_SOURCES=Nabeatsu.c gettext.h
+Nabeatsu2_SOURCES=Nabeatsu2.c gettext.h
+Nabeatsu3_SOURCES=Nabeatsu3.c gettext.h
 TSIdentityTool_LDADD=-ltommath -ltomcrypt
 ankokudan_decode_SOURCES=ankokudan_decode.c
 argsample_SOURCES=argsample.c

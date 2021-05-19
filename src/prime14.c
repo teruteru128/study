@@ -80,8 +80,10 @@ int main(int argc, char *argv[])
         nextIndex = bs_sieveSearch(&small, small.length, nextIndex + 1);
         nextPrime = 2 * nextIndex + 1;
     } while ((nextIndex != (size_t)-1) && (nextPrime < small.length));
+    char outfilename[32] = "";
+    snprintf(outfilename, 32, "0x%lxsmallsieve.bs", small.length);
 
-    FILE *fout = fopen("0x1000000000smallsieve.bs", "wb");
+    FILE *fout = fopen(outfilename, "wb");
     if(fout == NULL)
     {
         perror("fopen");

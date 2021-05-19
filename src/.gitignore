@@ -1,6 +1,8 @@
 CoDec
 FizzBuzz
 Nabeatsu
+Nabeatsu2
+Nabeatsu3
 TSIdentityTool
 addpadding
 ankokudan_decode
@@ -33,10 +35,13 @@ envgettest
 errnosample1
 errnosample2
 evpmdtest
+evprsasignsample
+evprsaverifysample
 evptest
 falcon
 ftm
 ftnr
+genericsample
 getnyanpass
 getnyanpass2
 gettextsample2
@@ -61,6 +66,7 @@ mineseed
 mysqlaccesssample
 mysqlaccesssample2
 mysqlfast
+pkeyencsample
 pgpcrc24sample
 pointersample
 portscanner

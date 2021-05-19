@@ -39,13 +39,13 @@ static uint64_t getRandomU64()
 
 #define IN1 "MEwDAgcAAgEgAiBK4dcDZUSLCxmvRfMWMAQf1JzSrLzZakLqDsULzT28OwIhAILbBS66JoN1Xo2YsC1xDPDhukJjVO2guoeL+AM27Vfn"
 
-static int calcSecurityLevel(SHA_CTX *ctx, unsigned char *md, char *buf, char *id, size_t idlen, uint64_t counter)
+static int calcSecurityLevel(SHA_CTX *ctx, unsigned char *md, char *buf, const char *id, size_t idlen, uint64_t counter)
 {
     int i = 0;
     int j = 0;
     SHA1_Init(ctx);
     SHA1_Update(ctx, id, idlen);
-    size_t counterLength = snprintf(buf, 25, "%lu", counter);
+    size_t counterLength = (size_t)snprintf(buf, 25, "%lu", counter);
     SHA1_Update(ctx, buf, counterLength);
     SHA1_Final(md, ctx);
     for (i = 0; md[i] == 0 && i < SHA_DIGEST_LENGTH; i++)

@@ -32,7 +32,7 @@ mpz_t base;
 /**
  * @brief threadpoolを停止するときは0を代入する
  */
-static int threadpool_live = 1;
+static volatile int threadpool_live = 1;
 
 #define QUEUE_SIZE 1048576UL
 

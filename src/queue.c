@@ -2,20 +2,20 @@
 /**
  * @file queue.c
  * @author your name (you@domain.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2021-04-15
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include "queue.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "queue.h"
 struct node
 {
     struct node *next;
@@ -84,9 +84,9 @@ void put(struct queue *queue, void *e)
     node->item = e;
     pthread_mutex_lock(&queue->putLock);
     enqueue(queue, node);
-    pthread_mutex_lock(&queue->sizeLock);
+    pthread_rwlock_wrlock(&queue->sizeLock);
     size_t c = queue->size++;
-    pthread_mutex_unlock(&queue->sizeLock);
+    pthread_rwlock_unlock(&queue->sizeLock);
     if ((c + 1) < queue->capacity)
         pthread_cond_signal(&queue->notFull);
     pthread_mutex_unlock(&queue->putLock);
@@ -102,19 +102,19 @@ void *take(struct queue *queue)
     }
     size_t c = (size_t)-1;
     pthread_mutex_lock(&queue->takeLock);
-    pthread_mutex_lock(&queue->sizeLock);
+    pthread_rwlock_rdlock(&queue->sizeLock);
     while (queue->size == 0)
     {
-        pthread_mutex_unlock(&queue->sizeLock);
+        pthread_rwlock_unlock(&queue->sizeLock);
         pthread_cond_wait(&queue->notEmpty, &queue->takeLock);
-        pthread_mutex_lock(&queue->sizeLock);
+        pthread_rwlock_rdlock(&queue->sizeLock);
     }
-    pthread_mutex_unlock(&queue->sizeLock);
+    pthread_rwlock_rdlock(&queue->sizeLock);
 
     void *item = dequeue(queue);
-    pthread_mutex_lock(&queue->sizeLock);
+    pthread_rwlock_wrlock(&queue->sizeLock);
     c = queue->size--;
-    pthread_mutex_unlock(&queue->sizeLock);
+    pthread_rwlock_unlock(&queue->sizeLock);
     if (c > 1)
     {
         pthread_cond_signal(&queue->notEmpty);
@@ -127,13 +127,39 @@ void *take(struct queue *queue)
 
 size_t q_getSize(struct queue *queue)
 {
-    pthread_mutex_lock(&queue->sizeLock);
+    pthread_rwlock_rdlock(&queue->sizeLock);
     size_t size = queue->size;
-    pthread_mutex_unlock(&queue->sizeLock);
+    pthread_rwlock_unlock(&queue->sizeLock);
     return size;
 }
 
-size_t q_getSize_nolock(struct queue *queue)
+int q_isEmpty(struct queue *queue)
 {
-    return queue->size;
+    pthread_rwlock_rdlock(&queue->sizeLock);
+    int isEmpty = !queue->size;
+    pthread_rwlock_unlock(&queue->sizeLock);
+    return isEmpty;
 }
+
+size_t q_getSize_nolock(struct queue *queue) { return queue->size; }
+
+int q_isEmpty_nolock(struct queue *queue) { return !queue->size; }
+
+/**
+ * TODO: キューに制限値を導入する
+ * @brief
+ * キューを生成して返します。
+ *
+ * @param capacity
+ * @return struct queue*
+ */
+struct queue *queue_new(const size_t capacity)
+{
+    struct queue *queue = malloc(sizeof(struct queue));
+    queue->head = NULL;
+    queue->tail = NULL;
+    queue->capacity = capacity;
+    return NULL;
+}
+
+void queue_free(struct queue *queue) {}

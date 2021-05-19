@@ -1,42 +1,41 @@
 
 #include "config.h"
-#include <stddef.h>
 #include "gettext.h"
+#include <stddef.h>
 #define _(str) gettext(str)
+#include <inttypes.h>
+#include <limits.h>
 #include <locale.h>
+#include <regex.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <unistd.h>
 #include <time.h>
-#ifdef ENABLE_REGEX
-#include <regex.h>
-#else
-#include <string.h>
-#endif
-#include <limits.h>
-#include <inttypes.h>
+#include <unistd.h>
 
 extern char *ltoa(long, char *, int);
 
 void showNabeatsu(size_t nmax)
 {
+    regex_t pattern1;
+    regcomp(&pattern1, "3", REG_EXTENDED | REG_NEWLINE | REG_NOSUB);
     char txt[24];
     for (size_t n = 1; n <= nmax; n++)
     {
         snprintf(txt, 24, "%zu", n);
-        //ltoa(n, txt, 10);
-        if ( strchr(txt, '3') || n % 3 == 0)
+        // ltoa(n, txt, 10);
+        if (regexec(&pattern1, txt, 0, NULL, 0) == 0 || n % 3 == 0)
         {
             fputs("aho\n", stdout);
         }
         else
         {
-            //fprintf(stdout, "%s\n", txt);
+            // fprintf(stdout, "%s\n", txt);
             fputs(txt, stdout);
             fputs("\n", stdout);
         }
     }
+    regfree(&pattern1);
 }
 
 int main(int argc, char *argv[])

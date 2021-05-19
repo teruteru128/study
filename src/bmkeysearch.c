@@ -2,28 +2,28 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include "gettext.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "gettext.h"
 #define _(str) gettext(str)
-#include <locale.h>
-#include <limits.h>
-#include <stdbool.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
+#include "queue.h"
+#include <bm.h>
 #include <fcntl.h>
-#include <pthread.h>
+#include <limits.h>
+#include <locale.h>
+#include <nlz.h>
 #include <openssl/bn.h>
 #include <openssl/ec.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
+#include <pthread.h>
 #include <random.h>
-#include <bm.h>
-#include "queue.h"
-#include <nlz.h>
+#include <stdbool.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #define PRIVATE_KEY_LENGTH 32
 #define PUBLIC_KEY_LENGTH 65
@@ -36,18 +36,21 @@
 #define TASK_SIZE 16
 
 static unsigned char *publicKeys = NULL;
+static const EVP_MD *sha512md = NULL;
+static const EVP_MD *ripemd160md = NULL;
 
 /**
  * @brief threadpoolを停止するときは0を代入する
  */
-static int threadpool_live = 1;
+static volatile int threadpool_live = 1;
+static volatile int producer_has_a_task_that_has_not_been_shipped = 1;
 
-#define errchk(v, f)                                            \
-    if (!v)                                                       \
-    {                                                             \
-        unsigned long err = ERR_get_error();                        \
-        fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL)); \
-        return EXIT_FAILURE;                                        \
+#define errchk(v, f)                                                          \
+    if (!v)                                                                   \
+    {                                                                         \
+        unsigned long err = ERR_get_error();                                  \
+        fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL));           \
+        return EXIT_FAILURE;                                                  \
     }
 
 struct threadArg
@@ -59,8 +62,6 @@ struct threadArg
     size_t encBegin;
     size_t encEnd;
     size_t minExportThreshold;
-    const EVP_MD *sha512md;
-    const EVP_MD *ripemd160md;
     struct queue *queue;
 };
 
@@ -100,16 +101,16 @@ void *produce(void *arg)
     return NULL;
 }
 
-struct task *getTask(struct queue *queue)
+struct task *getTask(struct queue *queue) { return take(queue); }
+
+void calcsmallTask(unsigned char *pubkeys, size_t a, size_t b, EVP_MD_CTX *ctx)
 {
-    return take(queue);
+    return;
 }
 
 void *consume(void *arg)
 {
     struct threadArg *targ = (struct threadArg *)arg;
-    const EVP_MD *sha512md = targ->sha512md;
-    const EVP_MD *ripemd160md = targ->ripemd160md;
     unsigned char cache64[EVP_MAX_MD_SIZE];
     size_t ii;
     size_t ii_max = targ->signEnd;
@@ -143,24 +144,28 @@ void *consume(void *arg)
         {
             for (; encIndex < encIndexMax; encIndex++)
             {
-                calcRipe(mdctx, sha512md, ripemd160md, cache64, publicKeys, signIndex, encIndex);
+                calcRipe(mdctx, sha512md, ripemd160md, cache64, publicKeys,
+                         signIndex, encIndex);
                 nlz = getNLZ(cache64, 20);
                 if (nlz >= minExportThreshold)
                 {
                     {
-                        fprintf(stderr, "%ld, %ld, %ld\n", nlz, signIndex, encIndex);
+                        fprintf(stderr, "%ld, %ld, %ld\n", nlz, signIndex,
+                                encIndex);
                     }
                 }
                 if (maxNLZ < nlz)
                 {
                     maxNLZ = nlz;
                 }
-                calcRipe(mdctx, sha512md, ripemd160md, cache64, publicKeys, encIndex, signIndex);
+                calcRipe(mdctx, sha512md, ripemd160md, cache64, publicKeys,
+                         encIndex, signIndex);
                 nlz = getNLZ(cache64, 20);
                 if (nlz >= minExportThreshold)
                 {
                     {
-                        fprintf(stderr, "%ld, %ld, %ld\n", nlz, encIndex, signIndex);
+                        fprintf(stderr, "%ld, %ld, %ld\n", nlz, encIndex,
+                                signIndex);
                     }
                 }
                 if (maxNLZ < nlz)
@@ -169,7 +174,8 @@ void *consume(void *arg)
                 }
             }
         }
-        printf("%zu->%zu, %zu->%zu : %zu\n", task->signkeyindex, signIndexMax, task->encryptkeyindex, encIndexMax, maxNLZ);
+        printf("%zu->%zu, %zu->%zu : %zu\n", task->signkeyindex, signIndexMax,
+               task->encryptkeyindex, encIndexMax, maxNLZ);
     }
     EVP_MD_CTX_free(mdctx);
     return NULL;
@@ -196,6 +202,7 @@ int loadPublicKey(unsigned char *area, const char *path)
  * TODO: リファクタリング
  * TODO: 鍵キャッシュサーバー
  * TODO: 既存鍵を使ってアドレス探索
+ * 制限付き同期キューでキューに詰める量を制限する
  */
 int main(int argc, char *argv[])
 {
@@ -233,8 +240,8 @@ int main(int argc, char *argv[])
     pthread_t prucude_thread;
     pthread_t consume_threads[THREAD_NUM];
     struct threadArg arg[THREAD_NUM];
-    const EVP_MD *sha512md = EVP_sha512();
-    const EVP_MD *ripemd160md = EVP_ripemd160();
+    sha512md = EVP_sha512();
+    ripemd160md = EVP_ripemd160();
     for (size_t i = 0; i < THREAD_NUM; i++)
     {
         arg[i].publicKeys = publicKeys;
@@ -244,8 +251,6 @@ int main(int argc, char *argv[])
         arg[i].encBegin = LARGE_BLOCK_SIZE * (i % 4);
         arg[i].encEnd = LARGE_BLOCK_SIZE * ((i % 4) + 1);
         arg[i].minExportThreshold = 4;
-        arg[i].sha512md = sha512md;
-        arg[i].ripemd160md = ripemd160md;
         arg[i].queue = &queue;
     }
     pthread_create(&prucude_thread, NULL, produce, &queue);
@@ -258,8 +263,8 @@ int main(int argc, char *argv[])
     {
         pthread_join(consume_threads[i], NULL);
     }
-    //shutdown:
-    //free(privateKeys);
+    // shutdown:
+    // free(privateKeys);
     free(publicKeys);
     return EXIT_SUCCESS;
 }

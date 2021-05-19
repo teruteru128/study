@@ -1,40 +1,40 @@
 
 #include "config.h"
-#include <stddef.h>
 #include "gettext.h"
+#include <stddef.h>
 #define _(str) gettext(str)
 #include <locale.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <unistd.h>
 #include <time.h>
-#ifdef ENABLE_REGEX
-#include <regex.h>
-#else
+#include <unistd.h>
 #include <string.h>
-#endif
-#include <limits.h>
 #include <inttypes.h>
+#include <limits.h>
 
 extern char *ltoa(long, char *, int);
 
 void showNabeatsu(size_t nmax)
 {
-    char txt[24];
+    size_t tmp = 0;
+    size_t flg;
     for (size_t n = 1; n <= nmax; n++)
     {
-        snprintf(txt, 24, "%zu", n);
-        //ltoa(n, txt, 10);
-        if ( strchr(txt, '3') || n % 3 == 0)
+        flg = 0;
+        tmp = n;
+        while(tmp > 0)
+        {
+            flg = flg | ((tmp % 10UL) == 3UL);
+            tmp /= 10;
+        }
+        if (flg != 0 || n % 3 == 0)
         {
             fputs("aho\n", stdout);
         }
         else
         {
-            //fprintf(stdout, "%s\n", txt);
-            fputs(txt, stdout);
-            fputs("\n", stdout);
+            fprintf(stdout, "%zu\n", n);
         }
     }
 }
@@ -44,5 +44,5 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "");
     bindtextdomain(PACKAGE, LOCALEDIR);
     textdomain(PACKAGE);
-    showNabeatsu(INT_MAX);
+    showNabeatsu(40);
 }
