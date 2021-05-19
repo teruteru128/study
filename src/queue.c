@@ -28,13 +28,14 @@ static void *dequeue(struct queue *queue)
     struct node *h = queue->head;
 
     queue->head = h->next;
-    h->next = NULL;
+    queue->head->prev = NULL;
+    h->next = h;
     if (h == queue->tail)
     {
         queue->tail = NULL;
     }
-    h->next = NULL;
     void *e = h->item;
+    h->item = NULL;
     free(h);
     return e;
 }
@@ -159,7 +160,31 @@ struct queue *queue_new(const size_t capacity)
     queue->head = NULL;
     queue->tail = NULL;
     queue->capacity = capacity;
-    return NULL;
+    queue->size = 0;
+    pthread_rwlock_init(&queue->sizeLock, NULL);
+    pthread_mutex_init(&queue->takeLock, NULL);
+    pthread_cond_init(&queue->notEmpty, NULL);
+    pthread_mutex_init(&queue->putLock, NULL);
+    pthread_cond_init(&queue->notFull, NULL);
+    return queue;
 }
 
-void queue_free(struct queue *queue) {}
+static void nodes_destory(struct queue *queue)
+{
+
+}
+
+void queue_free(struct queue *queue)
+{
+    nodes_destory(queue);
+    free(queue->head);
+    queue->head = NULL;
+    queue->tail = NULL;
+    queue->capacity = 0;
+    queue->size = 0;
+    pthread_rwlock_destroy(&queue->sizeLock);
+    pthread_mutex_destroy(&queue->takeLock);
+    pthread_cond_destroy(&queue->notEmpty);
+    pthread_mutex_destroy(&queue->putLock);
+    pthread_cond_destroy(&queue->notFull);
+}
