@@ -132,7 +132,7 @@ static int deObfuscateInplace(unsigned char *data, uint32_t length)
                    "0123456789abcdef" \
                    "0123456789abcdef")
 
-static int deObfuscateKey(const char *obfuscatedIdentity_base64,
+static int deObfuscateKey(const unsigned char *obfuscatedIdentity_base64,
                           ecc_key *ecckey)
 {
     int ret = 0;
@@ -142,7 +142,7 @@ static int deObfuscateKey(const char *obfuscatedIdentity_base64,
     unsigned char *actualIdentity = safealloc(actualIdentitySize);
 
     if (base64_decode(obfuscatedIdentity_base64,
-                      strlen(obfuscatedIdentity_base64),
+                      strlen((const char *)obfuscatedIdentity_base64),
                       actualIdentity,
                       &actualIdentitySize) != 0)
     {
@@ -158,7 +158,7 @@ static int deObfuscateKey(const char *obfuscatedIdentity_base64,
     size_t eccKeyStringSize = STD_BUF_SIZE;
     eccKeyString = safealloc(eccKeyStringSize);
     if (base64_decode(actualIdentity,
-                      strlen(actualIdentity),
+                      strlen((char *)actualIdentity),
                       eccKeyString,
                       &eccKeyStringSize) != 0)
     {
@@ -206,7 +206,7 @@ done:
 }
 
 static int parseIni(const char *filename,
-                    char *out_identity,
+                    unsigned char *out_identity,
                     size_t out_identity_len,
                     uint64_t *out_counter)
 {
@@ -293,7 +293,7 @@ static int parseIni(const char *filename,
         }
     }
 
-    strncpy(out_identity, identityptr, identity_len);
+    strncpy((char *)out_identity, identityptr, identity_len);
     *out_counter = strtoull(counterptr, NULL, 10);
 
 done:
@@ -390,7 +390,7 @@ done:
 
 static void readIdentity(char *filename)
 {
-    char *obfuscatedIdentity_base64 = (char *)safealloc(STD_BUF_SIZE);
+    unsigned char *obfuscatedIdentity_base64 = (unsigned char *)safealloc(STD_BUF_SIZE);
     size_t counter;
 
     if (access(filename, F_OK) != 0)
@@ -422,7 +422,7 @@ static void readIdentity(char *filename)
     char *ecc_public_base64 = safealloc(ecc_public_base64_size);
 
     if (extractPublicKeyBase64(&ecckey,
-                               ecc_public_base64,
+                               (unsigned char *)ecc_public_base64,
                                &ecc_public_base64_size))
     {
         printf("An error occurred while processing the obfuscated identity string.\n");
