@@ -26,8 +26,6 @@ int main(int argc, char **argv)
 {
     const EVP_MD *sha1 = EVP_sha1();
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-    struct timeval tv;
-    struct timespec ts;
     unsigned char md[EVP_MAX_MD_SIZE];
     int i;
     const char *in1
@@ -37,13 +35,11 @@ int main(int argc, char **argv)
     uint64_t in1Length = strlen(in1);
     int verifierLength;
 
-    clock_gettime(CLOCK_REALTIME, &ts);
-    gettimeofday(&tv, NULL);
-    srand48(((ts.tv_nsec & 0xFFFFFFFF) << 32)
-            ^ ((ts.tv_nsec >> 32) & 0xFFFFFFFF) ^ ts.tv_sec);
-    verifier = ((uint64_t)mrand48() << 33)
-               ^ (((uint64_t)mrand48() << 16) & 0xffffffffULL)
-               ^ (((uint64_t)mrand48()) & 0xffffffffULL);
+    FILE *fin = fopen("/dev/urandom", "rb");
+    uint64_t seed = 0;
+    fread(&seed, 1, 8, fin);
+    fclose(fin);
+    verifier = seed;
 
     if (signal(SIGINT, act) == SIG_ERR)
     {
