@@ -8,70 +8,31 @@
      * 暗黒通信団 ファイルフォーマット小辞典
      */
 
-#define TEN "0000000000000000" \
-                        "1111111111111111" \
-                        "2222222222222222" \
-                        "3333333333333333" \
-                        "4444444444444444" \
-                        "5555555555555555" \
-                        "6666666666666666" \
-                        "7777777777777777" \
-                        "8888888888888888" \
-                        "9999999999999999" \
-                        "AAAAAAAAAAAAAAAA" \
-                        "BBBBBBBBBBBBBBBB" \
-                        "CCCCCCCCCCCCCCCC" \
-                        "DDDDDDDDDDDDDDDD" \
-                        "EEEEEEEEEEEEEEEE" \
-                        "FFFFFFFFFFFFFFFF"
-
-#define ONE "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF" \
-                        "0123456789ABCDEF"
-
 /*
  * strを16進数文字列としてパースします。
  */
-static size_t parseHex(char **out, const char *str)
+static size_t parseHex(unsigned char **out, const char *str)
 {
-    size_t length = strlen(str) / 2;
     size_t i = 0;
-    unsigned int x;
-    char *data = calloc(length, sizeof(char));
-    static char table[256] = {0};
+    static unsigned char table[256] = {0};
     if (table[0x30] == 0)
     {
         for (i = 0; i < 10; i++)
         {
-            table[(0x30 + i)] = (char)i;
+            table[(0x30 + i)] = (unsigned char)i;
         }
-        for (i = 0; i <= 6; i++)
+        for (i = 0; i < 6; i++)
         {
-            table[(0x40 + i)] = (char)(9 + i);
+            table[(0x40 + i)] = (unsigned char)(9 + i);
         }
-        for (i = 0; i <= 6; i++)
+        for (i = 0; i < 6; i++)
         {
-            table[(0x60 + i)] = (char)(9 + i);
+            table[(0x60 + i)] = (unsigned char)(9 + i);
         }
     }
-    if (!data)
-    {
-        perror(NULL);
-        exit(1);
-    }
+    unsigned int x;
+    size_t length = strlen(str) / 2;
+    unsigned char *data = calloc(length, sizeof(unsigned char));
     for (i = 0; i < length; i++)
     {
         x = str[i << 1];
@@ -85,9 +46,9 @@ static size_t parseHex(char **out, const char *str)
 
 int main(int argc, char **argv)
 {
-    char *filename = "FF.lzh";
+    const char *filename = "FF.lzh";
     FILE *file = NULL;
-    char *content =
+    const char *content =
             "4E002D6C68302DDE000000DE0000003E" // 00
             "06143F2002A0064D0F000189F090E04C" // 01
             "4953542E54585405004021001B004160" // 02
@@ -108,7 +69,7 @@ int main(int argc, char **argv)
             "646172644D494449206D7033204C5A48" // 17
             "207575656E636F64650D0A1A00"       // 18
             ;
-    char *data = NULL;
+    unsigned char *data = NULL;
     size_t outlen = parseHex(&data, content);
     size_t i = 0;
     for (i = 0; i < outlen; i++)
@@ -130,6 +91,7 @@ int main(int argc, char **argv)
     {
         fprintf(stderr, "Failed to write : %s\n", strerror(errno));
     }
+    free(data);
     int ret = fclose(file);
     if (ret == EOF)
     {
