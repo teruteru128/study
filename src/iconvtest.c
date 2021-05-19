@@ -19,7 +19,7 @@ char **argv;
     }
     size_t srclen = strlen(SRC);
     size_t destlen = srclen * 3 + 1;
-    char *tmpsrc = SRC;
+    char *tmpsrc = strdupa(SRC);
     char *destbuf = malloc(destlen);
     if (!destbuf)
     {
