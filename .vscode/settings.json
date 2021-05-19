@@ -109,6 +109,17 @@
         "args.h": "c",
         "err.h": "c",
         "chrono": "c",
-        "gettextsample4.h": "c"
+        "gettextsample4.h": "c",
+        "string_array.h": "c",
+        "epsp_parser.h": "c",
+        "epsp_type.h": "c",
+        "epsp-parser.h": "c",
+        "epsp-type.h": "c",
+        "internal_string_array.h": "c",
+        "string-array.h": "c",
+        "internal_string_list.h": "c",
+        "internal-string-array.h": "c",
+        "string-list.h": "c",
+        "regexp.h": "c"
     }
 }
