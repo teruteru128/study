@@ -28,6 +28,7 @@ bin_PROGRAMS= \
 	curltest \
 	dappun \
 	dice \
+	dicetohex \
 	doublerandom \
 	dragon \
 	dragon \
