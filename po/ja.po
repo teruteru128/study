@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2021-05-02 17:26+0900\n"
+"POT-Creation-Date: 2021-05-24 17:28+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -38,12 +38,12 @@ msgstr "1秒あたり %.1f回\n"
 msgid "%.12f seconds per time\n"
 msgstr "1回あたり %.12f秒\n"
 
-#: src/encodersa.c:172
+#: src/encodersa.c:107
 #, c-format
 msgid "q is larger\n"
 msgstr "qのほうが大きい\n"
 
-#: src/encodersa.c:177
+#: src/encodersa.c:112
 #, c-format
 msgid "p is larger\n"
 msgstr "pのほうが大きい\n"
@@ -79,25 +79,25 @@ msgstr "NTPサーバ時刻 : %s"
 msgid "Help me!\n"
 msgstr "助けて！\n"
 
-#: src/prime8.c:89
+#: src/prime8.c:90
 msgid "The bit sieve has been loaded.\n"
 msgstr "篩を読み込みました。\n"
 
-#: src/prime8.c:96
+#: src/prime8.c:97
 msgid "The bit sieve has been generated.\n"
 msgstr "篩を生成しました。\n"
 
-#: src/prime8.c:103
+#: src/prime8.c:104
 msgid "The bit sieve has been exported.\n"
 msgstr "篩がエクスポートされました。\n"
 
-#: src/prime8.c:138
+#: src/prime8.c:141
 #, c-format
 msgid "One prime number candidate was found.\n"
 msgid_plural "%zu prime number candidates were found.\n"
 msgstr[0] "%zu個の素数候補が見つかりました。\n"
 
-#: src/prime8.c:139
+#: src/prime8.c:145
 #, c-format
 msgid "One prime number candidate have been skipped.\n"
 msgid_plural "%zu prime number candidates have been skipped.\n"
