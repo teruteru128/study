@@ -15,7 +15,7 @@ jobs:
         run: git submodule update --init --recursive
       - name: Install dependents
         run: |
-          sudo apt install autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-64
+          sudo apt install autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64
       - name: autogen.sh
         run: ./autogen.sh
       - name: configure
