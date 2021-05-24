@@ -21,7 +21,7 @@ jobs:
       - name: configure
         run: mkdir bin && cd bin && ../configure
       - name: configure
-        run: mkdir crossbuild && cd crossbuild && ../configure
+        run: mkdir crossbuild && cd crossbuild && ../configure --host x86_64-w64-mingw32
       - name: make
         run: make -C bin
       - name: make check
