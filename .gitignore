@@ -211,3 +211,7 @@ _deps
 ## Vim-LSP + ccls
 .cache/
 .ccls-cache/
+
+## 
+bin/
+crossbuild/
