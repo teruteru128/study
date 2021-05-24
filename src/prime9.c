@@ -32,7 +32,6 @@ int main(const int argc, const char *argv[])
     char *outfilename = malloc(innamelen + 32 + 1);
     memcpy(outfilename, infilename, innamelen + 1);
     char *outtmp = NULL;
-    char *retmp = NULL;
     size_t outnamelen = 0;
     if ((outtmp = strrchr(outfilename, '-')) != NULL)
     {
@@ -45,17 +44,19 @@ int main(const int argc, const char *argv[])
     }
     strncat(outtmp, "-prime.txt", 32);
     outnamelen = strlen(outfilename) + 1;
-    retmp = realloc(outfilename, outnamelen);
-    if (retmp != NULL)
+    char *retmp = realloc(outfilename, outnamelen);
+    if (retmp == NULL)
     {
         perror("realloc");
+        free(outfilename);
         exit(EXIT_FAILURE);
     }
     outfilename = retmp;
 
-    if (access(infilename, F_OK | R_OK) == 0)
+    if (access(infilename, F_OK | R_OK) != 0)
     {
         fprintf(stderr, "%s is unreadable.\n", infilename);
+        free(outfilename);
         return EXIT_FAILURE;
     }
 
@@ -63,11 +64,12 @@ int main(const int argc, const char *argv[])
     FILE *fout = fopen(outfilename, "w");
     if (fin == NULL || fout == NULL)
     {
+        perror("fin");
         if (fin != NULL)
             fclose(fin);
         if (fout != NULL)
             fclose(fout);
-        perror("fin");
+        free(outfilename);
         return EXIT_FAILURE;
     }
     mpz_t base;
@@ -77,6 +79,7 @@ int main(const int argc, const char *argv[])
     mpz_add_ui(base, base, offset);
     mpz_out_str(fout, 16, base);
     fclose(fout);
+    free(outfilename);
 
     return EXIT_SUCCESS;
 }

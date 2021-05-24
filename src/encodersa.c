@@ -39,10 +39,11 @@ int readBigNum(BIGNUM *num, const char *filename)
     }
     char buf[BUFSIZ];
     size_t buflen = 0;
-    size_t catlen = 0;
-    size_t catcapacity = BUFSIZ;
+    size_t length = 0;
+    size_t size = BUFSIZ;
     size_t mincapa = 0;
-    char *catbuf = malloc(BUFSIZ);
+    char *catbuf = malloc(size);
+    *catbuf = 0;
     char *trash = NULL;
     char *realloctmp = NULL;
     while ((trash = fgets(buf, BUFSIZ, in)) != NULL)
@@ -52,14 +53,14 @@ int readBigNum(BIGNUM *num, const char *filename)
         {
             break;
         }
-        mincapa = catcapacity + buflen + 1;
-        if (mincapa > catcapacity)
+        mincapa = length + buflen + 1;
+        if (mincapa > size)
         {
-            while (mincapa > catcapacity)
+            while (mincapa > size)
             {
-                catcapacity *= 2;
+                size *= 2;
             }
-            realloctmp = realloc(catbuf, catcapacity);
+            realloctmp = realloc(catbuf, size);
             if (realloctmp == NULL)
             {
                 perror("realloc");
@@ -68,8 +69,8 @@ int readBigNum(BIGNUM *num, const char *filename)
             }
             catbuf = realloctmp;
         }
-        strncat(catbuf + catlen, buf, catcapacity - (catlen + 1));
-        catlen += buflen;
+        strncat(catbuf, buf, size);
+        length += buflen;
         if (strpbrk(buf, "\r\n") != NULL)
         {
             // 最初の1行だけ読み込み
@@ -77,13 +78,14 @@ int readBigNum(BIGNUM *num, const char *filename)
         }
     }
     fclose(in);
-    if (BN_hex2bn(&num, buf) == 0)
+    if (BN_hex2bn(&num, catbuf) == 0)
     {
         perror("BN_hex2bn");
         free(catbuf);
         return EXIT_FAILURE;
     }
-    memset(catbuf, 0, catcapacity);
+    memset(catbuf, 0, size);
+    memset(buf, 0, BUFSIZ);
     free(catbuf);
     printf("p : %dbits\n", BN_num_bits(num));
     return 0;
