@@ -15,14 +15,15 @@ jobs:
         run: git submodule update --init --recursive
       - name: Install dependents
         run: |
-          sudo apt update
-          sudo apt install autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev
+          sudo apt install autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-64
       - name: autogen.sh
         run: ./autogen.sh
       - name: configure
-        run: ./configure
+        run: mkdir bin && cd bin && ../configure
+      - name: configure
+        run: mkdir crossbuild && cd crossbuild && ../configure
       - name: make
-        run: make
+        run: make -C bin
       - name: make check
         run: make check
       - name: make distcheck
