@@ -2,15 +2,17 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <gmp.h>
+#include <math.h>
+#include <openssl/evp.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include <math.h>
-#include <gmp.h>
 
 /*
- * 
+ *
  * 対称鍵暗号,EVP_CIPHER:https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
  * 認証付き暗号:https://wiki.openssl.org/index.php/EVP_Authenticated_Encryption_and_Decryption
  * エンベロープ暗号化(ハイブリッド暗号？):https://wiki.openssl.org/index.php/EVP_Asymmetric_Encryption_and_Decryption_of_an_Envelope
@@ -31,65 +33,61 @@
  * geoip_load_file
  * https://youtu.be/MCzo6ZMfKa4
  * ターミュレーター
- * 
+ *
  * regex.h
  * - 最左最短一致
  * - 否定先読み
  * - 強欲な数量子
- * 
+ *
  * TODO: P2P地震情報 ピア接続受け入れ＆ピアへ接続
- * 
+ *
  * 標準入力と標準出力を別スレッドで行うアプリ
  * リクエストを投げると適当なデータを投げ返す簡単なサーバープログラム
  * リクエスト長さは8バイトに対応
- * 
+ *
  * --help
  * --version
  * --server-mode
  *   フォアグラウンドで起動
  * --daemon-mode
  *   デーモン化処理付きでバックグラウンドで起動
- * 
+ *
  * 複数スレッドをpthread_cond_tで止めてメインスレッドでtimerfdを使って指定時刻まで待ち、pthread_cond_broadcastで一斉に起動する
- * 
+ *
  * ファイルからGMPのmpzに整数を読み込んだりOpenSSLのBIGNUMに整数を読み込んだり乱数を読み込んだりを共通化したい
  */
 /**
  * @brief sanbox func.
- * 
- * @param argc 
- * @param argv 
- * @return int 
+ *
+ * @param argc
+ * @param argv
+ * @return int
  */
 int main(int argc, const char *argv[])
 {
-    if(argc < 2)
+    const char *text = "20300813160646";
+    size_t len = strlen(text);
+    char pad[15] = "";
+    for (int i = 0; i < len; i++)
     {
-        return EXIT_SUCCESS;
+        pad[len - i - 1] = text[i];
     }
-    FILE *fin = fopen(argv[1], "r");
-    if(fin == NULL)
-        return EXIT_FAILURE;
-    mpz_t a;
-    mpz_init(a);
-    size_t r = mpz_inp_str(a, fin, 16);
-    fclose(fin);
-    if(r == 0)
-    {
-        return EXIT_FAILURE;
-    }
+    printf("%s\n", pad);
+    long a = 64606131800302;
 
-    long exp;
-    //     a  =     d * 2^exp
-    // log(a) = log(d * 2^exp)
-    //        = log(d) + exp * log(2)
-    // log(2, a) = log(2, d * 2^exp)
-    //           = log(2, d) + exp * log(2, 2)
-    //           = log(2, d) + exp
-    double d = mpz_get_d_2exp(&exp, a);
-    double e = log(d) + log(2) * (double) exp;
-    printf("%lf, %lf\n", e, log2(d) + (double)exp);
-    mpz_clear(a);
+    const EVP_MD *md5 = EVP_md5();
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    EVP_DigestInit(ctx, md5);
+    EVP_DigestUpdate(ctx, &a, 6);
+
+    unsigned char out[EVP_MAX_MD_SIZE];
+    EVP_DigestFinal(ctx, out, NULL);
+    for(int i = 0; i < 16; i++)
+    {
+        printf("%02x", out[i]);
+    }
+    printf("\n");
+    EVP_MD_CTX_free(ctx);
 
     return EXIT_SUCCESS;
 }
