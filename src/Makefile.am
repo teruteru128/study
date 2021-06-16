@@ -52,6 +52,7 @@ bin_PROGRAMS= \
 	gettextsample3 \
 	gettextsample4 \
 	gettime \
+	harmonic \
 	httpd \
 	hugecollatztest \
 	iconvtest \

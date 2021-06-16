@@ -27,6 +27,22 @@
 
 #define PUBLIC_KEY_LENGTH 65
 #define KEY_CACHE_SIZE 67108864UL
+#define BLOCK_SIZE 256
+
+static const EVP_MD *sha512;
+static const EVP_MD *ripemd160;
+
+static void funcP(EVP_MD_CTX *mdctx, unsigned char *signingKey,
+                  unsigned char *encryptingKey, unsigned char *hash)
+{
+    EVP_DigestInit(mdctx, sha512);
+    EVP_DigestUpdate(mdctx, signingKey, PUBLIC_KEY_LENGTH);
+    EVP_DigestUpdate(mdctx, encryptingKey, PUBLIC_KEY_LENGTH);
+    EVP_DigestFinal(mdctx, hash, NULL);
+    EVP_DigestInit(mdctx, ripemd160);
+    EVP_DigestUpdate(mdctx, hash, 64);
+    EVP_DigestFinal(mdctx, hash, NULL);
+}
 
 int search_main(int argc, char **argv)
 {
@@ -46,8 +62,8 @@ int search_main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     fclose(fin);
-    const EVP_MD *sha512 = EVP_sha512();
-    const EVP_MD *ripemd160 = EVP_ripemd160();
+    sha512 = EVP_sha512();
+    ripemd160 = EVP_ripemd160();
     unsigned char *signp = publicKeys;
     unsigned char *encp = publicKeys;
     unsigned char *signingKey = publicKeys;
@@ -55,45 +71,42 @@ int search_main(int argc, char **argv)
     unsigned char hash[EVP_MAX_MD_SIZE] = "";
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
     size_t nlz = 0;
-    for (size_t i = 0; i < 16; i++)
+    size_t iimax;
+    size_t jjmax;
+    for (size_t i = 0; i < 67108864; i += BLOCK_SIZE)
     {
-        for (size_t j = 0; j <= i; j++)
+        iimax = i + BLOCK_SIZE;
+        signingKey = signp;
+        for (size_t j = 0; j < 67108864; j += BLOCK_SIZE)
         {
-            EVP_DigestInit(mdctx, sha512);
-            EVP_DigestUpdate(mdctx, signingKey, PUBLIC_KEY_LENGTH);
-            EVP_DigestUpdate(mdctx, encryptingKey, PUBLIC_KEY_LENGTH);
-            EVP_DigestFinal(mdctx, hash, NULL);
-            EVP_DigestInit(mdctx, ripemd160);
-            EVP_DigestUpdate(mdctx, hash, 64);
-            EVP_DigestFinal(mdctx, hash, NULL);
-            nlz = getNLZ(hash, 20);
-            if (nlz >= 5)
+            encryptingKey = encp;
+            jjmax = j + BLOCK_SIZE;
+            for (size_t ii = 0; ii < iimax; ii++)
             {
+                for (size_t jj = 0; jj < jjmax && jj <= ii; jj++)
                 {
-                    fprintf(stderr, "%ld, %ld, %ld\n", nlz, i, j);
-                }
-            }
-            if (i != j)
-            {
-                EVP_DigestInit(mdctx, sha512);
-                EVP_DigestUpdate(mdctx, encryptingKey, PUBLIC_KEY_LENGTH);
-                EVP_DigestUpdate(mdctx, signingKey, PUBLIC_KEY_LENGTH);
-                EVP_DigestFinal(mdctx, hash, NULL);
-                EVP_DigestInit(mdctx, ripemd160);
-                EVP_DigestUpdate(mdctx, hash, 64);
-                EVP_DigestFinal(mdctx, hash, NULL);
-                nlz = getNLZ(hash, 20);
-                if (nlz >= 5)
-                {
+                    funcP(mdctx, signingKey, encryptingKey, hash);
+                    nlz = getNLZ(hash, 20);
+                    if (nlz >= 3)
                     {
-                        fprintf(stderr, "%ld, %ld, %ld\n", nlz, j, i);
+                        fprintf(stderr, "%ld, %ld, %ld\n", nlz, ii, jj);
                     }
+                    if (ii != jj)
+                    {
+                        funcP(mdctx, encryptingKey, signingKey, hash);
+                        nlz = getNLZ(hash, 20);
+                        if (nlz >= 3)
+                        {
+                            fprintf(stderr, "%ld, %ld, %ld\n", nlz, jj, ii);
+                        }
+                    }
+                    encryptingKey += PUBLIC_KEY_LENGTH;
                 }
+                signingKey += PUBLIC_KEY_LENGTH;
             }
-            encryptingKey += PUBLIC_KEY_LENGTH;
+            encp += PUBLIC_KEY_LENGTH * BLOCK_SIZE;
         }
-        encryptingKey = publicKeys;
-        signingKey += PUBLIC_KEY_LENGTH;
+        signp += PUBLIC_KEY_LENGTH * BLOCK_SIZE;
     }
     EVP_MD_CTX_free(mdctx);
     return 0;
