@@ -5,6 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "bmkeysearch2 (gdb) 起動",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/src/bmkeysearch2",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "gdb の再フォーマットを有効にする",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
             "name": "prime6 (gdb) 接続",
             "type": "cppdbg",
             "request": "attach",
@@ -43,8 +62,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/src/.libs/study",
-            "args": [
-            ],
+            "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
@@ -106,8 +124,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/src/bmkeygen",
-            "args": [
-            ],
+            "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

@@ -2,28 +2,28 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include "gettext.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "gettext.h"
 #define _(str) gettext(str)
-#include <locale.h>
-#include <limits.h>
-#include <stdbool.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
+#include "queue.h"
+#include <bm.h>
 #include <fcntl.h>
-#include <pthread.h>
+#include <limits.h>
+#include <locale.h>
+#include <nlz.h>
 #include <openssl/bn.h>
 #include <openssl/ec.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
+#include <pthread.h>
 #include <random.h>
-#include <bm.h>
-#include "queue.h"
-#include <nlz.h>
+#include <stdbool.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #define PUBLIC_KEY_LENGTH 65
 #define KEY_CACHE_SIZE 67108864UL
@@ -36,18 +36,22 @@ int search_main(int argc, char **argv)
         perror("fopen publickey");
         return EXIT_FAILURE;
     }
-    char *publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
+    unsigned char *publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
     size_t keynum = fread(publicKeys, PUBLIC_KEY_LENGTH, KEY_CACHE_SIZE, fin);
     if (keynum < KEY_CACHE_SIZE)
     {
         perror("fread");
         free(publicKeys);
         fclose(fin);
+        return EXIT_FAILURE;
     }
+    fclose(fin);
     const EVP_MD *sha512 = EVP_sha512();
     const EVP_MD *ripemd160 = EVP_ripemd160();
-    char *signingKey = publicKeys;
-    char *encryptingKey = publicKeys;
+    unsigned char *signp = publicKeys;
+    unsigned char *encp = publicKeys;
+    unsigned char *signingKey = publicKeys;
+    unsigned char *encryptingKey = publicKeys;
     unsigned char hash[EVP_MAX_MD_SIZE] = "";
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
     size_t nlz = 0;
@@ -96,13 +100,10 @@ int search_main(int argc, char **argv)
 }
 
 /**
- * @brief 
- * 
- * @param argc 
- * @param argv 
- * @return int 
+ * @brief
+ *
+ * @param argc
+ * @param argv
+ * @return int
  */
-int main(int argc, char *argv[])
-{
-    return search_main(argc, argv);
-}
+int main(int argc, char *argv[]) { return search_main(argc, argv); }

@@ -120,6 +120,7 @@
         "internal_string_list.h": "c",
         "internal-string-array.h": "c",
         "string-list.h": "c",
-        "regexp.h": "c"
+        "regexp.h": "c",
+        "float.h": "c"
     }
 }
