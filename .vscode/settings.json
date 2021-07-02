@@ -121,6 +121,7 @@
         "internal-string-array.h": "c",
         "string-list.h": "c",
         "regexp.h": "c",
-        "float.h": "c"
+        "float.h": "c",
+        "md4.h": "c"
     }
 }

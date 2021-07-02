@@ -38,6 +38,7 @@ void *hash(void *arg)
     size_t cnt_max = 0;
     size_t nlz;
     pthread_rwlock_rdlock(&config->require_nlz_rwlock);
+    unsigned int sum = 0;
     for (; config->require_nlz < 16;)
     {
         pthread_rwlock_unlock(&config->require_nlz_rwlock);
@@ -53,7 +54,10 @@ void *hash(void *arg)
             EVP_DigestInit(ctx, md5);
             EVP_DigestUpdate(ctx, str, len);
             EVP_DigestFinal(ctx, buf, NULL);
-            if (buf[0] || buf[1] || buf[2] || buf[3])
+            sum = 0;
+            for (int i = 0; i < 4; i++)
+                sum |= buf[i];
+            if (sum != 0)
                 continue;
 #if 0
       // とりあえずmemcmpの呼び出し回数を256分の1に減らす

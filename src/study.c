@@ -2,6 +2,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <changebase.h>
 #include <gmp.h>
 #include <math.h>
 #include <openssl/evp.h>
@@ -65,29 +66,13 @@
  */
 int main(int argc, const char *argv[])
 {
-    const char *text = "20300813160646";
-    size_t len = strlen(text);
-    char pad[15] = "";
-    for (int i = 0; i < len; i++)
-    {
-        pad[len - i - 1] = text[i];
-    }
-    printf("%s\n", pad);
-    long a = 64606131800302;
-
-    const EVP_MD *md5 = EVP_md5();
-    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-    EVP_DigestInit(ctx, md5);
-    EVP_DigestUpdate(ctx, &a, 6);
-
-    unsigned char out[EVP_MAX_MD_SIZE];
-    EVP_DigestFinal(ctx, out, NULL);
-    for(int i = 0; i < 16; i++)
-    {
-        printf("%02x", out[i]);
-    }
-    printf("\n");
-    EVP_MD_CTX_free(ctx);
-
+    const char in[]
+        = "980b27d68875d988f715d3c0ad0eee7a3f3b44b82e1df26e9d1aedd75d8456a40c6"
+          "a46f19b0066623179dc2111b476d711696f22e0005627071b3e79a42f89b4";
+    unsigned char *out;
+    parseHex(&out, in);
+    size_t i = 0;
+    size_t j = 0;
+    
     return EXIT_SUCCESS;
 }

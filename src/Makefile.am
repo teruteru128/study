@@ -17,9 +17,11 @@ bin_PROGRAMS= \
 	bmkeygen \
 	bmkeysearch \
 	bmkeysearch2 \
+	bmkeysearch3 \
 	bmspam \
 	bouyomi \
 	calc \
+	checkprimes \
 	cl \
 	cp2peq \
 	curlonionheadertest \
