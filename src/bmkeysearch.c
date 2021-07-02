@@ -25,8 +25,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#define PRIVATE_KEY_LENGTH 32
-#define PUBLIC_KEY_LENGTH 65
 #define KEY_CACHE_SIZE 67108864UL
 #define J_CACHE_SIZE 126
 #define LARGE_BLOCK_SIZE (KEY_CACHE_SIZE / 4)

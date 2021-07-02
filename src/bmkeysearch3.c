@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #define _(str) gettext(str)
 #include "queue.h"
+#include <bitmessage.h>
 #include <bm.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -25,15 +26,14 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#define PUBLIC_KEY_LENGTH 65
 #define KEY_CACHE_SIZE 1048576UL
 #define BLOCK_SIZE 256
 
 static const EVP_MD *sha512;
 static const EVP_MD *ripemd160;
 
-static void funcP(EVP_MD_CTX *mdctx, unsigned char *signingKey,
-                  unsigned char *encryptingKey, unsigned char *hash)
+static void funcP(EVP_MD_CTX *mdctx, PublicKey *signingKey,
+                  PublicKey *encryptingKey, unsigned char *hash)
 {
     EVP_DigestInit(mdctx, sha512);
     EVP_DigestUpdate(mdctx, signingKey, PUBLIC_KEY_LENGTH);
@@ -52,7 +52,8 @@ int search_main(int argc, char **argv)
         perror("fopen publickey");
         return EXIT_FAILURE;
     }
-    unsigned char *publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
+    PublicKey *publicKeys
+        = (PublicKey *)calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
     size_t keynum = fread(publicKeys, PUBLIC_KEY_LENGTH, KEY_CACHE_SIZE, fin);
     if (keynum < KEY_CACHE_SIZE)
     {
@@ -64,10 +65,10 @@ int search_main(int argc, char **argv)
     fclose(fin);
     sha512 = EVP_sha512();
     ripemd160 = EVP_ripemd160();
-    unsigned char *signp = publicKeys;
-    unsigned char *encp = publicKeys;
-    unsigned char *signingKey = publicKeys;
-    unsigned char *encryptingKey = publicKeys;
+    PublicKey *signp = publicKeys;
+    PublicKey *encp = publicKeys;
+    PublicKey *signingKey = publicKeys;
+    PublicKey *encryptingKey = publicKeys;
     unsigned char hash[EVP_MAX_MD_SIZE] = "";
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
     size_t nlz = 0;
@@ -79,10 +80,10 @@ int search_main(int argc, char **argv)
         j = 0; j < i; j++
     */
     unsigned char sum = 0;
-    for (size_t i = 0; i < KEY_CACHE_SIZE; i++, signingKey += PUBLIC_KEY_LENGTH)
+    for (size_t i = 0; i < KEY_CACHE_SIZE; i++, signingKey++)
     {
         // /encryptingKey = publicKeys;
-        for (size_t j = 0; j < i; j++, encryptingKey += PUBLIC_KEY_LENGTH)
+        for (size_t j = 0; j < i; j++, encryptingKey++)
         {
             funcP(mdctx, signingKey, encryptingKey, hash);
             sum = 0;

@@ -12,6 +12,8 @@
 #include <string.h>
 #include <unistd.h>
 
+typedef unsigned char PublicKey[65];
+
 /*
  *
  * 対称鍵暗号,EVP_CIPHER:https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
@@ -66,13 +68,17 @@
  */
 int main(int argc, const char *argv[])
 {
-    const char in[]
-        = "980b27d68875d988f715d3c0ad0eee7a3f3b44b82e1df26e9d1aedd75d8456a40c6"
-          "a46f19b0066623179dc2111b476d711696f22e0005627071b3e79a42f89b4";
-    unsigned char *out;
-    parseHex(&out, in);
-    size_t i = 0;
-    size_t j = 0;
-    
+    unsigned char pub[130]
+        = "ABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          "CDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+    PublicKey *a = (PublicKey *)pub;
+    for(int i = 0; i < 2; i++)
+    {
+        for(int j = 0; j < 65;j++)
+        {
+            printf("%02x", a[i][j]);
+        }
+        printf("\n");
+    }
     return EXIT_SUCCESS;
 }

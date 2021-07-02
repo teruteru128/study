@@ -122,6 +122,8 @@
         "string-list.h": "c",
         "regexp.h": "c",
         "float.h": "c",
-        "md4.h": "c"
+        "md4.h": "c",
+        "curl.h": "c",
+        "bitmessage_type.h": "c"
     }
 }
