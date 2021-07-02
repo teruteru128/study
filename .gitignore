@@ -215,3 +215,10 @@ _deps
 ## 
 bin/
 crossbuild/
+config.rpath
+*.bs
+*.pem
+*.ini
+*.pub
+*-prime.txt
+*-initialValue.txt
