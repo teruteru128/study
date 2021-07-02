@@ -72,6 +72,13 @@ int search_main(int argc, char **argv)
     unsigned char hash[EVP_MAX_MD_SIZE] = "";
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
     size_t nlz = 0;
+    /*
+    i = 0; i < j; i++
+        j = i; j < KEY_CACHE_SIZE; j++
+
+    i = 0; i < KEY_CACHE_SIZE; i++
+        j = 0; j < i; j++
+    */
     unsigned char sum = 0;
     for (size_t i = 0; i < KEY_CACHE_SIZE;
          i += BLOCK_SIZE, signp += BLOCK_SIZE)
@@ -113,47 +120,6 @@ int search_main(int argc, char **argv)
                     fprintf(stderr, "%ld, %ld, %ld\n", nlz, jj, ii);
                 }
             }
-                }
-            }
-        }
-    }
-    /*
-    i = 0; i < j; i++
-        j = i; j < KEY_CACHE_SIZE; j++
-
-    i = 0; i < KEY_CACHE_SIZE; i++
-        j = 0; j < i; j++
-    */
-    for (size_t i = 0; i < KEY_CACHE_SIZE; i++, signingKey++)
-    {
-        encryptingKey = publicKeys;
-        for (size_t j = 0; j < KEY_CACHE_SIZE; j++, encryptingKey++)
-        {
-            funcP(mdctx, signingKey, encryptingKey, hash);
-            for (int l = 0; l < 5; l++)
-            {
-                sum |= hash[l];
-            }
-            if (sum == 0)
-            {
-                nlz = sum + getNLZ(hash + 5, 15);
-                if (nlz >= 5)
-                {
-                    fprintf(stderr, "%ld, %ld, %ld\n", nlz, i, j);
-                }
-            }
-            funcP(mdctx, encryptingKey, signingKey, hash);
-            sum = 0;
-            for (int l = 0; l < 5; l++)
-            {
-                sum |= hash[l];
-            }
-            if (sum == 0)
-            {
-                nlz = sum + getNLZ(hash + 5, 15);
-                if (nlz >= 5)
-                {
-                    fprintf(stderr, "%ld, %ld, %ld\n", nlz, j, i);
                 }
             }
         }
