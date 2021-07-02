@@ -20,18 +20,18 @@ jobs:
         run: ./autogen.sh
       - name: configure on linux host
         run: mkdir bin && cd bin && ../configure
-      - name: configure on x86_64-w64-mingw32
-        run: mkdir crossbuild && cd crossbuild && ../configure --host x86_64-w64-mingw32
+#      - name: configure on x86_64-w64-mingw32
+#        run: mkdir crossbuild && cd crossbuild && ../configure --host x86_64-w64-mingw32
       - name: make
         run: make -C bin
       - name: make check
         run: make check -C bin
       - name: make distcheck
         run: make distcheck -C bin
-      - name: make
-        run: make -C crossbuild
-      - name: make check
-        run: make check -C crossbuild
+#      - name: make
+#        run: make -C crossbuild
+#      - name: make check
+#        run: make check -C crossbuild
       - name: Save artifact
         uses: actions/upload-artifact@v2.2.3
         with:
