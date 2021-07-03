@@ -33,7 +33,7 @@
 #define THREAD_NUM 12
 #define TASK_SIZE 16
 
-static unsigned char *publicKeys = NULL;
+static PublicKey *publicKeys = NULL;
 static const EVP_MD *sha512md = NULL;
 static const EVP_MD *ripemd160md = NULL;
 
@@ -53,7 +53,7 @@ static volatile int producer_has_a_task_that_has_not_been_shipped = 1;
 
 struct threadArg
 {
-    unsigned char *publicKeys;
+    PublicKey *publicKeys;
     size_t pubKeyNmemb;
     size_t signBegin;
     size_t signEnd;
@@ -101,7 +101,7 @@ void *produce(void *arg)
 
 struct task *getTask(struct queue *queue) { return take(queue); }
 
-void calcsmallTask(unsigned char *pubkeys, size_t a, size_t b, EVP_MD_CTX *ctx)
+void calcsmallTask(PublicKey *pubkeys, size_t a, size_t b, EVP_MD_CTX *ctx)
 {
     return;
 }
@@ -125,6 +125,8 @@ void *consume(void *arg)
     size_t maxNLZ = 0;
     struct queue *queue = targ->queue;
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+    PublicKey *signP = NULL;
+    PublicKey *encP = NULL;
     while (1)
     {
         struct task *task = getTask(queue);
@@ -140,10 +142,11 @@ void *consume(void *arg)
 
         for (; signIndex < signIndexMax; signIndex++)
         {
+            signP = publicKeys + signIndex;
             for (; encIndex < encIndexMax; encIndex++)
             {
-                calcRipe(mdctx, sha512md, ripemd160md, cache64, publicKeys,
-                         signIndex, encIndex);
+                encP = publicKeys + encIndex;
+                calcRipe(mdctx, sha512md, ripemd160md, cache64, signP, encP);
                 nlz = getNLZ(cache64, 20);
                 if (nlz >= minExportThreshold)
                 {
@@ -156,8 +159,7 @@ void *consume(void *arg)
                 {
                     maxNLZ = nlz;
                 }
-                calcRipe(mdctx, sha512md, ripemd160md, cache64, publicKeys,
-                         encIndex, signIndex);
+                calcRipe(mdctx, sha512md, ripemd160md, cache64, encP, signP);
                 nlz = getNLZ(cache64, 20);
                 if (nlz >= minExportThreshold)
                 {
@@ -179,7 +181,7 @@ void *consume(void *arg)
     return NULL;
 }
 
-int loadPublicKey(unsigned char *area, const char *path)
+int loadPublicKey(PublicKey *area, const char *path)
 {
     FILE *fin = fopen(path, "rb");
     if (fin == NULL)
