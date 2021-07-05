@@ -1,7 +1,6 @@
 SUBDIRS = config
 
 bin_PROGRAMS= \
-	addpadding \
 	ankokudan_decode \
 	argsample \
 	argparsesample \
