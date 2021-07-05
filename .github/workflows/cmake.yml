@@ -19,7 +19,7 @@ jobs:
         run: cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -H${{ github.workspace }} -G Ninja
         working-directory: ./build
       - name: Make
-        run: ninja -j
+        run: ninja -j 0
         working-directory: ./build
       - name: output log on fail
         if: failure()
