@@ -3,7 +3,9 @@
  * 前回: https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
  */
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 #include <stddef.h>
 #include "gettext.h"
 #define _(str) gettext(str)

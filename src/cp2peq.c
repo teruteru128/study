@@ -13,13 +13,9 @@
 #include <openssl/err.h>
 #include <string.h>
 #include <time.h>
-#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
-#endif
 #include <sys/types.h>
-#ifdef HAVE_NETDB_H
 #include <netdb.h>
-#endif
 #include <errno.h>
 #include <iconv.h>
 #include <unistd.h>

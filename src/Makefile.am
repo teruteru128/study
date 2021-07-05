@@ -1,51 +1,6 @@
 SUBDIRS = config
 
 bin_PROGRAMS= \
-	ankokudan_decode \
-	argsample \
-	argparsesample \
-	bcasttest \
-	bino \
-	bm \
-	bmkeygen \
-	bmkeysearch \
-	bmkeysearch2 \
-	bmkeysearch3 \
-	bmspam \
-	bouyomi \
-	calc \
-	checkprimes \
-	cl \
-	cp2peq \
-	curlonionheadertest \
-	curlonionheadertest2 \
-	curloniontest \
-	curltest \
-	dappun \
-	dice \
-	dicetohex \
-	doublerandom \
-	dragon \
-	eckeygentest \
-	encodersa \
-	enginetest \
-	envgettest \
-	errnosample1 \
-	errnosample2 \
-	evpmdtest \
-	evprsasignsample \
-	evprsaverifysample \
-	evptest \
-	falcon \
-	ftm \
-	ftnr \
-	genericsample \
-	getnyanpass \
-	getnyanpass2 \
-	gettextsample2 \
-	gettextsample3 \
-	gettextsample4 \
-	gettime \
 	harmonic \
 	httpd \
 	hugecollatztest \
@@ -169,51 +124,6 @@ AM_CPPFLAGS=-Wall \
     -DSTUDYDATADIR='"\"$(studydatadir)\""'
 
 LIBSTUDYPATH=$(top_builddir)/libstudy/src/libstudy.la
-TSIdentityTool_LDADD=-ltommath -ltomcrypt
-ankokudan_decode_SOURCES=ankokudan_decode.c
-argsample_SOURCES=argsample.c
-argsample_LDADD=$(LIBSTUDYPATH)
-argparsesample_SOURCES=argparsesample.c
-bcasttest_SOURCES=bcasttest.c
-bino_SOURCES=bino.c
-bm_SOURCES=bm.c
-bmkeygen_CFLAGS=
-bmkeygen_LDADD=
-bmkeygen_SOURCES=bmkeygen.c
-bmkeysearch_CFLAGS=
-bmkeysearch_LDADD=$(LIBSTUDYPATH)
-bmkeysearch_SOURCES=bmkeysearch.c queue.c queue.h
-bmkeysearch2_LDADD=$(LIBSTUDYPATH)
-bmkeysearch2_SOURCES=bmkeysearch2.c queue.c queue.h
-bmspam_CFLAGS=`xmlrpc-c-config libwww-client --cflags`
-bmspam_LDADD=$(LIBSTUDYPATH)
-bmspam_LDFLAGS=`xmlrpc-c-config libwww-client --ldflags` `xmlrpc-c-config libwww-client --libs`
-bmspam_SOURCES=bmspam.c bmspam.h
-bouyomi_CFLAGS=
-bouyomi_LDADD=$(LIBSTUDYPATH)
-bouyomi_SOURCES=bouyomi.c bouyomi.h gettext.h
-calc_SOURCES=calc.c
-cl_LDADD=$(LIBSTUDYPATH)
-cl_SOURCES=cl.c
-cp2peq_SOURCES=cp2peq.c
-cp2peq_LDADD=$(LIBSTUDYPATH)
-dice_LDADD=
-dragon_LDADD=$(LIBSTUDYPATH)
-dragon_SOURCES=dragon.c
-eckeygentest_CFLAGS=
-eckeygentest_SOURCES=eckeygentest.c gettext.h timeutil.c timeutil.h
-encodersa_CFLAGS=
-encodersa_SOURCES=encodersa.c gettext.h
-falcon_LDADD=$(LIBSTUDYPATH)
-falcon_SOURCES=falcon.c
-ftnr_LDADD=$(LIBSTUDYPATH)
-gettextsample2_CFLAGS=
-gettextsample2_SOURCES=gettextsample2.c gettextsample2.h gettext.h
-gettextsample3_CFLAGS=
-gettextsample3_SOURCES=gettextsample3.c gettextsample3.h textdomain.c textdomain_inner.h mytextdomain.h gettext.h
-gettextsample4_SOURCES=gettextsample4.c gettextsample4.h textdomain.c textdomain_inner.h mytextdomain.h gettext.h
-gettime_LDADD=$(LIBSTUDYPATH)
-gettime_SOURCES=gettime.c gettime.h
 httpd_LDADD=$(LIBSTUDYPATH)
 iconvtest_SOURCES=iconvtest.c
 itoabench_CFLAGS=

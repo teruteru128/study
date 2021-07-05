@@ -174,11 +174,11 @@ int main(int argc, char **argv)
     char servstr[NI_MAXSERV];
     if (ptr->ai_family == AF_INET)
     {
-        strncat(addrtype, "INET", 16);
+        strncat(addrtype, "INET", 15);
     }
     else if (ptr->ai_family == AF_INET6)
     {
-        strncat(addrtype, "INET6", 16);
+        strncat(addrtype, "INET6", 15);
     }
     else
     {

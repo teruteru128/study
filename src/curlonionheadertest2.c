@@ -2,14 +2,25 @@
  * All curl_easy_setopt() options are documented at:
  * https://curl.haxx.se/libcurl/c/curl_easy_setopt.html
  ************************************************************************/
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif
 #include <curl/curl.h>
 #include <string.h>
+#include <stdlib.h>
 
 size_t header_callback(char *buffer, size_t size, size_t nitems, void *userdata)
 {
     (void) userdata;
+#ifdef _GNU_SOURCE
     char *head = strndupa(buffer, size * nitems);
+#else
+    const char *old = buffer;
+    size_t len = strnlen(old, size * nitems);
+    char *head = alloca(len + 1);
+    head[len] = '\0';
+    memcpy(head, old, len);
+#endif
     /*
     if(strchr(head, '\r'))
     {

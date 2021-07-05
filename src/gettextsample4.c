@@ -1,8 +1,11 @@
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "mytextdomain.h"
 #include "gettextsample4.h"
 
-#include "config.h"
 #include <stddef.h>
 #include "gettext.h"
 #define _(str) gettext(str)

@@ -1,7 +1,9 @@
 
-#include "gettextsample2.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
-#include "config.h"
+#include "gettextsample2.h"
 #include "gettext.h"
 #define _(str) gettext(str)
 #include <stdio.h>

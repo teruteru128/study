@@ -2,7 +2,9 @@
 #ifndef GETTIME_H
 #define GETTIME_H
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>

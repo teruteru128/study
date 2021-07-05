@@ -1,5 +1,7 @@
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 #include "textdomain_inner.h"
 #include "mytextdomain.h"
 #include "gettext.h"

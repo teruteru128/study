@@ -80,5 +80,6 @@ int main(int argc, const char *argv[])
         }
         printf("\n");
     }
+    printf("%s, %s, %s\n", PACKAGE, LOCALEDIR, VERSION);
     return EXIT_SUCCESS;
 }
