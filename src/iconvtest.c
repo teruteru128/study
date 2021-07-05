@@ -1,5 +1,7 @@
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <iconv.h>
@@ -19,7 +21,8 @@ char **argv;
     }
     size_t srclen = strlen(SRC);
     size_t destlen = srclen * 3 + 1;
-    char *tmpsrc = strdupa(SRC);
+    char *tmpsrc = alloca(srclen + 1);
+    memcpy(tmpsrc, SRC, srclen);
     char *destbuf = malloc(destlen);
     if (!destbuf)
     {

@@ -1,17 +1,6 @@
 SUBDIRS = config
 
 bin_PROGRAMS= \
-	harmonic \
-	httpd \
-	hugecollatztest \
-	iconvtest \
-	itoabench \
-	json-c_test \
-	kxsample \
-	list2 \
-	localesample1 \
-	localesample2 \
-	localesample3 \
 	log-sample \
 	loop-bench \
 	main \
@@ -124,15 +113,6 @@ AM_CPPFLAGS=-Wall \
     -DSTUDYDATADIR='"\"$(studydatadir)\""'
 
 LIBSTUDYPATH=$(top_builddir)/libstudy/src/libstudy.la
-httpd_LDADD=$(LIBSTUDYPATH)
-iconvtest_SOURCES=iconvtest.c
-itoabench_CFLAGS=
-itoabench_LDADD=$(LIBSTUDYPATH)
-itoabench_SOURCES=itoabench.c gettext.h
-localesample1_CFLAGS=
-localesample1_SOURCES=localesample1.c localesample1.h  gettext.h
-localesample2_SOURCES=localesample2.c 
-localesample3_SOURCES=localesample3.c gettext.h
 main_SOURCES=main.cpp
 main2_CFLAGS=
 main2_LDADD=$(LIBSTUDYPATH)
