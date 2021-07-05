@@ -11,8 +11,7 @@ jobs:
       - name: Make dir
         run: mkdir build
       - name: Generate configure
-        run: cmake .. -G Ninja
-        working-directory: ./build
+        run: cmake .. -B ./build -G Ninja
       - name: Make
         run: make -j
         working-directory: ./build
