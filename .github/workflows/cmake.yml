@@ -1,0 +1,15 @@
+name: cmake
+on: [push]
+
+jobs:
+  build:
+  job:
+    name:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name:
+        run: |
+          cmake .. -G Ninja
+          make -j
+        working-directory: ./build
