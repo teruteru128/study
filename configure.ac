@@ -4,7 +4,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([study],[1.0.2-alpha],[teruterubouzu1024@gmail.com])
-AC_CONFIG_SRCDIR([src/study.c])
+AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign])
 AC_CANONICAL_HOST
