@@ -1,9 +1,6 @@
 SUBDIRS = config
 
 bin_PROGRAMS= \
-	Nabeatsu \
-	Nabeatsu2 \
-	Nabeatsu3 \
 	TSIdentityTool \
 	addpadding \
 	ankokudan_decode \
@@ -174,14 +171,6 @@ AM_CPPFLAGS=-Wall \
     -DSTUDYDATADIR='"\"$(studydatadir)\""'
 
 LIBSTUDYPATH=$(top_builddir)/libstudy/src/libstudy.la
-FizzBuzz_CFLAGS=
-FizzBuzz_LDADD=$(LIBSTUDYPATH)
-FizzBuzz_SOURCES=FizzBuzz.c
-Nabeatsu_CFLAGS=
-Nabeatsu_LDADD=$(LIBSTUDYPATH)
-Nabeatsu_SOURCES=Nabeatsu.c gettext.h
-Nabeatsu2_SOURCES=Nabeatsu2.c gettext.h
-Nabeatsu3_SOURCES=Nabeatsu3.c gettext.h
 TSIdentityTool_LDADD=-ltommath -ltomcrypt
 ankokudan_decode_SOURCES=ankokudan_decode.c
 argsample_SOURCES=argsample.c

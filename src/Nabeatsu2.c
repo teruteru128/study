@@ -1,5 +1,7 @@
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 #include "gettext.h"
 #include <stddef.h>
 #define _(str) gettext(str)
