@@ -2,10 +2,17 @@
 # https://qiita.com/shohirose/items/637f4b712893764a7ec1
 # https://qiita.com/shohirose/items/d2b9c595a37b27ece607
 cmake_minimum_required(VERSION 3.0.0)
-project(study)
+project(study C CXX)
 
 include(CTest)
 enable_testing()
+find_package(Threads)
+include(GNUInstallDirs)
+include(FindGettext)
+include(FindIntl)
+add_compile_definitions(PACKAGE="${PROJECT_NAME}" LOCALEDIR="${LOCALEDIR}")
+#configure_file(config.h.in config.h)
+#include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_subdirectory(libstudy)
 add_subdirectory(tests)
 add_subdirectory(src)

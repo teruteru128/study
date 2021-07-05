@@ -1,8 +1,6 @@
 SUBDIRS = config
 
 bin_PROGRAMS= \
-	CoDec \
-	FizzBuzz \
 	Nabeatsu \
 	Nabeatsu2 \
 	Nabeatsu3 \
@@ -176,8 +174,6 @@ AM_CPPFLAGS=-Wall \
     -DSTUDYDATADIR='"\"$(studydatadir)\""'
 
 LIBSTUDYPATH=$(top_builddir)/libstudy/src/libstudy.la
-CoDec_LDADD=$(LIBSTUDYPATH)
-CoDec_SOURCES=CoDec.c CoDec.h
 FizzBuzz_CFLAGS=
 FizzBuzz_LDADD=$(LIBSTUDYPATH)
 FizzBuzz_SOURCES=FizzBuzz.c

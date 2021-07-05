@@ -1,7 +1,8 @@
 
 add_executable(CoDec CoDec.c)
 target_link_libraries(CoDec study)
-add_executable(FizzBuzz main.cpp)
+add_executable(FizzBuzz FizzBuzz.c)
+target_link_libraries(FizzBuzz study)
 add_executable(Nabeatsu main.cpp)
 add_executable(Nabeatsu2 main.cpp)
 add_executable(Nabeatsu3 main.cpp)
