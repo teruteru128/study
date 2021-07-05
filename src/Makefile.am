@@ -92,7 +92,7 @@ test.pdf: test.tex
 .tex.div:
 	platex $<
 
-EXTRA_DIST=gettextsample.c
+EXTRA_DIST=gettextsample.c gettext.h
 
 studydatadir = $(datadir)/study
 
@@ -128,11 +128,11 @@ httpd_LDADD=$(LIBSTUDYPATH)
 iconvtest_SOURCES=iconvtest.c
 itoabench_CFLAGS=
 itoabench_LDADD=$(LIBSTUDYPATH)
-itoabench_SOURCES=itoabench.c
+itoabench_SOURCES=itoabench.c gettext.h
 localesample1_CFLAGS=
-localesample1_SOURCES=localesample1.c localesample1.h
-localesample2_SOURCES=localesample2.c
-localesample3_SOURCES=localesample3.c
+localesample1_SOURCES=localesample1.c localesample1.h  gettext.h
+localesample2_SOURCES=localesample2.c 
+localesample3_SOURCES=localesample3.c gettext.h
 main_SOURCES=main.cpp
 main2_CFLAGS=
 main2_LDADD=$(LIBSTUDYPATH)
@@ -146,12 +146,13 @@ mineseed_LDADD=$(LIBSTUDYPATH)
 mysqlaccesssample_SOURCES=mysqlaccesssample.c
 mysqlaccesssample2_SOURCES=mysqlaccesssample2.c
 portscanner_SOURCES=portscanner.c
+potest_SOURCES=potest.c gettext.h
 prime1_SOURCES=prime1.c
 prime2_SOURCES=prime2.c
 prime3_SOURCES=prime3.c
 prime6_SOURCES=prime6.c bitsieve.c bitsieve.h timeutil.c timeutil.h bitset.h
 prime7_SOURCES=prime7.c bitsieve.c bitsieve.h timeutil.c timeutil.h bitset.h
-prime8_SOURCES=prime8.c bitsieve.c bitsieve.h task_queue.c task_queue.h queue.c queue.h timeutil.c timeutil.h bitset.h
+prime8_SOURCES=prime8.c bitsieve.c bitsieve.h task_queue.c task_queue.h queue.c queue.h timeutil.c timeutil.h bitset.h gettext.h
 #prime8_LDFLAGS=-static
 prime12_SOURCES=prime12.c bitsieve.c bitsieve.h timeutil.c timeutil.h
 prime13_SOURCES=prime13.c bitsieve.c bitsieve.h queue.c queue.h timeutil.c timeutil.h bitset.h
@@ -159,7 +160,7 @@ prime14_SOURCES=prime14.c bitsieve.c bitsieve.h timeutil.c timeutil.h bitset.h
 primesearch_SOURCES=primesearch.c
 printBench_CFLAGS=
 printBench_LDADD=$(LIBSTUDYPATH)
-printBench_SOURCES=printBench.c timeutil.c timeutil.h
+printBench_SOURCES=printBench.c timeutil.c timeutil.h gettext.h
 printinttest_CFLAGS=
 printinttest_LDADD=$(LIBSTUDYPATH)
 printinttest_SOURCES=printinttest.c
@@ -176,7 +177,7 @@ slimesearch_SOURCES=slimesearch.c timeutil.c timeutil.h
 slimesearch_LDADD=$(LIBSTUDYPATH)
 sntpc_CFLAGS=
 sntpc_LDADD=$(LIBSTUDYPATH)
-sntpc_SOURCES=sntpc.c ntp.c ntp.h
+sntpc_SOURCES=sntpc.c ntp.c ntp.h gettext.h
 sum_LDADD=$(LIBSTUDYPATH)
 sum_SOURCES=sum.c
 teamspeakIdUpgrader_CFLAGS=

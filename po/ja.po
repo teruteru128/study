@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: study 1.0.0-rc2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
-"POT-Creation-Date: 2021-05-24 17:28+0900\n"
+"POT-Creation-Date: 2021-07-06 00:42+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
 "Last-Translator:  <teruterubouzu1024@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -18,22 +18,22 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/bouyomi.c:358
+#: src/bouyomi.c:360
 #, c-format
 msgid "Sent!\n"
 msgstr "送信しました！\n"
 
-#: src/eckeygentest.c:67
+#: src/eckeygentest.c:69
 #, c-format
 msgid "It took %ld.%09ld seconds.\n"
 msgstr "%ld.%09ld秒かかりました。\n"
 
-#: src/eckeygentest.c:68 src/itoabench.c:43 src/itoabench.c:59
+#: src/eckeygentest.c:70 src/itoabench.c:45 src/itoabench.c:61
 #, c-format
 msgid "%.1f times per second\n"
 msgstr "1秒あたり %.1f回\n"
 
-#: src/eckeygentest.c:69 src/itoabench.c:44 src/itoabench.c:60
+#: src/eckeygentest.c:71 src/itoabench.c:46 src/itoabench.c:62
 #, c-format
 msgid "%.12f seconds per time\n"
 msgstr "1回あたり %.12f秒\n"
@@ -48,23 +48,23 @@ msgstr "qのほうが大きい\n"
 msgid "p is larger\n"
 msgstr "pのほうが大きい\n"
 
-#: src/gettextsample.c:14 src/gettextsample2.c:15 src/localesample1.c:15
+#: src/gettextsample.c:14 src/gettextsample2.c:17 src/localesample1.c:15
 #: src/potest.c:18
 #, c-format
 msgid "Hello world!\n"
 msgstr "こんにちは世界！\n"
 
-#: src/gettextsample3.c:19 src/gettextsample4.c:38
+#: src/gettextsample3.c:21 src/gettextsample4.c:41
 #, c-format
 msgid "%dmicro seconds stopping.\n"
 msgstr "%dマイクロ秒停止します。\n"
 
-#: src/gettextsample3.c:21 src/gettextsample4.c:48
+#: src/gettextsample3.c:23 src/gettextsample4.c:51
 #, c-format
 msgid "%dmicro seconds stoped.\n"
 msgstr "%dマイクロ秒停止しました。\n"
 
-#: src/itoabench.c:42 src/itoabench.c:58
+#: src/itoabench.c:44 src/itoabench.c:60
 #, c-format
 msgid "It took %.8f seconds.\n"
 msgstr "%.8f秒かかりました。\n"
