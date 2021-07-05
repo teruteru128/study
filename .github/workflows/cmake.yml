@@ -1,15 +1,19 @@
 name: cmake
+
 on: [push]
 
 jobs:
   build:
-  job:
     name:
     runs-on: ubuntu-20.04
 
     steps:
-      - name:
-        run: |
-          cmake .. -G Ninja
-          make -j
+      - uses: actions/checkout@v2.3.4
+        with:
+          submodules: 'recursive'
+      - name: Generate configure
+        run: cmake .. -G Ninja
+        working-directory: ./build
+      - name: Make
+        run: make -j
         working-directory: ./build
