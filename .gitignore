@@ -222,3 +222,17 @@ config.rpath
 *.pub
 *-prime.txt
 *-initialValue.txt
+build/
+
+## https://github.com/github/gitignore/blob/991e760/CMake.gitignore
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps

@@ -33,7 +33,6 @@ bin_PROGRAMS= \
 	dicetohex \
 	doublerandom \
 	dragon \
-	dragon \
 	eckeygentest \
 	encodersa \
 	enginetest \
@@ -68,6 +67,7 @@ bin_PROGRAMS= \
 	log-sample \
 	loop-bench \
 	main \
+	main2 \
 	mappingsample \
 	maxmovingsum \
 	md5fullzero \
@@ -111,7 +111,6 @@ bin_PROGRAMS= \
 	sntpc \
 	ssh-keyconvert \
 	strspntest \
-	study \
 	sum \
 	teamspeakIdUpgrader \
 	teamspeakcalc \
@@ -242,6 +241,9 @@ localesample1_SOURCES=localesample1.c localesample1.h
 localesample2_SOURCES=localesample2.c
 localesample3_SOURCES=localesample3.c
 main_SOURCES=main.cpp
+main2_CFLAGS=
+main2_LDADD=$(LIBSTUDYPATH)
+main2_SOURCES=main2.c
 mappingsample_SOURCES=mappingsample.c
 maxmovingsum_SOURCES=maxmovingsum.c
 maxmovingsum_LDADD=$(LIBSTUDYPATH)
@@ -282,9 +284,6 @@ slimesearch_LDADD=$(LIBSTUDYPATH)
 sntpc_CFLAGS=
 sntpc_LDADD=$(LIBSTUDYPATH)
 sntpc_SOURCES=sntpc.c ntp.c ntp.h
-study_CFLAGS=
-study_LDADD=$(LIBSTUDYPATH)
-study_SOURCES=study.c
 sum_LDADD=$(LIBSTUDYPATH)
 sum_SOURCES=sum.c
 teamspeakIdUpgrader_CFLAGS=
