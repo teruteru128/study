@@ -20,3 +20,6 @@ jobs:
       - name: Make
         run: make -j
         working-directory: ./build
+      - name: output log on fail
+        if: failure()
+        run: cat ${{ github.workspace }}/build/CMakeFiles/CMakeOutput.log
