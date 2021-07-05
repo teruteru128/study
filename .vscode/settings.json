@@ -124,6 +124,7 @@
         "float.h": "c",
         "md4.h": "c",
         "curl.h": "c",
-        "bitmessage_type.h": "c"
+        "bitmessage_type.h": "c",
+        "charset-convert.h": "c"
     }
 }
