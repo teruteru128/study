@@ -65,6 +65,7 @@ localesample3
 log-sample
 loop-bench
 main
+main2
 mappingsample
 maxmovingsum
 mineseed
@@ -109,7 +110,6 @@ sntpc
 ssh-keyconvert
 stamp-h1
 strspntest
-study
 sum
 teamspeakIdUpgrader
 teamspeakcalc
