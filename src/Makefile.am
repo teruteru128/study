@@ -16,20 +16,6 @@ bin_PROGRAMS= \
 	pkeyencsample \
 	portscanner \
 	potest \
-	prime1 \
-	prime2 \
-	prime3 \
-	prime4 \
-	prime5 \
-	prime6 \
-	prime7 \
-	prime8 \
-	prime9 \
-	prime10 \
-	prime11 \
-	prime12 \
-	prime13 \
-	prime14 \
 	primesearch \
 	printBench \
 	printinttest \
@@ -127,16 +113,6 @@ mysqlaccesssample_SOURCES=mysqlaccesssample.c
 mysqlaccesssample2_SOURCES=mysqlaccesssample2.c
 portscanner_SOURCES=portscanner.c
 potest_SOURCES=potest.c gettext.h
-prime1_SOURCES=prime1.c
-prime2_SOURCES=prime2.c
-prime3_SOURCES=prime3.c
-prime6_SOURCES=prime6.c bitsieve.c bitsieve.h timeutil.c timeutil.h bitset.h
-prime7_SOURCES=prime7.c bitsieve.c bitsieve.h timeutil.c timeutil.h bitset.h
-prime8_SOURCES=prime8.c bitsieve.c bitsieve.h task_queue.c task_queue.h queue.c queue.h timeutil.c timeutil.h bitset.h gettext.h
-#prime8_LDFLAGS=-static
-prime12_SOURCES=prime12.c bitsieve.c bitsieve.h timeutil.c timeutil.h
-prime13_SOURCES=prime13.c bitsieve.c bitsieve.h queue.c queue.h timeutil.c timeutil.h bitset.h
-prime14_SOURCES=prime14.c bitsieve.c bitsieve.h timeutil.c timeutil.h bitset.h
 primesearch_SOURCES=primesearch.c
 printBench_CFLAGS=
 printBench_LDADD=$(LIBSTUDYPATH)
