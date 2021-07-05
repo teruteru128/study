@@ -1,7 +1,6 @@
 SUBDIRS = config
 
 bin_PROGRAMS= \
-	TSIdentityTool \
 	addpadding \
 	ankokudan_decode \
 	argsample \
