@@ -16,9 +16,10 @@ jobs:
       - name: Make dir
         run: mkdir build
       - name: Generate configure
-        run: cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -H${{ github.workspace }} -B${{ github.workspace }}/build -G Ninja
+        run: cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -H${{ github.workspace }} -G Ninja
+        working-directory: ./build
       - name: Make
-        run: make -j
+        run: ninja -j
         working-directory: ./build
       - name: output log on fail
         if: failure()
