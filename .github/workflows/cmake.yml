@@ -6,11 +6,10 @@ jobs:
   build:
     name:
     runs-on: ubuntu-20.04
-
     steps:
       - uses: actions/checkout@v2.3.4
-        with:
-          submodules: 'recursive'
+      - name: Make dir
+        run: mkdir build
       - name: Generate configure
         run: cmake .. -G Ninja
         working-directory: ./build
