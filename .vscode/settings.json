@@ -125,6 +125,7 @@
         "md4.h": "c",
         "curl.h": "c",
         "bitmessage_type.h": "c",
-        "charset-convert.h": "c"
+        "charset-convert.h": "c",
+        "wchar.h": "c"
     }
 }
