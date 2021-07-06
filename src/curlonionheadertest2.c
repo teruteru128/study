@@ -12,15 +12,10 @@
 size_t header_callback(char *buffer, size_t size, size_t nitems, void *userdata)
 {
     (void) userdata;
-#ifdef _GNU_SOURCE
-    char *head = strndupa(buffer, size * nitems);
-#else
-    const char *old = buffer;
-    size_t len = strnlen(old, size * nitems);
+    size_t len = size*nitems;
     char *head = alloca(len + 1);
+    memcpy(head, buffer, len);
     head[len] = '\0';
-    memcpy(head, old, len);
-#endif
     /*
     if(strchr(head, '\r'))
     {
@@ -33,7 +28,7 @@ size_t header_callback(char *buffer, size_t size, size_t nitems, void *userdata)
     */
     char *crlf = strpbrk(head, "\r\n");
     if (crlf != NULL)
-        *crlf = 0;
+        *crlf = '\0';
     if (strlen(head) != 0)
         printf("%s\n", head);
     return size * nitems;

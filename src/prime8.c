@@ -18,6 +18,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <locale.h>
+#include "gettextsample.h"
 
 #include <gmp.h>
 
@@ -277,13 +278,6 @@ int init_base(const char *basefilepath)
     fclose(fin);
     fin = NULL;
     return EXIT_SUCCESS;
-}
-
-void initGettext()
-{
-    setlocale(LC_ALL, "");
-    bindtextdomain(PACKAGE, LOCALEDIR);
-    textdomain(PACKAGE);
 }
 
 /**

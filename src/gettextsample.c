@@ -1,7 +1,7 @@
 
 #include "gettextsample.h"
 
-static void initGettext()
+void initGettext()
 {
     setlocale(LC_ALL, "");
     bindtextdomain(PACKAGE, LOCALEDIR);

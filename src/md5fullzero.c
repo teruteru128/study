@@ -1,5 +1,7 @@
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 #include <nlz.h>
 #include <openssl/evp.h>
 #include <openssl/md5.h>
