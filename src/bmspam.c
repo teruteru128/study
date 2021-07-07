@@ -79,7 +79,7 @@ int countDownToStartupTime(time_t currentTime, time_t targetTime)
  * }
  * TODO: コマンドライン引数でtest.txtとaddressbook.txtを切り替えられるようにする
  * */
-int main(int const argc, const char **const argv)
+int main(void)
 {
     /* 次の実行日時を取得する */
     /* 現在時刻を取得する */

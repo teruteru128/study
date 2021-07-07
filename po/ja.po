@@ -6,7 +6,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: study 1.0.0-rc2\n"
+"Project-Id-Version: study 1.0.2\n"
 "Report-Msgid-Bugs-To: teruterubouzu1024@gmail.com\n"
 "POT-Creation-Date: 2021-07-06 00:42+0900\n"
 "PO-Revision-Date: 2018-08-26 15:58+0900\n"
@@ -18,35 +18,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/bouyomi.c:360
+#: src/eckeygentest.c:71 src/itoabench.c:46 src/itoabench.c:62
 #, c-format
-msgid "Sent!\n"
-msgstr "送信しました！\n"
-
-#: src/eckeygentest.c:69
-#, c-format
-msgid "It took %ld.%09ld seconds.\n"
-msgstr "%ld.%09ld秒かかりました。\n"
+msgid "%.12f seconds per time\n"
+msgstr "1回あたり %.12f秒\n"
 
 #: src/eckeygentest.c:70 src/itoabench.c:45 src/itoabench.c:61
 #, c-format
 msgid "%.1f times per second\n"
 msgstr "1秒あたり %.1f回\n"
 
-#: src/eckeygentest.c:71 src/itoabench.c:46 src/itoabench.c:62
+#: src/gettextsample3.c:23 src/gettextsample4.c:51
 #, c-format
-msgid "%.12f seconds per time\n"
-msgstr "1回あたり %.12f秒\n"
+msgid "%dmicro seconds stoped.\n"
+msgstr "%dマイクロ秒停止しました。\n"
 
-#: src/encodersa.c:107
+#: src/gettextsample3.c:21 src/gettextsample4.c:41
 #, c-format
-msgid "q is larger\n"
-msgstr "qのほうが大きい\n"
+msgid "%dmicro seconds stopping.\n"
+msgstr "%dマイクロ秒停止します。\n"
 
-#: src/encodersa.c:112
+#: src/printBench.c:45
 #, c-format
-msgid "p is larger\n"
-msgstr "pのほうが大きい\n"
+msgid "%e seconds per time\n"
+msgstr "1回あたり %e秒\n"
+
+#: src/printBench.c:44
+#, c-format
+msgid "%g times per second\n"
+msgstr "1秒あたり %g回\n"
 
 #: src/gettextsample.c:14 src/gettextsample2.c:17 src/localesample1.c:15
 #: src/potest.c:18
@@ -54,48 +54,30 @@ msgstr "pのほうが大きい\n"
 msgid "Hello world!\n"
 msgstr "こんにちは世界！\n"
 
-#: src/gettextsample3.c:21 src/gettextsample4.c:41
+#: src/potest.c:17
 #, c-format
-msgid "%dmicro seconds stopping.\n"
-msgstr "%dマイクロ秒停止します。\n"
-
-#: src/gettextsample3.c:23 src/gettextsample4.c:51
-#, c-format
-msgid "%dmicro seconds stoped.\n"
-msgstr "%dマイクロ秒停止しました。\n"
+msgid "Help me!\n"
+msgstr "助けて！\n"
 
 #: src/itoabench.c:44 src/itoabench.c:60
 #, c-format
 msgid "It took %.8f seconds.\n"
 msgstr "%.8f秒かかりました。\n"
 
+#: src/printBench.c:43
+#, c-format
+msgid "It took %g seconds.\n"
+msgstr "%g秒かかりました。\n"
+
+#: src/eckeygentest.c:69
+#, c-format
+msgid "It took %ld.%09ld seconds.\n"
+msgstr "%ld.%09ld秒かかりました。\n"
+
 #: src/ntp.c:124
 #, c-format
 msgid "NTP server time : %s"
 msgstr "NTPサーバ時刻 : %s"
-
-#: src/potest.c:17
-#, c-format
-msgid "Help me!\n"
-msgstr "助けて！\n"
-
-#: src/prime8.c:90
-msgid "The bit sieve has been loaded.\n"
-msgstr "篩を読み込みました。\n"
-
-#: src/prime8.c:97
-msgid "The bit sieve has been generated.\n"
-msgstr "篩を生成しました。\n"
-
-#: src/prime8.c:104
-msgid "The bit sieve has been exported.\n"
-msgstr "篩がエクスポートされました。\n"
-
-#: src/prime8.c:141
-#, c-format
-msgid "One prime number candidate was found.\n"
-msgid_plural "%zu prime number candidates were found.\n"
-msgstr[0] "%zu個の素数候補が見つかりました。\n"
 
 #: src/prime8.c:145
 #, c-format
@@ -103,34 +85,43 @@ msgid "One prime number candidate have been skipped.\n"
 msgid_plural "%zu prime number candidates have been skipped.\n"
 msgstr[0] "%zu個の素数候補がスキップされました。\n"
 
-#: src/printBench.c:43
+#: src/prime8.c:141
 #, c-format
-msgid "It took %g seconds.\n"
-msgstr "%g秒かかりました。\n"
+msgid "One prime number candidate was found.\n"
+msgid_plural "%zu prime number candidates were found.\n"
+msgstr[0] "%zu個の素数候補が見つかりました。\n"
 
-#: src/printBench.c:44
+#: src/bouyomi.c:360
 #, c-format
-msgid "%g times per second\n"
-msgstr "1秒あたり %g回\n"
+msgid "Sent!\n"
+msgstr "送信しました！\n"
 
-#: src/printBench.c:45
+#: src/prime8.c:104
+msgid "The bit sieve has been exported.\n"
+msgstr "篩がエクスポートされました。\n"
+
+#: src/prime8.c:97
+msgid "The bit sieve has been generated.\n"
+msgstr "篩を生成しました。\n"
+
+#: src/prime8.c:90
+msgid "The bit sieve has been loaded.\n"
+msgstr "篩を読み込みました。\n"
+
+#: src/encodersa.c:112
 #, c-format
-msgid "%e seconds per time\n"
-msgstr "1回あたり %e秒\n"
+msgid "p is larger\n"
+msgstr "pのほうが大きい\n"
+
+#: src/encodersa.c:107
+#, c-format
+msgid "q is larger\n"
+msgstr "qのほうが大きい\n"
 
 #: src/teamspeakcalc.c:65
 #, c-format
 msgid "verifier : %<PRIu64>\n"
 msgstr "検証子 : %<PRIu64>\n"
-
-#~ msgid "Error! %s\n"
-#~ msgstr "エラー！ %s\n"
-
-#~ msgid "Local time : %s"
-#~ msgstr "ローカル時刻 : %s"
-
-#~ msgid "Hello World!\n"
-#~ msgstr "こんにちは世界！\n"
 
 #~ msgid ""
 #~ "Error : %s\n"
@@ -139,11 +130,20 @@ msgstr "検証子 : %<PRIu64>\n"
 #~ "エラー : %s\n"
 #~ "%s\n"
 
-#~ msgid "Initializing private key...\n"
-#~ msgstr "秘密鍵を初期化しています...\n"
+#~ msgid "Error! %s\n"
+#~ msgstr "エラー！ %s\n"
+
+#~ msgid "Hello World!\n"
+#~ msgstr "こんにちは世界！\n"
 
 #~ msgid "Initialized the private key. Initialize the public key.\n"
 #~ msgstr "秘密鍵を初期化しました。公開鍵を初期化します。\n"
+
+#~ msgid "Initializing private key...\n"
+#~ msgstr "秘密鍵を初期化しています...\n"
+
+#~ msgid "Local time : %s"
+#~ msgstr "ローカル時刻 : %s"
 
 #~ msgid "The public key initialization is complete.\n"
 #~ msgstr "公開鍵の初期化が完了しました。\n"

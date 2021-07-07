@@ -36,4 +36,4 @@ jobs:
         uses: actions/upload-artifact@v2.2.3
         with:
           name: study.tar.gz
-          path: bin/study-1.0.2-alpha.tar.gz
+          path: bin/study-1.0.2.tar.gz
