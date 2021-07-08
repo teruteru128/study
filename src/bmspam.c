@@ -29,7 +29,7 @@
 #define STUDYDATADIR ""
 #endif
 
-int countDownToStartupTime(time_t currentTime, time_t targetTime)
+int countDownToStartupTime(time_t targetTime)
 {
     struct timespec spec;
     spec.tv_sec = 0;
@@ -114,7 +114,7 @@ int main(void)
 #endif
 
     // 起動時間までカウントダウンする
-    int r = countDownToStartupTime(currentTime, christmasTime);
+    int r = countDownToStartupTime(christmasTime);
     if (r != EXIT_SUCCESS)
     {
         return r;
