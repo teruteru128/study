@@ -46,15 +46,21 @@ int main(void)
 
   */
 
-  do {
+  ret = curl_easy_perform(hnd);
+
+  curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &responceCode);
+
+  printf("%ld\n", responceCode);
+
+  while(responceCode != 200) {
+    sleep(300);
+
     ret = curl_easy_perform(hnd);
 
     curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &responceCode);
 
     printf("%ld\n", responceCode);
-
-    sleep(300);
-  } while(responceCode != 200);
+  }
 
   curl_easy_cleanup(hnd);
   hnd = NULL;
