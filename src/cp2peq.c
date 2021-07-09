@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define _(str) gettext(str)
-#include "java_random.h"
+#include <java_random.h>
 #include <dirent.h>
 #include <locale.h>
 #include <openssl/bn.h>

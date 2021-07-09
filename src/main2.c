@@ -68,6 +68,8 @@ typedef unsigned char PublicKey[65];
  */
 int main(int argc, const char *argv[])
 {
+    (void)argc;
+    (void)argv;
     unsigned char pub[130]
         = "ABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
           "CDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";

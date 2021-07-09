@@ -29,7 +29,7 @@ typedef union mc
 /**
  * 
  */
-int main(int argc, char **argv)
+int main(void)
 {
     const EVP_MD *sha1 = EVP_sha1();
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     char in1[125] = "MEsDAgcAAgEgAiAoQPNcS7L4k+q2qf3U7uyujtwRQNS3pLKN/zrRGERGagIgFjdV1JlqHF8BiIQne0/E3jVM7hWda/USrFI58per45s=";
     uint64_t in1Length = strlen(in1);
     uint64_t verifier;
-    size_t verifierLength;
+    int verifierLength;
     int64_t rnd = 0;
 
     {
@@ -55,12 +55,12 @@ int main(int argc, char **argv)
         0000000000000000111111111111111111111111111111110000000000000000
         0000000000000000000000000000000011111111111111111111111111111111
     */
-    verifier = nextLong(&rnd);
+    verifier = (uint64_t)nextLong(&rnd);
     for (;; verifier++)
     {
         EVP_DigestInit(ctx, sha1);
         verifierLength = snprintf(&in1[104], IN2_SIZE, "%ld", verifier);
-        EVP_DigestUpdate(ctx, in1, in1Length + verifierLength);
+        EVP_DigestUpdate(ctx, in1, in1Length + (size_t)verifierLength);
         EVP_DigestFinal(ctx, md, NULL);
         if (memcmp(md, "\0\0\0\0\0", 5) == 0)
         {

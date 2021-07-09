@@ -4,12 +4,13 @@
 #define NIL 100
 typedef int infotype;
 
-typedef struct item
+struct item
 {
     infotype info;
     struct item *next;
     struct item *prev;
-} * pointer;
+};
+typedef struct item *pointer;
 
 pointer add_list(infotype x, pointer p)
 {

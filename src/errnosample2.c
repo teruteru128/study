@@ -39,5 +39,5 @@ int main(int argc, char const *argv[])
             printf("? %3d %s, %s\n", i, ret, buf);
 #endif
     }
-    return 0;
+    return EXIT_SUCCESS;
 }

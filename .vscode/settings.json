@@ -126,6 +126,10 @@
         "curl.h": "c",
         "bitmessage_type.h": "c",
         "charset-convert.h": "c",
-        "wchar.h": "c"
+        "wchar.h": "c",
+        "xmlrpc.h": "c",
+        "base.h": "c",
+        "client.h": "c",
+        "c_util.h": "c"
     }
 }

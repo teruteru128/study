@@ -34,7 +34,7 @@ size_t header_callback(char *buffer, size_t size, size_t nitems, void *userdata)
     return size * nitems;
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
     CURLcode ret;
     CURL *hnd;

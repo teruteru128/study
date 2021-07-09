@@ -16,7 +16,7 @@
 
 /**
  * */
-int main(int argc, char **argv)
+int main(void)
 {
     // https://libsodium.gitbook.io/doc/usage
 #if defined(__linux__) && defined(RNDGETENTCNT)
