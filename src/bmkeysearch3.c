@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #define _(str) gettext(str)
 #include "queue.h"
+#include <assert.h>
 #include <bitmessage.h>
 #include <bm.h>
 #include <fcntl.h>
@@ -25,24 +26,13 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 
-#define KEY_CACHE_SIZE 1048576UL
+#define KEY_CACHE_SIZE 67108864UL
 #define BLOCK_SIZE 16
 
 static const EVP_MD *sha512;
 static const EVP_MD *ripemd160;
-
-static void funcP(EVP_MD_CTX *mdctx, PublicKey *signingKey,
-                  PublicKey *encryptingKey, unsigned char *hash)
-{
-    EVP_DigestInit(mdctx, sha512);
-    EVP_DigestUpdate(mdctx, signingKey, PUBLIC_KEY_LENGTH);
-    EVP_DigestUpdate(mdctx, encryptingKey, PUBLIC_KEY_LENGTH);
-    EVP_DigestFinal(mdctx, hash, NULL);
-    EVP_DigestInit(mdctx, ripemd160);
-    EVP_DigestUpdate(mdctx, hash, 64);
-    EVP_DigestFinal(mdctx, hash, NULL);
-}
 
 int search_main(int argc, char **argv)
 {
@@ -65,13 +55,18 @@ int search_main(int argc, char **argv)
     fclose(fin);
     sha512 = EVP_sha512();
     ripemd160 = EVP_ripemd160();
-    PublicKey *signp = publicKeys;
-    PublicKey *encp = publicKeys;
-    PublicKey *signingKey = publicKeys;
-    PublicKey *encryptingKey = publicKeys;
+    // i と countsをグローバルにして読み書きのときだけロックすればいいか？？？？
     unsigned char hash[EVP_MAX_MD_SIZE] = "";
-    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+    EVP_MD_CTX *sha512ctxshared = EVP_MD_CTX_new();
+    EVP_MD_CTX *sha512ctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(sha512ctx, sha512, NULL);
+    EVP_MD_CTX *ripemdctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(ripemdctx, ripemd160, NULL);
     size_t nlz = 0;
+    unsigned int mdlen = 0;
+    unsigned long tmp = 0;
+    size_t counts[21] = { 0 };
+
     /*
     i = 0; i < j; i++
         j = i; j < KEY_CACHE_SIZE; j++
@@ -80,51 +75,45 @@ int search_main(int argc, char **argv)
         j = 0; j < i; j++
     */
     unsigned char sum = 0;
-    for (size_t i = 0; i < KEY_CACHE_SIZE;
-         i += BLOCK_SIZE, signp += BLOCK_SIZE)
+    for (size_t i = 0; i < KEY_CACHE_SIZE; i++)
     {
-        for (size_t j = 0; j < KEY_CACHE_SIZE;
-             j += BLOCK_SIZE, encp += BLOCK_SIZE)
+        EVP_DigestInit_ex(sha512ctxshared, sha512, NULL);
+        EVP_DigestUpdate(sha512ctxshared, publicKeys[i], PUBLIC_KEY_LENGTH);
+        for (size_t j = 0; j < KEY_CACHE_SIZE; j++)
         {
-            signingKey = signp;
-            for (size_t ii = i; ii < (i + BLOCK_SIZE); ii++, signingKey++)
+            // EVP_DigestInit_ex(sha512ctx, sha512, NULL);
+            EVP_MD_CTX_copy_ex(sha512ctx, sha512ctxshared);
+            EVP_DigestUpdate(sha512ctx, publicKeys[j], PUBLIC_KEY_LENGTH);
+            EVP_DigestFinal_ex(sha512ctx, hash, &mdlen);
+            assert(mdlen == 64);
+            // funcP(sha512ctx, signingKey, encryptingKey, hash);
+            EVP_DigestInit_ex(ripemdctx, ripemd160, NULL);
+            EVP_DigestUpdate(ripemdctx, hash, 64);
+            EVP_DigestFinal(ripemdctx, hash, &mdlen);
+            assert(mdlen == 20);
+            tmp = htobe64(*(unsigned long *)hash);
+            nlz = ((tmp == 0) ? 64 : (unsigned int)__builtin_ctzl(tmp)) >> 3;
+            if (nlz >= 5)
             {
-                encryptingKey = encp;
-                for (size_t jj = j; jj < (j + BLOCK_SIZE);
-                     jj++, encryptingKey++)
-                {
-            funcP(mdctx, signingKey, encryptingKey, hash);
-            for (int l = 0; l < 5; l++)
-            {
-                sum |= hash[l];
-            }
-            if (sum == 0)
-            {
-                nlz = sum + getNLZ(hash + 5, 15);
+                nlz = sum + getNLZ(hash, 20);
                 if (nlz >= 5)
                 {
-                    fprintf(stderr, "%ld, %ld, %ld\n", nlz, ii, jj);
+                    fprintf(stderr, "%ld, %ld, %ld\n", nlz, i, j);
                 }
             }
-            funcP(mdctx, encryptingKey, signingKey, hash);
-            sum = 0;
-            for (int l = 0; l < 5; l++)
-            {
-                sum |= hash[l];
-            }
-            if (sum == 0)
-            {
-                nlz = sum + getNLZ(hash + 5, 15);
-                if (nlz >= 5)
-                {
-                    fprintf(stderr, "%ld, %ld, %ld\n", nlz, jj, ii);
-                }
-            }
-                }
-            }
+            counts[nlz]++;
         }
+        // EVP_MD_CTX_reset(sha512ctxshared);
+        for (size_t j = 0; j <= 20; j++)
+        {
+            if (j != 0)
+                fputs(", ", stdout);
+            printf("%zu : %16zu", j, counts[j]);
+        }
+        fputs("\n", stdout);
     }
-    EVP_MD_CTX_free(mdctx);
+    EVP_MD_CTX_free(sha512ctxshared);
+    EVP_MD_CTX_free(sha512ctx);
     free(publicKeys);
     return EXIT_FAILURE;
 }
