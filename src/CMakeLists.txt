@@ -22,7 +22,7 @@ target_link_libraries(bmkeysearch study xmlrpc xmlrpc_client ${CMAKE_THREAD_LIBS
 add_executable(bmkeysearch2 bmkeysearch2.c queue.c)
 target_link_libraries(bmkeysearch2 ${OPENSSL_CRYPTO_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 add_executable(bmkeysearch3 bmkeysearch3.c)
-target_link_libraries(bmkeysearch3 ${OPENSSL_CRYPTO_LIBRARIES})
+target_link_libraries(bmkeysearch3 ${OPENSSL_CRYPTO_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 add_executable(bmspam bmspam.c)
 target_link_libraries(bmspam study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util)
 add_executable(bouyomi bouyomi.c)
