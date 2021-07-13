@@ -20,10 +20,10 @@ char **argv;
         return EXIT_FAILURE;
     }
     size_t srclen = strlen(SRC);
-    size_t destlen = srclen * 3 + 1;
-    char *tmpsrc = alloca(srclen + 1);
-    memcpy(tmpsrc, SRC, srclen);
-    char *destbuf = malloc(destlen);
+    size_t destlen = srclen * 3;
+    char *tmpsrc = malloc(srclen + 1);
+    memcpy(tmpsrc, SRC, srclen + 1);
+    char *destbuf = malloc(destlen + 1);
     if (!destbuf)
     {
         perror("malloc");
@@ -37,6 +37,9 @@ char **argv;
         return -1;
     }
     *destbuf = '\0';
+
+    free(tmpsrc);
+
     char *tmp = realloc(head, strlen(head) + 1);
     if (tmp != NULL)
     {

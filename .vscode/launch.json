@@ -8,7 +8,7 @@
             "name": "bmkeysearch2 (gdb) 起動",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/src/bmkeysearch2",
+            "program": "${workspaceFolder}/build/src/bmkeysearch2",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -27,7 +27,7 @@
             "name": "prime6 (gdb) 接続",
             "type": "cppdbg",
             "request": "attach",
-            "program": "${workspaceFolder}/src/prime6",
+            "program": "${workspaceFolder}/build/src/prime6",
             "processId": "${command:pickProcess}",
             "MIMode": "gdb",
             "setupCommands": [
@@ -42,7 +42,7 @@
             "name": "prime6 (gdb) 起動",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/src/prime6",
+            "program": "${workspaceFolder}/build/src/prime6",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/src",
@@ -58,10 +58,10 @@
             ]
         },
         {
-            "name": "study (gdb) 起動",
+            "name": "main2 (gdb) 起動",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/src/.libs/study",
+            "program": "${workspaceFolder}/build/src/main2",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -80,7 +80,7 @@
             "name": "tsidshowsample (gdb) 起動",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/src/tsidshowsample",
+            "program": "${workspaceFolder}/build/src/tsidshowsample",
             "args": [
                 "main.identity.40.ini"
             ],
@@ -101,7 +101,7 @@
             "name": "TSIdentityTool (gdb) 起動",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/src/TSIdentityTool",
+            "program": "${workspaceFolder}/build/src/TSIdentityTool",
             "args": [
                 "read",
                 "main.identity.40.ini"
@@ -123,7 +123,7 @@
             "name": "bmkeygen  (gdb) 起動",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/src/bmkeygen",
+            "program": "${workspaceFolder}/build/src/bmkeygen",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

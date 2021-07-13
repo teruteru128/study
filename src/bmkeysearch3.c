@@ -35,19 +35,20 @@
 static const EVP_MD *sha512;
 static const EVP_MD *ripemd160;
 
-static size_t globalSignIndex = 1557;
+static size_t globalSignIndex = 0;
 // static pthread_mutex_t globalSignIndex_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_spinlock_t gloablSignIndex_spinlock;
+static pthread_spinlock_t globalSignIndex_spinlock;
 
 // 合計
 size_t globalCounts[21] = { 0 };
-static pthread_rwlock_t globalCounts_rwlock;
+// static pthread_rwlock_t globalCounts_rwlock;
+static pthread_mutex_t globalCounts_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static PublicKey *publicKeys = NULL;
 static int success = 0;
 static int finished = 0;
 
-#define THREAD_NUM 15
+static size_t threadNum = 15;
 
 void *threadFunc(void *arg)
 {
@@ -55,10 +56,7 @@ void *threadFunc(void *arg)
     // 初期化
     unsigned char hash[EVP_MAX_MD_SIZE] = "";
     EVP_MD_CTX *sha512ctxshared = EVP_MD_CTX_new();
-    EVP_MD_CTX *sha512ctx = EVP_MD_CTX_new();
-    EVP_DigestInit_ex(sha512ctx, sha512, NULL);
-    EVP_MD_CTX *ripemdctx = EVP_MD_CTX_new();
-    EVP_DigestInit_ex(ripemdctx, ripemd160, NULL);
+    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
     size_t nlz = 0;
     unsigned int mdlen = 0;
     unsigned long tmp = 0;
@@ -66,18 +64,18 @@ void *threadFunc(void *arg)
     size_t counts[21] = { 0 };
 
     size_t signIndex = 0;
-    for (;;)
+    while (!finished)
     {
-        if (finished)
-            return NULL;
 
-        // pthread_mutex_lock(&signIndex_mutex);
-        pthread_spin_lock(&gloablSignIndex_spinlock);
+        // pthread_mutex_lock(&globalSignIndex_mutex);
+        pthread_spin_lock(&globalSignIndex_spinlock);
         signIndex = globalSignIndex++;
-        pthread_spin_unlock(&gloablSignIndex_spinlock);
-        // pthread_mutex_unlock(&signIndex_mutex);
+        pthread_spin_unlock(&globalSignIndex_spinlock);
+        // pthread_mutex_unlock(&globalSignIndex_mutex);
         if (signIndex >= KEY_CACHE_SIZE)
         {
+            EVP_MD_CTX_free(sha512ctxshared);
+            EVP_MD_CTX_free(mdctx);
             finished = 1;
             return NULL;
         }
@@ -93,33 +91,36 @@ void *threadFunc(void *arg)
                          PUBLIC_KEY_LENGTH);
         for (size_t j = 0; j < KEY_CACHE_SIZE; j++)
         {
-            // EVP_DigestInit_ex(sha512ctx, sha512, NULL);
-            EVP_MD_CTX_copy_ex(sha512ctx, sha512ctxshared);
-            EVP_DigestUpdate(sha512ctx, publicKeys[j], PUBLIC_KEY_LENGTH);
-            EVP_DigestFinal_ex(sha512ctx, hash, &mdlen);
+            // EVP_DigestInit_ex(mdctx, sha512, NULL);
+            EVP_MD_CTX_copy_ex(mdctx, sha512ctxshared);
+            EVP_DigestUpdate(mdctx, publicKeys[j], PUBLIC_KEY_LENGTH);
+            EVP_DigestFinal_ex(mdctx, hash, &mdlen);
             assert(mdlen == 64);
-            // funcP(sha512ctx, signingKey, encryptingKey, hash);
-            EVP_DigestInit_ex(ripemdctx, ripemd160, NULL);
-            EVP_DigestUpdate(ripemdctx, hash, 64);
-            EVP_DigestFinal(ripemdctx, hash, &mdlen);
+            // funcP(mdctx, signingKey, encryptingKey, hash);
+            EVP_DigestInit_ex(mdctx, ripemd160, NULL);
+            EVP_DigestUpdate(mdctx, hash, 64);
+            EVP_DigestFinal(mdctx, hash, &mdlen);
             assert(mdlen == 20);
             tmp = htole64(*(unsigned long *)hash);
-            nlz = ((tmp == 0) ? 64 : (unsigned int)__builtin_ctzl(tmp)) >> 3;
+            nlz = ((tmp == 0) ? 64UL : (size_t)__builtin_ctzl(tmp)) >> 3;
             if (nlz >= 4)
             {
                 nlz = getNLZ(hash, 20);
                 fprintf(stdout, "%ld, %ld, %ld\n", nlz, signIndex, j);
+                fflush(stdout);
             }
             counts[nlz]++;
         }
         // EVP_MD_CTX_reset(sha512ctxshared);
 
         // スレッドローカルカウンターをグローバルカウンターに適用する
-        pthread_rwlock_wrlock(&globalCounts_rwlock);
+        pthread_mutex_lock(&globalCounts_mutex);
+        // pthread_rwlock_wrlock(&globalCounts_rwlock);
         for (size_t j = 0; j <= 20; j++)
         {
             globalCounts[j] += counts[j];
         }
+        // TODO: 表示をメインスレッドで行う。表示に時間を取られたくない
         for (size_t j = 0; j < 21; j++)
         {
             if (j != 0)
@@ -127,10 +128,11 @@ void *threadFunc(void *arg)
             fprintf(stderr, "%zu : %zu", j, globalCounts[j]);
         }
         fputs("\n", stderr);
-        pthread_rwlock_unlock(&globalCounts_rwlock);
+        // pthread_rwlock_unlock(&globalCounts_rwlock);
+        pthread_mutex_unlock(&globalCounts_mutex);
     }
     EVP_MD_CTX_free(sha512ctxshared);
-    EVP_MD_CTX_free(sha512ctx);
+    EVP_MD_CTX_free(mdctx);
     return NULL;
 }
 
@@ -142,10 +144,52 @@ static void sigint_action(int sig)
     finished = true;
 }
 
+static int isHelpMode = 0;
+
+static void parseArgs(int argc, char **argv)
+{
+    char *catch = NULL;
+    unsigned long tmp = 0;
+
+    for (int i = 1; i < argc; i++)
+    {
+        if (strcmp(argv[i], "--help") == 0)
+        {
+            isHelpMode = 1;
+        }
+        else if ((strcmp(argv[i], "--thread") == 0
+                  || strcmp(argv[i], "-t") == 0)
+                 && (i + 1) < argc)
+        {
+            tmp = strtoul(argv[i + 1], &catch, 10);
+            if (catch != argv[i + i])
+                threadNum = tmp;
+            i++;
+        }
+        else if ((strcmp(argv[i], "--offset") == 0
+                  || strcmp(argv[i], "-o") == 0)
+                 && (i + 1) < argc)
+        {
+            tmp = (size_t)strtoul(argv[i + 1], &catch, 10);
+            if (catch != argv[i + i])
+                globalSignIndex = tmp;
+            i++;
+        }
+    }
+}
+
 int search_main(int argc, char **argv)
 {
-    (void)argc;
-    (void)argv;
+    parseArgs(argc, argv);
+    if (isHelpMode != 0)
+    {
+        fprintf(stderr, "%s <options>\n", argv[0]);
+        fprintf(stderr, "--help\n");
+        fprintf(stderr, "--thread -t: スレッド数\n");
+        // 私はオフセットには「-o」オプションを割り当てるべきでないと思います。「-f」オプションを割り当てるべきでしょうか？
+        fprintf(stderr, "--offset -o: オフセット\n");
+        return EXIT_FAILURE;
+    }
 
     FILE *fin = fopen("publicKeys.bin", "rb");
     if (fin == NULL)
@@ -170,10 +214,10 @@ int search_main(int argc, char **argv)
     sha512 = EVP_sha512();
     ripemd160 = EVP_ripemd160();
 
-    pthread_rwlock_init(&globalCounts_rwlock, NULL);
-    pthread_spin_init(&gloablSignIndex_spinlock, PTHREAD_PROCESS_SHARED);
-    pthread_t threads[THREAD_NUM];
-    for (size_t i = 0; i < THREAD_NUM; i++)
+    // pthread_rwlock_init(&globalCounts_rwlock, NULL);
+    pthread_spin_init(&globalSignIndex_spinlock, PTHREAD_PROCESS_SHARED);
+    pthread_t *threads = malloc(threadNum * sizeof(pthread_t));
+    for (size_t i = 0; i < threadNum; i++)
     {
         if (pthread_create(threads + i, NULL, threadFunc, NULL) != 0)
         {
@@ -181,15 +225,21 @@ int search_main(int argc, char **argv)
             return EXIT_FAILURE;
         }
     }
-    for (size_t i = 0; i < THREAD_NUM; i++)
+    for (size_t i = 0; i < threadNum; i++)
     {
         pthread_join(threads[i], NULL);
     }
-    pthread_rwlock_destroy(&globalCounts_rwlock);
+    // pthread_rwlock_destroy(&globalCounts_rwlock);
+    pthread_mutex_destroy(&globalCounts_mutex);
     // pthread_mutex_destroy(&globalSignIndex_mutex);
-    pthread_spin_destroy(&gloablSignIndex_spinlock);
+    pthread_spin_destroy(&globalSignIndex_spinlock);
+    if (!success)
+    {
+        fprintf(stderr, "User cancelled\n");
+    }
     fprintf(stderr, "globalSignIndex : %zu\n", globalSignIndex);
 
+    free(threads);
     free(publicKeys);
     return EXIT_FAILURE;
 }

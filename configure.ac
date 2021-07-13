@@ -43,7 +43,6 @@ AC_CHECK_LIB([xmlrpc_xmlparse], [main], [], [AC_MSG_FAILURE([could not find lib 
 AC_CHECK_LIB([xmlrpc_xmltok], [main], [], [AC_MSG_FAILURE([could not find lib xmlrpc_xmltok])])
 
 # Checks for header files.
-AC_FUNC_ALLOCA
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h libintl.h limits.h locale.h netdb.h netinet/in.h omp.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h syslog.h unistd.h wchar.h])
 
 # Checks for typedefs, structures, and compiler characteristics.

@@ -12,8 +12,8 @@
 size_t header_callback(char *buffer, size_t size, size_t nitems, void *userdata)
 {
     (void) userdata;
-    size_t len = size*nitems;
-    char *head = alloca(len + 1);
+    size_t len = size * nitems;
+    char *head = malloc(len + 1);
     memcpy(head, buffer, len);
     head[len] = '\0';
     /*
@@ -31,7 +31,8 @@ size_t header_callback(char *buffer, size_t size, size_t nitems, void *userdata)
         *crlf = '\0';
     if (strlen(head) != 0)
         printf("%s\n", head);
-    return size * nitems;
+    free(head);
+    return len;
 }
 
 int main(void)
