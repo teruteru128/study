@@ -2,11 +2,11 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <errno.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 /**
@@ -31,13 +31,12 @@ static int set_signal_handler(void)
 
 int main(int argc, char **argv)
 {
-    int rc = 0;
     if (argc != 1)
     {
         fprintf(stderr, "Usage: %s\n", argv[0]);
         return EXIT_FAILURE;
     }
-    rc = set_signal_handler();
+    int rc = set_signal_handler();
     if (rc != EXIT_SUCCESS)
     {
         return EXIT_FAILURE;

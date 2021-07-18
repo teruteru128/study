@@ -31,12 +31,12 @@ int main(int argc, char **argv)
     struct sigaction act[2];
     act[0].sa_handler = sigint_action;
     act[1].sa_handler = sighup_action;
-    if (sigaction(SIGINT, &act[0], NULL) != 0)
+    if (sigaction(SIGINT, act + 0, NULL) != 0)
     {
         perror("sigaction(SIGINT)");
         return EXIT_FAILURE;
     }
-    if (sigaction(SIGHUP, &act[1], NULL) != 0)
+    if (sigaction(SIGHUP, act + 1, NULL) != 0)
     {
         perror("sigaction(SIGINT)");
         return EXIT_FAILURE;

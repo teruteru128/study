@@ -10,9 +10,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
-typedef unsigned char PublicKey[65];
+int is_digit(char c) { return '0' <= c && c <= '9'; }
+int is_alphabet(char c)
+{
+    return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z');
+}
+
+#define MAX (1626185278 + 86400)
+#define PASSWD "Or1a0ZMfDK"
 
 /*
  *
@@ -68,20 +76,28 @@ typedef unsigned char PublicKey[65];
  */
 int main(int argc, const char *argv[])
 {
-    (void)argc;
-    (void)argv;
-    unsigned char pub[130]
-        = "ABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-          "CDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    PublicKey *a = (PublicKey *)pub;
-    for(int i = 0; i < 2; i++)
+
+    char password[10];
+    char c;
+    size_t i = 0;
+    unsigned int t = 1626185278 - 86400;
+    for (; t < MAX; t++)
     {
-        for(int j = 0; j < 65;j++)
+        srand(t);
+        i = 0;
+        while (i < 10)
         {
-            printf("%02x", a[i][j]);
+            c = rand() % 255;
+            if (is_digit(c) || is_alphabet(c))
+            {
+                password[i++] = c;
+            }
         }
-        printf("\n");
+        if (memcmp(PASSWD, password, 10) == 0)
+        {
+            break;
+        }
     }
-    printf("%s, %s, %s\n", PACKAGE, LOCALEDIR, VERSION);
+    printf("%u\n", t);
     return EXIT_SUCCESS;
 }

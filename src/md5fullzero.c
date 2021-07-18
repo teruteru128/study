@@ -34,7 +34,7 @@ void *hash(void *arg)
     const EVP_MD *md5 = EVP_md5();
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
     char str[24] = "";
-    unsigned char buf[16] = "";
+    unsigned char hash[16] = "";
     size_t len = 0;
     size_t cnt = 0;
     size_t cnt_max = 0;
@@ -55,33 +55,33 @@ void *hash(void *arg)
             // len = snprintUInt64(str, 24, cnt);
             EVP_DigestInit(ctx, md5);
             EVP_DigestUpdate(ctx, str, len);
-            EVP_DigestFinal(ctx, buf, NULL);
+            EVP_DigestFinal(ctx, hash, NULL);
             sum = 0;
             for (int i = 0; i < 4; i++)
-                sum |= buf[i];
+                sum |= hash[i];
             if (sum != 0)
                 continue;
 #if 0
       // とりあえずmemcmpの呼び出し回数を256分の1に減らす
-      if (buf[0])
+      if (hash[0])
         continue;
-      if (buf[1])
+      if (hash[1])
         continue;
-      if (buf[2])
+      if (hash[2])
         continue;
-      if (buf[3])
+      if (hash[3])
         continue;
 #endif
 #if 0
-      if (memcmp(buf, target, require_nlz))
+      if (memcmp(hash, target, require_nlz))
         continue;
 #endif
-            nlz = getNLZ(buf, 16);
+            nlz = getNLZ(hash, 16);
             if (nlz < config->require_nlz)
                 continue;
             fprintf(stdout, "found : %zu, ", cnt);
             for (size_t k = 0; k < 16; k++)
-                fprintf(stdout, "%02x", buf[k]);
+                fprintf(stdout, "%02x", hash[k]);
             fputs("\n", stdout);
             pthread_rwlock_wrlock(&config->require_nlz_rwlock);
             if (nlz > config->require_nlz)

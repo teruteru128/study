@@ -35,7 +35,7 @@
 static const EVP_MD *sha512;
 static const EVP_MD *ripemd160;
 
-static size_t globalSignIndex = 0;
+static size_t globalSignIndex = 81213;
 // static pthread_mutex_t globalSignIndex_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_spinlock_t globalSignIndex_spinlock;
 
@@ -81,7 +81,7 @@ void *threadFunc(void *arg)
         }
 
         // スレッドローカルカウンター初期化
-        for (size_t j = 0; j <= 20; j++)
+        for (size_t j = 0; j < 21; j++)
         {
             counts[j] = 0;
         }
@@ -106,6 +106,7 @@ void *threadFunc(void *arg)
             if (nlz >= 4)
             {
                 nlz = getNLZ(hash, 20);
+                // TODO: 表示をメインスレッドで行う。表示に時間を取られたくない
                 fprintf(stdout, "%ld, %ld, %ld\n", nlz, signIndex, j);
                 fflush(stdout);
             }
@@ -163,7 +164,20 @@ static void parseArgs(int argc, char **argv)
         {
             tmp = strtoul(argv[i + 1], &catch, 10);
             if (catch != argv[i + i])
-                threadNum = tmp;
+            {
+                if (tmp == 0)
+                {
+                    long availableProcessors = sysconf(_SC_NPROCESSORS_ONLN);
+                    if (availableProcessors >= 0)
+                    {
+                        threadNum = (size_t)availableProcessors;
+                    }
+                }
+                else if (tmp > 0)
+                {
+                    threadNum = tmp;
+                }
+            }
             i++;
         }
         else if ((strcmp(argv[i], "--offset") == 0
@@ -209,10 +223,19 @@ int search_main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     fclose(fin);
-    signal(SIGINT, &sigint_action);
+    struct sigaction a = { 0 };
+    a.sa_handler = sigint_action;
+    if (sigaction(SIGINT, &a, NULL) != 0)
+    {
+        perror("sigaction(SIGINT)");
+        free(publicKeys);
+        return EXIT_FAILURE;
+    }
 
     sha512 = EVP_sha512();
     ripemd160 = EVP_ripemd160();
+    fprintf(stderr, "Number of threads:%zu\n", threadNum);
+    fprintf(stderr, "Initial offset of signing key:%zu\n", globalSignIndex);
 
     // pthread_rwlock_init(&globalCounts_rwlock, NULL);
     pthread_spin_init(&globalSignIndex_spinlock, PTHREAD_PROCESS_SHARED);
@@ -229,13 +252,16 @@ int search_main(int argc, char **argv)
     {
         pthread_join(threads[i], NULL);
     }
+#ifdef DEBUG
+    fputs("スレッドの終了待ち合わせが完了しました\n", stderr);
+#endif
     // pthread_rwlock_destroy(&globalCounts_rwlock);
     pthread_mutex_destroy(&globalCounts_mutex);
     // pthread_mutex_destroy(&globalSignIndex_mutex);
     pthread_spin_destroy(&globalSignIndex_spinlock);
     if (!success)
     {
-        fprintf(stderr, "User cancelled\n");
+        fputs("User cancelled\n", stderr);
     }
     fprintf(stderr, "globalSignIndex : %zu\n", globalSignIndex);
 
