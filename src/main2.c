@@ -74,30 +74,15 @@ int is_alphabet(char c)
  * @param argv
  * @return int
  */
-int main(int argc, const char *argv[])
+int main(void)
 {
-
-    char password[10];
-    char c;
-    size_t i = 0;
-    unsigned int t = 1626185278 - 86400;
-    for (; t < MAX; t++)
-    {
-        srand(t);
-        i = 0;
-        while (i < 10)
-        {
-            c = rand() % 255;
-            if (is_digit(c) || is_alphabet(c))
-            {
-                password[i++] = c;
-            }
-        }
-        if (memcmp(PASSWD, password, 10) == 0)
-        {
-            break;
-        }
-    }
-    printf("%u\n", t);
+    unsigned char a[8] = { 0x00 };
+    a[7] = 0xf0;
+    unsigned long t = *(unsigned long *)a;
+    printf("%lu, %d, %d\n", t, __builtin_ctzl(t), __builtin_clzl(t));
+    t = htole64(*(unsigned long *)a);
+    printf("%lu, %d, %d\n", t, __builtin_ctzl(t), __builtin_clzl(t));
+    t = htobe64(*(unsigned long *)a);
+    printf("%lu, %d, %d\n", t, __builtin_ctzl(t), __builtin_clzl(t));
     return EXIT_SUCCESS;
 }
