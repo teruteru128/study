@@ -108,7 +108,7 @@ check_symbol_exists(tzset "time.h" HAVE_TZSET)
 check_symbol_exists(pow "math.h" HAVE_POW)
 check_symbol_exists(sqrt "math.h" HAVE_SQRT)
 check_symbol_exists(flsll "string.h" HAVE_FLSLL)
-#check_symbol_exists(__builtin_ffs "stdio.h" HAVE___BUILTIN_CLZLL)
+#check_symbol_exists(__builtin_CLZL "stdio.h" HAVE___BUILTIN_CLZL)
 
 include_directories(${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/libstudy/include ${CMAKE_CURRENT_SOURCE_DIR})
 add_compile_options(-Wall -Wextra -pedantic-errors -Wcast-align -Wcast-qual -Wconversion -Wdisabled-optimization -Wendif-labels -Wfloat-equal -Winit-self -Winline -Wlogical-op -Wmissing-include-dirs -Wpacked -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wswitch-enum -Wunsafe-loop-optimizations -Wvariadic-macros -Wwrite-strings)
