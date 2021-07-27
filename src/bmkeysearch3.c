@@ -35,12 +35,12 @@
 static const EVP_MD *sha512;
 static const EVP_MD *ripemd160;
 
-static size_t globalSignIndex = 81213;
+static size_t globalSignIndex = 0;
 // static pthread_mutex_t globalSignIndex_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_spinlock_t globalSignIndex_spinlock;
 
 // 合計
-size_t globalCounts[21] = { 0 };
+static size_t globalCounts[21] = { 0 };
 // static pthread_rwlock_t globalCounts_rwlock;
 static pthread_mutex_t globalCounts_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -48,9 +48,12 @@ static PublicKey *publicKeys = NULL;
 static int success = 0;
 static int finished = 0;
 
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+
 static size_t threadNum = 15;
 
-void *threadFunc(void *arg)
+static void *threadFunc(void *arg)
 {
     (void)arg;
     // 初期化
@@ -74,17 +77,14 @@ void *threadFunc(void *arg)
         // pthread_mutex_unlock(&globalSignIndex_mutex);
         if (signIndex >= KEY_CACHE_SIZE)
         {
-            EVP_MD_CTX_free(sha512ctxshared);
-            EVP_MD_CTX_free(mdctx);
+            success = 1;
             finished = 1;
-            return NULL;
+            // pthread_cond_broadcast(&cond);
+            break;
         }
 
         // スレッドローカルカウンター初期化
-        for (size_t j = 0; j < 21; j++)
-        {
-            counts[j] = 0;
-        }
+        memset(counts, 0, sizeof(size_t) * 21);
 
         EVP_DigestInit_ex(sha512ctxshared, sha512, NULL);
         EVP_DigestUpdate(sha512ctxshared, publicKeys[signIndex],
@@ -101,8 +101,8 @@ void *threadFunc(void *arg)
             EVP_DigestUpdate(mdctx, hash, 64);
             EVP_DigestFinal(mdctx, hash, &mdlen);
             assert(mdlen == 20);
-            tmp = htole64(*(unsigned long *)hash);
-            nlz = ((tmp == 0) ? 64UL : (size_t)__builtin_ctzl(tmp)) >> 3;
+            tmp = htobe64(*(unsigned long *)hash);
+            nlz = ((tmp == 0) ? 64UL : (size_t)__builtin_clzl(tmp)) >> 3;
             if (nlz >= 4)
             {
                 nlz = getNLZ(hash, 20);
@@ -117,12 +117,12 @@ void *threadFunc(void *arg)
         // スレッドローカルカウンターをグローバルカウンターに適用する
         pthread_mutex_lock(&globalCounts_mutex);
         // pthread_rwlock_wrlock(&globalCounts_rwlock);
-        for (size_t j = 0; j <= 20; j++)
+        for (size_t j = 0; j < 20; j++)
         {
             globalCounts[j] += counts[j];
         }
         // TODO: 表示をメインスレッドで行う。表示に時間を取られたくない
-        for (size_t j = 0; j < 21; j++)
+        for (size_t j = 0; j <= 20; j++)
         {
             if (j != 0)
                 fputs(", ", stderr);
@@ -143,6 +143,7 @@ static void sigint_action(int sig)
     fputs("終了しています。お待ち下さい。。。\n", stderr);
     success = false;
     finished = true;
+    // pthread_cond_broadcast をシグナルハンドラから呼び出してはいけない
 }
 
 static int isHelpMode = 0;
@@ -192,7 +193,7 @@ static void parseArgs(int argc, char **argv)
     }
 }
 
-int search_main(int argc, char **argv)
+static int search_main(int argc, char **argv)
 {
     parseArgs(argc, argv);
     if (isHelpMode != 0)
@@ -204,6 +205,8 @@ int search_main(int argc, char **argv)
         fprintf(stderr, "--offset -o: オフセット\n");
         return EXIT_FAILURE;
     }
+    fprintf(stderr, "Number of threads : %zu\n", threadNum);
+    fprintf(stderr, "Initial offset of signing key : %zu\n", globalSignIndex);
 
     FILE *fin = fopen("publicKeys.bin", "rb");
     if (fin == NULL)
@@ -234,8 +237,6 @@ int search_main(int argc, char **argv)
 
     sha512 = EVP_sha512();
     ripemd160 = EVP_ripemd160();
-    fprintf(stderr, "Number of threads:%zu\n", threadNum);
-    fprintf(stderr, "Initial offset of signing key:%zu\n", globalSignIndex);
 
     // pthread_rwlock_init(&globalCounts_rwlock, NULL);
     pthread_spin_init(&globalSignIndex_spinlock, PTHREAD_PROCESS_SHARED);
@@ -248,18 +249,33 @@ int search_main(int argc, char **argv)
             return EXIT_FAILURE;
         }
     }
+    /*
+    struct timespec spec = { 0 };
+    spec.tv_sec = 1;
+    while (!finished)
+    {
+        pthread_mutex_lock(&mutex);
+        pthread_cond_timedwait(&cond, &mutex, &spec);
+        pthread_mutex_unlock(&mutex);
+    }
+    */
     for (size_t i = 0; i < threadNum; i++)
     {
         pthread_join(threads[i], NULL);
     }
-#ifdef DEBUG
     fputs("スレッドの終了待ち合わせが完了しました\n", stderr);
-#endif
     // pthread_rwlock_destroy(&globalCounts_rwlock);
     pthread_mutex_destroy(&globalCounts_mutex);
     // pthread_mutex_destroy(&globalSignIndex_mutex);
     pthread_spin_destroy(&globalSignIndex_spinlock);
-    if (!success)
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&cond);
+
+    if (success)
+    {
+        //
+    }
+    else
     {
         fputs("User cancelled\n", stderr);
     }
@@ -273,6 +289,7 @@ int search_main(int argc, char **argv)
 /**
  * @brief
  *
+ * @see https://github.com/CouleeApps/git-power
  * @param argc
  * @param argv
  * @return int
