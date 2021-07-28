@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(study VERSION 1.0.2 LANGUAGES C CXX)
 
-include(CTest)
+#include(CTest)
 enable_testing()
 
 find_package(Threads)

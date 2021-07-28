@@ -2,25 +2,36 @@ name: cmake
 
 on: [push]
 
-jobs:
+  # Sample when vcpkg is a submodule of your repository (highly recommended!)
+
+jobs: 
   build:
-    name:
-    runs-on: ubuntu-20.04
+    env:
+      buildDir: '${{ github.workspace }}/build'
     steps:
-      - uses: actions/checkout@v2.3.4
+      # Cache/Restore the vcpkg's build artifacts using a vcpkg.json manifest.
+      - name: Run vcpkg
+        uses: lukka/run-vcpkg@v6
         with:
-          submodules: 'recursive'
-      - name: Install dependents
-        run: |
-          sudo apt install autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64 ninja-build
-      - name: Make dir
-        run: mkdir build
-      - name: Generate configure
-        run: cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -H${{ github.workspace }} -G Ninja
-        working-directory: ./build
-      - name: Make
-        run: ninja -j 0
-        working-directory: ./build
-      - name: output log on fail
-        if: failure()
-        run: cat ${{ github.workspace }}/build/CMakeFiles/CMakeOutput.log
+          # Just install vcpkg for now, do not install any ports in this step yet.
+          setupOnly: true
+          # Location of the vcpkg as submodule of the repository.
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+          # Since the cache must be invalidated when content of the vcpkg.json file changes, let's
+          # compute its hash and append this to the computed cache's key.
+          appendedCacheKey: ${{ hashFiles( '**/vcpkg.json' ) }}
+          vcpkgTriplet: ${{ matrix.triplet }}
+          # Ensure the vcpkg artifacts are cached, they are generated in the 'CMAKE_BINARY_DIR/vcpkg_installed'.
+          additionalCachedPaths: ${{ env.buildDir }}/vcpkg_installed
+      - name: 'Run CMake with Ninja, install dependencies with vcpkg, build with CMake'
+        uses: lukka/run-cmake@v3
+        with:
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          cmakeListsTxtPath: '${{ github.workspace }}/cmakesettings.json/CMakeLists.txt'
+          useVcpkgToolchainFile: true
+          cmakeAppendedArgs: '-GNinja'
+          buildDirectory: ${{ env.buildDir }}
+          # Or build multiple configurations out of a CMakeSettings.json file created with Visual Studio.
+          # cmakeListsOrSettingsJson: CMakeSettingsJson
+          # cmakeSettingsJsonPath: '${{ github.workspace }}/cmakesettings.json/CMakeSettings.json'
+          # configurationRegexFilter: '${{ matrix.configuration }}'

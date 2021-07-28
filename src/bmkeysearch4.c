@@ -30,12 +30,12 @@
 #include <unistd.h>
 
 #define KEY_CACHE_SIZE 67108864UL
-#define BLOCK_SIZE 16
+#define BLOCK_SIZE 4
 
 static const EVP_MD *sha512;
 static const EVP_MD *ripemd160;
 
-static size_t globalSignIndex = 0;
+static size_t globalSignIndex = 9472;
 // static pthread_mutex_t globalSignIndex_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_spinlock_t globalSignIndex_spinlock;
 
@@ -53,13 +53,16 @@ static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 static size_t threadNum = 15;
 
+static size_t attempts = 0;
+static pthread_mutex_t attempts_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 static void *threadFunc(void *arg)
 {
     (void)arg;
     // 初期化
     unsigned char hash[EVP_MAX_MD_SIZE] = "";
-    EVP_MD_CTX *sha512ctxshared[16];
-    for (size_t i = 0; i < 16; i++)
+    EVP_MD_CTX *sha512ctxshared[BLOCK_SIZE];
+    for (size_t i = 0; i < BLOCK_SIZE; i++)
     {
         sha512ctxshared[i] = EVP_MD_CTX_new();
     }
@@ -77,7 +80,7 @@ static void *threadFunc(void *arg)
         // pthread_mutex_lock(&globalSignIndex_mutex);
         pthread_spin_lock(&globalSignIndex_spinlock);
         signIndex = globalSignIndex;
-        globalSignIndex += 16;
+        globalSignIndex += BLOCK_SIZE;
         pthread_spin_unlock(&globalSignIndex_spinlock);
         // pthread_mutex_unlock(&globalSignIndex_mutex);
         if (signIndex >= KEY_CACHE_SIZE)
@@ -91,7 +94,7 @@ static void *threadFunc(void *arg)
         // スレッドローカルカウンター初期化
         memset(counts, 0, sizeof(size_t) * 21);
 
-        for (size_t i = 0; i < 16; i++)
+        for (size_t i = 0; i < BLOCK_SIZE; i++)
         {
             EVP_DigestInit_ex(sha512ctxshared[i], sha512, NULL);
             EVP_DigestUpdate(sha512ctxshared[i], publicKeys[signIndex + i],
@@ -99,7 +102,7 @@ static void *threadFunc(void *arg)
         }
         for (size_t j = 0; j < KEY_CACHE_SIZE; j++)
         {
-            for (size_t i = 0; i < 16; i++)
+            for (size_t i = 0; i < BLOCK_SIZE; i++)
             {
                 EVP_MD_CTX_copy_ex(mdctx, sha512ctxshared[i]);
                 EVP_DigestUpdate(mdctx, publicKeys[j], PUBLIC_KEY_LENGTH);
@@ -133,6 +136,7 @@ static void *threadFunc(void *arg)
             globalCounts[j] += counts[j];
         }
         // TODO: 表示をメインスレッドで行う。表示に時間を取られたくない
+        /*
         for (size_t j = 0; j <= 20; j++)
         {
             if (j != 0)
@@ -140,19 +144,24 @@ static void *threadFunc(void *arg)
             fprintf(stderr, "%zu : %zu", j, globalCounts[j]);
         }
         fputs("\n", stderr);
+        */
         // pthread_rwlock_unlock(&globalCounts_rwlock);
         pthread_mutex_unlock(&globalCounts_mutex);
+        pthread_mutex_lock(&attempts_mutex);
+        attempts += KEY_CACHE_SIZE * BLOCK_SIZE;
+        pthread_mutex_unlock(&attempts_mutex);
     }
-    for (size_t i = 0; i < 16; i++)
+    for (size_t i = 0; i < BLOCK_SIZE; i++)
         EVP_MD_CTX_free(sha512ctxshared[i]);
     EVP_MD_CTX_free(mdctx);
     return NULL;
 }
 
-static void sigint_action(int sig)
+static void sigint_action(int sig, siginfo_t *info, void *ctx)
 {
     (void)sig;
-    fputs("終了しています。お待ち下さい。。。\n", stderr);
+    (void)info;
+    (void)ctx;
     success = false;
     finished = true;
     // pthread_cond_broadcast をシグナルハンドラから呼び出してはいけない
@@ -238,14 +247,12 @@ static int search_main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     fclose(fin);
-    struct sigaction a = { 0 };
-    a.sa_handler = sigint_action;
-    if (sigaction(SIGINT, &a, NULL) != 0)
-    {
-        perror("sigaction(SIGINT)");
-        free(publicKeys);
-        return EXIT_FAILURE;
-    }
+    struct sigaction new_action = { 0 }, old_action;
+    new_action.sa_flags = SA_SIGINFO;
+    new_action.sa_sigaction = sigint_action;
+    sigaction(SIGINT, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+        sigaction(SIGINT, &new_action, NULL);
 
     sha512 = EVP_sha512();
     ripemd160 = EVP_ripemd160();
@@ -253,6 +260,8 @@ static int search_main(int argc, char **argv)
     // pthread_rwlock_init(&globalCounts_rwlock, NULL);
     pthread_spin_init(&globalSignIndex_spinlock, PTHREAD_PROCESS_SHARED);
     pthread_t *threads = malloc(threadNum * sizeof(pthread_t));
+    struct timespec start;
+    clock_gettime(CLOCK_REALTIME, &start);
     for (size_t i = 0; i < threadNum; i++)
     {
         if (pthread_create(threads + i, NULL, threadFunc, NULL) != 0)
@@ -261,16 +270,22 @@ static int search_main(int argc, char **argv)
             return EXIT_FAILURE;
         }
     }
-    /*
+    size_t a = 0;
     struct timespec spec = { 0 };
     spec.tv_sec = 1;
+    struct timespec end;
     while (!finished)
     {
         pthread_mutex_lock(&mutex);
         pthread_cond_timedwait(&cond, &mutex, &spec);
         pthread_mutex_unlock(&mutex);
+        pthread_mutex_lock(&attempts_mutex);
+        a = attempts;
+        pthread_mutex_unlock(&attempts_mutex);
+        clock_gettime(CLOCK_REALTIME, &end);
+        fprintf(stderr, "\rsearched:%lu keys %fkeys/s", a,
+                (double)a / difftime(end.tv_sec, start.tv_sec));
     }
-    */
     for (size_t i = 0; i < threadNum; i++)
     {
         pthread_join(threads[i], NULL);
@@ -297,7 +312,7 @@ static int search_main(int argc, char **argv)
 
     free(threads);
     free(publicKeys);
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
 
 /**
