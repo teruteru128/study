@@ -35,26 +35,23 @@
 static const EVP_MD *sha512;
 static const EVP_MD *ripemd160;
 
-static size_t globalSignIndex = 9472;
+static size_t globalSignIndex = 9952;
 // static pthread_mutex_t globalSignIndex_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_spinlock_t globalSignIndex_spinlock;
 
 // 合計
 static size_t globalCounts[21] = { 0 };
 // static pthread_rwlock_t globalCounts_rwlock;
-static pthread_mutex_t globalCounts_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 static PublicKey *publicKeys = NULL;
 static int success = 0;
 static int finished = 0;
 
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-
 static size_t threadNum = 15;
 
 static size_t attempts = 0;
-static pthread_mutex_t attempts_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void *threadFunc(void *arg)
 {
@@ -120,6 +117,7 @@ static void *threadFunc(void *arg)
                     nlz = getNLZ(hash, 20);
                     // TODO:
                     // 表示をメインスレッドで行う。表示に時間を取られたくない
+                    // 結果の格納領域をどういうデータ構造にするか？
                     fprintf(stdout, "%ld, %ld, %ld\n", nlz, signIndex + i, j);
                     fflush(stdout);
                 }
@@ -129,27 +127,16 @@ static void *threadFunc(void *arg)
         // EVP_MD_CTX_reset(sha512ctxshared);
 
         // スレッドローカルカウンターをグローバルカウンターに適用する
-        pthread_mutex_lock(&globalCounts_mutex);
+        pthread_mutex_lock(&mutex);
         // pthread_rwlock_wrlock(&globalCounts_rwlock);
         for (size_t j = 0; j < 20; j++)
         {
             globalCounts[j] += counts[j];
         }
-        // TODO: 表示をメインスレッドで行う。表示に時間を取られたくない
-        /*
-        for (size_t j = 0; j <= 20; j++)
-        {
-            if (j != 0)
-                fputs(", ", stderr);
-            fprintf(stderr, "%zu : %zu", j, globalCounts[j]);
-        }
-        fputs("\n", stderr);
-        */
-        // pthread_rwlock_unlock(&globalCounts_rwlock);
-        pthread_mutex_unlock(&globalCounts_mutex);
-        pthread_mutex_lock(&attempts_mutex);
         attempts += KEY_CACHE_SIZE * BLOCK_SIZE;
-        pthread_mutex_unlock(&attempts_mutex);
+        pthread_cond_broadcast(&cond);
+        // pthread_rwlock_unlock(&globalCounts_rwlock);
+        pthread_mutex_unlock(&mutex);
     }
     for (size_t i = 0; i < BLOCK_SIZE; i++)
         EVP_MD_CTX_free(sha512ctxshared[i]);
@@ -271,19 +258,38 @@ static int search_main(int argc, char **argv)
         }
     }
     size_t a = 0;
-    struct timespec spec = { 0 };
-    spec.tv_sec = 1;
+    struct timespec now = { 0 };
+    struct timespec abstime = { 0 };
+    abstime.tv_sec = 1;
     struct timespec end;
+    int retcode = 0;
+
+    size_t localCounts[21] = { 0 };
     while (!finished)
     {
         pthread_mutex_lock(&mutex);
-        pthread_cond_timedwait(&cond, &mutex, &spec);
+        clock_gettime(CLOCK_REALTIME, &now);
+        abstime.tv_sec = now.tv_sec + 1;
+        abstime.tv_nsec = now.tv_nsec;
+        retcode = pthread_cond_timedwait(&cond, &mutex, &abstime);
+        if (retcode != ETIMEDOUT)
+        {
+            for (size_t j = 0; j <= 20; j++)
+            {
+                localCounts[j] = globalCounts[j];
+            }
+            fputs("\n", stderr);
+            a = attempts;
+        }
         pthread_mutex_unlock(&mutex);
-        pthread_mutex_lock(&attempts_mutex);
-        a = attempts;
-        pthread_mutex_unlock(&attempts_mutex);
+        fputs("searched:", stderr);
+        fprintf(stderr, "%lu keys", a);
+        for (size_t j = 0; j < 21; j++)
+        {
+            fprintf(stderr, ", %zu : %zu", j, localCounts[j]);
+        }
         clock_gettime(CLOCK_REALTIME, &end);
-        fprintf(stderr, "\rsearched:%lu keys %fkeys/s", a,
+        fprintf(stderr, ", %fkeys/s\r",
                 (double)a / difftime(end.tv_sec, start.tv_sec));
     }
     for (size_t i = 0; i < threadNum; i++)
@@ -294,11 +300,10 @@ static int search_main(int argc, char **argv)
     fputs("スレッドの終了待ち合わせが完了しました\n", stderr);
 #endif
     // pthread_rwlock_destroy(&globalCounts_rwlock);
-    pthread_mutex_destroy(&globalCounts_mutex);
-    // pthread_mutex_destroy(&globalSignIndex_mutex);
-    pthread_spin_destroy(&globalSignIndex_spinlock);
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&cond);
+    // pthread_mutex_destroy(&globalSignIndex_mutex);
+    pthread_spin_destroy(&globalSignIndex_spinlock);
 
     if (success)
     {
