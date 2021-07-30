@@ -13,20 +13,12 @@
 #define _(str) gettext(str)
 #include "bouyomi.h"
 #include <charset-convert.h>
-#include <err.h>
-#include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
-#include <locale.h>
 #include <print_addrinfo.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h> //atoi(), exit(), EXIT_FAILURE, EXIT_SUCCESS
 #include <string.h> //memset(), strcmp()
-#include <sys/types.h>
-#ifdef HAVE_WCHAR_H
-#include <wchar.h>
-#endif
 
 #ifdef _WIN32
 #include <windows.h>
