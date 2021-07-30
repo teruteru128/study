@@ -7,7 +7,7 @@
 
 /**
  * @brief see https://centos.rip/
- *
+ * 複数のtimerfdをepoll ファイルディスクリプタで監視することも出来るんですねぇ
  */
 int CentOS_rip()
 {

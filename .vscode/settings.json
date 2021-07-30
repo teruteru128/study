@@ -130,6 +130,7 @@
         "xmlrpc.h": "c",
         "base.h": "c",
         "client.h": "c",
-        "c_util.h": "c"
+        "c_util.h": "c",
+        "yattaze.h": "c"
     }
 }

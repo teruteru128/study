@@ -35,7 +35,7 @@
 static const EVP_MD *sha512;
 static const EVP_MD *ripemd160;
 
-static size_t globalSignIndex = 9952;
+static size_t globalSignIndex = 28620;
 // static pthread_mutex_t globalSignIndex_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_spinlock_t globalSignIndex_spinlock;
 
@@ -49,7 +49,7 @@ static PublicKey *publicKeys = NULL;
 static int success = 0;
 static int finished = 0;
 
-static size_t threadNum = 15;
+static size_t threadNum = 1;
 
 static size_t attempts = 0;
 
@@ -278,7 +278,6 @@ static int search_main(int argc, char **argv)
             {
                 localCounts[j] = globalCounts[j];
             }
-            fputs("\n", stderr);
             a = attempts;
         }
         pthread_mutex_unlock(&mutex);
@@ -286,7 +285,7 @@ static int search_main(int argc, char **argv)
         fprintf(stderr, "%lu keys", a);
         for (size_t j = 0; j < 21; j++)
         {
-            fprintf(stderr, ", %zu : %zu", j, localCounts[j]);
+            fprintf(stderr, ", %zu: %zu", j, localCounts[j]);
         }
         clock_gettime(CLOCK_REALTIME, &end);
         fprintf(stderr, ", %fkeys/s\r",

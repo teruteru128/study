@@ -2,15 +2,16 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include "server.h"
+#include <netdb.h>
+#include <poll.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <signal.h>
-#include <poll.h>
 #include <sys/epoll.h>
-#include "server.h"
+#include <unistd.h>
+
 #define MAX_BUF_SIZE 1024
 #define MAX_EVENTS 16
 
@@ -18,14 +19,16 @@
  * @brief listening socket
  * リッスンソケットはどこで保持すべきなんだろうか？
  */
-//static int listensocket = -1;
+static int listensocket = -1;
+
+// finish flag
 static int running = 1;
 
 /*
  * listen host name
  * listen family
  * listen port
- * 
+ *
  * killsignal : sigint
  * reloadsignal : sighup
  */
@@ -94,13 +97,16 @@ static void echo_back(int sock)
     ssize_t len;
     int flg = 0;
     // TODO: epollに書き換え
-    struct pollfd fds = {sock, POLLIN | POLLERR, 0};
-    struct timespec spec = {3, 0};
+    struct pollfd fds = { 0 };
+    fds.fd = sock;
+    fds.events = POLLIN;
+    fds.revents = 0;
+    struct timespec spec = { 3, 0 };
     sigset_t sigmask;
     sigemptyset(&sigmask);
     int selret = 0;
 
-    for (; running;)
+    while (running)
     {
         memset(buf1, 0, MAX_BUF_SIZE);
         len = recv(sock, buf1, sizeof(buf1), 0);
@@ -142,10 +148,7 @@ static void echo_back(int sock)
     }
 }
 
-static void do_concrete_service(int sock)
-{
-    echo_back(sock);
-}
+static void do_concrete_service(int sock) { echo_back(sock); }
 
 void *do_service(void *arg)
 {
@@ -155,10 +158,8 @@ void *do_service(void *arg)
     struct sockaddr_storage from_sock_addr;
     int conn_sock = -1;
     socklen_t addr_len = sizeof(from_sock_addr);
-    struct pollfd fds = {listen_sock, POLLIN | POLLERR, 0};
-    struct epoll_event ev, events[MAX_EVENTS];
-    int epollfd;
-    epollfd = epoll_create1(0);
+    struct epoll_event ev = { 0 }, events[MAX_EVENTS];
+    int epollfd = epoll_create1(0);
     if (epollfd == -1)
     {
         perror("epoll_create1");
@@ -171,16 +172,16 @@ void *do_service(void *arg)
         perror("epoll_ctl: listen_sock");
         exit(EXIT_FAILURE);
     }
-    struct timespec spec = {3, 0};
+    struct timespec spec = { 3, 0 };
 
     sigset_t sigmask;
     sigfillset(&sigmask);
 
     int selret = 0;
     int nfds, n;
-    for (;;)
+    while (running)
     {
-        nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1);
+        nfds = epoll_pwait(epollfd, events, MAX_EVENTS, -1, NULL);
         if (nfds == -1)
         {
             perror("epoll_wait");
@@ -190,17 +191,24 @@ void *do_service(void *arg)
         {
             if (events[n].data.fd == listen_sock)
             {
-                conn_sock = accept(listen_sock, (struct sockaddr *)&from_sock_addr, &addr_len);
+                conn_sock
+                    = accept(listen_sock, (struct sockaddr *)&from_sock_addr,
+                             &addr_len);
                 if (conn_sock == -1)
                 {
                     perror("accept");
                     exit(EXIT_FAILURE);
                 }
-                //setnonblocking(conn_sock);
+                getnameinfo((struct sockaddr *)&from_sock_addr, addr_len, hbuf,
+                            sizeof(hbuf), sbuf, sizeof(sbuf),
+                            NI_NUMERICHOST | NI_NUMERICSERV);
+
+                fprintf(stderr, "port is %s\n", sbuf);
+                fprintf(stderr, "host is %s\n", hbuf);
+                // setnonblocking(conn_sock);
                 ev.events = EPOLLIN | EPOLLET;
                 ev.data.fd = conn_sock;
-                if (epoll_ctl(epollfd, EPOLL_CTL_ADD, conn_sock,
-                              &ev) == -1)
+                if (epoll_ctl(epollfd, EPOLL_CTL_ADD, conn_sock, &ev) == -1)
                 {
                     perror("epoll_ctl: conn_sock");
                     exit(EXIT_FAILURE);
@@ -208,10 +216,14 @@ void *do_service(void *arg)
             }
             else
             {
-                //do_use_fd(events[n].data.fd);
+                // do_use_fd(events[n].data.fd);
             }
         }
     }
+    struct pollfd fds = { 0 };
+    fds.fd = listen_sock;
+    fds.events = POLLIN;
+    fds.revents = 0;
     for (;;)
     {
         selret = ppoll(&fds, 1, &spec, &sigmask);
@@ -231,9 +243,13 @@ void *do_service(void *arg)
             close(listen_sock);
             return NULL;
         }
-        if ((conn_sock = accept(listen_sock, (struct sockaddr *)&from_sock_addr, &addr_len)) != -1)
+        if ((conn_sock = accept(listen_sock,
+                                (struct sockaddr *)&from_sock_addr, &addr_len))
+            != -1)
         {
-            getnameinfo((struct sockaddr *)&from_sock_addr, addr_len, hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), NI_NUMERICHOST | NI_NUMERICSERV);
+            getnameinfo((struct sockaddr *)&from_sock_addr, addr_len, hbuf,
+                        sizeof(hbuf), sbuf, sizeof(sbuf),
+                        NI_NUMERICHOST | NI_NUMERICSERV);
 
             fprintf(stderr, "port is %s\n", sbuf);
             fprintf(stderr, "host is %s\n", hbuf);
@@ -255,7 +271,4 @@ void *do_service(void *arg)
 /**
  * TODO: グローバル変数をフラグにして終了
  */
-void close_server()
-{
-    running = 0;
-}
+void close_server() { running = 0; }

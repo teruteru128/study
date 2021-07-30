@@ -30,7 +30,7 @@ int main(int argc, char const *argv[])
         if (ret == 0)
             printf("! %3d %s\n", i, buf);
         else
-        printf("? %3d %d, %s\n", i, ret, buf);
+            printf("? %3d %d, %s\n", i, ret, buf);
 #else
         ret = strerror_r(i, buf, BUFSIZ);
         if (ret == buf)

@@ -6,30 +6,31 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <stddef.h>
 #include "gettext.h"
-#define _(str) gettext(str)
+#include <libintl.h>
 #include <locale.h>
+#include <stddef.h>
+#define _(str) gettext(str)
 #include "bouyomi.h"
-#include <stdio.h>
-#include <stdint.h>
+#include <charset-convert.h>
+#include <err.h>
+#include <errno.h>
 #include <inttypes.h>
-#include <sys/types.h>
-#include <stdlib.h> //atoi(), exit(), EXIT_FAILURE, EXIT_SUCCESS
-#include <string.h> //memset(), strcmp()
 #include <limits.h>
 #include <locale.h>
+#include <print_addrinfo.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h> //atoi(), exit(), EXIT_FAILURE, EXIT_SUCCESS
+#include <string.h> //memset(), strcmp()
+#include <sys/types.h>
 #ifdef HAVE_WCHAR_H
 #include <wchar.h>
 #endif
-#include <errno.h>
-#include <err.h>
-#include <charset-convert.h>
-#include <print_addrinfo.h>
 
 #ifdef _WIN32
-#include <winsock2.h>
 #include <windows.h>
+#include <winsock2.h>
 #else
 #include <iconv.h>
 #endif
@@ -51,9 +52,11 @@
 #define YATTAZE "やったぜ。"
 #define BOUYOMI_HEADER_SIZE 15
 
-void encode_header_in_detail(unsigned char *header, short command, short speed, short tone, short volume, short voice, char encode, int length)
+void encode_talk_header1(unsigned char *header, short speed,
+                    short tone, short volume, short voice, char encode,
+                    int length)
 {
-    *((short *)(header + 0)) = (short)htole16((unsigned short)command);
+    *((short *)(header + 0)) = (short)htole16((unsigned short)0x0001);
     *((short *)(header + 2)) = (short)htole16((unsigned short)speed);
     *((short *)(header + 4)) = (short)htole16((unsigned short)tone);
     *((short *)(header + 6)) = (short)htole16((unsigned short)volume);
@@ -62,14 +65,42 @@ void encode_header_in_detail(unsigned char *header, short command, short speed, 
     *((int *)(header + 11)) = (int)htole32((unsigned int)length);
 }
 
-void encode_header(unsigned char *header, char encode, int length)
+void encode_talk_header(unsigned char *header, char encode, int length)
 {
-    encode_header_in_detail(header, 1, -1, -1, -1, 0, encode, length);
+    encode_talk_header1(header, -1, -1, -1, 0, 2, length);
+}
+
+void parsearg(struct args *args, int argc, char *argv[])
+{
+
+    for (int i = 1; i < argc; i++)
+    {
+        if ((strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--host") == 0)
+            && (i + 1) < argc)
+        {
+            strncpy(args->servHost, argv[i + 1], NI_MAXHOST - 1);
+            i++;
+            continue;
+        }
+        if ((strcmp(argv[i], "-p") == 0 || strcmp(argv[i], "--port") == 0)
+            && (i + 1) < argc)
+        {
+            strncpy(args->servPort, argv[i + 1], NI_MAXSERV - 1);
+            i++;
+            continue;
+        }
+        if ((strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--message") == 0)
+            && (i + 1) < argc)
+        {
+            i++;
+            continue;
+        }
+    }
 }
 
 /**
- * @brief 
- * 
+ * @brief
+ *
  * 1. コマンドライン引数解析
  * 2. 読み上げ文書をコマンドライン引数もしくは標準入力からメモリへ展開
  * 2. 読み上げ文書文字コード変換
@@ -90,13 +121,13 @@ void encode_header(unsigned char *header, char encode, int length)
  *   デフォルト 50001
  * charset
  * proxyは外部で対処 torsocksとか
- * 
+ *
  * メッセージが指定されていないときはメッセージを指定して終了？
  * もしくは標準入力で入力できるようにする？
  *
  * https://github.com/torproject/tor/blob/03867b3dd71f765e5adb620095692cb41798c273/src/app/config/config.c#L2537
- * parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int ignore_errors)
- * 引数を何も指定しないときはヘルプを表示して終了？
+ * parsed_cmdline_t* config_parse_commandline(int argc, char **argv, int
+ * ignore_errors) 引数を何も指定しないときはヘルプを表示して終了？
  * --command
  * --speed
  * --tone
@@ -112,6 +143,18 @@ void encode_header(unsigned char *header, char encode, int length)
  * bouyomic *bouyomi_client_new();
  *
  * ログレベルはグローバル領域においておかないと使いづらくないか？
+ * 各種コマンド
+ * Talk:0x0001
+ * Pause:0x0010
+ * Resume:0x0020
+ * Skip:0x0030
+ * GetPause:0x0110
+ * GetNowPlaying:0x0120
+ * GetTaskCount:0x0130
+ * void Talk(speed, tone, volume, voice, encode, length, message);
+ * unsigned char GetPause();
+ * unsigned char GetNowPlaying();
+ * unsigned int GetTaskCount();
  */
 int main(int argc, char *argv[])
 {
@@ -130,28 +173,8 @@ int main(int argc, char *argv[])
     textdomain(PACKAGE);
 
     // コマンドライン引数をパースする
-    struct args args = {0, 0, DEFAULT_SERV_ADDRESS_2, DEFAULT_PORT_STR};
-
-    for (int i = 1; i < argc; i++)
-    {
-        if ((strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--host") == 0) && (i + 1) < argc)
-        {
-            strncpy(args.servHost, argv[i + 1], NI_MAXHOST - 1);
-            i++;
-            continue;
-        }
-        if ((strcmp(argv[i], "-p") == 0 || strcmp(argv[i], "--port") == 0) && (i + 1) < argc)
-        {
-            strncpy(args.servPort, argv[i + 1], NI_MAXSERV - 1);
-            i++;
-            continue;
-        }
-        if ((strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--message") == 0) && (i + 1) < argc)
-        {
-            i++;
-            continue;
-        }
-    }
+    struct args args = { 0, 0, DEFAULT_SERV_ADDRESS_2, DEFAULT_PORT_STR };
+    parsearg(&args, argc, argv);
 
     // 読み上げメッセージを読み込む
     // 文字コード変換前読み上げ文書
@@ -197,7 +220,8 @@ int main(int argc, char *argv[])
             reading_message_before_encode = realloctmp;
         }
         // 連結
-        strncat(reading_message_before_encode + strlength, buf, capacity - (strlength + 1));
+        strncat(reading_message_before_encode + strlength, buf,
+                capacity - (strlength + 1));
         // 読み込み済み文字列長
         strlength += len;
     }
@@ -208,20 +232,6 @@ int main(int argc, char *argv[])
 
         // デフォルトのメッセージを読ませる
         len = strlen(YATTAZE);
-#if 0
-        // strlength == 0 をチェック済みなんだから足さなくてもいいんじゃないかな
-        size_t reqlen = /* strlength + */ len + 1;
-        if (reqlen > capacity)
-        {
-            // デフォルトのキャパシティが8192なので十中八九デッドコード
-            realloctmp = realloc(reading_message_before_encode, reqlen);
-            if (!realloctmp)
-            {
-                exit(EXIT_FAILURE);
-            }
-            reading_message_before_encode = realloctmp;
-        }
-#endif
         strlength += len;
         strncat(reading_message_before_encode, YATTAZE, capacity);
     }
@@ -256,12 +266,14 @@ int main(int argc, char *argv[])
         break;
     case UNICODE:
         //  文字コードを変換してから代入
-        encode_utf8_2_unicode(&reading_message_after_encode, reading_message_before_encode);
+        encode_utf8_2_unicode(&reading_message_after_encode,
+                              reading_message_before_encode);
         encode = 1;
         break;
     case SHIFT_JIS:
         //  文字コードを変換してから代入
-        encode_utf8_2_sjis(&reading_message_after_encode, reading_message_before_encode);
+        encode_utf8_2_sjis(&reading_message_after_encode,
+                           reading_message_before_encode);
         encode = 2;
         break;
     default:
@@ -281,12 +293,11 @@ int main(int argc, char *argv[])
     size_t length = strlen(reading_message_after_encode);
 
     // ヘッダーをエンコード
-    // なぜhtonsなしで読み上げできるのか謎
-    // 棒読みちゃんはリトルエンディアン指定だそうです
+    // なぜhtonsなしで読み上げできるのか謎->棒読みちゃんはリトルエンディアン指定だそうです
     // c#サンプルでBinaryWriterを使ってたから
     // 本体でもBinaryReader使ってるんじゃないんですか？
     // 知らんけど
-    // ヘッダー長が8の倍数じゃないの~~つらい~~どうなんですかね？
+    // ヘッダー長が8の倍数じゃないのどうなんですかね？
     // アライメントされてないのが辛いんだよ
 
     unsigned char header[BOUYOMI_HEADER_SIZE];
@@ -298,17 +309,18 @@ int main(int argc, char *argv[])
         fputs("読み上げ文書が長すぎます。\n", stderr);
         return EXIT_FAILURE;
     }
-    encode_header(header, encode, (int)length);
+    encode_talk_header(header, encode, (int)length);
 
     // 棒読みちゃんサーバーに接続して送信
     // ホストとサービスを変換して接続
-    struct addrinfo hints = {0, 0, 0, 0, 0, NULL, NULL, NULL};
+    struct addrinfo hints = { 0 };
     struct addrinfo *res = NULL;
     hints.ai_socktype = SOCK_STREAM;
     rc = getaddrinfo(args.servHost, args.servPort, &hints, &res);
     if (rc != 0)
     {
-        fprintf(stderr, "getaddrinfo : [%s]:%s %s\n", args.servHost, args.servPort, gai_strerror(rc));
+        fprintf(stderr, "getaddrinfo : [%s]:%s %s\n", args.servHost,
+                args.servPort, gai_strerror(rc));
         return rc;
     }
 
@@ -316,7 +328,8 @@ int main(int argc, char *argv[])
     int sock = 0;
     for (adrinf = res; adrinf != NULL; adrinf = adrinf->ai_next)
     {
-        sock = socket(adrinf->ai_family, adrinf->ai_socktype, adrinf->ai_protocol);
+        sock = socket(adrinf->ai_family, adrinf->ai_socktype,
+                      adrinf->ai_protocol);
         if (sock < 0)
         {
             perror("socket()");
