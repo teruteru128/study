@@ -62,6 +62,7 @@
  * Pause:0x0010
  * Resume:0x0020
  * Skip:0x0030
+ * Clear:0x0040
  * GetPause:0x0110
  * GetNowPlaying:0x0120
  * GetTaskCount:0x0130
@@ -70,19 +71,15 @@
  * unsigned char GetNowPlaying();
  * unsigned int GetTaskCount();
  *
+ * TODO: bouyomi コマンドのサブコマンドとして各種コマンドを実装する
+ *
  * @param argc
  * @param argv
  * @return int
  */
 int main(int argc, char *argv[])
 {
-    struct addrinfo hints = { 0 };
-    struct addrinfo *res = NULL;
-    int sock;
-
     short speed = -1, tone = -1, volume = -1, voice = 0;
-    unsigned char header[15];
-    size_t len;
     const char *msg;
 
     //コマンドライン引数処理
@@ -108,8 +105,9 @@ int main(int argc, char *argv[])
                argv[0]);
         return -1;
     }
-    len = strlen(msg);
+    size_t len = strlen(msg);
 
+    unsigned char header[15];
     //送信するデータの生成(文字列を除いた先頭の部分)
     *((short *)(header + 0)) = (short)htole16((unsigned short)0x0001);
     *((short *)(header + 2)) = (short)htole16((unsigned short)speed);
@@ -122,10 +120,13 @@ int main(int argc, char *argv[])
     char host[NI_MAXHOST] = "192.168.12.5";
     char port[NI_MAXSERV] = "50001";
 
+    struct addrinfo hints = { 0 };
+    struct addrinfo *res = NULL;
     hints.ai_socktype = SOCK_STREAM;
 
     getaddrinfo(host, port, &hints, &res);
-    sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+
+    int sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     connect(sock, res->ai_addr, res->ai_addrlen);
     freeaddrinfo(res);
 
