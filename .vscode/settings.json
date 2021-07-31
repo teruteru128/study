@@ -131,6 +131,7 @@
         "base.h": "c",
         "client.h": "c",
         "c_util.h": "c",
-        "yattaze.h": "c"
+        "yattaze.h": "c",
+        "errno.h": "c"
     }
 }

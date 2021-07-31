@@ -4,6 +4,7 @@
  * 前前回: https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
  */
 
+#include <errno.h>
 #include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +12,41 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+int sendTalk(char *name, char *service, short speed, short tone, short volume,
+             short voice, char code, size_t len, char *msg)
+{
+    if (name == NULL || service == NULL || msg == NULL)
+    {
+        errno = EFAULT;
+        return -1;
+    }
+    unsigned char header[15];
+    //送信するデータの生成(文字列を除いた先頭の部分)
+    *((short *)(header + 0)) = (short)htole16((unsigned short)0x0001);
+    *((short *)(header + 2)) = (short)htole16((unsigned short)speed);
+    *((short *)(header + 4)) = (short)htole16((unsigned short)tone);
+    *((short *)(header + 6)) = (short)htole16((unsigned short)volume);
+    *((short *)(header + 8)) = (short)htole16((unsigned short)voice);
+    *((char *)(header + 10)) = code;
+    *((int *)(header + 11)) = (int)htole32((unsigned int)len);
+
+    struct addrinfo hints = { 0 };
+    struct addrinfo *res = NULL;
+    hints.ai_socktype = SOCK_STREAM;
+
+    getaddrinfo(name, service, &hints, &res);
+
+    int sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    connect(sock, res->ai_addr, res->ai_addrlen);
+    freeaddrinfo(res);
+
+    send(sock, header, 15, 0);
+    send(sock, msg, len, 0);
+
+    close(sock);
+    return 0;
+}
 
 /**
  * @brief
@@ -80,23 +116,23 @@
 int main(int argc, char *argv[])
 {
     short speed = -1, tone = -1, volume = -1, voice = 0;
-    const char *msg;
+    char *msg;
 
     //コマンドライン引数処理
     switch (argc)
     {
     case 1:
-        msg = "テストでーす";
+        msg = strdup("テストでーす");
         break;
     case 2:
         msg = argv[1];
         break;
     case 6:
-        speed = atoi(argv[1]);
-        tone = atoi(argv[2]);
-        volume = atoi(argv[3]);
-        voice = atoi(argv[4]);
-        msg = argv[5];
+        speed = (short)atoi(argv[1]);
+        tone = (short)atoi(argv[2]);
+        volume = (short)atoi(argv[3]);
+        voice = (short)atoi(argv[4]);
+        msg = strdup(argv[5]);
         break;
     default:
         printf("使用法1>%s 文章\n", argv[0]);
@@ -107,33 +143,18 @@ int main(int argc, char *argv[])
     }
     size_t len = strlen(msg);
 
-    unsigned char header[15];
-    //送信するデータの生成(文字列を除いた先頭の部分)
-    *((short *)(header + 0)) = (short)htole16((unsigned short)0x0001);
-    *((short *)(header + 2)) = (short)htole16((unsigned short)speed);
-    *((short *)(header + 4)) = (short)htole16((unsigned short)tone);
-    *((short *)(header + 6)) = (short)htole16((unsigned short)volume);
-    *((short *)(header + 8)) = (short)htole16((unsigned short)voice);
-    *((char *)(header + 10)) = 0;
-    *((int *)(header + 11)) = (int)htole32((unsigned int)len);
+    char name[NI_MAXHOST] = "192.168.12.5";
+    char service[NI_MAXSERV] = "50001";
 
-    char host[NI_MAXHOST] = "192.168.12.5";
-    char port[NI_MAXSERV] = "50001";
+    if (sendTalk(name, service, speed, tone, volume, voice, 0, len, msg)
+        != 0)
+    {
+        free(msg);
+        msg = NULL;
+        return EXIT_FAILURE;
+    }
+    free(msg);
+    msg = NULL;
 
-    struct addrinfo hints = { 0 };
-    struct addrinfo *res = NULL;
-    hints.ai_socktype = SOCK_STREAM;
-
-    getaddrinfo(host, port, &hints, &res);
-
-    int sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-    connect(sock, res->ai_addr, res->ai_addrlen);
-    freeaddrinfo(res);
-
-    send(sock, header, 15, 0);
-    send(sock, msg, len, 0);
-
-    close(sock);
-
-    return 1;
+    return EXIT_SUCCESS;
 }
