@@ -3,7 +3,6 @@ src/FizzBuzz.c
 src/Nabeatsu.c
 src/bmkeysearch.c
 src/bmkeysearch2.c
-src/bouyomi.c
 src/cp2peq.c
 src/eckeygentest.c
 src/encodersa.c

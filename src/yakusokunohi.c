@@ -12,11 +12,11 @@
 int yakusokunohi()
 {
     struct tm countDownTM = { 0 };
-    countDownTM.tm_sec = 0;
-    countDownTM.tm_min = 0;
-    countDownTM.tm_hour = 0;
-    countDownTM.tm_mday = 31;
-    countDownTM.tm_mon = 11;
+    countDownTM.tm_sec = 22;
+    countDownTM.tm_min = 14;
+    countDownTM.tm_hour = 7;
+    countDownTM.tm_mday = 16;
+    countDownTM.tm_mon = 7;
     countDownTM.tm_year = 2021 - 1900;
     countDownTM.tm_wday = 0;
     countDownTM.tm_yday = 0;
@@ -63,9 +63,9 @@ int yakusokunohi()
     int ret = 0;
     do
     {
-        days = secs / (60 * 60 * 24);
-        hours = (secs % (60 * 60 * 24)) / (60 * 60);
-        minutes = (secs % (60 * 60)) / 60;
+        days = secs / 86400;
+        hours = (secs % 86400) / 3600;
+        minutes = (secs % 3600) / 60;
         seconds = secs % 60;
         milliseconds = nowspec.tv_nsec / 1000000;
         fprintf(stdout, "%03ldd%02ldh%02ldm%02lds%02ld\r", days, hours,
