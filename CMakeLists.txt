@@ -21,7 +21,10 @@ endif(CURL_FOUND)
 
 find_package(Intl)
 if(Intl_FOUND)
-    include_directories(${Intl_INCLUDE_DIRS})
+        include_directories(${Intl_INCLUDE_DIRS})
+        set(LIBINTL_LIBRARIES ${Intl_LIBRARIES})
+    else()
+        set(LIBINTL_LIBRARIES)
 endif(Intl_FOUND)
 
 find_package(OpenSSL)
@@ -31,7 +34,6 @@ endif(OPENSSL_FOUND)
 
 find_package(Gettext)
 if(GETTEXT_FOUND)
-add_definitions(-DENABLE_NLS)
 endif(GETTEXT_FOUND)
 
 #link_libraries(${CMAKE_THREAD_LIBS_INIT} ${Intl_LIBRARIES} ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${OPENSSL_SSL_LIBRARIES})

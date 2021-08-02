@@ -6,21 +6,13 @@
 #include <gmp.h>
 #include <math.h>
 #include <openssl/evp.h>
+#include <signal.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-
-int is_digit(char c) { return '0' <= c && c <= '9'; }
-int is_alphabet(char c)
-{
-    return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z');
-}
-
-#define MAX (1626185278 + 86400)
-#define PASSWD "Or1a0ZMfDK"
 
 /*
  *
@@ -76,13 +68,5 @@ int is_alphabet(char c)
  */
 int main(void)
 {
-    unsigned char a[8] = { 0x00 };
-    a[7] = 0xf0;
-    unsigned long t = *(unsigned long *)a;
-    printf("%lu, %d, %d\n", t, __builtin_ctzl(t), __builtin_clzl(t));
-    t = htole64(*(unsigned long *)a);
-    printf("%lu, %d, %d\n", t, __builtin_ctzl(t), __builtin_clzl(t));
-    t = htobe64(*(unsigned long *)a);
-    printf("%lu, %d, %d\n", t, __builtin_ctzl(t), __builtin_clzl(t));
     return EXIT_SUCCESS;
 }

@@ -10,8 +10,7 @@
 int sendresume(char *name, char *service)
 {
     //送信するデータの生成
-    unsigned char header[2];
-    *((short *)(header + 0)) = (short)htole16((unsigned short)0x0020);
+    short header = (short)htole16((unsigned short)0x0020);
 
     struct addrinfo hints = { 0 };
     struct addrinfo *res = NULL;
@@ -22,7 +21,7 @@ int sendresume(char *name, char *service)
     connect(sock, res->ai_addr, res->ai_addrlen);
     freeaddrinfo(res);
 
-    send(sock, header, 2, 0);
+    send(sock, &header, 2, 0);
 
     close(sock);
 

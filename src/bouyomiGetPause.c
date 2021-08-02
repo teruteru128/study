@@ -16,8 +16,7 @@ int getpause(char *name, char *service, unsigned char *isPause)
         return -1;
     }
     //送信するデータの生成
-    unsigned char header[2];
-    *((short *)(header + 0)) = (short)htole16((unsigned short)0x0110);
+    short header = (short)htole16((unsigned short)0x0110);
 
     struct addrinfo hints = { 0 };
     struct addrinfo *res = NULL;
@@ -29,7 +28,7 @@ int getpause(char *name, char *service, unsigned char *isPause)
     connect(sock, res->ai_addr, res->ai_addrlen);
     freeaddrinfo(res);
 
-    send(sock, header, 2, 0);
+    send(sock, &header, 2, 0);
 
     recv(sock, isPause, 1, 0);
 

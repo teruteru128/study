@@ -16,8 +16,7 @@ int gettaskcount(char *name, char *service, unsigned int *taskCount)
         return -1;
     }
     //送信するデータの生成
-    unsigned char header[2];
-    *((short *)(header + 0)) = (short)htole16((unsigned short)0x0130);
+    short header = (short)htole16((unsigned short)0x0130);
 
     struct addrinfo hints = { 0 };
     struct addrinfo *res = NULL;
@@ -28,11 +27,12 @@ int gettaskcount(char *name, char *service, unsigned int *taskCount)
     connect(sock, res->ai_addr, res->ai_addrlen);
     freeaddrinfo(res);
 
-    send(sock, header, 2, 0);
+    send(sock, &header, 2, 0);
 
-    recv(sock, taskCount, 4, 0);
+    unsigned int buf;
+    recv(sock, &buf, 4, 0);
 
-    *taskCount = le32toh(*taskCount);
+    *taskCount = le32toh(buf);
 
     close(sock);
     return 0;

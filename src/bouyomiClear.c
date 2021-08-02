@@ -20,8 +20,7 @@ int main(int argc, char *argv[])
     }
 
     //送信するデータの生成
-    unsigned char header[2];
-    *((short *)(header + 0)) = (short)htole16((unsigned short)0x0040);
+    short header = (short)htole16((unsigned short)0x0040);
 
     char host[NI_MAXHOST] = "192.168.12.5";
     char port[NI_MAXSERV] = "50001";
@@ -36,7 +35,7 @@ int main(int argc, char *argv[])
     connect(sock, res->ai_addr, res->ai_addrlen);
     freeaddrinfo(res);
 
-    send(sock, header, 2, 0);
+    send(sock, &header, 2, 0);
 
     close(sock);
 

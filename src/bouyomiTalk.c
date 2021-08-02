@@ -4,6 +4,7 @@
  * 前前回: https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
  */
 
+#include "yattaze.h"
 #include <errno.h>
 #include <netdb.h>
 #include <stdio.h>
@@ -12,41 +13,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-int sendTalk(char *name, char *service, short speed, short tone, short volume,
-             short voice, char code, size_t len, char *msg)
-{
-    if (name == NULL || service == NULL || msg == NULL)
-    {
-        errno = EFAULT;
-        return -1;
-    }
-    unsigned char header[15];
-    //送信するデータの生成(文字列を除いた先頭の部分)
-    *((short *)(header + 0)) = (short)htole16((unsigned short)0x0001);
-    *((short *)(header + 2)) = (short)htole16((unsigned short)speed);
-    *((short *)(header + 4)) = (short)htole16((unsigned short)tone);
-    *((short *)(header + 6)) = (short)htole16((unsigned short)volume);
-    *((short *)(header + 8)) = (short)htole16((unsigned short)voice);
-    *((char *)(header + 10)) = code;
-    *((int *)(header + 11)) = (int)htole32((unsigned int)len);
-
-    struct addrinfo hints = { 0 };
-    struct addrinfo *res = NULL;
-    hints.ai_socktype = SOCK_STREAM;
-
-    getaddrinfo(name, service, &hints, &res);
-
-    int sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-    connect(sock, res->ai_addr, res->ai_addrlen);
-    freeaddrinfo(res);
-
-    send(sock, header, 15, 0);
-    send(sock, msg, len, 0);
-
-    close(sock);
-    return 0;
-}
 
 /**
  * @brief
@@ -113,7 +79,7 @@ int sendTalk(char *name, char *service, short speed, short tone, short volume,
  * @param argv
  * @return int
  */
-int main(int argc, char *argv[])
+int main(const int argc, const char *argv[])
 {
     short speed = -1, tone = -1, volume = -1, voice = 0;
     char *msg;
@@ -122,10 +88,10 @@ int main(int argc, char *argv[])
     switch (argc)
     {
     case 1:
-        msg = strdup("テストでーす");
+        msg = strdup(YATTAZE);
         break;
     case 2:
-        msg = argv[1];
+        msg = strdup(argv[1]);
         break;
     case 6:
         speed = (short)atoi(argv[1]);
@@ -135,8 +101,9 @@ int main(int argc, char *argv[])
         msg = strdup(argv[5]);
         break;
     default:
-        printf("使用法1>%s 文章\n", argv[0]);
-        printf("使用法2>%s 速度(50-300) 音程(50-200) 音量(0-100) 声質(0-8) "
+        printf("使用法1>%s\n", argv[0]);
+        printf("使用法2>%s 文章\n", argv[0]);
+        printf("使用法3>%s 速度(50-300) 音程(50-200) 音量(0-100) 声質(0-8) "
                "文章\n",
                argv[0]);
         return -1;
@@ -146,15 +113,77 @@ int main(int argc, char *argv[])
     char name[NI_MAXHOST] = "192.168.12.5";
     char service[NI_MAXSERV] = "50001";
 
-    if (sendTalk(name, service, speed, tone, volume, voice, 0, len, msg)
-        != 0)
+    unsigned char header[15];
+    //送信するデータの生成(文字列を除いた先頭の部分)
+    *((short *)(header + 0)) = (short)htole16((unsigned short)0x0001);
+    *((short *)(header + 2)) = (short)htole16((unsigned short)speed);
+    *((short *)(header + 4)) = (short)htole16((unsigned short)tone);
+    *((short *)(header + 6)) = (short)htole16((unsigned short)volume);
+    *((short *)(header + 8)) = (short)htole16((unsigned short)voice);
+    *((char *)(header + 10)) = 0;
+    *((int *)(header + 11)) = (int)htole32((unsigned int)len);
+
+    struct addrinfo hints = { 0 };
+    struct addrinfo *res = NULL;
+    hints.ai_socktype = SOCK_STREAM;
+
+    int err = 0;
+    if ((err = getaddrinfo(name, service, &hints, &res)) != 0)
     {
+        fprintf(stderr, "%s", gai_strerror(err));
         free(msg);
-        msg = NULL;
-        return EXIT_FAILURE;
+        return 1;
     }
+
+    int ret = 0;
+    int sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (sock < 0)
+    {
+        perror("socket");
+        free(msg);
+        freeaddrinfo(res);
+        msg = NULL;
+        return 1;
+    }
+    if (connect(sock, res->ai_addr, res->ai_addrlen) < 0)
+    {
+        perror("connect");
+        free(msg);
+        freeaddrinfo(res);
+        msg = NULL;
+        return 1;
+    }
+
+    if (send(sock, header, 15, 0) < 0)
+    {
+        perror("send 1");
+        close(sock);
+        freeaddrinfo(res);
+        msg = NULL;
+        return 1;
+    }
+    if (send(sock, msg, len, 0) < 0)
+    {
+        perror("send 2");
+        close(sock);
+        freeaddrinfo(res);
+        msg = NULL;
+        return 1;
+    }
+
+    if (close(sock) < 0)
+    {
+        ret = 1;
+    }
+    sock = -1;
+
+    freeaddrinfo(res);
     free(msg);
     msg = NULL;
+    if (ret != 0)
+    {
+        perror("");
+    }
 
-    return EXIT_SUCCESS;
+    return ret;
 }

@@ -10,8 +10,7 @@
 int getnowplaying(char *name, char *service, unsigned char *isNowPlaying)
 {
     //送信するデータの生成
-    unsigned char header[2];
-    *((short *)(header + 0)) = (short)htole16((unsigned short)0x0120);
+    short header = (short)htole16((unsigned short)0x0120);
 
     struct addrinfo hints = { 0 };
     struct addrinfo *res = NULL;
@@ -22,11 +21,9 @@ int getnowplaying(char *name, char *service, unsigned char *isNowPlaying)
     connect(sock, res->ai_addr, res->ai_addrlen);
     freeaddrinfo(res);
 
-    send(sock, header, 2, 0);
+    send(sock, &header, 2, 0);
 
     recv(sock, isNowPlaying, 1, 0);
-
-    printf("%d\n", isNowPlaying);
 
     close(sock);
 
