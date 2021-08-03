@@ -34,22 +34,24 @@ static int running = 1;
  */
 static int get_socket(const char *port)
 {
-    struct addrinfo hints, *res, *ptr;
-    int ecode, sock;
     char hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
 
-    memset(&hints, 0, sizeof(struct addrinfo));
+    struct addrinfo hints = { 0 };
     hints.ai_flags = AI_PASSIVE;
     hints.ai_family = PF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
+
+    int ecode;
+    struct addrinfo *res;
     if ((ecode = getaddrinfo(NULL, port, &hints, &res)) != 0)
     {
         fprintf(stderr, "failed getaddrinfo() %s\n", gai_strerror(ecode));
         return -1;
     }
 
-    for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
+    int sock;
+    for (struct addrinfo *ptr = res; ptr != NULL; ptr = ptr->ai_next)
     {
         sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if (sock < 0)
@@ -147,8 +149,6 @@ static void echo_back(int sock)
         }
     }
 }
-
-static void do_concrete_service(int sock) { echo_back(sock); }
 
 void *do_service(void *arg)
 {
@@ -254,7 +254,7 @@ void *do_service(void *arg)
             fprintf(stderr, "port is %s\n", sbuf);
             fprintf(stderr, "host is %s\n", hbuf);
 
-            do_concrete_service(conn_sock);
+            echo_back(conn_sock);
 
             close(conn_sock);
         }

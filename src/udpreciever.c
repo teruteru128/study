@@ -2,16 +2,16 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 
-int main()
+int main(void)
 {
     struct addrinfo hints, *res = NULL, *ptr = NULL;
     hints.ai_flags = AI_PASSIVE;
@@ -44,7 +44,8 @@ int main()
 
     char host[NI_MAXHOST];
     char port[NI_MAXSERV];
-    rc = getnameinfo(ptr->ai_addr, ptr->ai_addrlen, host, NI_MAXHOST, port, NI_MAXSERV, 0);
+    rc = getnameinfo(ptr->ai_addr, ptr->ai_addrlen, host, NI_MAXHOST, port,
+                     NI_MAXSERV, 0);
     if (rc != 0)
     {
         perror("getnameinfo");
