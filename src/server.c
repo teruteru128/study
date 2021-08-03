@@ -221,50 +221,6 @@ void *do_service(void *arg)
             }
         }
     }
-    struct pollfd fds = { 0 };
-    fds.fd = listen_sock;
-    fds.events = POLLIN;
-    fds.revents = 0;
-    for (;;)
-    {
-        selret = ppoll(&fds, 1, &spec, &sigmask);
-        if (selret == -1)
-        {
-            perror("select");
-            close(listen_sock);
-            return NULL;
-        }
-        if (selret == 0)
-        {
-            continue;
-        }
-        if (fds.revents & POLLERR)
-        {
-            perror("isset failed");
-            close(listen_sock);
-            return NULL;
-        }
-        if ((conn_sock = accept(listen_sock,
-                                (struct sockaddr *)&from_sock_addr, &addr_len))
-            != -1)
-        {
-            getnameinfo((struct sockaddr *)&from_sock_addr, addr_len, name,
-                        NI_MAXHOST, service, NI_MAXSERV,
-                        NI_NUMERICHOST | NI_NUMERICSERV);
-
-            fprintf(stderr, "port is %s\n", service);
-            fprintf(stderr, "host is %s\n", name);
-
-            echo_back(conn_sock);
-
-            close(conn_sock);
-        }
-        else
-        {
-            perror("accept() failed.");
-            continue;
-        }
-    }
     close(listen_sock);
     listen_sock = -1;
 }
