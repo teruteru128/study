@@ -154,11 +154,7 @@ void *do_service(void *arg)
 {
     struct service_arg *arg2 = (struct service_arg *)arg;
     int listen_sock = arg2->listen_socket;
-    char hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
-    struct sockaddr_storage from_sock_addr;
-    int conn_sock = -1;
-    socklen_t addr_len = sizeof(from_sock_addr);
-    struct epoll_event ev = { 0 }, events[MAX_EVENTS];
+    struct epoll_event ev = { 0 };
     int epollfd = epoll_create1(0);
     if (epollfd == -1)
     {
@@ -175,13 +171,18 @@ void *do_service(void *arg)
     struct timespec spec = { 3, 0 };
 
     sigset_t sigmask;
-    sigfillset(&sigmask);
+    sigemptyset(&sigmask);
 
+    struct epoll_event events[MAX_EVENTS];
+    struct sockaddr_storage from_sock_addr;
+    socklen_t addr_len = sizeof(from_sock_addr);
     int selret = 0;
     int nfds, n;
+    int conn_sock = -1;
+    char name[NI_MAXHOST], service[NI_MAXSERV];
     while (running)
     {
-        nfds = epoll_pwait(epollfd, events, MAX_EVENTS, -1, NULL);
+        nfds = epoll_pwait(epollfd, events, MAX_EVENTS, -1, &sigmask);
         if (nfds == -1)
         {
             perror("epoll_wait");
@@ -199,12 +200,12 @@ void *do_service(void *arg)
                     perror("accept");
                     exit(EXIT_FAILURE);
                 }
-                getnameinfo((struct sockaddr *)&from_sock_addr, addr_len, hbuf,
-                            sizeof(hbuf), sbuf, sizeof(sbuf),
+                getnameinfo((struct sockaddr *)&from_sock_addr, addr_len, name,
+                            NI_MAXHOST, service, NI_MAXSERV,
                             NI_NUMERICHOST | NI_NUMERICSERV);
 
-                fprintf(stderr, "port is %s\n", sbuf);
-                fprintf(stderr, "host is %s\n", hbuf);
+                fprintf(stderr, "port is %s\n", service);
+                fprintf(stderr, "host is %s\n", name);
                 // setnonblocking(conn_sock);
                 ev.events = EPOLLIN | EPOLLET;
                 ev.data.fd = conn_sock;
@@ -247,12 +248,12 @@ void *do_service(void *arg)
                                 (struct sockaddr *)&from_sock_addr, &addr_len))
             != -1)
         {
-            getnameinfo((struct sockaddr *)&from_sock_addr, addr_len, hbuf,
-                        sizeof(hbuf), sbuf, sizeof(sbuf),
+            getnameinfo((struct sockaddr *)&from_sock_addr, addr_len, name,
+                        NI_MAXHOST, service, NI_MAXSERV,
                         NI_NUMERICHOST | NI_NUMERICSERV);
 
-            fprintf(stderr, "port is %s\n", sbuf);
-            fprintf(stderr, "host is %s\n", hbuf);
+            fprintf(stderr, "port is %s\n", service);
+            fprintf(stderr, "host is %s\n", name);
 
             echo_back(conn_sock);
 
