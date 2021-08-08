@@ -7,13 +7,11 @@ on: [push]
 jobs: 
   build:
     runs-on: ubuntu-20.04
-    env:
-      buildDir: '${{ github.workspace }}/build'
     steps:
       - uses: actions/checkout@v2.3.4
         with:
           submodules: 'recursive'
       - name: Configuration
-        run: cmake .. -G Ninja
+        run: cmake . -G Ninja -B build
       - name: build
-        run: cmake -j 0
+        run: cmake -j 0 -B build
