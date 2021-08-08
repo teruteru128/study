@@ -12,7 +12,7 @@ jobs:
         with:
           submodules: 'recursive'
       - name: Install dependents
-        run: sudo apt install ninja
+        run: sudo apt install -build
       - name: Configuration
         run: cmake . -G Ninja -B build
       - name: build
