@@ -12,8 +12,8 @@ jobs:
         with:
           submodules: 'recursive'
       - name: Install dependents
-        run: sudo apt install ninja-build
+        run: sudo apt install ninja-build autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64
       - name: Configuration
         run: cmake . -G Ninja -B build
       - name: build
-        run: cmake -j 0 -B build
+        run: ninja -j 0 -C build
