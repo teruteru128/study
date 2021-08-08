@@ -9,15 +9,18 @@ enable_testing()
 
 find_package(Threads)
 if(Threads_FOUND)
-
 endif(Threads_FOUND)
+
 
 find_package(CURL)
 if(CURL_FOUND)
     include_directories(${CURL_INCLUDE_DIRS})
 endif(CURL_FOUND)
 
-#find_package(Git)
+
+find_package(Git)
+if(GIT_FOUND)
+endif(GIT_FOUND)
 
 find_package(Intl)
 if(Intl_FOUND)
@@ -27,14 +30,17 @@ if(Intl_FOUND)
         set(LIBINTL_LIBRARIES)
 endif(Intl_FOUND)
 
+
 find_package(OpenSSL)
 if(OPENSSL_FOUND)
     include_directories(${OPENSSL_INCLUDE_DIR})
 endif(OPENSSL_FOUND)
 
+
 find_package(Gettext)
 if(GETTEXT_FOUND)
 endif(GETTEXT_FOUND)
+
 
 #link_libraries(${CMAKE_THREAD_LIBS_INIT} ${Intl_LIBRARIES} ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${OPENSSL_SSL_LIBRARIES})
 include(GNUInstallDirs)
@@ -55,30 +61,30 @@ CHECK_INCLUDE_FILE(stdlib.h HAVE_STDLIB_H)
 CHECK_INCLUDE_FILE(xmlrpc-c/base.h HAVE_XMLRPC_C_BASE_H)
 CHECK_INCLUDE_FILE(xmlrpc-c/client.h HAVE_XMLRPC_C_CLIENT_H)
 
+
 CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
 if(HAVE_UNISTD_H)
     add_compile_definitions(HAVE_UNISTD_H)
 endif(HAVE_UNISTD_H)
+
 
 CHECK_INCLUDE_FILE(netdb.h HAVE_NETDB_H)
 if(HAVE_NETDB_H)
     add_compile_definitions(HAVE_NETDB_H)
 endif(HAVE_NETDB_H)
 
+
 CHECK_INCLUDE_FILE(sys/socket.h HAVE_SYS_SOCKET_H)
 if(HAVE_SYS_SOCKET_H)
     add_compile_definitions(HAVE_SYS_SOCKET_H)
 endif(HAVE_SYS_SOCKET_H)
+
 
 CHECK_INCLUDE_FILE(wchar.h HAVE_WCHAR_H)
 if(HAVE_WCHAR_H)
     add_compile_definitions(HAVE_WCHAR_H)
 endif(HAVE_WCHAR_H)
 
-#CHECK_INCLUDE_FILE()
-#CHECK_INCLUDE_FILE()
-#CHECK_INCLUDE_FILE()
-#CHECK_INCLUDE_FILE()
 include(CheckFunctionExists)
 include(CheckSymbolExists)
 check_symbol_exists(fork "unistd.h" HAVE_FORK)
