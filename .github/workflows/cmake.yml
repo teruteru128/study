@@ -10,3 +10,10 @@ jobs:
     env:
       buildDir: '${{ github.workspace }}/build'
     steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          submodules: 'recursive'
+      - name: Configuration
+        run: cmake .. -G Ninja
+      - name: build
+        run: cmake -j 0
