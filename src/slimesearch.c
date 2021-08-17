@@ -67,7 +67,7 @@ void startMCSlimeChunkSearch()
     struct timespec end;
     struct timespec diff;
     int64_t ctx;
-    clock_gettime(CLOCK_REALTIME, &start);
+    clock_gettime(CLOCK_MONOTONIC, &start);
     for (int32_t z = -625; z < 625; z++)
     {
         for (int32_t x = -625; x < 625; x++)
@@ -79,7 +79,7 @@ void startMCSlimeChunkSearch()
             set[word] |= (isSlimeChunk(&ctx, 0, x, z) & 0x01) << bitindex;
         }
     }
-    clock_gettime(CLOCK_REALTIME, &end);
+    clock_gettime(CLOCK_MONOTONIC, &end);
     difftimespec(&diff, &end, &start);
     printf("%f\n", fma(diff.tv_sec, 1e9, diff.tv_nsec) / 1e9);
     free(set);

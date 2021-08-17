@@ -126,22 +126,30 @@ int connect_network(struct timespec *resp, struct timespec *ts)
     memset(readbuf, 0, BUFSIZ);
     s = read(sock, readbuf, BUFSIZ);
     printf("%s", readbuf);
+
     writelen = (size_t)snprintf(writebuf, BUFSIZ, "113 1\r\n");
     w = write(sock, writebuf, writelen);
+
     memset(readbuf, 0, BUFSIZ);
     s = read(sock, readbuf, BUFSIZ);
     printf("%s", readbuf);
+
     int code;
     int rep;
     int peerid;
+
     sscanf(readbuf, "%d %d %d\r\n", &code, &rep, &peerid);
+
     writelen = (size_t)snprintf(writebuf, BUFSIZ, "115 1 %d\r\n", peerid);
     w = write(sock, writebuf, writelen);
+
     memset(readbuf, 0, BUFSIZ);
     s = read(sock, readbuf, BUFSIZ);
     printf("%s", readbuf);
+
     writelen = (size_t)snprintf(writebuf, BUFSIZ, "119 1\r\n");
     w = write(sock, writebuf, writelen);
+
     memset(readbuf, 0, BUFSIZ);
     s = read(sock, readbuf, BUFSIZ);
     printf("%s", readbuf);

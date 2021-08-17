@@ -1,11 +1,16 @@
 
 #ifndef SERVER_H
 
-int init_server(int *, char *);
+#include <netdb.h>
+
+int init_server(char *);
 void *do_service(void *arg);
 void close_server();
 struct service_arg
 {
-    int listen_socket;
+    char port[NI_MAXSERV];
 };
+
+extern int running;
+
 #endif

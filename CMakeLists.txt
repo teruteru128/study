@@ -4,6 +4,8 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(study VERSION 1.0.2 LANGUAGES C CXX)
 
+OPTION(ENABLE_NLS "" ON)
+
 #include(CTest)
 enable_testing()
 
@@ -39,6 +41,7 @@ endif(OPENSSL_FOUND)
 
 find_package(Gettext)
 if(GETTEXT_FOUND)
+    set(ENABLE_NLS 1)
 endif(GETTEXT_FOUND)
 
 

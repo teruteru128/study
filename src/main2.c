@@ -11,9 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-#include <wchar.h>
 
 /*
  *
@@ -69,32 +69,17 @@
  */
 int main(void)
 {
-    const wchar_t in[] = L"はくらりしひくたひくりのし\nなりすこすなり\nますひ"
-                         L"しり\nてすひりさく";
-    const wchar_t a[] = L"ぬふあうえおやゆよわほへー"
-                        L"たていすかんなにらせ゛゜"
-                        L"ちとしはきくまのりれけむ"
-                        L"つさそひこみもねるめろ";
-    const char b[] = "1234567890-^\\qwertyuiop@[asdfghjkl;:]zxcvbnm,./\\";
-
-    size_t max_len = wcslen(in);
-    size_t j = 0;
-    for (size_t i = 0; i < max_len; i++)
-    {
-        if (in[i] == L'\n')
-        {
-            wprintf(L"\n");
-            continue;
-        }
-        for (j = 0; j < 49; j++)
-        {
-            if (in[i] == a[j])
-            {
-                break;
-            }
-        }
-        wprintf(L"%c", (b[j]-3) < 'a' ? (b[j]-3) + 26:(b[j]-3));
-    }
-    wprintf(L"\n");
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    struct tm result;
+    struct tm *t = localtime_r(&ts.tv_sec, &result);
+    printf("%d, %p\n", t == &result, (void *)t);
+    printf("%ld\n", (ts.tv_sec + result.tm_gmtoff) % 86400L);
+    printf("%ld.%09ld\n", ts.tv_sec, ts.tv_nsec);
+    printf("%02d:%02d:%02d, %ld, %s\n", result.tm_hour, result.tm_min,
+           result.tm_sec, result.tm_gmtoff, result.tm_zone);
+    // 毎秒ループして(ts.tv_sec + result.tm_gmtoff) %
+    // 86400Lが12840(時間が3時34分)だったらなんでや！する、もしくは (result.tm_hour == 3
+    // && result.tm_min == 34 && result.tm_sec == 0) だったら334する
     return EXIT_SUCCESS;
 }

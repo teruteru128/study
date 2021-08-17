@@ -65,7 +65,7 @@ A garbage dump repository created for studying Teruteru.
 - iconvを薄くラップするライブラリ() iconvってなんでこんなにめんどくさいの？
 - 某サイトで配布されていた暗号化/復号化()ツールをC言語で実装したライブラリ？
 - curl呼び出しテスト
-- きたない台詞を吐き出すクソツール。:poop:
+- きたない台詞をひり出すクソツール。:poop:
   - ああああああああ！ﾌﾞ
   - やったぜ。
   - [ン゛ボ](https://twitter.com/tukushiA/status/844873480805859330)[ップ](https://w.atwiki.jp/aniwotawiki/pages/38145.html#id_73c21301)

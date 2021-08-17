@@ -22,7 +22,7 @@
 static int listensocket = -1;
 
 // finish flag
-static int running = 1;
+int running = 1;
 
 /*
  * listen host name
@@ -78,16 +78,16 @@ static int get_socket(const char *port)
     return sock;
 }
 
-int init_server(int *listensocket, char *argv)
+int init_server(char *argv)
 {
-    if (listensocket == NULL)
+    if (listensocket != -1)
     {
         return 1;
     }
     int sock = get_socket(argv);
     if (sock < 0)
         return sock;
-    *listensocket = sock;
+    listensocket = sock;
     return 0;
 }
 
@@ -98,7 +98,6 @@ static void echo_back(int sock)
     uint32_t *ptr = NULL, tmp;
     ssize_t len;
     int flg = 0;
-    // TODO: epollに書き換え
     struct pollfd fds = { 0 };
     fds.fd = sock;
     fds.events = POLLIN;
@@ -153,7 +152,11 @@ static void echo_back(int sock)
 void *do_service(void *arg)
 {
     struct service_arg *arg2 = (struct service_arg *)arg;
-    int listen_sock = arg2->listen_socket;
+    if (init_server(arg2->port) < 0)
+    {
+        fprintf(stderr, "init_server failure.\n");
+        exit(EXIT_FAILURE);
+    }
     struct epoll_event ev = { 0 };
     int epollfd = epoll_create1(0);
     if (epollfd == -1)
@@ -162,8 +165,8 @@ void *do_service(void *arg)
         exit(EXIT_FAILURE);
     }
     ev.events = EPOLLIN;
-    ev.data.fd = listen_sock;
-    if (epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev) == -1)
+    ev.data.fd = listensocket;
+    if (epoll_ctl(epollfd, EPOLL_CTL_ADD, listensocket, &ev) == -1)
     {
         perror("epoll_ctl: listen_sock");
         exit(EXIT_FAILURE);
@@ -175,7 +178,7 @@ void *do_service(void *arg)
 
     struct epoll_event events[MAX_EVENTS];
     struct sockaddr_storage from_sock_addr;
-    socklen_t addr_len = sizeof(from_sock_addr);
+    socklen_t addr_len = sizeof(struct sockaddr_storage);
     int selret = 0;
     int nfds, n;
     int conn_sock = -1;
@@ -190,10 +193,10 @@ void *do_service(void *arg)
         }
         for (n = 0; n < nfds; n++)
         {
-            if (events[n].data.fd == listen_sock)
+            if (events[n].data.fd == listensocket)
             {
                 conn_sock
-                    = accept(listen_sock, (struct sockaddr *)&from_sock_addr,
+                    = accept(listensocket, (struct sockaddr *)&from_sock_addr,
                              &addr_len);
                 if (conn_sock == -1)
                 {
@@ -221,8 +224,8 @@ void *do_service(void *arg)
             }
         }
     }
-    close(listen_sock);
-    listen_sock = -1;
+    close(listensocket);
+    listensocket = -1;
 }
 
 /**

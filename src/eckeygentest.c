@@ -49,14 +49,14 @@ int main(int argc, char **argv)
     struct timespec end;
     struct timespec d;
 
-    clock_gettime(CLOCK_REALTIME, &start);
+    clock_gettime(CLOCK_MONOTONIC, &start);
     for (; i < MAX; i++)
     {
         r = EC_POINT_mul(secp256k1, pubkey, prikey, NULL, NULL, ctx);
         errchk(r, EC_POINT_mul);
         //r = EC_POINT_point2oct(secp256k1, pubkey, POINT_CONVERSION_UNCOMPRESSED, NULL, PUBLIC_KEY_LENGTH, ctx);
     }
-    clock_gettime(CLOCK_REALTIME, &end);
+    clock_gettime(CLOCK_MONOTONIC, &end);
     difftimespec(&d, &end, &start);
     double diff = difftime(end.tv_sec, start.tv_sec);
     long ndiff = end.tv_nsec - start.tv_nsec;

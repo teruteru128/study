@@ -121,7 +121,12 @@ int main(int argc, char **argv)
     {
         threadNum = (size_t)strtoul(argv[1], NULL, 0);
     }
-    pthread_t *threads = malloc(threadNum * sizeof(pthread_t));
+    if (threadNum < 1)
+    {
+        fprintf(stderr, "スレッド数は１以上が必要です\n");
+        return EXIT_FAILURE;
+    }
+    pthread_t threads[threadNum];
 
     struct globalConfig *config = globalConfig_new(776869784885228UL, 5);
 
@@ -135,7 +140,6 @@ int main(int argc, char **argv)
     }
     globalConfig_destory(config);
     free(config);
-    free(threads);
 
     return EXIT_SUCCESS;
 }

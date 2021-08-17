@@ -56,7 +56,7 @@ void test_parse_check_type(struct json_object* const obj) {
     }
 }
 
-int main() {
+int main(void) {
     puts("\n== json parse test start");
 
     puts("\n== json parse from srting");

@@ -9,7 +9,7 @@
  * @brief see https://centos.rip/
  * 複数のtimerfdをepoll ファイルディスクリプタで監視することも出来るんですねぇ
  */
-int yakusokunohi()
+int yakusokunohi(void)
 {
     struct tm countDownTM = { 0 };
     countDownTM.tm_sec = 22;
@@ -23,12 +23,6 @@ int yakusokunohi()
     countDownTM.tm_isdst = 0;
     const time_t countDownDate = mktime(&countDownTM);
 
-    long secs = 0;
-    long days;
-    long hours;
-    long minutes;
-    long seconds;
-    long milliseconds;
     struct timespec nowspec;
     clock_gettime(CLOCK_REALTIME, &nowspec);
 
@@ -58,15 +52,20 @@ int yakusokunohi()
     }
 
     unsigned long count = 0;
-    secs = (long)difftime(countDownDate, nowspec.tv_sec);
+    long utime = (long)difftime(countDownDate, nowspec.tv_sec);
     ssize_t c = 0;
     int ret = 0;
+    long days;
+    long hours;
+    long minutes;
+    long seconds;
+    long milliseconds;
     do
     {
-        days = secs / 86400;
-        hours = (secs % 86400) / 3600;
-        minutes = (secs % 3600) / 60;
-        seconds = secs % 60;
+        days = utime / 86400;
+        hours = (utime % 86400) / 3600;
+        minutes = (utime % 3600) / 60;
+        seconds = utime % 60;
         milliseconds = nowspec.tv_nsec / 1000000;
         fprintf(stdout, "%03ldd%02ldh%02ldm%02lds%02ld\r", days, hours,
                 minutes, seconds, milliseconds);
@@ -77,8 +76,8 @@ int yakusokunohi()
             break;
         }
         clock_gettime(CLOCK_REALTIME, &nowspec);
-        secs = (long)difftime(countDownDate, nowspec.tv_sec);
-    } while (secs > 0);
+        utime = (long)difftime(countDownDate, nowspec.tv_sec);
+    } while (utime > 0);
     if (c == -1)
     {
         ret = 1;

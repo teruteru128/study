@@ -5,10 +5,10 @@
 
 /**
  * @brief みかか方式暗号？
- * 
- * @return int 
+ *
+ * @return int
  */
-int main(void)
+int main(int argc, char *argv[])
 {
     const wchar_t in[] = L"はくらりしひくたひくりのし\nなりすこすなり\nますひ"
                          L"しり\nてすひりさく";
@@ -24,7 +24,7 @@ int main(void)
     {
         if (in[i] == L'\n')
         {
-            wprintf(L"\n");
+            printf("\n");
             continue;
         }
         for (j = 0; j < 49; j++)
@@ -34,8 +34,8 @@ int main(void)
                 break;
             }
         }
-        wprintf(L"%c", (b[j]-3) < 'a' ? (b[j]-3) + 26:(b[j]-3));
+        printf("%c", (b[j] - 3) < 'a' ? b[j] + 23 : b[j] - 3);
     }
-    wprintf(L"\n");
+    printf("\n");
     return EXIT_SUCCESS;
 }

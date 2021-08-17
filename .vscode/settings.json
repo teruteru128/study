@@ -134,6 +134,7 @@
         "yattaze.h": "c",
         "errno.h": "c",
         "basic.h": "c",
-        "automated.h": "c"
+        "automated.h": "c",
+        "server.h": "c"
     }
 }
