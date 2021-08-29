@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(study VERSION 1.0.2 LANGUAGES C CXX)
 
-OPTION(ENABLE_NLS "" ON)
+option(WITH_GETTEXT "translate messages if gettext is available" ON)
 
 #include(CTest)
 enable_testing()
@@ -33,16 +33,22 @@ if(Intl_FOUND)
 endif(Intl_FOUND)
 
 
+find_package(Gettext)
+if(GETTEXT_FOUND)
+    set(HAVE_GETTEXT 1)
+    set(ENABLE_NLS 1)
+endif(GETTEXT_FOUND)
+
+
 find_package(OpenSSL)
 if(OPENSSL_FOUND)
     include_directories(${OPENSSL_INCLUDE_DIR})
 endif(OPENSSL_FOUND)
 
-
-find_package(Gettext)
-if(GETTEXT_FOUND)
-    set(ENABLE_NLS 1)
-endif(GETTEXT_FOUND)
+find_package(PostgreSQL REQUIRED)
+if(PostgreSQL_FOUND)
+    include_directories(${PostgreSQL_INCLUDE_DIRS})
+endif(PostgreSQL_FOUND)
 
 
 #link_libraries(${CMAKE_THREAD_LIBS_INIT} ${Intl_LIBRARIES} ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${OPENSSL_SSL_LIBRARIES})
@@ -119,7 +125,7 @@ check_symbol_exists(strtoull "stdlib.h" HAVE_STRTOULL)
 check_symbol_exists(tzset "time.h" HAVE_TZSET)
 check_symbol_exists(pow "math.h" HAVE_POW)
 check_symbol_exists(sqrt "math.h" HAVE_SQRT)
-check_symbol_exists(flsll "string.h" HAVE_FLSLL)
+#check_symbol_exists(flsll "string.h" HAVE_FLSLL)
 #check_symbol_exists(__builtin_CLZL "stdio.h" HAVE___BUILTIN_CLZL)
 
 include_directories(${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/libstudy/include ${CMAKE_CURRENT_SOURCE_DIR})

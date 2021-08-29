@@ -4,22 +4,22 @@
 #endif
 #include "gettext.h"
 #define _(str) gettext(str)
+#include "ntp.h"
+#include <byteswap.h>
 #include <locale.h>
+#include <netdb.h>
+#include <poll.h>
+#include <printaddrinfo.h>
+#include <signal.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netdb.h>
 #include <stdlib.h> //atoi(), exit(), EXIT_FAILURE, EXIT_SUCCESS
 #include <string.h> //memset(), strcmp()
-#include <unistd.h> //close()
-#include <print_addrinfo.h>
-#include <poll.h>
 #include <sys/epoll.h>
-#include <byteswap.h>
-#include <signal.h>
-#include "ntp.h"
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h> //close()
 
 #define SERVER_NAME "ntp.nict.jp"
 #define SERVER_PORT "ntp"
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
     /* NTPサーバのアドレス情報 */
     struct addrinfo hints, *res = NULL, *ptr = NULL;
-    //memset(&hints, 0, sizeof(struct addrinfo));
+    // memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_flags = 0;
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 
     for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
     {
-        print_addrinfo0(ptr, stderr);
+        printaddrinfo0(ptr, stderr);
     }
 
     fputs("--\n", stderr);
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
         close(recv_sock);
         return EXIT_FAILURE;
     }
-    print_addrinfo0(ptr, stderr);
+    printaddrinfo0(ptr, stderr);
     freeaddrinfo(res);
     res = NULL;
     ptr = NULL;

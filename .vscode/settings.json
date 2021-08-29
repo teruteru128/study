@@ -135,6 +135,8 @@
         "errno.h": "c",
         "basic.h": "c",
         "automated.h": "c",
-        "server.h": "c"
+        "server.h": "c",
+        "print_addrinfo.h": "c",
+        "postgres_ext.h": "c"
     }
 }

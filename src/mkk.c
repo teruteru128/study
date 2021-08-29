@@ -10,8 +10,7 @@
  */
 int main(int argc, char *argv[])
 {
-    const wchar_t in[] = L"はくらりしひくたひくりのし\nなりすこすなり\nますひ"
-                         L"しり\nてすひりさく";
+    const wchar_t in[] = L"としりたし\nのし\nひさとしもたす\nとさなす";
     const wchar_t a[] = L"ぬふあうえおやゆよわほへー"
                         L"たていすかんなにらせ゛゜"
                         L"ちとしはきくまのりれけむ"

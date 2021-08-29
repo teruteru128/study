@@ -3,22 +3,27 @@
 #include "config.h"
 #endif
 
-#include "mytextdomain.h"
 #include "gettextsample4.h"
+#include "mytextdomain.h"
 
-#include <stddef.h>
 #include "gettext.h"
 #define _(str) gettext(str)
-#include <locale.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdint.h>
 #include <err.h>
+#include <locale.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/timerfd.h>
+#include <unistd.h>
 
 int main(void)
 {
+#ifdef ENABLE_NLS
+    printf("ENABLE_NLS is enable\n");
+#else
+    printf("ENABLE_NLS is disable\n");
+#endif
     useconds_t microseconds = 3.75 * 1000000;
     inittextdomain();
 

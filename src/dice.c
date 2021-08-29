@@ -9,6 +9,7 @@
 #define ROLLS 28
 #define DICE_SIZE 5
 
+// 暗号論的に安全な乱数を使ったサイコロのソフトウェア実装
 int main(int argc, char const *argv[])
 {
     FILE *in = fopen("/dev/urandom", "rb");

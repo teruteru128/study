@@ -1,24 +1,24 @@
 
 /**
  * @brief NTP
- * 
+ *
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include "gettext.h"
 #include "ntp.h"
+#include <arpa/inet.h>
+#include <byteswap.h>
+#include <netinet/in.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <byteswap.h>
 #include <time.h>
-#include "gettext.h"
 #define _(str) gettext(str)
+#include <ctype.h>
 #include <locale.h>
 #include <math.h>
-#include <ctype.h>
 
 void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
 {
@@ -58,9 +58,11 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
     fprintf(out, "Poll : %d(%d)\n", poll, 1 << poll);
     fprintf(out, "Precision : %d(%g seconds)\n", pre, pow(2, pre));
     if (root_delay)
-        fprintf(out, "Root Delay : %d(%f)\n", root_delay, root_delay / 0x1p+16);
+        fprintf(out, "Root Delay : %d(%f)\n", root_delay,
+                root_delay / 0x1p+16);
     if (root_dispersion)
-        fprintf(out, "Root Dispersion : %d(%f)\n", root_dispersion, root_dispersion / 0x1p+16);
+        fprintf(out, "Root Dispersion : %d(%f)\n", root_dispersion,
+                root_dispersion / 0x1p+16);
     fprintf(out, "Reference ID : %08x", bswap_32(reference_identifier));
 
     if (stratum == 1)
@@ -74,7 +76,7 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
     {
         if (version_number == 3)
         {
-            struct in_addr ad = {htonl(reference_identifier)};
+            struct in_addr ad = { htonl(reference_identifier) };
             char *addrstr = inet_ntoa(ad);
             if (addrstr)
                 fprintf(out, "(%s)", addrstr);
@@ -85,25 +87,43 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
         }
     }
     fprintf(out, "\n");
-    uint32_t reference_timestamp_seconds = bswap_32(packet->reference_timestamp_seconds);
-    uint32_t originate_timestamp_seconds = bswap_32(packet->originate_timestamp_seconds);
-    uint32_t receive_timestamp_seconds = bswap_32(packet->receive_timestamp_seconds);
-    uint32_t transmit_timestamp_seconds = bswap_32(packet->transmit_timestamp_seconds);
+    uint32_t reference_timestamp_seconds
+        = bswap_32(packet->reference_timestamp_seconds);
+    uint32_t originate_timestamp_seconds
+        = bswap_32(packet->originate_timestamp_seconds);
+    uint32_t receive_timestamp_seconds
+        = bswap_32(packet->receive_timestamp_seconds);
+    uint32_t transmit_timestamp_seconds
+        = bswap_32(packet->transmit_timestamp_seconds);
 
-    uint64_t offset_reference_timestamp_seconds = reference_timestamp_seconds - OFFSET;
-    uint64_t offset_originate_timestamp_seconds = originate_timestamp_seconds - OFFSET;
-    uint64_t offset_receive_timestamp_seconds = receive_timestamp_seconds - OFFSET;
-    uint64_t offset_transmit_timestamp_seconds = transmit_timestamp_seconds - OFFSET;
+    uint64_t offset_reference_timestamp_seconds
+        = reference_timestamp_seconds - OFFSET;
+    uint64_t offset_originate_timestamp_seconds
+        = originate_timestamp_seconds - OFFSET;
+    uint64_t offset_receive_timestamp_seconds
+        = receive_timestamp_seconds - OFFSET;
+    uint64_t offset_transmit_timestamp_seconds
+        = transmit_timestamp_seconds - OFFSET;
 
-    uint32_t transmit_timestamp_fractions = bswap_32(packet->transmit_timestamp_fractions);
+    uint32_t transmit_timestamp_fractions
+        = bswap_32(packet->transmit_timestamp_fractions);
 
-    fprintf(out, "Reference Timestamp : %u(%lu)\n", reference_timestamp_seconds, offset_reference_timestamp_seconds);
+    fprintf(out, "Reference Timestamp : %u(%lu)\n",
+            reference_timestamp_seconds, offset_reference_timestamp_seconds);
     if (originate_timestamp_seconds)
-        fprintf(out, "Origin Timestamp : %u(%lu)\n", originate_timestamp_seconds, offset_originate_timestamp_seconds);
-    fprintf(out, "Receive Timestamp : %u(%lu)\n", receive_timestamp_seconds, offset_receive_timestamp_seconds);
-    fprintf(out, "Transmit Timestamp seconds: %u(%lu)\n", transmit_timestamp_seconds, offset_transmit_timestamp_seconds);
-    fprintf(out, "Transmit Timestamp fractions : %u\n", transmit_timestamp_fractions);
-    fprintf(out, "Transmit Timestamp seconds: %.9f\n", (double)(((offset_transmit_timestamp_seconds) << 32) + transmit_timestamp_fractions) / (0x1p+32));
+        fprintf(out, "Origin Timestamp : %u(%lu)\n",
+                originate_timestamp_seconds,
+                offset_originate_timestamp_seconds);
+    fprintf(out, "Receive Timestamp : %u(%lu)\n", receive_timestamp_seconds,
+            offset_receive_timestamp_seconds);
+    fprintf(out, "Transmit Timestamp seconds: %u(%lu)\n",
+            transmit_timestamp_seconds, offset_transmit_timestamp_seconds);
+    fprintf(out, "Transmit Timestamp fractions : %u\n",
+            transmit_timestamp_fractions);
+    fprintf(out, "Transmit Timestamp seconds: %.9f\n",
+            (double)(((offset_transmit_timestamp_seconds) << 32)
+                     + transmit_timestamp_fractions)
+                / (0x1p+32));
     if (transmit_timestamp_seconds)
     {
         time_t machine_time = time(NULL);
@@ -119,7 +139,7 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
         char buf[BUFSIZ] = "";
         strftime(buf, BUFSIZ, "%Ex %EX", &machine_tm);
         fprintf(out, "Local time : %s\n", buf);
-        //fprintf(out, _("Local time : %s"), ctime_r(&machine_time, buf));
+        // fprintf(out, _("Local time : %s"), ctime_r(&machine_time, buf));
         memset(buf, 0, BUFSIZ);
         fprintf(out, _("NTP server time : %s"), ctime_r(&ntp_time, buf));
     }

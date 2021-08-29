@@ -1,9 +1,14 @@
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <regex.h>
-#include <limits.h>
 
+/**
+ * @brief 乱数デバイスから乱数を読み込んで[0, 1)な倍精度浮動小数点数の乱数を返す
+ * 最初から52bitだけ読み込んで変換したほうが効率がいいのでそうすべき
+ * 
+ * @return int 
+ */
 int main(argc, argv) int argc;
 char **argv;
 {

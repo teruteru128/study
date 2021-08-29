@@ -322,6 +322,10 @@ static int search_main(int argc, char **argv)
 /**
  * @brief
  *
+ * TODO: 進捗状況をファイルかデータベースかで保存して毎回コンパイルしなくてもいいようにする
+ * TODO: Dockerfileで配布できるようにする
+ * TODO: Dockerfileで配布できるようにするにはDBで保存する必要がある
+ *
  * @see https://github.com/CouleeApps/git-power
  * @param argc
  * @param argv

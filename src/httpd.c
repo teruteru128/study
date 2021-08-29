@@ -2,16 +2,16 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <errno.h>
+#include <netdb.h>
+#include <printaddrinfo.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/types.h>
 #include <sys/socket.h>
-#include <netdb.h>
-#include <print_addrinfo.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define RESPONSE "HTTP/1.1 200 OK\r\nContent-Length: 12\r\n\r\nhello world\r\n"
 #define MAX_LISTEN_SOCKET_NUM 16
@@ -19,7 +19,7 @@
  * @brief シンプルなhttpサーバ
  * @see https://twitter.com/yuta0381/status/1339836231333543936
  * @see https://www.nslabs.jp/socket.rhtml
- * @return int 
+ * @return int
  */
 int main(void)
 {
@@ -36,12 +36,14 @@ int main(void)
         return EXIT_FAILURE;
     }
     int listen_sock = -1;
-    int listen_sockets[MAX_LISTEN_SOCKET_NUM] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    int listen_sockets[MAX_LISTEN_SOCKET_NUM]
+        = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
     int socknum = 0;
     for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
     {
-        print_addrinfo0(ptr, stderr);
-        listen_sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+        printaddrinfo0(ptr, stderr);
+        listen_sock
+            = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if (listen_sock < 0)
         {
             fprintf(stderr, "socket\n");
@@ -50,7 +52,9 @@ int main(void)
         if (ptr->ai_family == AF_INET6)
         {
             int on = 1;
-            if (setsockopt(listen_sock, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on)) < 0)
+            if (setsockopt(listen_sock, IPPROTO_IPV6, IPV6_V6ONLY, &on,
+                           sizeof(on))
+                < 0)
                 return -1;
             else
                 printf("set IPV6_V6ONLY\n");
@@ -58,7 +62,9 @@ int main(void)
         if (ptr->ai_family == AF_INET || ptr->ai_family == AF_INET6)
         {
             int on = 1;
-            if (setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
+            if (setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &on,
+                           sizeof(on))
+                < 0)
                 return -1;
             else
                 printf("set SO_REUSEADDR\n");
@@ -96,7 +102,8 @@ int main(void)
     ssize_t slen = 0;
     while (1)
     {
-        conn_sock = accept(listen_sockets[0], (struct sockaddr *)&from_sock_addr, &addr_len);
+        conn_sock = accept(listen_sockets[0],
+                           (struct sockaddr *)&from_sock_addr, &addr_len);
         if (conn_sock == -1)
         {
             perror("accept");

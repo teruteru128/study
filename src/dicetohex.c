@@ -9,6 +9,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * @brief サイコロによる6進数をバイナリに変換するツール
+ * dicetobin(unsigned char *bin, size_t s, char *dice)
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char *argv[])
 {
     mpz_t hex;

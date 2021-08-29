@@ -4,8 +4,13 @@
 #endif
 #include <changebase.h>
 #include <gmp.h>
+#include <limits.h>
+#include <locale.h>
 #include <math.h>
+#include <netdb.h>
+#include <openssl/ec.h>
 #include <openssl/evp.h>
+#include <printaddrinfo.h>
 #include <signal.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -14,6 +19,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#include <wchar.h>
 
 /*
  *
@@ -78,8 +84,46 @@ int main(void)
     printf("%ld.%09ld\n", ts.tv_sec, ts.tv_nsec);
     printf("%02d:%02d:%02d, %ld, %s\n", result.tm_hour, result.tm_min,
            result.tm_sec, result.tm_gmtoff, result.tm_zone);
-    // 毎秒ループして(ts.tv_sec + result.tm_gmtoff) %
-    // 86400Lが12840(時間が3時34分)だったらなんでや！する、もしくは (result.tm_hour == 3
-    // && result.tm_min == 34 && result.tm_sec == 0) だったら334する
+
+    printf("%d, %d\n", 30, 1000);
+    printf("%d, %d\n", 55, 50000);
+    printf("%d, %lf\n", 30, log10(1000));
+    printf("%d, %lf\n", 55, log10(50000));
+    const double coefficient = log10(50) / 25;
+    printf("%lf\n", coefficient * 10 / 25);
+    /*
+     3 - ((20+log10(5) * 20) / 25)
+    = (75-20 - 20 log10(5))/25
+    = (55 + 20log10(5))/25
+    */
+    printf("9cm, %lf\n", pow(10, - coefficient * 1 + ((55-log10(5) * 20) / 25)));
+    printf("10cm, %lf\n", pow(10, coefficient * 0 + ((55-log10(5) * 20) / 25)));
+    printf("20cm, %lf\n", pow(10, 3 + coefficient * 10 + ((55-log10(5) * 20) / 25)));
+    printf("30cm, %lf\n", pow(10, 3 + coefficient * 20 + ((55-log10(5) * 20) / 25)));
+    printf("31cm, %lf\n", pow(10, 3 + coefficient * 21 + ((55-log10(5) * 20) / 25)));
+    printf("35cm, %lf\n", pow(10, 3 + coefficient * 25 + ((55-log10(5) * 20) / 25)));
+    printf("40cm, %lf\n", pow(10, 3 + coefficient * 30 + ((55-log10(5) * 20) / 25)));
+    printf("45cm, %lf\n", pow(10, 3 + coefficient * 15));
+    printf("50cm, %lf\n", pow(10, 3 + coefficient * 20));
+    printf("55cm, %lf\n", pow(10, 3 + coefficient * 25));
+    printf("60cm, %lf\n", pow(10, 3 + coefficient * 30));
+    printf("70cm, %lf\n", pow(10, 3 + coefficient * 40));
+    printf("80cm, %lf\n", pow(10, 3 + coefficient * 50));
+    printf("90cm, %lf\n", pow(10, 3 + coefficient * 60));
+    printf("100cm, %lf\n", pow(10, 3 + coefficient * 70));
+    printf("105cm, %lf\n", pow(10, 3 + coefficient * 75));
+    printf("110cm, %lf\n", pow(10, 3 + coefficient * 80));
+    printf("120cm, %lf\n", pow(10, 3 + coefficient * 90));
+    printf("--\n");
+    for (size_t i = 1; i <= 11; i++)
+    {
+        printf("%zucm, %lfml\n", i * 10, pow(10, 0.3 + (double)i * 0.7));
+    }
+    printf("%lf\n", log10(50) * 20 / 25);
+
+    char a = *((char *)NULL);
+    printf("%c\n", a);
+
+
     return EXIT_SUCCESS;
 }

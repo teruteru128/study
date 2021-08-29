@@ -15,6 +15,7 @@
  * eventfd
  * timerfd
  * signalfd
+ * epoll
  * 
  * Linuxにおけるウェイト処理
  * - sleep

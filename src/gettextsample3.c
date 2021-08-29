@@ -13,6 +13,13 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+/**
+ * @brief gettextのサンプル3
+ * sleep, usleep, nanosleep, timerfd,
+ * select, settimer, pthread_cond_timedwait
+ * 
+ * @return int 
+ */
 int main(void)
 {
     useconds_t microseconds = 3.75 * 1000000;

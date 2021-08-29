@@ -6,25 +6,25 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/select.h>
 #include <netdb.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <print_addrinfo.h>
+#include <printaddrinfo.h>
 
 /**
  * スタートアップ
  */
 int main(int argc, char *argv[])
 {
-    struct addrinfo hints;   /* 取得したいアドレス情報を指示する */
-    struct addrinfo *res;    /* 取得したアドレス情報が返ってくる */
+    struct addrinfo hints; /* 取得したいアドレス情報を指示する */
+    struct addrinfo *res; /* 取得したアドレス情報が返ってくる */
     struct addrinfo *adrinf; /* 接続要求時に使う */
 
     int rc;
@@ -61,7 +61,8 @@ int main(int argc, char *argv[])
         /*
          * ソケットを生成する。
          */
-        sock = socket(adrinf->ai_family, adrinf->ai_socktype, adrinf->ai_protocol);
+        sock = socket(adrinf->ai_family, adrinf->ai_socktype,
+                      adrinf->ai_protocol);
         if (sock < 0)
         {
             perror("socket()");
@@ -82,7 +83,7 @@ int main(int argc, char *argv[])
         break;
     }
     /* アドレス情報を表示する */
-    print_addrinfo(adrinf);
+    printaddrinfo(adrinf);
 
     len = write(sock, "334", strlen("334"));
     if (len == 0)
