@@ -45,7 +45,7 @@ if(OPENSSL_FOUND)
     include_directories(${OPENSSL_INCLUDE_DIR})
 endif(OPENSSL_FOUND)
 
-find_package(PostgreSQL REQUIRED)
+find_package(PostgreSQL)
 if(PostgreSQL_FOUND)
     include_directories(${PostgreSQL_INCLUDE_DIRS})
 endif(PostgreSQL_FOUND)

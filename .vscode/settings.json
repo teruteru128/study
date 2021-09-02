@@ -137,6 +137,8 @@
         "automated.h": "c",
         "server.h": "c",
         "print_addrinfo.h": "c",
-        "postgres_ext.h": "c"
+        "postgres_ext.h": "c",
+        "bitmessage.h": "c",
+        "ossl_typ.h": "c"
     }
 }

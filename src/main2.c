@@ -2,6 +2,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <bm.h>
 #include <changebase.h>
 #include <gmp.h>
 #include <limits.h>
@@ -11,6 +12,7 @@
 #include <openssl/ec.h>
 #include <openssl/evp.h>
 #include <printaddrinfo.h>
+#include <regex.h>
 #include <signal.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -20,6 +22,38 @@
 #include <time.h>
 #include <unistd.h>
 #include <wchar.h>
+
+int readprivkey(PrivateKey *pkey, size_t index)
+{
+    size_t fileindex = index >> 24;
+    char filename[PATH_MAX];
+    snprintf(filename, PATH_MAX, "privateKeys%ld.bin", fileindex);
+
+    FILE *fin = fopen(filename, "rb");
+    if (fin == NULL)
+    {
+        return EXIT_FAILURE;
+    }
+
+    long seekpos = (long)(index & 0xFFFFFFUL) * PRIVATE_KEY_LENGTH;
+
+    if (fseek(fin, seekpos, SEEK_SET) != 0)
+    {
+        perror("fseek");
+        fclose(fin);
+        return EXIT_FAILURE;
+    }
+
+    if (fread(pkey, PRIVATE_KEY_LENGTH, 1, fin) != 1)
+    {
+        perror("fread");
+        fclose(fin);
+        return EXIT_FAILURE;
+    }
+
+    fclose(fin);
+    return EXIT_SUCCESS;
+}
 
 /*
  *
@@ -73,57 +107,63 @@
  * @param argv
  * @return int
  */
-int main(void)
+int main(int argc, char *argv[])
 {
-    struct timespec ts;
-    clock_gettime(CLOCK_REALTIME, &ts);
-    struct tm result;
-    struct tm *t = localtime_r(&ts.tv_sec, &result);
-    printf("%d, %p\n", t == &result, (void *)t);
-    printf("%ld\n", (ts.tv_sec + result.tm_gmtoff) % 86400L);
-    printf("%ld.%09ld\n", ts.tv_sec, ts.tv_nsec);
-    printf("%02d:%02d:%02d, %ld, %s\n", result.tm_hour, result.tm_min,
-           result.tm_sec, result.tm_gmtoff, result.tm_zone);
-
-    printf("%d, %d\n", 30, 1000);
-    printf("%d, %d\n", 55, 50000);
-    printf("%d, %lf\n", 30, log10(1000));
-    printf("%d, %lf\n", 55, log10(50000));
-    const double coefficient = log10(50) / 25;
-    printf("%lf\n", coefficient * 10 / 25);
-    /*
-     3 - ((20+log10(5) * 20) / 25)
-    = (75-20 - 20 log10(5))/25
-    = (55 + 20log10(5))/25
-    */
-    printf("9cm, %lf\n", pow(10, - coefficient * 1 + ((55-log10(5) * 20) / 25)));
-    printf("10cm, %lf\n", pow(10, coefficient * 0 + ((55-log10(5) * 20) / 25)));
-    printf("20cm, %lf\n", pow(10, 3 + coefficient * 10 + ((55-log10(5) * 20) / 25)));
-    printf("30cm, %lf\n", pow(10, 3 + coefficient * 20 + ((55-log10(5) * 20) / 25)));
-    printf("31cm, %lf\n", pow(10, 3 + coefficient * 21 + ((55-log10(5) * 20) / 25)));
-    printf("35cm, %lf\n", pow(10, 3 + coefficient * 25 + ((55-log10(5) * 20) / 25)));
-    printf("40cm, %lf\n", pow(10, 3 + coefficient * 30 + ((55-log10(5) * 20) / 25)));
-    printf("45cm, %lf\n", pow(10, 3 + coefficient * 15));
-    printf("50cm, %lf\n", pow(10, 3 + coefficient * 20));
-    printf("55cm, %lf\n", pow(10, 3 + coefficient * 25));
-    printf("60cm, %lf\n", pow(10, 3 + coefficient * 30));
-    printf("70cm, %lf\n", pow(10, 3 + coefficient * 40));
-    printf("80cm, %lf\n", pow(10, 3 + coefficient * 50));
-    printf("90cm, %lf\n", pow(10, 3 + coefficient * 60));
-    printf("100cm, %lf\n", pow(10, 3 + coefficient * 70));
-    printf("105cm, %lf\n", pow(10, 3 + coefficient * 75));
-    printf("110cm, %lf\n", pow(10, 3 + coefficient * 80));
-    printf("120cm, %lf\n", pow(10, 3 + coefficient * 90));
-    printf("--\n");
-    for (size_t i = 1; i <= 11; i++)
+    if (argc != 3)
     {
-        printf("%zucm, %lfml\n", i * 10, pow(10, 0.3 + (double)i * 0.7));
+        return 1;
     }
-    printf("%lf\n", log10(50) * 20 / 25);
 
-    char a = *((char *)NULL);
-    printf("%c\n", a);
+    size_t signindex = strtoul(argv[1], NULL, 10);
+    size_t encindex = strtoul(argv[2], NULL, 10);
 
+    PrivateKey signprivkey = "";
+    PrivateKey encprivkey = "";
+
+    if (readprivkey(&signprivkey, signindex) != 0)
+    {
+        perror("readprivkey 1");
+        return EXIT_FAILURE;
+    }
+    if (readprivkey(&encprivkey, encindex) != 0)
+    {
+        perror("readprivkey 2");
+        return EXIT_FAILURE;
+    }
+
+    PublicKey signpubkey = "";
+    PublicKey encpubkey = "";
+
+    getPublicKey(&signpubkey, &signprivkey);
+    getPublicKey(&encpubkey, &encprivkey);
+
+    unsigned char hash[EVP_MAX_MD_SIZE];
+
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+
+    const EVP_MD *sha512 = EVP_sha512();
+    const EVP_MD *ripemd160 = EVP_ripemd160();
+
+    EVP_DigestInit(ctx, sha512);
+    EVP_DigestUpdate(ctx, signpubkey, PUBLIC_KEY_LENGTH);
+    EVP_DigestUpdate(ctx, encpubkey, PUBLIC_KEY_LENGTH);
+    EVP_DigestFinal(ctx, hash, NULL);
+    EVP_DigestInit(ctx, ripemd160);
+    EVP_DigestUpdate(ctx, hash, 64);
+    EVP_DigestFinal(ctx, hash, NULL);
+
+    EVP_MD_CTX_free(ctx);
+
+    char *signwif = encodeWIF(&signprivkey);
+    char *encwif = encodeWIF(&encprivkey);
+
+    char *address = encodeV4Address(hash, 20);
+
+    char *format = formatKey(address, signwif, encwif);
+
+    free(address);
+    printf("%s\n", format);
+    free(format);
 
     return EXIT_SUCCESS;
 }
