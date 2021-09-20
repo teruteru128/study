@@ -2,8 +2,11 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include "timeutil.h"
+#include <openssl/evp.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 /*
  *
@@ -60,34 +63,71 @@
 int main(int argc, char *argv[])
 {
     (void)argc, (void)argv;
-
-    unsigned char publickey[72] = "";
-
-    FILE *fin = fopen("publicKeys.bin", "rb");
-    FILE *fout = fopen("publicKeys-aligned.bin", "wb");
-
-    size_t items = 0;
     int ret = EXIT_SUCCESS;
 
-    for (size_t i = 0; i < 0x4000000UL; i++)
+    unsigned char *publickey = malloc(4831838208UL);
+    const EVP_MD *sha512 = EVP_sha512();
+    const EVP_MD *ripemd160 = EVP_ripemd160();
+    EVP_MD_CTX *ctx_ma = EVP_MD_CTX_new();
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    unsigned char hash[EVP_MAX_MD_SIZE];
+
+    FILE *fin = fopen("publicKeys-aligned.bin", "rb");
+    size_t items = fread(publickey, 72, 0x4000000UL, fin);
+    if (items != 0x4000000UL)
     {
-        items = fread(publickey, 65, 1, fin);
-        if (items != 1)
-        {
-            ret = EXIT_FAILURE;
-            perror("fread");
-            break;
-        }
-        items = fwrite(publickey, 72, 1, fout);
-        if (items != 1)
-        {
-            ret = EXIT_FAILURE;
-            perror("fwrite");
-            break;
-        }
+        fclose(fin);
+        free(publickey);
+        return EXIT_FAILURE;
     }
     fclose(fin);
-    fclose(fout);
+
+    size_t nlz_count[21] = { 0 };
+
+    size_t i;
+    size_t j;
+    size_t ii;
+    size_t jj;
+    size_t iii;
+    size_t jjj;
+    size_t ii_max = 0;
+    size_t jj_max = 0;
+    size_t iii_max = 0;
+    size_t jjj_max = 0;
+    for (i = 0; i < 4831838208UL; i += 0x480UL)
+    {
+        ii_max = i + 0x480UL;
+        for (j = 0; j < 4831838208UL; j += 0x480UL)
+        {
+            jj_max = j + 0x480UL;
+            for (iii = ii; iii < ii_max; iii += 0x48UL)
+            {
+                EVP_DigestInit(ctx_ma, sha512);
+                EVP_DigestUpdate(ctx_ma, publickey + iii, 65);
+                for (jjj = jj; jjj < jj_max; jjj += 0x48UL)
+                {
+                    EVP_MD_CTX_copy(ctx, ctx_ma);
+                    EVP_DigestUpdate(ctx, publickey + jjj, 65);
+                    EVP_DigestFinal(ctx, hash, NULL);
+                    EVP_DigestInit(ctx, ripemd160);
+                    EVP_DigestUpdate(ctx, hash, 64);
+                    EVP_DigestFinal(ctx, hash, NULL);
+                    nlz_count[__builtin_clzl(*(unsigned long *)hash) >> 3]++;
+                }
+            }
+        }
+    }
+    for (size_t k = 0; k < 21; k++)
+    {
+        if (k != 0)
+            fputs(",", stdout);
+        printf("%zu", nlz_count[k]);
+    }
+    fputs("\n", stdout);
+    EVP_MD_CTX_free(ctx);
+    EVP_MD_CTX_free(ctx_ma);
+
+    free(publickey);
 
     return ret;
 }
