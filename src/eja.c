@@ -2,7 +2,11 @@
 #include <stdio.h>
 #include <math.h>
 
-void eja()
+/**
+ * @brief ejaculation
+ * 
+ */
+void eja(void)
 {
     /* 
      * y=x/(1+x)

@@ -45,7 +45,7 @@
  * 10.0cm, 47081.586164ml
  * 38.2cm, 74641.376689ml
  */
-int main(int argc, char const *argv[])
+int ftnr_penis(int argc, char const *argv[])
 {
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);

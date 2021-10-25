@@ -246,7 +246,7 @@ static int search_main(int argc, char **argv)
 
     // pthread_rwlock_init(&globalCounts_rwlock, NULL);
     pthread_spin_init(&globalSignIndex_spinlock, PTHREAD_PROCESS_SHARED);
-    pthread_t *threads = malloc(threadNum * sizeof(pthread_t));
+    pthread_t threads[threadNum];
     struct timespec start;
     clock_gettime(CLOCK_REALTIME, &start);
     for (size_t i = 0; i < threadNum; i++)
@@ -314,7 +314,6 @@ static int search_main(int argc, char **argv)
     }
     fprintf(stderr, "globalSignIndex : %zu\n", globalSignIndex);
 
-    free(threads);
     free(publicKeys);
     return EXIT_SUCCESS;
 }
