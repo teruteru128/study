@@ -16,7 +16,7 @@
 #define DEFAULT_SERV_ADDRESS6 "::1"
 
 /**
- * アライメントが入るためそのまま送信してはいけない
+ * deprecated: description アライメントが入るためそのまま送信してはいけない
  */
 typedef struct bouyomi_header_t
 {

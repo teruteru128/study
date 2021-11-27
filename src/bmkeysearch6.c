@@ -8,7 +8,7 @@
 #include <time.h>
 
 static int calchash(EVP_MD_CTX *mdctx, const EVP_MD *sha512,
-                    const EVP_MD *ripemd160, char *ekey, char *skey,
+                    const EVP_MD *ripemd160, unsigned char *ekey, unsigned char *skey,
                     size_t *casted)
 {
     unsigned char hash[EVP_MAX_MD_SIZE] = "";
@@ -72,6 +72,8 @@ static int calchash(EVP_MD_CTX *mdctx, const EVP_MD *sha512,
  * 複数スレッドをpthread_cond_tで止めてメインスレッドでtimerfdを使って指定時刻まで待ち、pthread_cond_broadcastで一斉に起動する
  *
  * ファイルからGMPのmpzに整数を読み込んだりOpenSSLのBIGNUMに整数を読み込んだり乱数を読み込んだりを共通化したい
+ * 
+ * 
  */
 /**
  * @brief sanbox func.

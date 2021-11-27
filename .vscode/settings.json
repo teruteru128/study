@@ -139,6 +139,16 @@
         "print_addrinfo.h": "c",
         "postgres_ext.h": "c",
         "bitmessage.h": "c",
-        "ossl_typ.h": "c"
-    }
+        "ossl_typ.h": "c",
+        "eja.h": "c",
+        "ftnr.h": "c",
+        "stdatomic.h": "c",
+        "*.in": "cpp",
+        "signal.h": "c",
+        "libpq-fe.h": "c"
+    },
+    "cmake.generator": "Ninja",
+    "cmake.configureArgs": [
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
+    ]
 }

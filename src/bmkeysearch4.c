@@ -110,8 +110,8 @@ static void *threadFunc(void *arg)
                 EVP_DigestUpdate(mdctx, hash, 64);
                 EVP_DigestFinal(mdctx, hash, &mdlen);
                 assert(mdlen == 20);
-                tmp = htobe64(*(unsigned long *)hash);
-                nlz = ((tmp == 0) ? 64UL : (size_t)__builtin_clzl(tmp)) >> 3;
+                tmp = *(unsigned long *)hash;
+                nlz = ((tmp == 0) ? 64UL : (size_t)__builtin_clzl(htobe64(tmp))) >> 3;
                 if (nlz >= 4)
                 {
                     nlz = getNLZ(hash, 20);

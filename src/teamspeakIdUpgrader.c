@@ -7,6 +7,7 @@
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <signal.h>
+#include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,11 +19,13 @@
 #include <printint.h>
 #define IN2_SIZE 24
 
-static volatile uint64_t verifier;
+static volatile atomic_size_t verifier;
+static volatile sig_atomic_t eflag = 0;
 
 static void act(int sig)
 {
-    fprintf(stderr, "%d,verifier=%" PRIu64 "\n", sig, verifier);
+    // fprintf(stderr, "%d,verifier=%" PRIu64 "\n", sig, verifier);
+    eflag = 1;
 }
 
 #define IN "MEsDAgcAAgEgAiAoQPNcS7L4k+q2qf3U7uyujtwRQNS3pLKN/" \

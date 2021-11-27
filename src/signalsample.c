@@ -11,11 +11,13 @@
 
 /**
  * signal sample
+ * https://www.jpcert.or.jp/sc-rules/c-sig30-c.html
+ * signalハンドラ内で fprintf は未定義動作
  * TODO: use sigaction(2)
  */
 static void sigint_action(int sig)
 {
-    fprintf(stdout, "SIGINT recive(%d)\n", sig);
+    //fprintf(stdout, "SIGINT recive(%d)\n", sig);
 }
 
 static int set_signal_handler(void)

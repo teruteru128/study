@@ -6,6 +6,7 @@
 
 #include "yattaze.h"
 #include <errno.h>
+#include <getopt.h>
 #include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,6 +75,7 @@
  * unsigned int GetTaskCount();
  *
  * TODO: bouyomi コマンドのサブコマンドとして各種コマンドを実装する
+ * 環境変数でサーバー情報を設定する https://12factor.net/ja/
  *
  * @param argc
  * @param argv
@@ -81,24 +83,25 @@
  */
 int main(const int argc, const char *argv[])
 {
-    short speed = -1, tone = -1, volume = -1, voice = 0;
-    char *msg;
+    short command = 0x0001, speed = -1, tone = -1, volume = -1, voice = 0;
+    char code = 0;
+    const char *host_msg = NULL;
 
     //コマンドライン引数処理
     switch (argc)
     {
     case 1:
-        msg = strdup(YATTAZE);
+        host_msg = YATTAZE;
         break;
     case 2:
-        msg = strdup(argv[1]);
+        host_msg = argv[1];
         break;
     case 6:
         speed = (short)atoi(argv[1]);
         tone = (short)atoi(argv[2]);
         volume = (short)atoi(argv[3]);
         voice = (short)atoi(argv[4]);
-        msg = strdup(argv[5]);
+        host_msg = argv[5];
         break;
     default:
         printf("使用法1>%s\n", argv[0]);
@@ -108,19 +111,21 @@ int main(const int argc, const char *argv[])
                argv[0]);
         return -1;
     }
-    size_t len = strlen(msg);
+    // TODO: encodingを変換するならここ
+    const char *encoded_message = host_msg;
+    size_t len = strlen(encoded_message);
 
     char name[NI_MAXHOST] = "192.168.12.5";
     char service[NI_MAXSERV] = "50001";
 
     unsigned char header[15];
     //送信するデータの生成(文字列を除いた先頭の部分)
-    *((short *)(header + 0)) = (short)htole16((unsigned short)0x0001);
+    *((short *)(header + 0)) = (short)htole16((unsigned short)command);
     *((short *)(header + 2)) = (short)htole16((unsigned short)speed);
     *((short *)(header + 4)) = (short)htole16((unsigned short)tone);
     *((short *)(header + 6)) = (short)htole16((unsigned short)volume);
     *((short *)(header + 8)) = (short)htole16((unsigned short)voice);
-    *((char *)(header + 10)) = 0;
+    *((char *)(header + 10)) = code;
     *((int *)(header + 11)) = (int)htole32((unsigned int)len);
 
     struct addrinfo hints = { 0 };
@@ -131,7 +136,6 @@ int main(const int argc, const char *argv[])
     if ((err = getaddrinfo(name, service, &hints, &res)) != 0)
     {
         fprintf(stderr, "%s", gai_strerror(err));
-        free(msg);
         return 1;
     }
 
@@ -140,50 +144,38 @@ int main(const int argc, const char *argv[])
     if (sock < 0)
     {
         perror("socket");
-        free(msg);
         freeaddrinfo(res);
-        msg = NULL;
         return 1;
     }
     if (connect(sock, res->ai_addr, res->ai_addrlen) < 0)
     {
         perror("connect");
-        free(msg);
         freeaddrinfo(res);
-        msg = NULL;
         return 1;
     }
+    freeaddrinfo(res);
+    res = NULL;
 
     if (send(sock, header, 15, 0) < 0)
     {
         perror("send 1");
-        close(sock);
-        freeaddrinfo(res);
-        msg = NULL;
-        return 1;
+        ret = 1;
+        goto fail;
     }
-    if (send(sock, msg, len, 0) < 0)
+    if (send(sock, host_msg, len, 0) < 0)
     {
+        ret = 1;
         perror("send 2");
-        close(sock);
-        freeaddrinfo(res);
-        msg = NULL;
-        return 1;
+        goto fail;
     }
+
+fail:
 
     if (close(sock) < 0)
     {
         ret = 1;
     }
     sock = -1;
-
-    freeaddrinfo(res);
-    free(msg);
-    msg = NULL;
-    if (ret != 0)
-    {
-        perror("");
-    }
 
     return ret;
 }

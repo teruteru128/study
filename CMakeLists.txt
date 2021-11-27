@@ -2,7 +2,9 @@
 # https://qiita.com/shohirose/items/637f4b712893764a7ec1
 # https://qiita.com/shohirose/items/d2b9c595a37b27ece607
 cmake_minimum_required(VERSION 3.0.0)
-project(study VERSION 1.0.2 LANGUAGES C CXX)
+project(study VERSION 1.0.3 LANGUAGES C CXX)
+
+include(CheckLanguage)
 
 option(WITH_GETTEXT "translate messages if gettext is available" ON)
 
@@ -14,7 +16,7 @@ if(Threads_FOUND)
 endif(Threads_FOUND)
 
 
-find_package(CURL)
+find_package(CURL REQUIRED)
 if(CURL_FOUND)
     include_directories(${CURL_INCLUDE_DIRS})
 endif(CURL_FOUND)
@@ -45,10 +47,23 @@ if(OPENSSL_FOUND)
     include_directories(${OPENSSL_INCLUDE_DIR})
 endif(OPENSSL_FOUND)
 
-find_package(PostgreSQL)
+find_package(PostgreSQL REQUIRED)
 if(PostgreSQL_FOUND)
     include_directories(${PostgreSQL_INCLUDE_DIRS})
 endif(PostgreSQL_FOUND)
+
+find_package(OpenMP REQUIRED)
+if(OpenMP_FOUND)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
+# see https://cliutils.gitlab.io/modern-cmake/chapters/packages/CUDA.html
+check_language(CUDA)
+if(CMAKE_CUDA_COMPILER)
+    enable_language(CUDA)
+    message("Cuda version: " ${CUDA_VERSION})
+endif()
 
 
 #link_libraries(${CMAKE_THREAD_LIBS_INIT} ${Intl_LIBRARIES} ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${OPENSSL_SSL_LIBRARIES})
@@ -64,6 +79,7 @@ CHECK_INCLUDE_FILE(limits.h HAVE_LIMITS_H)
 CHECK_INCLUDE_FILE(locale.h HAVE_LOCALE_H)
 CHECK_INCLUDE_FILE(netinet/in.h HAVE_NETINET_H)
 CHECK_INCLUDE_FILE(omp.h HAVE_OMP_H)
+CHECK_INCLUDE_FILE(stdatomic.h HAVE_STDATOMIC_H)
 CHECK_INCLUDE_FILE(stddef.h HAVE_STDDEF_H)
 CHECK_INCLUDE_FILE(stdint.h HAVE_STDINT_H)
 CHECK_INCLUDE_FILE(stdlib.h HAVE_STDLIB_H)
@@ -103,11 +119,11 @@ check_symbol_exists(mmap "sys/mman.h" HAVE_MMAP)
 check_symbol_exists(realloc "stdlib.h" HAVE_REALLOC)
 check_symbol_exists(strtod "stdlib.h" HAVE_STRTOD)
 check_symbol_exists(clock_gettime "time.h" HAVE_CLOCK_GETTIME)
-check_symbol_exists(timerfd_create "sys/timerfd.h" HAVE_CLOCK_GETTIME)
+#check_symbol_exists(timerfd_create "sys/timerfd.h" HAVE_CLOCK_GETTIME)
 check_symbol_exists(getcwd "unistd.h" HAVE_GETCWD)
 check_symbol_exists(gettimeofday "sys/time.h" HAVE_GETTIMEOFDAY)
 check_symbol_exists(inet_ntoa "sys/socket.h" HAVE_INET_NTOA)
-check_symbol_exists(inet_ntoa "arpa/inet.h" HAVE_INET_NTOA)
+#check_symbol_exists(inet_ntoa "arpa/inet.h" HAVE_INET_NTOA)
 check_symbol_exists(localtime_r "time.h" HAVE_LOCALTIME_R)
 check_symbol_exists(memchr "string.h" HAVE_MEMCHR)
 check_symbol_exists(memset "string.h" HAVE_MEMSET)
@@ -131,8 +147,7 @@ check_symbol_exists(sqrt "math.h" HAVE_SQRT)
 include_directories(${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/libstudy/include ${CMAKE_CURRENT_SOURCE_DIR})
 add_compile_options(-Wall -Wextra -pedantic-errors -Wcast-align -Wcast-qual -Wconversion -Wdisabled-optimization -Wendif-labels -Wfloat-equal -Winit-self -Winline -Wlogical-op -Wmissing-include-dirs -Wpacked -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wswitch-enum -Wunsafe-loop-optimizations -Wvariadic-macros -Wwrite-strings)
 add_compile_definitions(PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}" VERSION="${study_VERSION}")
-#configure_file(config.h.in config.h)
-#include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories("${PROJECT_BINARY_DIR}")
 
 add_subdirectory(libstudy)
 add_subdirectory(include)
@@ -143,3 +158,6 @@ add_subdirectory(tests)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
+
+set(HAVE_CONFIG_H 1)
+configure_file(config.h.in config.h)

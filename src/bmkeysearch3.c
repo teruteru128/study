@@ -22,6 +22,7 @@
 #include <pthread.h>
 #include <random.h>
 #include <signal.h>
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <string.h>
 #include <sys/mman.h>
@@ -35,18 +36,16 @@
 static const EVP_MD *sha512;
 static const EVP_MD *ripemd160;
 
-static size_t globalSignIndex = 0;
-// static pthread_mutex_t globalSignIndex_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_spinlock_t globalSignIndex_spinlock;
+static atomic_size_t globalSignIndex = 0;
 
 // 合計
-static size_t globalCounts[21] = { 0 };
+static atomic_size_t globalCounts[21] = { 0 };
 // static pthread_rwlock_t globalCounts_rwlock;
 static pthread_mutex_t globalCounts_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static PublicKey *publicKeys = NULL;
-static int success = 0;
-static int finished = 0;
+static volatile sig_atomic_t success = 0;
+static volatile sig_atomic_t finished = 0;
 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
@@ -70,11 +69,7 @@ static void *threadFunc(void *arg)
     while (!finished)
     {
 
-        // pthread_mutex_lock(&globalSignIndex_mutex);
-        pthread_spin_lock(&globalSignIndex_spinlock);
         signIndex = globalSignIndex++;
-        pthread_spin_unlock(&globalSignIndex_spinlock);
-        // pthread_mutex_unlock(&globalSignIndex_mutex);
         if (signIndex >= KEY_CACHE_SIZE)
         {
             success = 1;
@@ -140,7 +135,8 @@ static void *threadFunc(void *arg)
 static void sigint_action(int sig)
 {
     (void)sig;
-    fputs("終了しています。お待ち下さい。。。\n", stderr);
+    // fputs をシグナルハンドラから呼び出してはいけない https://www.jpcert.or.jp/sc-rules/c-sig30-c.html
+    // fputs("終了しています。お待ち下さい。。。\n", stderr);
     success = false;
     finished = true;
     // pthread_cond_broadcast をシグナルハンドラから呼び出してはいけない
@@ -238,8 +234,6 @@ static int search_main(int argc, char **argv)
     sha512 = EVP_sha512();
     ripemd160 = EVP_ripemd160();
 
-    // pthread_rwlock_init(&globalCounts_rwlock, NULL);
-    pthread_spin_init(&globalSignIndex_spinlock, PTHREAD_PROCESS_SHARED);
     pthread_t *threads = malloc(threadNum * sizeof(pthread_t));
     for (size_t i = 0; i < threadNum; i++)
     {
@@ -258,7 +252,11 @@ static int search_main(int argc, char **argv)
         pthread_cond_timedwait(&cond, &mutex, &spec);
         pthread_mutex_unlock(&mutex);
     }
-    */
+     */
+    while (!finished)
+    {
+    }
+    fputs("終了しています。お待ち下さい。。。\n", stdout);
     for (size_t i = 0; i < threadNum; i++)
     {
         pthread_join(threads[i], NULL);
@@ -266,8 +264,6 @@ static int search_main(int argc, char **argv)
     fputs("スレッドの終了待ち合わせが完了しました\n", stderr);
     // pthread_rwlock_destroy(&globalCounts_rwlock);
     pthread_mutex_destroy(&globalCounts_mutex);
-    // pthread_mutex_destroy(&globalSignIndex_mutex);
-    pthread_spin_destroy(&globalSignIndex_spinlock);
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&cond);
 
