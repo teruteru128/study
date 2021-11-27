@@ -3,8 +3,11 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#ifdef ENABLE_NLS
 #include "gettext.h"
-#ifdef CMAKE_CUDA_COMPILER
+#include <locale.h>
+#endif
+#if defined(CMAKE_CUDA_COMPILER) && CMAKE_CUDA_COMPILER
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #endif
@@ -12,7 +15,6 @@
 #include <stdlib.h>
 #define _(str) gettext(str)
 #define N_(str) gettext_noop(str)
-#include <locale.h>
 
 #define N 200
 #define DEVICE 0

@@ -2,6 +2,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include "gettext.h"
+#include <features.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
