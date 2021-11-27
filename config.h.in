@@ -1,0 +1,53 @@
+// the configured options and settings for Tutorial
+#define Tutorial_VERSION_MAJOR @Tutorial_VERSION_MAJOR@
+#define Tutorial_VERSION_MINOR @Tutorial_VERSION_MINOR@
+
+#cmakedefine HAVE_GETTEXT
+#cmakedefine HAVE_ARPA_INET_H
+#cmakedefine HAVE_FCNTL_H
+#cmakedefine HAVE_FLOAT_H
+#cmakedefine HAVE_INTTYPES_H
+#cmakedefine HAVE_LIBINTL_H
+#cmakedefine HAVE_LIMITS_H
+#cmakedefine HAVE_LOCALE_H
+#cmakedefine HAVE_NETINET_H
+#cmakedefine HAVE_OMP_H
+#cmakedefine HAVE_STDDEF_H
+#cmakedefine HAVE_STDINT_H
+#cmakedefine HAVE_STDLIB_H
+#cmakedefine HAVE_XMLRPC_C_BASE_H
+#cmakedefine HAVE_XMLRPC_C_CLIENT_H
+#cmakedefine HAVE_UNISTD_H
+#cmakedefine HAVE_NETDB_H
+#cmakedefine HAVE_SYS_SOCKET_H
+#cmakedefine HAVE_WCHAR_H
+
+#cmakedefine HAVE_FORK
+#cmakedefine HAVE_MALLOC
+#cmakedefine HAVE_MKTIME
+#cmakedefine HAVE_MMAP
+#cmakedefine HAVE_REALLOC
+#cmakedefine HAVE_STRTOD
+#cmakedefine HAVE_CLOCK_GETTIME
+#cmakedefine HAVE_CLOCK_GETTIME
+#cmakedefine HAVE_GETCWD
+#cmakedefine HAVE_GETTIMEOFDAY
+#cmakedefine HAVE_INET_NTOA
+#cmakedefine HAVE_INET_NTOA
+#cmakedefine HAVE_LOCALTIME_R
+#cmakedefine HAVE_MEMCHR
+#cmakedefine HAVE_MEMSET
+#cmakedefine HAVE_REGCOMP
+#cmakedefine HAVE_REGCOMP
+#cmakedefine HAVE_SETLOCALE
+#cmakedefine HAVE_SOCKET
+#cmakedefine HAVE_STRCHR
+#cmakedefine HAVE_STRDUP
+#cmakedefine HAVE_STRERROR
+#cmakedefine HAVE_STRPBRK
+#cmakedefine HAVE_STRSPN
+#cmakedefine HAVE_STRSTR
+#cmakedefine HAVE_STRTOULL
+#cmakedefine HAVE_TZSET
+#cmakedefine HAVE_POW
+#cmakedefine HAVE_SQRT
