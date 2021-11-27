@@ -1,5 +1,0 @@
-
-METASOURCES=AUTO
-check_PROGRAMS=
-TESTS=test.sh
-EXTRA_DIST=test.sh
