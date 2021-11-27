@@ -7,6 +7,9 @@ project(study VERSION 1.0.3 LANGUAGES C CXX)
 include(CheckLanguage)
 
 option(WITH_GETTEXT "translate messages if gettext is available" ON)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+add_compile_definitions(HAVE_CONFIG_H=1)
+#add_compile_definitions(_XOPEN_SOURCE=700)
 
 #include(CTest)
 enable_testing()
@@ -89,25 +92,21 @@ CHECK_INCLUDE_FILE(xmlrpc-c/client.h HAVE_XMLRPC_C_CLIENT_H)
 
 CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
 if(HAVE_UNISTD_H)
-    add_compile_definitions(HAVE_UNISTD_H)
 endif(HAVE_UNISTD_H)
 
 
 CHECK_INCLUDE_FILE(netdb.h HAVE_NETDB_H)
 if(HAVE_NETDB_H)
-    add_compile_definitions(HAVE_NETDB_H)
 endif(HAVE_NETDB_H)
 
 
 CHECK_INCLUDE_FILE(sys/socket.h HAVE_SYS_SOCKET_H)
 if(HAVE_SYS_SOCKET_H)
-    add_compile_definitions(HAVE_SYS_SOCKET_H)
 endif(HAVE_SYS_SOCKET_H)
 
 
 CHECK_INCLUDE_FILE(wchar.h HAVE_WCHAR_H)
 if(HAVE_WCHAR_H)
-    add_compile_definitions(HAVE_WCHAR_H)
 endif(HAVE_WCHAR_H)
 
 include(CheckFunctionExists)
@@ -159,5 +158,4 @@ set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
 
-set(HAVE_CONFIG_H 1)
 configure_file(config.h.in config.h)
