@@ -8,11 +8,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2
         with:
-          submodules: 'recursive'
+          submodules: true
       - name: Install dependents
         run: |
           sudo apt install autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64
