@@ -1,4 +1,4 @@
-# study ![C/C++ CI](https://github.com/teruteru128/study/workflows/C/C++%20CI/badge.svg)
+# study ![cmake](https://github.com/teruteru128/study/workflows/Release/badge.svg)![cmake](https://github.com/teruteru128/study/workflows/cmake/badge.svg)
 
 A garbage dump repository created for studying Teruteru.
 
@@ -8,15 +8,6 @@ A garbage dump repository created for studying Teruteru.
 
 ## TODO
 
-- 正規表現
-- MySQLクライアント
-- マルチスレッド(pthreads)
-- P2P地震情報プロトコル実装(P2P地震情報のLinux向けC言語実装)作成
-  - P2Pノード
-    - サーバー＆クライアント
-  - 可変長文字列リストもしくはキュー
-  - [パケット(プロトコル)構築](https://github.com/p2pquake/epsp-peer-cs/blob/f3cc70fd199806ced719fb9a692ec39b938924ba/Client/Common/Net/Packet.cs#L72)
-  - [プロトコルパーサ](https://github.com/p2pquake/epsp-specifications)
 - コマンドライン引数の解析
 - ファイル名の区切りをハイフンかアンダースコアのどちらかに統一する
 - TODO: signalfdのサンプル作成
@@ -48,6 +39,12 @@ A garbage dump repository created for studying Teruteru.
   - 否定先読み
   - 強欲な数量子
 
+- 複数スレッドをpthread_cond_tで止めてメインスレッドでtimerfdを使って指定時刻まで待ち、pthread_cond_broadcastで一斉に起動する
+
+- ファイルからGMPのmpzに整数を読み込んだりOpenSSLのBIGNUMに整数を読み込んだり乱数を読み込んだりを共通化したい
+
+- TODO: 既存の鍵からbitmessage用アドレスを探索する
+- P2P地震情報の実装を作る
 - P2P地震情報 ピア接続受け入れ＆ピアへ接続
 
   - 標準入力と標準出力を別スレッドで行うアプリ
@@ -60,10 +57,17 @@ A garbage dump repository created for studying Teruteru.
     - フォアグラウンドで起動
   - --daemon-mode
     デーモン化処理付きでバックグラウンドで起動
-
-- 複数スレッドをpthread_cond_tで止めてメインスレッドでtimerfdを使って指定時刻まで待ち、pthread_cond_broadcastで一斉に起動する
-
-- ファイルからGMPのmpzに整数を読み込んだりOpenSSLのBIGNUMに整数を読み込んだり乱数を読み込んだりを共通化したい
+  - P2P地震情報プロトコル実装(P2P地震情報のLinux向けC言語実装)作成
+  - P2Pノード
+    - サーバー＆クライアント
+  - 可変長文字列リストもしくはキュー
+  - [パケット(プロトコル)構築](https://github.com/p2pquake/epsp-peer-cs/blob/f3cc70fd199806ced719fb9a692ec39b938924ba/Client/Common/Net/Packet.cs#L72)
+  - [プロトコルパーサ](https://github.com/p2pquake/epsp-specifications)
+  - Rustがいいかも？
+- BitMessageの実装を作る
+  - Rustがいいかも？
+- 82589934bit 素数候補を検証する
+  - ミラーラビン素数判定法によるロジックそのものをマルチスレッド化する必要があるかもしれない
 
 ## Dependencies
 
