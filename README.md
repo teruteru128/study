@@ -164,3 +164,25 @@ A garbage dump repository created for studying Teruteru.
 ## かつて存在したクソ
 
 - Fork爆弾
+
+## BM
+
+- https://12factor.net/ja/
+- 簡単に立てたり落としたりできるDockerにまとめたい
+
+### 設定ファイル
+
+- 秘密鍵
+
+### 永続化DB
+
+- ノード一覧
+- 受信した公開鍵
+- メッセージ
+  - 受信ボックス
+  - 送信ボックス
+- 受信オブジェクト
+  - 処理済みカラムもつけたい
+
+### キャッシュ
+

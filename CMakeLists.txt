@@ -29,6 +29,7 @@ find_package(Git)
 if(GIT_FOUND)
 endif(GIT_FOUND)
 
+if(0)
 find_package(Intl)
 if(Intl_FOUND)
         include_directories(${Intl_INCLUDE_DIRS})
@@ -36,6 +37,7 @@ if(Intl_FOUND)
     else()
         set(LIBINTL_LIBRARIES)
 endif(Intl_FOUND)
+endif()
 
 
 find_package(Gettext)

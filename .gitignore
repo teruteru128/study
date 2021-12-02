@@ -181,3 +181,12 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+prime1.txt
+prime2.txt
+primelist.txt
+primelist2.txt
+primes.txt
+random.txt
+ripeandkeys.txt
+slimeSeeds.2.csv
+slimeSeeds.csv
