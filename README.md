@@ -64,6 +64,8 @@ A garbage dump repository created for studying Teruteru.
   - [パケット(プロトコル)構築](https://github.com/p2pquake/epsp-peer-cs/blob/f3cc70fd199806ced719fb9a692ec39b938924ba/Client/Common/Net/Packet.cs#L72)
   - [プロトコルパーサ](https://github.com/p2pquake/epsp-specifications)
   - Rustがいいかも？
+  - まずスレッドがいくつ必要になるかも把握してないんだが
+    - メインスレッドに何をさせるか、させないか
 - BitMessageの実装を作る
   - Rustがいいかも？
 - 82589934bit 素数候補を検証する
