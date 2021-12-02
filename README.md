@@ -43,7 +43,7 @@ A garbage dump repository created for studying Teruteru.
 
 - ファイルからGMPのmpzに整数を読み込んだりOpenSSLのBIGNUMに整数を読み込んだり乱数を読み込んだりを共通化したい
 
-- TODO: 既存の鍵からbitmessage用アドレスを探索する
+- TODO: #43 既存の鍵からbitmessage用アドレスを探索する
 - P2P地震情報の実装を作る
 - P2P地震情報 ピア接続受け入れ＆ピアへ接続
 
