@@ -44,31 +44,9 @@ A garbage dump repository created for studying Teruteru.
 - ファイルからGMPのmpzに整数を読み込んだりOpenSSLのBIGNUMに整数を読み込んだり乱数を読み込んだりを共通化したい
 
 - TODO: #43 既存の鍵からbitmessage用アドレスを探索する
-- TODO: P2P地震情報の実装を作る
-  - P2P地震情報 ピア接続受け入れ＆ピアへ接続
+- TODO: #44 P2P地震情報の実装を作る
 
-  - 標準入力と標準出力を別スレッドで行うアプリ
-  - リクエストを投げると適当なデータを投げ返す簡単なサーバープログラム
-  - リクエスト長さは8バイトに対応
-
-  - --help
-  - --version
-  - --server-mode
-    - フォアグラウンドで起動
-  - --daemon-mode
-    デーモン化処理付きでバックグラウンドで起動
-  - P2P地震情報プロトコル実装(P2P地震情報のLinux向けC言語実装)作成
-  - P2Pノード
-    - サーバー＆クライアント
-  - 可変長文字列リストもしくはキュー
-  - [パケット(プロトコル)構築](https://github.com/p2pquake/epsp-peer-cs/blob/f3cc70fd199806ced719fb9a692ec39b938924ba/Client/Common/Net/Packet.cs#L72)
-  - [プロトコルパーサ](https://github.com/p2pquake/epsp-specifications)
-  - Rustがいいかも？
-  - まずスレッドがいくつ必要になるかも把握してないんだが
-    - メインスレッドに何をさせるか、させないか
-  - https://www.slideshare.net/nabedge/java-the-twelve-factor-app
-    - BitMessageとP2P地震情報で共通のP2Pノードライブラリを作って、それを元に各プロトコルに対応する
-- BitMessageの実装を作る
+- TODO: BitMessageの実装を作る
   - Rustがいいかも？
 - 82589934bit 素数候補を検証する
   - ミラーラビン素数判定法によるロジックそのものをマルチスレッド化する必要があるかもしれない
