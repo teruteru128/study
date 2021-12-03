@@ -46,10 +46,9 @@ A garbage dump repository created for studying Teruteru.
 - TODO: #43 既存の鍵からbitmessage用アドレスを探索する
 - TODO: #44 P2P地震情報の実装を作る
 
-- TODO: BitMessageの実装を作る
-  - Rustがいいかも？
-- 82589934bit 素数候補を検証する
-  - ミラーラビン素数判定法によるロジックそのものをマルチスレッド化する必要があるかもしれない
+- TODO: #45 BitMessageの実装を作る
+- TODO: 82589934bit 素数候補を検証する
+  - ビット数が大きすぎて遅すぎるためミラーラビン素数判定法によるロジックそのものをマルチスレッド化する必要があるかもしれない
 
 ## Dependencies
 
