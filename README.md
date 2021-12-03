@@ -44,8 +44,8 @@ A garbage dump repository created for studying Teruteru.
 - ファイルからGMPのmpzに整数を読み込んだりOpenSSLのBIGNUMに整数を読み込んだり乱数を読み込んだりを共通化したい
 
 - TODO: #43 既存の鍵からbitmessage用アドレスを探索する
-- P2P地震情報の実装を作る
-- P2P地震情報 ピア接続受け入れ＆ピアへ接続
+- TODO: P2P地震情報の実装を作る
+  - P2P地震情報 ピア接続受け入れ＆ピアへ接続
 
   - 標準入力と標準出力を別スレッドで行うアプリ
   - リクエストを投げると適当なデータを投げ返す簡単なサーバープログラム
@@ -66,6 +66,8 @@ A garbage dump repository created for studying Teruteru.
   - Rustがいいかも？
   - まずスレッドがいくつ必要になるかも把握してないんだが
     - メインスレッドに何をさせるか、させないか
+  - https://www.slideshare.net/nabedge/java-the-twelve-factor-app
+    - BitMessageとP2P地震情報で共通のP2Pノードライブラリを作って、それを元に各プロトコルに対応する
 - BitMessageの実装を作る
   - Rustがいいかも？
 - 82589934bit 素数候補を検証する
