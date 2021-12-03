@@ -47,8 +47,7 @@ A garbage dump repository created for studying Teruteru.
 - TODO: #44 P2P地震情報の実装を作る
 
 - TODO: #45 BitMessageの実装を作る
-- TODO: 82589934bit 素数候補を検証する
-  - ビット数が大きすぎて遅すぎるためミラーラビン素数判定法によるロジックそのものをマルチスレッド化する必要があるかもしれない
+- TODO: #46 82589934bit 素数候補を検証する
 
 ## Dependencies
 
