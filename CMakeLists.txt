@@ -158,6 +158,13 @@ add_subdirectory(tests)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+set(CPACK_SOURCE_GENERATOR "TGZ")
+set(CPACK_SOURCE_IGNORE_FILES
+  "\\.git/"
+  "build/"
+  ".*~$"
+)
+set(CPACK_VERBATIM_VARIABLES YES)
 include(CPack)
 
 configure_file(config.h.in config.h)
