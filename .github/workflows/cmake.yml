@@ -1,16 +1,18 @@
 name: cmake
 
-on: [push]
+on:
+  push:
+    paths: ["include", "libstudy", "po", "pthreads", "src", "tests"]
 
   # Sample when vcpkg is a submodule of your repository (highly recommended!)
 
-jobs: 
+jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
         with:
-          submodules: 'recursive'
+          submodules: "recursive"
       - name: Install dependents
         run: sudo apt install ninja-build autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64 gettext
       - name: Configuration
