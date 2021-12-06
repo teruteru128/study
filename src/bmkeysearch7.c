@@ -58,38 +58,55 @@ int main(int argc, char *argv[])
     // counts の定義で _Atomic を使うか reduction を使うかは考えどころ
     // 多分 reduction のほうが早い(要検証)
     size_t counts[21] = { 0 };
-    // 4503599627370496UL
-    // 268435456UL : 30秒ぐらい
+    // 67108864:4503599627370496UL:4362076160UL:( ﾟдﾟ)……？
+    // 16384:268435456UL : 30秒ぐらい
     // 67108864UL
-#pragma omp parallel for default(none) shared(sha512, ripemd160, memories) private(hash, mdctx, mdlen, tmp) reduction(+: counts[:21])
-    for (size_t i = 0; i < 16384; i++)
+    size_t i = 0;
+    size_t j = 0;
+    size_t ii = 0;
+    size_t ii_max = 0;
+    size_t jj = 0;
+    size_t jj_max = 0;
+    unsigned char *sign = NULL;
+#pragma omp parallel for default(none) shared(sha512, ripemd160, memories, stdout) private(hash, mdctx, mdlen, tmp, i, j, ii, ii_max, jj, jj_max, sign) reduction(+: counts[:21])
+    for (i = 0; i < 4362076160UL; i += 1040)
     {
         mdctx = EVP_MD_CTX_new();
-        for (size_t j = 0; j < 16384; j++)
+        ii_max = i + 1040;
+        for (j = 0; j < 4362076160UL; j += 1040)
         {
-            EVP_DigestInit(mdctx, sha512);
-            EVP_DigestUpdate(mdctx, memories + i * 65, 65);
-            EVP_DigestUpdate(mdctx, memories + j * 65, 65);
-            EVP_DigestFinal(mdctx, hash, &mdlen);
-            assert(mdlen == 64);
-            EVP_DigestInit(mdctx, ripemd160);
-            EVP_DigestUpdate(mdctx, hash, 64);
-            EVP_DigestFinal(mdctx, hash, &mdlen);
-            assert(mdlen == 20);
-            tmp = htobe64(*(unsigned long *)hash);
-            tmp = clzl(tmp);
-            counts[tmp]++;
-            if (tmp >= 3)
+            jj_max = j + 1040;
+            for (ii = i; ii < ii_max; ii += 65)
             {
-                printf("%lu, %zu, %zu\n", tmp, i, j);
+                sign = memories + ii;
+                for (jj = j; jj < jj_max; jj += 65)
+                {
+                    EVP_DigestInit(mdctx, sha512);
+                    EVP_DigestUpdate(mdctx, sign, 65);
+                    EVP_DigestUpdate(mdctx, memories + jj, 65);
+                    EVP_DigestFinal(mdctx, hash, &mdlen);
+                    assert(mdlen == 64);
+                    EVP_DigestInit(mdctx, ripemd160);
+                    EVP_DigestUpdate(mdctx, hash, 64);
+                    EVP_DigestFinal(mdctx, hash, &mdlen);
+                    assert(mdlen == 20);
+                    tmp = htobe64(*(unsigned long *)hash);
+                    tmp = clzl(tmp);
+                    counts[tmp]++;
+                    if (tmp >= 4)
+                    {
+                        printf("%lu, %zu, %zu\n", tmp, ii, jj);
+                        fflush(stdout);
+                    }
+                }
             }
         }
         EVP_MD_CTX_free(mdctx);
     }
 
-    for (int i = 0; i < 21; i++)
+    for (int k = 0; k < 21; k++)
     {
-        printf("%d : %zu\n", i, counts[i]);
+        printf("%d : %zu\n", k, counts[k]);
     }
 
     free(memories);
