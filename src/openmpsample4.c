@@ -1,3 +1,8 @@
+
+/*
+    https://emotionexplorer.blog.fc2.com/blog-entry-111.html
+*/
+
 #include <omp.h>
 #include <stdio.h>
 #include <unistd.h>
