@@ -62,7 +62,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/src/main2",
-            "args": [],
+            "args": ["a", "b", "c"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
