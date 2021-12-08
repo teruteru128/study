@@ -35,6 +35,7 @@ int loadKey(unsigned char *memories)
 }
 
 #define clzl(tmp) (((tmp == 0) ? 64UL : (size_t)__builtin_clzl(tmp)) >> 3)
+#define SIZE 4362076160UL
 
 /**
  * @brief sanbox func.
@@ -45,8 +46,7 @@ int loadKey(unsigned char *memories)
  */
 int main(int argc, char *argv[])
 {
-    size_t a = 4362076160UL;
-    unsigned char *memories = malloc(a);
+    unsigned char *memories = malloc(SIZE);
     loadKey(memories);
     const EVP_MD *sha512 = EVP_sha512();
     const EVP_MD *ripemd160 = EVP_ripemd160();
@@ -68,11 +68,11 @@ int main(int argc, char *argv[])
     size_t jj_max = 0;
     unsigned char *sign = NULL;
 #pragma omp parallel for default(none) shared(sha512, ripemd160, memories, stdout) private(hash, mdctx, tmp, i, j, ii, ii_max, jj, jj_max, sign) reduction(+: counts[:21])
-    for (i = 0; i < 4362076160UL; i += 1040)
+    for (i = 0; i < SIZE; i += 1040)
     {
         mdctx = EVP_MD_CTX_new();
         ii_max = i + 1040;
-        for (j = 0; j < 4362076160UL; j += 1040)
+        for (j = 0; j < SIZE; j += 1040)
         {
             jj_max = j + 1040;
             for (ii = i; ii < ii_max; ii += 65)
