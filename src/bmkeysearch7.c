@@ -34,7 +34,8 @@ int loadKey(unsigned char *memories)
     return 0;
 }
 
-#define clzl(tmp) (((tmp == 0) ? 64UL : (size_t)__builtin_clzl(tmp)) >> 3)
+// __builtin_clzl に0を渡すと未定義になるため、そのための措置
+#define clzl(tmp) ((((tmp) == 0) ? 64UL : (size_t)__builtin_clzl(tmp)) >> 3)
 #define SIZE 4362076160UL
 
 /**
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
     // 多分 reduction のほうが早い(要検証)
     size_t counts[21] = { 0 };
     // 67108864:4503599627370496UL:4362076160UL:( ﾟдﾟ)……？
-    // 16384:268435456UL : 30秒ぐらい
+    // 16384:268435456UL:1064960UL : 30秒ぐらい
     // 67108864UL
     size_t i = 0;
     size_t j = 0;
@@ -70,6 +71,7 @@ int main(int argc, char *argv[])
 #pragma omp parallel for default(none) shared(sha512, ripemd160, memories, stdout) private(hash, mdctx, tmp, i, j, ii, ii_max, jj, jj_max, sign) reduction(+: counts[:21])
     for (i = 0; i < SIZE; i += 1040)
     {
+        // CTXをnewする頻度はどのくらいにしたらいいのだ？
         mdctx = EVP_MD_CTX_new();
         ii_max = i + 1040;
         for (j = 0; j < SIZE; j += 1040)
@@ -89,6 +91,8 @@ int main(int argc, char *argv[])
                     EVP_DigestFinal(mdctx, hash, NULL);
                     tmp = htobe64(*(unsigned long *)hash);
                     tmp = clzl(tmp);
+                    // htobe64はいるようないらないような
+                    // tmp = clzl(*(unsigned long *)hash);
                     counts[tmp]++;
                     if (tmp >= 4)
                     {
