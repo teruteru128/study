@@ -1,3 +1,5 @@
+// https://www.openmp.org/wp-content/uploads/OpenMP4.0.0.Examples.pdf
+// Example 15.13c
 #include <omp.h>
 #include <string.h>
 #define LIMIT 3 /* arbitrary limit on recursion depth */
