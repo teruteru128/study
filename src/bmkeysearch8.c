@@ -37,6 +37,7 @@ int loadKey(unsigned char *memories)
 // __builtin_clzl に0を渡すと未定義になるため、そのための措置
 #define clzl(tmp) ((((tmp) == 0) ? 64UL : (size_t)__builtin_clzl(tmp)) >> 3)
 #define SIZE 67108864UL
+#define CTX_SIZE 4
 
 /**
  * @brief sanbox func.
@@ -51,6 +52,7 @@ int main(int argc, char *argv[])
     loadKey((unsigned char *)memories);
     const EVP_MD *sha512 = EVP_sha512();
     const EVP_MD *ripemd160 = EVP_ripemd160();
+    EVP_MD_CTX *sharedmdctx[CTX_SIZE] = { NULL };
     EVP_MD_CTX *mdctx = NULL;
     unsigned char hash[EVP_MAX_MD_SIZE] = "";
     unsigned long tmp = 0;
@@ -64,54 +66,59 @@ int main(int argc, char *argv[])
     size_t i = 0;
     size_t j = 0;
     size_t ii = 0;
-    size_t ii_max = 0;
-    size_t jj = 0;
-    size_t jj_max = 0;
-    PublicKey *sign = NULL;
-#pragma omp parallel for default(none) shared(sha512, ripemd160, memories, stdout) private(hash, mdctx, tmp, i, j, ii, ii_max, jj, jj_max, sign) reduction(+: counts[:21])
-    for (i = 0; i < SIZE; i += 16)
+    PublicKey *encKey = NULL;
+#pragma omp parallel for default(none) shared(sha512, ripemd160, memories, stdout) private(hash, sharedmdctx, mdctx, tmp, i, j, ii, encKey) reduction(+: counts[:21])
+    for (i = 0; i < SIZE; i += CTX_SIZE)
     {
         // CTXをnewする頻度はどのくらいにしたらいいのだ？
-        mdctx = EVP_MD_CTX_new();
-        ii_max = i + 16;
-        for (j = 0; j < SIZE; j += 16)
+        for (j = 0; j < CTX_SIZE; j++)
         {
-            jj_max = j + 16;
-            for (ii = i; ii < ii_max; ii ++)
+            sharedmdctx[j] = EVP_MD_CTX_new();
+        }
+        mdctx = EVP_MD_CTX_new();
+        for (j = 0; j < CTX_SIZE; j++)
+        {
+            EVP_DigestInit(sharedmdctx[j], sha512);
+            EVP_DigestUpdate(sharedmdctx[j], memories + i + j, 65);
+        }
+        for (j = 0; j < SIZE; j++)
+        {
+            encKey = memories + j;
+            for (ii = 0; ii < CTX_SIZE; ii++)
             {
-                sign = memories + ii;
-                for (jj = j; jj < jj_max; jj ++)
+                EVP_MD_CTX_copy(mdctx, sharedmdctx[ii]);
+                EVP_DigestUpdate(mdctx, encKey, PUBLIC_KEY_LENGTH);
+                EVP_DigestFinal(mdctx, hash, NULL);
+                EVP_DigestInit(mdctx, ripemd160);
+                EVP_DigestUpdate(mdctx, hash, 64);
+                EVP_DigestFinal(mdctx, hash, NULL);
+                tmp = htobe64(*(unsigned long *)hash);
+                tmp = clzl(tmp);
+                // htobe64はいるようないらないような
+                // tmp = clzl(*(unsigned long *)hash);
+                counts[tmp]++;
+                if (tmp >= 5)
                 {
-                    EVP_DigestInit(mdctx, sha512);
-                    EVP_DigestUpdate(mdctx, sign, 65);
-                    EVP_DigestUpdate(mdctx, memories + jj, 65);
-                    EVP_DigestFinal(mdctx, hash, NULL);
-                    EVP_DigestInit(mdctx, ripemd160);
-                    EVP_DigestUpdate(mdctx, hash, 64);
-                    EVP_DigestFinal(mdctx, hash, NULL);
-                    tmp = htobe64(*(unsigned long *)hash);
-                    tmp = clzl(tmp);
-                    // htobe64はいるようないらないような
-                    // tmp = clzl(*(unsigned long *)hash);
-                    counts[tmp]++;
-                    if (tmp >= 5)
-                    {
-                        // iiとjjから秘密鍵を読み込む
-                        // 秘密鍵をWIFにエンコードする
-                        // 公開鍵からアドレスにフォーマットする
-                        // あとはBitMessageなりCSVなりご自由に出力する
-                        printf("%lu, %zu, %zu\n", tmp, ii, jj);
-                        fflush(stdout);
-                    }
+                    // iiとjjから秘密鍵を読み込む
+                    // 秘密鍵をWIFにエンコードする
+                    // 公開鍵からアドレスにフォーマットする
+                    // あとはBitMessageなりCSVなりご自由に出力する
+                    printf("%lu, %zu, %zu\n", tmp, i + ii, j);
+                    fflush(stdout);
                 }
             }
+        }
+
+        for (j = 0; j < CTX_SIZE; j++)
+        {
+            EVP_MD_CTX_free(sharedmdctx[j]);
         }
         EVP_MD_CTX_free(mdctx);
     }
 
-    for (int k = 0; k < 21; k++)
+    for (i = 0; i < 21; i++)
     {
-        printf("%d : %zu\n", k, counts[k]);
+        printf("%zu : %zu\n", i, counts[i]);
     }
 
     free(memories);

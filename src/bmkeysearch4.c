@@ -89,7 +89,10 @@ static void *threadFunc(void *arg)
         }
 
         // スレッドローカルカウンター初期化
-        memset(counts, 0, sizeof(size_t) * 21);
+        for (size_t i = 0; i < 21; i++)
+        {
+            counts[i] = 0;
+        }
 
         for (size_t i = 0; i < BLOCK_SIZE; i++)
         {
@@ -111,7 +114,9 @@ static void *threadFunc(void *arg)
                 EVP_DigestFinal(mdctx, hash, &mdlen);
                 assert(mdlen == 20);
                 tmp = *(unsigned long *)hash;
-                nlz = ((tmp == 0) ? 64UL : (size_t)__builtin_clzl(htobe64(tmp))) >> 3;
+                nlz = ((tmp == 0) ? 64UL
+                                  : (size_t)__builtin_clzl(htobe64(tmp)))
+                      >> 3;
                 if (nlz >= 4)
                 {
                     nlz = getNLZ(hash, 20);
@@ -332,10 +337,11 @@ static int search_main(int argc, char **argv)
 /**
  * @brief
  *
- * TODO: 進捗状況をファイルかデータベースかで保存して毎回コンパイルしなくてもいいようにする
+ * TODO:
+ * 進捗状況をファイルかデータベースかで保存して毎回コンパイルしなくてもいいようにする
  * TODO: Dockerfileで配布できるようにする
  * TODO: Dockerfileで配布できるようにするにはDBで保存する必要がある
- * 
+ *
  * TODO: DBに接続しタスクを管理するサーバー+タスクを処理するクライアント
  *
  * @see https://github.com/CouleeApps/git-power
