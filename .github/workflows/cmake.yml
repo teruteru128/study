@@ -2,7 +2,6 @@ name: cmake
 
 on:
   push:
-    paths: ["include", "libstudy", "po", "pthreads", "src", "tests"]
 
   # Sample when vcpkg is a submodule of your repository (highly recommended!)
 
