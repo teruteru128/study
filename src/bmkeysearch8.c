@@ -48,7 +48,7 @@ int loadKey(unsigned char *memories)
  */
 int main(int argc, char *argv[])
 {
-    PublicKey *memories = malloc(4362076160UL);
+    PublicKey *memories = malloc(SIZE * PUBLIC_KEY_LENGTH);
     loadKey((unsigned char *)memories);
     const EVP_MD *sha512 = EVP_sha512();
     const EVP_MD *ripemd160 = EVP_ripemd160();
