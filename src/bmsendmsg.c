@@ -68,42 +68,50 @@ int main(void)
     xmlrpc_client_setup_global_const(&env);
     die_if_fault_occurred(&env);
 
+    // create client object...
     xmlrpc_client_create(&env, XMLRPC_CLIENT_NO_FLAGS, NAME, VERSION, NULL, 0,
                          &clientP);
     die_if_fault_occurred(&env);
 
+    // auth config object
     serverP = xmlrpc_server_info_new(&env, SERVER_URL);
     die_if_fault_occurred(&env);
 
+    // auth config
     xmlrpc_server_info_set_user(&env, serverP, USER_NAME, PASSWORD);
     die_if_fault_occurred(&env);
 
+    // auth enable
     xmlrpc_server_info_allow_auth_basic(&env, serverP);
     die_if_fault_occurred(&env);
 
+    // message params
     char toaddress[ADDRBUFSIZE] = "BM-2cXiKJ5Qm63CqbV58P76HECHdmQUmTV4Fb";
-    xmlrpc_value *toaddressv = NULL;
-    xmlrpc_value *fromaddressv
-        = xmlrpc_string_new(&env, "BM-NB3mUXqpbGXKQHUP95fx7yqWHPkDTQp8");
-    die_if_fault_occurred(&env);
-    xmlrpc_value *subjectv = xmlrpc_string_new(&env, SUBJECT);
-    die_if_fault_occurred(&env);
+    char fromaddress[] = "BM-NB3mUXqpbGXKQHUP95fx7yqWHPkDTQp8";
+    char subject[BUFSIZ] = "dGVzdCBtZXNzYWdlIGJ5IGM=";
     char message[BUFSIZ] = "44GG44KT44Gh44O877yB";
+    int ttl = 2419200;
+
+    /*
+     文字列をxmlrpc文字列オブジェクトに変換する
+     Convert a string to an xmlrpc string object
+     */
+    xmlrpc_value *fromaddressv = xmlrpc_string_new(&env, fromaddress);
+    die_if_fault_occurred(&env);
+    xmlrpc_value *toaddressv = xmlrpc_string_new(&env, toaddress);
+    die_if_fault_occurred(&env);
+    xmlrpc_value *subjectv = xmlrpc_string_new(&env, subject);
+    die_if_fault_occurred(&env);
     xmlrpc_value *messagev = xmlrpc_string_new(&env, message);
     die_if_fault_occurred(&env);
     xmlrpc_value *encodingTypev = xmlrpc_int_new(&env, 2);
     die_if_fault_occurred(&env);
-    xmlrpc_value *TTLv = xmlrpc_int_new(&env, 2419200);
+    xmlrpc_value *TTLv = xmlrpc_int_new(&env, ttl);
     die_if_fault_occurred(&env);
     fprintf(stderr, "initialized\n");
 
-    char *ackdata = NULL;
-    /* 文字列をxmlrpc文字列オブジェクトに変換する */
-    toaddressv = xmlrpc_string_new(&env, toaddress);
-    die_if_fault_occurred(&env);
-
-    ackdata
-        = bmapi_sendMessage(&env, clientP, serverP, toaddressv, fromaddressv,
+    // send message
+    char *ackdata = bmapi_sendMessage(&env, clientP, serverP, toaddressv, fromaddressv,
                             subjectv, messagev, encodingTypev, TTLv);
     free(ackdata);
 
