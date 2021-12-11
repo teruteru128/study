@@ -11,7 +11,7 @@
 #define SENDTO_ADDRESS_FILE "/addressbook.txt"
 #endif
 #define MESSAGE_FILE "/greeting.base64.txt"
-#define SUBJECT "dGVzdCBtZXNzYWdlIGJ5IGM="
+#define SUBJECT "TWVycnkgQ2hyaXN0bWFzIQ=="
 
 #define METHOD_NAME "sendMessage"
 

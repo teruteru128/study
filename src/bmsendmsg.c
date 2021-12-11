@@ -23,10 +23,9 @@
 #include <xmlrpc-c/client.h>
 
 #define USER_NAME "teruteru128"
-#define PASSWORD "XXX"
 #define ADDRBUFSIZE 64
 #ifndef STUDYDATADIR
-#define STUDYDATADIR ""
+#define STUDYDATADIR PROJECT_SOURCE_DIR "/data"
 #endif
 
 /**
@@ -49,14 +48,21 @@
  * */
 int main(void)
 {
-    char addressfilepath[PATH_MAX];
-    snprintf(addressfilepath, PATH_MAX, "%s%s", STUDYDATADIR,
-             SENDTO_ADDRESS_FILE);
-
-#ifdef _DEBUG
-    printf("%s\n", addressfilepath);
-#endif
     fputs("start\n", stdout);
+
+    char *password = getenv("BM_PASSWORD");
+
+    if (password == NULL)
+    {
+        fputs("環境変数 BM_PASSWORD にパスワードを設定してください。\n",
+              stderr);
+        return 1;
+    }
+    if (strlen(password) == 0)
+    {
+        fputs("環境変数 BM_PASSWORD の長さが0だが、それでええんか？\n",
+              stderr);
+    }
 
     // error environment variable
     xmlrpc_env env;
@@ -74,12 +80,12 @@ int main(void)
                          &clientP);
     die_if_fault_occurred(&env);
 
-    // auth config object
+    // connection info & auth config object
     xmlrpc_server_info *serverP = xmlrpc_server_info_new(&env, SERVER_URL);
     die_if_fault_occurred(&env);
 
     // auth config
-    xmlrpc_server_info_set_user(&env, serverP, USER_NAME, PASSWORD);
+    xmlrpc_server_info_set_user(&env, serverP, USER_NAME, password);
     die_if_fault_occurred(&env);
 
     // auth enable
@@ -88,9 +94,10 @@ int main(void)
 
     // message params
     char toaddress[ADDRBUFSIZE] = "BM-2cXiKJ5Qm63CqbV58P76HECHdmQUmTV4Fb";
-    char fromaddress[] = "BM-NB3mUXqpbGXKQHUP95fx7yqWHPkDTQp8";
-    char subject[BUFSIZ] = "dGVzdCBtZXNzYWdlIGJ5IGM=";
-    char message[BUFSIZ] = "44GG44KT44Gh44O877yB";
+    char fromaddress[] = "BM-NBJxKhQmidR2TBtD3H74yZhDHpzZ7TXM";
+    char subject[BUFSIZ] = "UmU6IGhlbGxvIHdvcmxkIQ==";
+    char message[BUFSIZ]
+        = "aHR0cHM6Ly93d3cubmljb3ZpZGVvLmpwL3dhdGNoL3NtMzk3MjM4NjM=";
     int ttl = 2419200;
 
     /*
@@ -112,11 +119,10 @@ int main(void)
     fputs("initialized\n", stderr);
 
     // send message
-    char *ackdata = bmapi_sendMessage(&env, clientP, serverP, toaddressv, fromaddressv,
+    char *ackdata
+        = bmapi_sendMessage(&env, clientP, serverP, toaddressv, fromaddressv,
                             subjectv, messagev, encodingTypev, TTLv);
     free(ackdata);
-
-    printf("%s\n", toaddress);
 
     /* Dispose of our result value. ゴミ掃除 */
     xmlrpc_DECREF(toaddressv);

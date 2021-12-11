@@ -26,7 +26,7 @@
 #define PASSWORD "testpassword"
 #define ADDRBUFSIZE 64
 #ifndef STUDYDATADIR
-#define STUDYDATADIR ""
+#define STUDYDATADIR PROJECT_SOURCE_DIR "/data"
 #endif
 
 int countDownToStartupTime(time_t targetTime)
@@ -81,28 +81,6 @@ int countDownToStartupTime(time_t targetTime)
  * */
 int main(void)
 {
-    /* 次の実行日時を取得する */
-    /* 現在時刻を取得する */
-    const time_t currentTime = time(NULL);
-    tzset();
-    // 今年のクリスマスのUNIXタイムスタンプを取得する
-    struct tm tm;
-    localtime_r(&currentTime, &tm);
-    tm.tm_sec = 0;
-    tm.tm_min = 0;
-    tm.tm_hour = 4;
-    tm.tm_mday = 25;
-    tm.tm_mon = 11;
-    const time_t christmasTime = mktime(&tm);
-    // 実行判定。起動時点で現在時刻が今年のクリスマスよりも未来だった場合実行しない
-    double diffsec = difftime(christmasTime, currentTime);
-    if (diffsec < 0)
-    {
-        // 今年のクリスマスは終了済み
-        printf("日本は終了しました＼(^o^)／\n");
-        printf("終了します\n");
-        return EXIT_SUCCESS;
-    }
     char msgfilepath[PATH_MAX];
     char addressfilepath[PATH_MAX];
     snprintf(msgfilepath, PATH_MAX, "%s%s", STUDYDATADIR, MESSAGE_FILE);
@@ -113,62 +91,50 @@ int main(void)
     printf("%s\n", addressfilepath);
 #endif
 
-    // 起動時間までカウントダウンする
-    int r = countDownToStartupTime(christmasTime);
-    if (r != EXIT_SUCCESS)
-    {
-        return r;
-    }
-
     fputs("起動します\n", stdout);
 
-    xmlrpc_env env;
-    xmlrpc_client *clientP;
-    xmlrpc_server_info *serverP;
+    // error environment variable
+    xmlrpc_env *env = malloc(sizeof(xmlrpc_env));
     /* Initialize our error-handling environment. */
-    xmlrpc_env_init(&env);
-    die_if_fault_occurred(&env);
-    xmlrpc_client_setup_global_const(&env);
-    die_if_fault_occurred(&env);
-    xmlrpc_client_create(&env, XMLRPC_CLIENT_NO_FLAGS, NAME, VERSION, NULL, 0, &clientP);
-    die_if_fault_occurred(&env);
-    serverP = xmlrpc_server_info_new(&env, SERVER_URL);
-    die_if_fault_occurred(&env);
-    xmlrpc_server_info_set_user(&env, serverP, USER_NAME, PASSWORD);
-    die_if_fault_occurred(&env);
-    xmlrpc_server_info_allow_auth_basic(&env, serverP);
-    die_if_fault_occurred(&env);
+    xmlrpc_env_init(env);
+    die_if_fault_occurred(env);
+    xmlrpc_init(env);
+    die_if_fault_occurred(env);
+    xmlrpc_client_setup_global_const(env);
+    die_if_fault_occurred(env);
 
-    char toaddress[ADDRBUFSIZE];
+    // create client object...
+    xmlrpc_client *clientP = NULL;
+    xmlrpc_client_create(env, XMLRPC_CLIENT_NO_FLAGS, NAME, VERSION, NULL, 0,
+                         &clientP);
+    die_if_fault_occurred(env);
+
+    // auth config object
+    xmlrpc_server_info *serverP = xmlrpc_server_info_new(env, SERVER_URL);
+    die_if_fault_occurred(env);
+
+    // auth config
+    xmlrpc_server_info_set_user(env, serverP, USER_NAME, PASSWORD);
+    die_if_fault_occurred(env);
+
+    // auth enable
+    xmlrpc_server_info_allow_auth_basic(env, serverP);
+    die_if_fault_occurred(env);
+
+    // message params
+    char toaddress[ADDRBUFSIZE] = "";
     char *tmp = NULL;
-    xmlrpc_value *toaddressv = NULL;
-    xmlrpc_value *fromaddressv = xmlrpc_string_new(&env, GENELRAL);
-    die_if_fault_occurred(&env);
-    xmlrpc_value *subjectv = xmlrpc_string_new(&env, SUBJECT);
-    die_if_fault_occurred(&env);
-    char message[BUFSIZ];
-    char line[BUFSIZ];
-    FILE *msgf = fopen(msgfilepath, "r");
-    if (msgf == NULL)
-    {
-        err(EXIT_FAILURE, "fopen");
-    }
-    while ((tmp = fgets(line, BUFSIZ, msgf)) != NULL)
-    {
-        char *p = strpbrk(toaddress, "\r\n");
-        if (p != NULL)
-        {
-            *p = '\0';
-        }
-        strncat(message, tmp, BUFSIZ - 1);
-    }
-    fclose(msgf);
-    xmlrpc_value *messagev = xmlrpc_string_new(&env, message);
-    die_if_fault_occurred(&env);
-    xmlrpc_value *encodingTypev = xmlrpc_int_new(&env, 2);
-    die_if_fault_occurred(&env);
-    xmlrpc_value *TTLv = xmlrpc_int_new(&env, 28 * 4 * 24 * 60 * 60);
-    die_if_fault_occurred(&env);
+    xmlrpc_value *fromaddressv = xmlrpc_string_new(env, "BM-2cWy7cvHoq3f1rYMerRJp8PT653jjSuEdY");
+    die_if_fault_occurred(env);
+    xmlrpc_value *subjectv = xmlrpc_string_new(env, SUBJECT);
+    die_if_fault_occurred(env);
+    char message[BUFSIZ] = "TWVycnkgQ2hyaXN0bWFzISE=";
+    xmlrpc_value *messagev = xmlrpc_string_new(env, message);
+    die_if_fault_occurred(env);
+    xmlrpc_value *encodingTypev = xmlrpc_int_new(env, 2);
+    die_if_fault_occurred(env);
+    xmlrpc_value *TTLv = xmlrpc_int_new(env, 28 * 4 * 24 * 60 * 60);
+    die_if_fault_occurred(env);
     fprintf(stderr, "initialized\n");
     FILE *toaddrfile = fopen(addressfilepath, "r");
     if (toaddrfile == NULL)
@@ -176,6 +142,7 @@ int main(void)
         err(EXIT_FAILURE, "fopen");
     }
 
+    xmlrpc_value *toaddressv = NULL;
     char *ackdata = NULL;
     while ((tmp = fgets(toaddress, ADDRBUFSIZE, toaddrfile)) != NULL)
     {
@@ -186,10 +153,10 @@ int main(void)
             *p = '\0';
         }
         /* 文字列をxmlrpc文字列オブジェクトに変換する */
-        toaddressv = xmlrpc_string_new(&env, toaddress);
-        die_if_fault_occurred(&env);
+        toaddressv = xmlrpc_string_new(env, toaddress);
+        die_if_fault_occurred(env);
 
-        ackdata = bmapi_sendMessage(&env, clientP, serverP, toaddressv, fromaddressv, subjectv, messagev, encodingTypev, TTLv);
+        ackdata = bmapi_sendMessage(env, clientP, serverP, toaddressv, fromaddressv, subjectv, messagev, encodingTypev, TTLv);
         free(ackdata);
 
         printf("%s\n", toaddress);
@@ -205,7 +172,8 @@ int main(void)
     xmlrpc_DECREF(TTLv);
 
     /* Clean up our error-handling environment. */
-    xmlrpc_env_clean(&env);
+    xmlrpc_env_clean(env);
+    free(env);
 
     xmlrpc_client_destroy(clientP);
 
