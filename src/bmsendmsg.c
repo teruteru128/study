@@ -58,23 +58,24 @@ int main(void)
 #endif
     fputs("start\n", stdout);
 
+    // error environment variable
     xmlrpc_env env;
-    xmlrpc_client *clientP = NULL;
-    xmlrpc_server_info *serverP = NULL;
     /* Initialize our error-handling environment. */
     xmlrpc_env_init(&env);
     die_if_fault_occurred(&env);
-
+    xmlrpc_init(&env);
+    die_if_fault_occurred(&env);
     xmlrpc_client_setup_global_const(&env);
     die_if_fault_occurred(&env);
 
     // create client object...
+    xmlrpc_client *clientP = NULL;
     xmlrpc_client_create(&env, XMLRPC_CLIENT_NO_FLAGS, NAME, VERSION, NULL, 0,
                          &clientP);
     die_if_fault_occurred(&env);
 
     // auth config object
-    serverP = xmlrpc_server_info_new(&env, SERVER_URL);
+    xmlrpc_server_info *serverP = xmlrpc_server_info_new(&env, SERVER_URL);
     die_if_fault_occurred(&env);
 
     // auth config
@@ -108,7 +109,7 @@ int main(void)
     die_if_fault_occurred(&env);
     xmlrpc_value *TTLv = xmlrpc_int_new(&env, ttl);
     die_if_fault_occurred(&env);
-    fprintf(stderr, "initialized\n");
+    fputs("initialized\n", stderr);
 
     // send message
     char *ackdata = bmapi_sendMessage(&env, clientP, serverP, toaddressv, fromaddressv,
@@ -131,6 +132,7 @@ int main(void)
     xmlrpc_client_destroy(clientP);
 
     xmlrpc_client_teardown_global_const();
+    xmlrpc_term();
 
     return EXIT_SUCCESS;
 }
