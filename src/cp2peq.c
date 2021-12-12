@@ -20,9 +20,19 @@
 #include <time.h>
 #include <unistd.h>
 
-#define SERVER_PROOF_KEY "MIGdMA0GCSqGSIb3DQEBAQUAA4GLADCBhwKBgQC8p/vth2yb/k9x2/PcXKdb6oI3gAbhvr/HPTOwla5tQHB83LXNF4Y+Sv/Mu4Uu0tKWz02FrLgA5cuJZfba9QNULTZLTNUgUXIB0m/dq5Rx17IyCfLQ2XngmfFkfnRdRSK7kGnIXvO2/LOKD50JsTf2vz0RQIdw6cEmdl+Aga7i8QIBEQ=="
-#define PEER_PROOF_KEY "MIGdMA0GCSqGSIb3DQEBAQUAA4GLADCBhwKBgQDTJKLLO7wjCHz80kpnisqcPDQvA9voNY5QuAA+bOWeqvl4gmPSiylzQZzldS+n/M5p4o1PRS24WAO+kPBHCf4ETAns8M02MFwxH/FlQnbvMfi9zutJkQAu3Hq4293rHz+iCQW/MWYB5IfzFBnWtEdjkhqHsGy6sZMMe+qx/F1rcQIBEQ=="
-#define SERVERS "p2pquake.ddo.jp:6910,www.p2pquake.net:6910,p2pquake.info:6910,p2pquake.xyz:6910"
+#define SERVER_PROOF_KEY                                                      \
+    "MIGdMA0GCSqGSIb3DQEBAQUAA4GLADCBhwKBgQC8p/vth2yb/k9x2/PcXKdb6oI3gAbhvr/" \
+    "HPTOwla5tQHB83LXNF4Y+Sv/Mu4Uu0tKWz02FrLgA5cuJZfba9QNULTZLTNUgUXIB0m/"    \
+    "dq5Rx17IyCfLQ2XngmfFkfnRdRSK7kGnIXvO2/"                                  \
+    "LOKD50JsTf2vz0RQIdw6cEmdl+Aga7i8QIBEQ=="
+#define PEER_PROOF_KEY                                                        \
+    "MIGdMA0GCSqGSIb3DQEBAQUAA4GLADCBhwKBgQDTJKLLO7wjCHz80kpnisqcPDQvA9voNY5" \
+    "QuAA+bOWeqvl4gmPSiylzQZzldS+n/M5p4o1PRS24WAO+kPBHCf4ETAns8M02MFwxH/"     \
+    "FlQnbvMfi9zutJkQAu3Hq4293rHz+iCQW/MWYB5IfzFBnWtEdjkhqHsGy6sZMMe+qx/"     \
+    "F1rcQIBEQ=="
+#define SERVERS                                                               \
+    "p2pquake.ddo.jp:6910,www.p2pquake.net:6910,p2pquake.info:6910,p2pquake." \
+    "xyz:6910"
 
 #define SERVER_PORT "6910"
 // C-implemented p2p earthquake
@@ -51,6 +61,18 @@ void connecttopeer();
 static const char server_domain_list[4][24]
     = { "p2pquake.dyndns.info", "www.p2pquake.net", "p2pquake.dnsalias.net",
         "p2pquake.ddo.jp" };
+
+int notifyProtocolVersion(int sock)
+{
+    ssize_t w = send(sock, "113 1\r\n", strlen("113 1\r\n"), 0);
+    if (w < 0)
+    {
+        perror("send 2");
+        close(sock);
+        return 1;
+    }
+    return 0;
+}
 
 int connect_network(void)
 {
@@ -136,8 +158,9 @@ int connect_network(void)
     }
 
     char writebuf[BUFSIZ] = "";
-    size_t writelen = (size_t)snprintf(
-        writebuf, BUFSIZ, "131 1 %s:%s:%s\r\n", PROTOCOL_VERSION, PEER_NAME, PEER_VERSION);
+    size_t writelen
+        = (size_t)snprintf(writebuf, BUFSIZ, "131 1 %s:%s:%s\r\n",
+                           PROTOCOL_VERSION, PEER_NAME, PEER_VERSION);
     ssize_t w = send(sock, writebuf, writelen, 0);
     printf("%s", readbuf);
     if (w < 0)
@@ -157,12 +180,8 @@ int connect_network(void)
         return 1;
     }
 
-    writelen = (size_t)snprintf(writebuf, BUFSIZ, "113 1\r\n");
-    w = send(sock, writebuf, writelen, 0);
-    if (w < 0)
+    if (notifyProtocolVersion(sock))
     {
-        perror("send 2");
-        close(sock);
         return 1;
     }
 

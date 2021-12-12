@@ -3,27 +3,26 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <stdio.h>
-#include <stdlib.h>
-#include <xmlrpc-c/base.h>
-#include <xmlrpc-c/client.h>
-#include <string.h>
-#include <uuid/uuid.h>
-#include <bitmessage.h>
+#include "bmspam.h"
 #include <base64.h>
+#include <bitmessage.h>
 #include <bm.h>
 #include <bmapi.h>
 #include <err.h>
-#include <time.h>
-#include <pthread.h>
 #include <errno.h>
 #include <limits.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/timerfd.h>
+#include <time.h>
 #include <unistd.h>
-#include "bmspam.h"
+#include <uuid/uuid.h>
+#include <xmlrpc-c/base.h>
+#include <xmlrpc-c/client.h>
 
 #define USER_NAME "teruteru128"
-#define PASSWORD "testpassword"
 #define ADDRBUFSIZE 64
 #ifndef STUDYDATADIR
 #define STUDYDATADIR PROJECT_SOURCE_DIR "/data"
@@ -54,7 +53,8 @@ int countDownToStartupTime(time_t targetTime)
         hours = (secs % (60 * 60 * 24)) / (60 * 60);
         minutes = (secs % (60 * 60)) / 60;
         seconds = secs % 60;
-        fprintf(stdout, "起動まであと%03ldd%02ldh%02ldm%02lds\r", days, hours, minutes, seconds);
+        fprintf(stdout, "起動まであと%03ldd%02ldh%02ldm%02lds\r", days, hours,
+                minutes, seconds);
         fflush(stdout);
     }
     fputs("\n", stdout);
@@ -77,14 +77,12 @@ int countDownToStartupTime(time_t targetTime)
  *   // 後片付け
  *   global_cleanup();
  * }
- * TODO: コマンドライン引数でtest.txtとaddressbook.txtを切り替えられるようにする
+ * TODO:
+ * コマンドライン引数でtest.txtとaddressbook.txtを切り替えられるようにする
  * */
 int main(void)
 {
-    char msgfilepath[PATH_MAX];
-    char addressfilepath[PATH_MAX];
-    snprintf(msgfilepath, PATH_MAX, "%s%s", STUDYDATADIR, MESSAGE_FILE);
-    snprintf(addressfilepath, PATH_MAX, "%s%s", STUDYDATADIR, SENDTO_ADDRESS_FILE);
+    const char addressfilepath[PATH_MAX] = STUDYDATADIR SENDTO_ADDRESS_FILE;
 
 #ifdef _DEBUG
     printf("%s\n", msgfilepath);
@@ -92,6 +90,20 @@ int main(void)
 #endif
 
     fputs("起動します\n", stdout);
+
+    char *password = getenv("BM_PASSWORD");
+
+    if (password == NULL)
+    {
+        fputs("環境変数 BM_PASSWORD にパスワードを設定してください。\n",
+              stderr);
+        return 1;
+    }
+    if (strlen(password) == 0)
+    {
+        fputs("環境変数 BM_PASSWORD の長さが0だが、それでええんか？\n",
+              stderr);
+    }
 
     // error environment variable
     xmlrpc_env *env = malloc(sizeof(xmlrpc_env));
@@ -114,7 +126,7 @@ int main(void)
     die_if_fault_occurred(env);
 
     // auth config
-    xmlrpc_server_info_set_user(env, serverP, USER_NAME, PASSWORD);
+    xmlrpc_server_info_set_user(env, serverP, USER_NAME, password);
     die_if_fault_occurred(env);
 
     // auth enable
@@ -122,18 +134,22 @@ int main(void)
     die_if_fault_occurred(env);
 
     // message params
-    char toaddress[ADDRBUFSIZE] = "";
+    char fromaddress[ADDRBUFSIZE] = "BM-2cWy7cvHoq3f1rYMerRJp8PT653jjSuEdY";
     char *tmp = NULL;
-    xmlrpc_value *fromaddressv = xmlrpc_string_new(env, "BM-2cWy7cvHoq3f1rYMerRJp8PT653jjSuEdY");
-    die_if_fault_occurred(env);
-    xmlrpc_value *subjectv = xmlrpc_string_new(env, SUBJECT);
-    die_if_fault_occurred(env);
     char message[BUFSIZ] = "TWVycnkgQ2hyaXN0bWFzISE=";
+    char subject[] = SUBJECT;
+    int encodingType = 2;
+    int ttl = 2419200;
+
+    xmlrpc_value *fromaddressv = xmlrpc_string_new(env, fromaddress);
+    die_if_fault_occurred(env);
+    xmlrpc_value *subjectv = xmlrpc_string_new(env, subject);
+    die_if_fault_occurred(env);
     xmlrpc_value *messagev = xmlrpc_string_new(env, message);
     die_if_fault_occurred(env);
-    xmlrpc_value *encodingTypev = xmlrpc_int_new(env, 2);
+    xmlrpc_value *encodingTypev = xmlrpc_int_new(env, encodingType);
     die_if_fault_occurred(env);
-    xmlrpc_value *TTLv = xmlrpc_int_new(env, 28 * 4 * 24 * 60 * 60);
+    xmlrpc_value *TTLv = xmlrpc_int_new(env, ttl);
     die_if_fault_occurred(env);
     fprintf(stderr, "initialized\n");
     FILE *toaddrfile = fopen(addressfilepath, "r");
@@ -142,6 +158,7 @@ int main(void)
         err(EXIT_FAILURE, "fopen");
     }
 
+    char toaddress[ADDRBUFSIZE] = "";
     xmlrpc_value *toaddressv = NULL;
     char *ackdata = NULL;
     while ((tmp = fgets(toaddress, ADDRBUFSIZE, toaddrfile)) != NULL)
@@ -156,13 +173,19 @@ int main(void)
         toaddressv = xmlrpc_string_new(env, toaddress);
         die_if_fault_occurred(env);
 
-        ackdata = bmapi_sendMessage(env, clientP, serverP, toaddressv, fromaddressv, subjectv, messagev, encodingTypev, TTLv);
+        ackdata = bmapi_sendMessage(env, clientP, serverP, toaddressv,
+                                    fromaddressv, subjectv, messagev,
+                                    encodingTypev, TTLv);
         free(ackdata);
 
         printf("%s\n", toaddress);
 
         /* Dispose of our result value. ゴミ掃除 */
         xmlrpc_DECREF(toaddressv);
+    }
+    if (ferror(toaddrfile))
+    {
+        perror("ferror(toaddrfile)");
     }
     fclose(toaddrfile);
     xmlrpc_DECREF(fromaddressv);

@@ -95,9 +95,8 @@ int main(void)
     // message params
     char toaddress[ADDRBUFSIZE] = "BM-2cXiKJ5Qm63CqbV58P76HECHdmQUmTV4Fb";
     char fromaddress[] = "BM-NBJxKhQmidR2TBtD3H74yZhDHpzZ7TXM";
-    char subject[BUFSIZ] = "UmU6IGhlbGxvIHdvcmxkIQ==";
-    char message[BUFSIZ]
-        = "aHR0cHM6Ly93d3cubmljb3ZpZGVvLmpwL3dhdGNoL3NtMzk3MjM4NjM=";
+    const char subject[BUFSIZ] = "44GG44KT44Gh44GX44Gm77yf";
+    const char message[BUFSIZ] = "5auM44Gn44GZ4oCm4oCm";
     int ttl = 2419200;
 
     /*

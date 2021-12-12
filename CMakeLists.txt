@@ -20,7 +20,7 @@ add_compile_definitions(HAVE_CONFIG_H=1)
 #add_compile_definitions(_XOPEN_SOURCE=700)
 #add_compile_definitions(_GNU_SOURCE)
 
-#include(CTest)
+include(CTest)
 enable_testing()
 
 find_package(Threads)
