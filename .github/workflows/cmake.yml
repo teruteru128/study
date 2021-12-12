@@ -2,7 +2,7 @@ name: cmake
 
 on:
   push:
-    paths: ["include/**", "libstudy/**", "po/**", "pthreads/**", "src/**", "tests/**"]
+    paths: ["include/**", "libstudy/**", "po/**", "pthreads/**", "src/**", "tests/**", ".github/workflows/**"]
 
   # Sample when vcpkg is a submodule of your repository (highly recommended!)
 
@@ -14,9 +14,9 @@ jobs:
         with:
           submodules: "recursive"
       - name: apt update
-        run: apt update
+        run: sudo apt update
       - name: Install dependents
-        run: apt install ninja-build autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64 gettext
+        run: sudo apt install ninja-build autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64 gettext
       - name: Configuration
         run: cmake . -G Ninja -B build
       - name: build
