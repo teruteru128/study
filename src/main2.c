@@ -1,4 +1,8 @@
 
+#define _GNU_SOURCE
+#include "config.h"
+#include <bm.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -6,17 +10,18 @@
 
 int main(int argc, char const *argv[])
 {
-    time_t machine_time = 0;
-    struct tm machine_tm = { 0 };
-    char buf[BUFSIZ] = "";
-    for (size_t i = 0; i < 2000; i++)
+    unsigned char ripe[20] = "";
+    memset(ripe, 0xff, 20);
+
+    char *address = NULL;
+    for (size_t i = 0; i < 20; i++)
     {
-        machine_time = time(NULL);
-        localtime_r(&machine_time, &machine_tm);
-        strftime(buf, BUFSIZ, "%Ex %EX", &machine_tm);
-        fprintf(stdout, "%s\n", buf);
-        buf[0] = '\0';
-        sleep(1);
+        ripe[i] = 0;
+        address = encodeV4Address(ripe, 20);
+
+        printf("%zu, %s\n", strlen(address), address);
+
+        free(address);
     }
 
     return 0;

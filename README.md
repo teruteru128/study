@@ -59,7 +59,7 @@ A garbage dump repository created for studying Teruteru.
 - libupnp-dev 1:1.6.24-4
 - libjson-c-dev
 
-## このリポジトリに含む~~クソ~~機能
+## このリポジトリに含む機能
 
 - ロケールに関するテスト実装。i18nテスト実装的な？
 - teamspeakのID セキュリティレベル改善ツール。今後使う予定なし。
@@ -125,12 +125,12 @@ A garbage dump repository created for studying Teruteru.
 - 素数を判定したり素数を探索したり階乗素数を探索したりするツール群。
 - struct addrinfoの中身を表示するライブラリ？
 - キューを作ろうとした残骸
-  - ~~ばたんきゅ～~~
 - xorshiftを実装したり/dev/randomからバイト列を読み込むためのユーティリティーだったり
 - safe_freeを作ろうとした残骸。もうちょっと真面目に作り込んだらどうなんだい？
-- 非線形三項間漸化式のテスト。使う変数型で結果が変わるのやめちくり＾ー
+- 非線形三項間漸化式のテスト。
 - TCPサーバーを作ろうとした残骸
-  - 目的もなしに作ろうとしたのもアレだけど、そもそもサーバーって作るのクソ面倒じゃない？
+  - p2p地震情報
+  - bitmessage
 - unix signalのテスト。
 - stdoutとstderrに書き込むユーティリティシェルスクリプト。
 - 可変長文字列リスト/配列を作ろうとした残骸。
@@ -138,9 +138,9 @@ A garbage dump repository created for studying Teruteru.
   - →区切り文字付き文字列連結は？
   - JavaのStringJoiner的なライブラリを目指そうとしてたんだっけ？
 - 3立方数の和(Sum of three cubes)の検算ツール？
-- TeXのHello World。あれがTeXなのかLaTeXなのかよくわかってない。~~ﾌﾌﾌ……TeX!~~
+- TeXのHello World。あれがTeXなのかLaTeXなのかよくわかってない。
 - Tweetクライアントを作ろうとした残骸ファイル。
-- UPNPを実装しようとした残骸。~~このファイルいつから触ってないんだっけ？~~
+- UPNPを実装しようとした残骸。
 - NicoNamaCommentViewerのUserSettingを変換するために作ろうとしたXSLファイルの残骸。
 - OpenSSL EVP APIを使ってみるテスト。
   - EVP_Digest

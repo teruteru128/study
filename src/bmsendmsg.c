@@ -11,7 +11,9 @@
 #include <err.h>
 #include <errno.h>
 #include <limits.h>
+#include <omp.h>
 #include <pthread.h>
+#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -93,7 +95,7 @@ int main(void)
     die_if_fault_occurred(&env);
 
     // message params
-    char toaddress[ADDRBUFSIZE] = "BM-2cXiKJ5Qm63CqbV58P76HECHdmQUmTV4Fb";
+    char toaddress[ADDRBUFSIZE] = "BM-2cV4tWm832NcVUJqG65bmFd64hVD7nUizL";
     char fromaddress[] = "BM-NBJxKhQmidR2TBtD3H74yZhDHpzZ7TXM";
     const char subject[BUFSIZ] = "44GG44KT44Gh44GX44Gm77yf";
     const char message[BUFSIZ] = "5auM44Gn44GZ4oCm4oCm";

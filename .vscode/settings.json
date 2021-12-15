@@ -145,7 +145,8 @@
         "stdatomic.h": "c",
         "*.in": "cpp",
         "signal.h": "c",
-        "libpq-fe.h": "c"
+        "libpq-fe.h": "c",
+        "wait.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

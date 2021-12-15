@@ -117,6 +117,8 @@ cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
 _deps
 
 ## https://github.com/github/gitignore/blob/master/C%2B%2B.gitignore
@@ -190,3 +192,6 @@ random.txt
 ripeandkeys.txt
 slimeSeeds.2.csv
 slimeSeeds.csv
+*bit-*.txt
+foundkeys*.txt
+keys.txt

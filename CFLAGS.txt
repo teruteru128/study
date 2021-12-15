@@ -1,0 +1,15 @@
+make "CFLAGS=-O2 -mtune=native -march=native -mfpmath=both"
+-O2
+-march=zen3 <- ?
+-march=znver2 <- こっちを使う
+-march=native
+-msse4.2
+-mfpmath=both
+
+-mfpmath=sse <-?
+
+CFLAGS=-O2 -march=znver2 -msse4.2 -mfpmath=both
+
+オプションリスト
+https://docs.oracle.com/cd/E19957-01/806-4836/ccOptions.html
+https://wiki.gentoo.org/wiki/GCC_optimization/ja

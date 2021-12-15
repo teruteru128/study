@@ -1,10 +1,12 @@
 
+#define _GNU_SOURCE
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
 #include <assert.h>
 #include <bitmessage.h>
+#include <bm.h>
 #include <math.h>
 #include <omp.h>
 #include <stdatomic.h>
@@ -68,7 +70,8 @@ int main(int argc, char *argv[])
     size_t jj = 0;
     size_t jj_max = 0;
     PublicKey *sign = NULL;
-#pragma omp parallel for default(none) shared(sha512, ripemd160, memories, stdout) private(hash, mdctx, tmp, i, j, ii, ii_max, jj, jj_max, sign) reduction(+: counts[:21])
+    char *address = NULL;
+#pragma omp parallel for default(none) shared(sha512, ripemd160, memories, stdout) private(hash, mdctx, tmp, i, j, ii, ii_max, jj, jj_max, sign, address) reduction(+: counts[:21])
     for (i = 0; i < SIZE; i += 16)
     {
         // CTXをnewする頻度はどのくらいにしたらいいのだ？
@@ -77,10 +80,10 @@ int main(int argc, char *argv[])
         for (j = 0; j < SIZE; j += 16)
         {
             jj_max = j + 16;
-            for (ii = i; ii < ii_max; ii ++)
+            for (ii = i; ii < ii_max; ii++)
             {
                 sign = memories + ii;
-                for (jj = j; jj < jj_max; jj ++)
+                for (jj = j; jj < jj_max; jj++)
                 {
                     EVP_DigestInit(mdctx, sha512);
                     EVP_DigestUpdate(mdctx, sign, 65);
@@ -94,14 +97,19 @@ int main(int argc, char *argv[])
                     // htobe64はいるようないらないような
                     // tmp = clzl(*(unsigned long *)hash);
                     counts[tmp]++;
-                    if (tmp >= 5)
+                    if (tmp >= 1)
                     {
                         // iiとjjから秘密鍵を読み込む
                         // 秘密鍵をWIFにエンコードする
                         // 公開鍵からアドレスにフォーマットする
                         // あとはBitMessageなりCSVなりご自由に出力する
-                        printf("%lu, %zu, %zu\n", tmp, ii, jj);
-                        fflush(stdout);
+                        address = encodeV4Address(hash, 20);
+                        if (strcasestr(address, "ninja") != 0)
+                        {
+                            printf("%lu, %zu, %zu, %s\n", tmp, ii, jj, address);
+                            fflush(stdout);
+                        }
+                        free(address);
                     }
                 }
             }
