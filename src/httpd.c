@@ -96,7 +96,7 @@ int main(void)
         return EXIT_FAILURE;
     }
     int conn_sock = -1;
-    struct sockaddr_storage from_sock_addr;
+    struct sockaddr_storage from_sock_addr = { 0 };
     socklen_t addr_len = sizeof(from_sock_addr);
     char buf[BUFSIZ];
     ssize_t slen = 0;

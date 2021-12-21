@@ -15,7 +15,7 @@
 #include <string.h>
 #include <time.h>
 
-int loadKey(unsigned char *memories)
+int loadPublicKey(unsigned char *memories)
 {
     FILE *fin = fopen(PROJECT_SOURCE_DIR "/publicKeys.bin", "rb");
     if (fin == NULL)
@@ -50,7 +50,7 @@ int loadKey(unsigned char *memories)
 int main(int argc, char *argv[])
 {
     PublicKey *memories = malloc(4362076160UL);
-    loadKey((unsigned char *)memories);
+    loadPublicKey((unsigned char *)memories);
     const EVP_MD *sha512 = EVP_sha512();
     const EVP_MD *ripemd160 = EVP_ripemd160();
     EVP_MD_CTX *mdctx = NULL;

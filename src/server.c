@@ -22,7 +22,7 @@
 static int listensocket = -1;
 
 // finish flag
-int running = 1;
+volatile int running = 1;
 
 /*
  * listen host name
@@ -176,8 +176,8 @@ void *do_service(void *arg)
     sigset_t sigmask;
     sigemptyset(&sigmask);
 
-    struct epoll_event events[MAX_EVENTS];
-    struct sockaddr_storage from_sock_addr;
+    struct epoll_event events[MAX_EVENTS] = { 0 };
+    struct sockaddr_storage from_sock_addr = { 0 };
     socklen_t addr_len = sizeof(struct sockaddr_storage);
     int selret = 0;
     int nfds, n;

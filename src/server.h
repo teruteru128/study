@@ -11,6 +11,6 @@ struct service_arg
     char port[NI_MAXSERV];
 };
 
-extern int running;
+extern volatile int running;
 
 #endif

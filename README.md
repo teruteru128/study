@@ -8,9 +8,7 @@ A garbage dump repository created for studying Teruteru.
 
 ## TODO
 
-- コマンドライン引数の解析
 - ファイル名の区切りをハイフンかアンダースコアのどちらかに統一する
-- TODO: signalfdのサンプル作成
 - 対称鍵暗号,EVP_CIPHER:https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
 - 認証付き暗号:https://wiki.openssl.org/index.php/EVP_Authenticated_Encryption_and_Decryption
 - エンベロープ暗号化(ハイブリッド暗号？):https://wiki.openssl.org/index.php/EVP_Asymmetric_Encryption_and_Decryption_of_an_Envelope
@@ -25,10 +23,6 @@ A garbage dump repository created for studying Teruteru.
   - 鍵導出関数,EVP_KDF:https://wiki.openssl.org/index.php/EVP_Key_Derivation
 - strsep,トークン分割(空フィールド対応版)
 - versionsort
-- strverscmp
-- alphasort
-- tor geoip file 読み込み関数
-- geoip_load_file
 - https://youtu.be/MCzo6ZMfKa4
 - ターミュレーター
 - getopt

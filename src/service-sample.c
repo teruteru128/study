@@ -91,7 +91,7 @@ void *acceptthrad(void *a)
     }
     freeaddrinfo(res);
 
-    struct sockaddr_storage from_sock_addr;
+    struct sockaddr_storage from_sock_addr = { 0 };
     socklen_t addr_len = sizeof(struct sockaddr_storage);
     int acsock;
     while (running)
