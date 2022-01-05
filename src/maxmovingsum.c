@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
     float movingsum_f[621];
     int maxtmp = 0;
     srand(114514);
-    int64_t seed = n(114514);
+    int64_t seed = lcg(114514);
     for (int i = 0; i < 625; i++)
     {
         rawchunk[i] = nextIntWithBounds(&seed, 10) == 0;

@@ -33,7 +33,7 @@ find_package(Git)
 if(GIT_FOUND)
 endif(GIT_FOUND)
 
-if(0)
+if(1)
 find_package(Intl)
 if(Intl_FOUND)
         include_directories(${Intl_INCLUDE_DIRS})

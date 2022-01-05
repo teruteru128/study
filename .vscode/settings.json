@@ -146,7 +146,8 @@
         "*.in": "cpp",
         "signal.h": "c",
         "libpq-fe.h": "c",
-        "wait.h": "c"
+        "wait.h": "c",
+        "regex.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

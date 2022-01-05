@@ -2,6 +2,7 @@
 #define _GNU_SOURCE
 #include "config.h"
 #include <bm.h>
+#include <err.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,19 +11,25 @@
 
 int main(int argc, char const *argv[])
 {
-    unsigned char ripe[20] = "";
-    memset(ripe, 0xff, 20);
-
-    char *address = NULL;
-    for (size_t i = 0; i < 20; i++)
+    FILE *fin = fopen(PROJECT_SOURCE_DIR "/ネザー要塞シード.txt", "r");
+    if (fin == NULL)
     {
-        ripe[i] = 0;
-        address = encodeV4Address(ripe, 20);
-
-        printf("%zu, %s\n", strlen(address), address);
-
-        free(address);
+        perror("");
+        return 1;
     }
+    char buf[BUFSIZ] = "";
+    char *catch = NULL;
+    long a = 0;
+    while (fgets(buf, BUFSIZ, fin) != NULL)
+    {
+        a = strtol(buf, &catch, 10);
+        if (a >= 0)
+        {
+            break;
+        }
+        printf("%ld\n", a & 0xffffffffffffL);
+    }
+    fclose(fin);
 
     return 0;
 }
