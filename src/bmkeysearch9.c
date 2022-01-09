@@ -42,6 +42,7 @@ int loadPrivateKey(unsigned char *privateKey)
     size_t readed = 0;
     for (int i = 0; i < 4; i++)
     {
+        snprintf(filepath, PATH_MAX, PROJECT_SOURCE_DIR "/privateKeys%d.bin", i);
         fin = fopen(filepath, "rb");
         if (fin == NULL)
         {
@@ -113,12 +114,11 @@ int main(int argc, char *argv[])
     size_t i = 0;
     size_t j = 0;
     PublicKey *signKey = NULL;
-    PublicKey *encKey = NULL;
     char *signWIF = NULL;
     char *encWIF = NULL;
     char *address = NULL;
     char *keu = NULL;
-    for (i = 0; i < 1; i++)
+    for (i = 1; i < 2; i++)
     {
         signKey = memories + i;
         for (j = 0; j < SIZE; j++)
@@ -145,8 +145,9 @@ int main(int argc, char *argv[])
                 signWIF = encodeWIF(privateKey + i);
                 encWIF = encodeWIF(privateKey + j);
                 keu = formatKey(address, signWIF, encWIF);
-                printf("%s\n", keu);
+                fprintf(stdout, "%s\n", keu);
                 fflush(stdout);
+                fprintf(stderr, "%s\n", address);
                 free(address);
                 free(signWIF);
                 free(encWIF);

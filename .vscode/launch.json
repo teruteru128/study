@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
-            "args": [ "${workspaceFolder}/src/config/addressbook.txt" ],
+            "args": [ "${workspaceFolder}/config/addressbook.txt" ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [

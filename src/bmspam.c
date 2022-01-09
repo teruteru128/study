@@ -80,9 +80,13 @@ int countDownToStartupTime(time_t targetTime)
  * TODO:
  * コマンドライン引数でtest.txtとaddressbook.txtを切り替えられるようにする
  * */
-int main(void)
+int main(int argc, char *argv[])
 {
-    const char addressfilepath[PATH_MAX] = STUDYDATADIR SENDTO_ADDRESS_FILE;
+    if (argc < 2)
+    {
+        return 1;
+    }
+    const char *addressfilepath = argv[1];
 
 #ifdef _DEBUG
     printf("%s\n", msgfilepath);
@@ -106,7 +110,8 @@ int main(void)
     }
 
     // error environment variable
-    xmlrpc_env *env = malloc(sizeof(xmlrpc_env));
+    xmlrpc_env environment;
+    xmlrpc_env *env = &environment;
     /* Initialize our error-handling environment. */
     xmlrpc_env_init(env);
     die_if_fault_occurred(env);
@@ -136,8 +141,8 @@ int main(void)
     // message params
     char fromaddress[ADDRBUFSIZE] = "BM-2cWy7cvHoq3f1rYMerRJp8PT653jjSuEdY";
     char *tmp = NULL;
-    char message[BUFSIZ] = "TWVycnkgQ2hyaXN0bWFzISE=";
-    char subject[] = SUBJECT;
+    char subject[] = "SGVsbG8gV29ybGQh";
+    char message[BUFSIZ] = "SGVsbG8gV29ybGQh";
     int encodingType = 2;
     int ttl = 2419200;
 
@@ -161,13 +166,17 @@ int main(void)
     char toaddress[ADDRBUFSIZE] = "";
     xmlrpc_value *toaddressv = NULL;
     char *ackdata = NULL;
+    time_t t = 0;
+    struct tm machine_tm;
+    char strtime[BUFSIZ] = "";
+    int count = 0;
     while ((tmp = fgets(toaddress, ADDRBUFSIZE, toaddrfile)) != NULL)
     {
-        /* ファイルから読み込んだ文字列から改行文字を取り除く */
-        char *p = strpbrk(toaddress, "\r\n");
-        if (p != NULL)
+        /* remove crlf */
+        char *crlf = strpbrk(toaddress, "\r\n");
+        if (crlf != NULL)
         {
-            *p = '\0';
+            *crlf = '\0';
         }
         /* 文字列をxmlrpc文字列オブジェクトに変換する */
         toaddressv = xmlrpc_string_new(env, toaddress);
@@ -178,10 +187,19 @@ int main(void)
                                     encodingTypev, TTLv);
         free(ackdata);
 
-        printf("%s\n", toaddress);
+        t = time(NULL);
+        localtime_r(&t, &machine_tm);
+        strftime(strtime, BUFSIZ, "%Ex %EX", &machine_tm);
+        printf("%s: %s\n", toaddress, strtime);
 
         /* Dispose of our result value. ゴミ掃除 */
         xmlrpc_DECREF(toaddressv);
+        count++;
+        if (count >= 10)
+        {
+            sleep(10);
+            count = 0;
+        }
     }
     if (ferror(toaddrfile))
     {
@@ -196,7 +214,6 @@ int main(void)
 
     /* Clean up our error-handling environment. */
     xmlrpc_env_clean(env);
-    free(env);
 
     xmlrpc_client_destroy(clientP);
 
