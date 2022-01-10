@@ -71,7 +71,9 @@ endif()
 check_language(CUDA)
 if(CMAKE_CUDA_COMPILER)
     enable_language(CUDA)
-    message("Cuda version: " ${CUDA_VERSION})
+    message("CUDA found!: " ${CUDA_VERSION})
+else()
+    message("CUDA not found!: NONE")
 endif()
 
 
@@ -154,7 +156,7 @@ check_symbol_exists(sqrt "math.h" HAVE_SQRT)
 #check_source_compile(C "int main(){__builtin_clzl(1);return 0;}" HAVE___BUILTIN_CLZL)
 
 include_directories(${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/libstudy/include ${CMAKE_CURRENT_SOURCE_DIR})
-add_compile_options(-Wall -Wextra -pedantic-errors -Wcast-align -Wcast-qual -Wconversion -Wdisabled-optimization -Wendif-labels -Wfloat-equal -Winit-self -Winline -Wlogical-op -Wmissing-include-dirs -Wpacked -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wswitch-enum -Wunsafe-loop-optimizations -Wvariadic-macros -Wwrite-strings)
+#add_compile_options(-Wall -Wextra -pedantic-errors -Wcast-align -Wcast-qual -Wconversion -Wdisabled-optimization -Wendif-labels -Wfloat-equal -Winit-self -Winline -Wlogical-op -Wmissing-include-dirs -Wpacked -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wswitch-enum -Wunsafe-loop-optimizations -Wvariadic-macros -Wwrite-strings)
 add_compile_definitions(PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}" VERSION="${study_VERSION}")
 include_directories("${PROJECT_BINARY_DIR}")
 

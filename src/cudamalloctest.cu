@@ -1,13 +1,10 @@
 
-#if defined(__GNUC__) && (__GNUC__ < 8)
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#ifdef ENABLE_NLS
 #include "gettext.h"
 #include <locale.h>
-#endif
-#if defined(CMAKE_CUDA_COMPILER) && CMAKE_CUDA_COMPILER
+#ifdef CMAKE_CUDA_COMPILER
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #endif
@@ -40,10 +37,12 @@ void initialize_array(float *arr, size_t size)
         arr[i] = (float)rand();
     }
 }
+#endif
 
 /* https://nonbiri-tereka.hatenablog.com/entry/2017/04/11/081601 */
 int main(void)
 {
+#ifdef CMAKE_CUDA_COMPILER
     float *arr1, *arr2, *arr3;
     float *d_arr1 = NULL, *d_arr2 = NULL, *d_arr3 = NULL;
     size_t n_byte = N * sizeof(float);
@@ -97,7 +96,7 @@ int main(void)
     fputs("finish cudaMemcpy\n", stderr);
 
     fputs("start kernel function\n", stderr);
-    sum_of_array<<<(N + 255) / 256, 256> > >(d_arr1, d_arr2, d_arr3, n_byte);
+    sum_of_array<<<(N + 255) / 256, 256>>>(d_arr1, d_arr2, d_arr3, n_byte);
     fputs("finish kernel function\n", stderr);
     cudaMemcpy(arr3, d_arr3, n_byte, cudaMemcpyDeviceToHost);
     size_t i = 0;
@@ -105,7 +104,6 @@ int main(void)
     {
         fprintf(stderr, "%f\n", arr3[i]);
     }
+#endif
     return EXIT_SUCCESS;
 }
-#endif
-#endif
