@@ -16,6 +16,7 @@
 #define N 200
 #define DEVICE 0
 
+#ifdef CMAKE_CUDA_COMPILER
 __global__ void sum_of_array(float *arr1, float *arr2, float *arr3, int size)
 {
     // https://gist.github.com/onionmk2/854c333829f047a5e86cfab5a0ccae3a
@@ -36,10 +37,12 @@ void initialize_array(float *arr, size_t size)
         arr[i] = (float)rand();
     }
 }
+#endif
 
 /* https://nonbiri-tereka.hatenablog.com/entry/2017/04/11/081601 */
 int main(void)
 {
+#ifdef CMAKE_CUDA_COMPILER
     float *arr1, *arr2, *arr3;
     float *d_arr1 = NULL, *d_arr2 = NULL, *d_arr3 = NULL;
     size_t n_byte = N * sizeof(float);
@@ -101,5 +104,6 @@ int main(void)
     {
         fprintf(stderr, "%f\n", arr3[i]);
     }
+#endif
     return EXIT_SUCCESS;
 }
