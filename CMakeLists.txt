@@ -160,18 +160,17 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 add_subdirectory(libstudy)
 add_subdirectory(include)
+add_subdirectory(config)
+add_subdirectory(pthreads)
 add_subdirectory(src)
 add_subdirectory(po)
 add_subdirectory(tests)
 
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-set(CPACK_SOURCE_GENERATOR "TGZ")
-set(CPACK_SOURCE_IGNORE_FILES
-  "\\.git/"
-  "build/"
-  ".*~$"
-)
+set(CPACK_PROJECT_NAME "${PROJECT_NAME}")
+set(CPACK_PROJECT_VERSION "${PROJECT_VERSION}")
+set(CPACK_GENERATOR "ZIP" "TGZ")
+set(CPACK_SOURCE_GENERATOR "ZIP" "TGZ")
+#set(CPACK_SOURCE_IGNORE_FILES "\\.git/" "build/" ".*~$")
 set(CPACK_VERBATIM_VARIABLES YES)
 include(CPack)
 
