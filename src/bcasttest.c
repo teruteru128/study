@@ -19,7 +19,7 @@
 #define HOSTNAME3 "FF05::1"
 
 /** https://www.geekpage.jp/programming/linux-network/broadcast.php */
-int main(int argc, char **argv)
+int main(const int argc, const char **argv)
 {
     struct addrinfo hints, *res = NULL, *ptr = NULL;
     hints.ai_flags = 0;
@@ -63,11 +63,11 @@ int main(int argc, char **argv)
         ret = setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (void *)&yes, sizeof(yes));
         printf("ret : %d\n", ret);
         ret = getsockopt(sock, SOL_SOCKET, SO_BROADCAST, (void *)&bcval2, &len2);
-        printf("ret : %d\n", ret);
-        printf("%d(%d) -> %d(%d)\n", bcval1, len1, bcval2, len2);
+        printf("ret : %d, %d(%d) -> %d(%d)\n", ret, bcval1, len1, bcval2, len2);
     }
     else if (ptr->ai_family == AF_INET6)
     {
+        printf("ipv6");
     }
 
     char *msg = strdup(argc >= 2 ? argv[1] : "HELLO");

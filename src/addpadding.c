@@ -43,6 +43,6 @@ int main(int argc, char *argv[])
             fputc(' ', stdout);
         }
         printf("%s\n", buf);
-    };
+    }
     return 0;
 }
