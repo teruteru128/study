@@ -30,7 +30,7 @@ jobs:
         run: ninja -j 0 -C build
       - name: test cudahello
         run: ./build/src/cudahello
-      - name: test cudahello
+      - name: test cudamalloctest
         run: ./build/src/cudamalloctest
       - name: Archive CMake build log
         uses: actions/upload-artifact@v2
