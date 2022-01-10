@@ -36,5 +36,5 @@ jobs:
       - name: Archive CMake build error log
         uses: actions/upload-artifact@v2
         with:
-          name: CMakeOutput.log
+          name: CMakeError.log
           path: build/CMakeFiles/CMakeError.log
