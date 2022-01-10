@@ -28,3 +28,13 @@ jobs:
         run: cmake . -G Ninja -B build
       - name: build
         run: ninja -j 0 -C build
+      - name: Archive CMake build log
+        uses: actions/upload-artifact@v2
+        with:
+          name: CMakeOutput.log
+          path: build/CMakeFiles/CMakeOutput.log
+      - name: Archive CMake build error log
+        uses: actions/upload-artifact@v2
+        with:
+          name: CMakeOutput.log
+          path: build/CMakeFiles/CMakeError.log
