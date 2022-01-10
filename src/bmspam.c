@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
     time_t t = 0;
     struct tm machine_tm;
     char strtime[BUFSIZ] = "";
-    int count = 0;
+    size_t count = 0;
     while ((tmp = fgets(toaddress, ADDRBUFSIZE, toaddrfile)) != NULL)
     {
         /* remove crlf */
@@ -189,17 +189,12 @@ int main(int argc, char *argv[])
 
         t = time(NULL);
         localtime_r(&t, &machine_tm);
-        strftime(strtime, BUFSIZ, "%Ex %EX", &machine_tm);
-        printf("%s: %s\n", toaddress, strtime);
+        strftime(strtime, BUFSIZ, "%EC%Ey%B%d日 %X %EX", &machine_tm);
+        printf("(%zu)%s: %s\n", count, toaddress, strtime);
 
         /* Dispose of our result value. ゴミ掃除 */
         xmlrpc_DECREF(toaddressv);
-        count++;
-        if (count >= 10)
-        {
-            sleep(10);
-            count = 0;
-        }
+        sleep(1);
     }
     if (ferror(toaddrfile))
     {

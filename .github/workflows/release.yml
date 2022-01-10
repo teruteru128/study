@@ -15,46 +15,40 @@ jobs:
   release:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2.2.0
-    - name: submodule update
-      run: git submodule update --init --recursive
-    - name: Install dependents
-      run: |
-        sudo apt update
-        sudo apt install autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev
-    - name: autogen.sh
-      run: ./autogen.sh
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make -j
-    - name: make check
-      run: make check -j
-    - name: make distcheck
-      run: make distcheck -j
-    - name: Create a Release
-      id: create_release
-      uses: actions/create-release@v1.1.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        # The name of the tag. This should come from the webhook payload, `github.GITHUB_REF` when a user pushes a new tag
-        tag_name: ${{ github.ref }}
-        # The name of the release. For example, `Release v1.0.1`
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-    - name: Upload a Release Asset
-      uses: actions/upload-release-asset@v1.0.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        # The URL for uploading assets to the release
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        # The path to the asset you want to upload
-        asset_path: study-1.0.1.tar.gz
-        # The name of the asset you want to upload
-        # バージョン番号を自動で含めるにはどうすれば良いんだろう？
-        asset_name: study-1.0.1.tar.gz
-        # The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information
-        asset_content_type: application/gzip
+      - uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+      - name: apt update
+        run: sudo apt update
+      - name: Install dependents
+        run: sudo apt install --no-install-recommends --no-install-suggests ninja-build autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64 gettext libjsonrpc-glib-1.0-dev
+      - name: Configuration
+        run: cmake . -G Ninja -B build
+      - name: build
+        run: ninja -j 0 -C build
+      - name: Create a Release
+        id: create_release
+        uses: actions/create-release@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # The name of the tag. This should come from the webhook payload, `github.GITHUB_REF` when a user pushes a new tag
+          tag_name: ${{ github.ref }}
+          # The name of the release. For example, `Release v1.0.1`
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload a Release Asset
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # The URL for uploading assets to the release
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          # The path to the asset you want to upload
+          asset_path: study-1.0.1.tar.gz
+          # The name of the asset you want to upload
+          # バージョン番号を自動で含めるにはどうすれば良いんだろう？
+          asset_name: study-1.0.1.tar.gz
+          # The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information
+          asset_content_type: application/gzip
