@@ -1,0 +1,38 @@
+name: cmake
+
+on:
+  push:
+    paths: ["/CMakeLists.txt", "include/**", "libstudy/**", "po/**", "pthreads/**", "src/**", "tests/**", ".github/workflows/**"]
+
+  # Sample when vcpkg is a submodule of your repository (highly recommended!)
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+
+      - name: apt update
+        run: sudo apt update
+
+      - uses: Jimver/cuda-toolkit@v0.2.5
+        id: cuda-toolkit
+        with:
+          cuda: '11.5.1'
+
+      - run: echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
+
+      - run: echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
+
+      - run: nvcc -V
+
+      - name: Install dependents
+        run: sudo apt install ninja-build autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64 gettext libjsonrpc-glib-1.0-dev
+
+      - name: Configuration
+        run: cmake . -G Ninja -B build
+
+      - name: build
+        run: ninja -j 0 -C build
