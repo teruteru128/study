@@ -1,4 +1,4 @@
-name: cuda
+name: cmake
 
 on:
   push:
