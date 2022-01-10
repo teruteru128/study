@@ -1,5 +1,5 @@
 
-#if defined(__GNUC__) && (__GNUC__ < 8)
+#if defined(__GNUC__) && (__GNUC__ > 8)
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

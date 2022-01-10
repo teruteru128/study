@@ -64,6 +64,8 @@ if(CMAKE_CUDA_COMPILER)
     message("CMAKE_CUDA_COMPILER:${CMAKE_CUDA_COMPILER}")
     add_executable(cudahello cudahello.cu)
     set_target_properties(cudahello PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    add_executable(cudamalloctest cudamalloctest.cu)
+    set_target_properties(cudahello PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 endif()
 
 add_executable(curlonionheadertest curlonionheadertest.c)
