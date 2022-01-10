@@ -2,10 +2,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#ifdef ENABLE_NLS
 #include "gettext.h"
 #include <locale.h>
-#endif
 #ifdef CMAKE_CUDA_COMPILER
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
