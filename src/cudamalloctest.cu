@@ -1,5 +1,4 @@
 
-#if defined(__GNUC__) && (__GNUC__ < 8)
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -7,7 +6,7 @@
 #include "gettext.h"
 #include <locale.h>
 #endif
-#if defined(CMAKE_CUDA_COMPILER) && CMAKE_CUDA_COMPILER
+#ifdef CMAKE_CUDA_COMPILER
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #endif
@@ -107,5 +106,4 @@ int main(void)
     }
     return EXIT_SUCCESS;
 }
-#endif
 #endif

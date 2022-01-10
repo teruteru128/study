@@ -1,5 +1,4 @@
 
-#if defined(__GNUC__) && (__GNUC__ > 8)
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -32,4 +31,3 @@ int main(void)
 #endif
     return EXIT_SUCCESS;
 }
-#endif
