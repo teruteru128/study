@@ -71,7 +71,9 @@ endif()
 check_language(CUDA)
 if(CMAKE_CUDA_COMPILER)
     enable_language(CUDA)
-    message("Cuda version: " ${CUDA_VERSION})
+    message("CUDA found!: " ${CUDA_VERSION})
+else()
+    message("CUDA not found!: NONE")
 endif()
 
 

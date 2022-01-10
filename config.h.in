@@ -56,3 +56,4 @@
 #cmakedefine HAVE_TZSET
 #cmakedefine HAVE_POW
 #cmakedefine HAVE_SQRT
+#cmakedefine CMAKE_CUDA_COMPILER "@CMAKE_CUDA_COMPILER"
