@@ -2,7 +2,7 @@
 # https://qiita.com/shohirose/items/637f4b712893764a7ec1
 # https://qiita.com/shohirose/items/d2b9c595a37b27ece607
 cmake_minimum_required(VERSION 3.0.0)
-project(study VERSION 1.0.3 LANGUAGES C CXX)
+project(study VERSION 1.0.4 LANGUAGES C CXX)
 
 include(CheckLanguage)
 
