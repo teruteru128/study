@@ -25,7 +25,7 @@ endif(Threads_FOUND)
 
 find_package(CURL REQUIRED)
 if(CURL_FOUND)
-    include_directories(${CURL_INCLUDE_DIRS})
+#    include_directories(${CURL_INCLUDE_DIRS})
 endif(CURL_FOUND)
 
 
@@ -33,15 +33,13 @@ find_package(Git)
 if(GIT_FOUND)
 endif(GIT_FOUND)
 
-if(1)
 find_package(Intl)
 if(Intl_FOUND)
-        include_directories(${Intl_INCLUDE_DIRS})
-        set(LIBINTL_LIBRARIES ${Intl_LIBRARIES})
-    else()
-        set(LIBINTL_LIBRARIES)
+#        include_directories(${Intl_INCLUDE_DIRS})
+#        set(LIBINTL_LIBRARIES ${Intl_LIBRARIES})
+#    else()
+#        set(LIBINTL_LIBRARIES)
 endif(Intl_FOUND)
-endif()
 
 
 find_package(Gettext)
@@ -53,12 +51,12 @@ endif(GETTEXT_FOUND)
 
 find_package(OpenSSL)
 if(OPENSSL_FOUND)
-    include_directories(${OPENSSL_INCLUDE_DIR})
+#    include_directories(${OPENSSL_INCLUDE_DIR})
 endif(OPENSSL_FOUND)
 
 find_package(PostgreSQL REQUIRED)
 if(PostgreSQL_FOUND)
-    include_directories(${PostgreSQL_INCLUDE_DIRS})
+#    include_directories(${PostgreSQL_INCLUDE_DIRS})
 endif(PostgreSQL_FOUND)
 
 find_package(OpenMP REQUIRED)
