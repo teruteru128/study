@@ -148,7 +148,11 @@
         "libpq-fe.h": "c",
         "wait.h": "c",
         "regex.h": "c",
-        "alloca.h": "c"
+        "alloca.h": "c",
+        "ioctl.h": "c",
+        "ioctls.h": "c",
+        "ioctl-types.h": "c",
+        "ttydefaults.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
