@@ -23,6 +23,7 @@
           "63da8a6e89cf8f51" \
           "1baed6450da2c1cb"
 #define BASE 16
+#define T_NUM 16
 
 /*
  * 135066410865995223349603216278805969938881475605667027524485143851526510604859533833940287150571909441798207282164471551373680419703964191743046496589274256239341020864383202110372958725762358509643110564073501508187510676594629205563685529475213500852879416377328533906109750544334999811150056977236890927563
@@ -30,17 +31,18 @@
  */
 int main(int argc, char *argv[])
 {
-    size_t i = 0;
     mpz_t n, p, q, r, minQ, maxQ, sqQ, sqrtN, nSubSqQ, nSubSqQModQ, doubledSqQ, pSubQ, num;
-    mpz_t t[16];
     mpz_inits(n, p, q, r, minQ, maxQ, sqQ, sqrtN, nSubSqQ, nSubSqQModQ, doubledSqQ, pSubQ, num, NULL);
-    for (i = 0; i < 16; i++)
-    {
-        mpz_init(t[i]);
-    }
     mpz_set_str(n, N, BASE);
-    // qを1からsqrt(n)まで*2ずつ, (n-q^2)/qがqより大きくなるまでループ
-    // for(q = 1; (n-q^2)/q < q; q *= 2)
+    /*
+     * qを1からsqrt(n)まで*2ずつ, (n-q^2)/qがqより大きくなるまでループ
+     * qが1のときが一番大きくなる気がするんですがそれは
+     */
+    /*
+     * for(q = 1; (n-q^2)/q < q; q *= 2)
+     * {
+     * }
+     */
     mpz_set_str(p, "6101033566922210362775848843043422665924052993891242451932861862025497930636586185033910893703459369951328434771914583346105161468964915448455746310700313", 10);
     mpz_mul_ui(q, p, 2);
     mpz_mod(r, n, p);
@@ -48,7 +50,8 @@ int main(int argc, char *argv[])
     mpz_mod(num, n, q);
     gmp_printf("%Zd\n", num);
     int cmp = mpz_cmp(r, num);
-    printf("r %s num\n", cmp == 0 ? "=" : (cmp > 0 ? ">": "<"));
+    printf("r %c num\n", cmp == 0 ? '=' : (cmp > 0 ? '>': '<'));
+    mpz_set_ui(r, 1);
     for(mpz_set_si(q, 1), mpz_root(maxQ, n, 2); mpz_cmp(q, maxQ) < 0; mpz_mul_si(q, q, 2))
     {
         mpz_pow_ui(r, q, 2);
@@ -58,9 +61,5 @@ int main(int argc, char *argv[])
     }
 
     mpz_clears(n, p, q, r, minQ, maxQ, sqQ, sqrtN, nSubSqQ, nSubSqQModQ, doubledSqQ, pSubQ, num, NULL);
-    for (i = 0; i < 16; i++)
-    {
-        mpz_clear(t[i]);
-    }
     return 0;
 }

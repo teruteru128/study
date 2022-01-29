@@ -11,7 +11,8 @@
 
 int main(int argc, char *argv[])
 {
-
+#if 0
+    // SHA1を自力で実装しようとした残骸
     SHA_CTX sha;
 
     sha_init(&sha);
@@ -20,6 +21,6 @@ int main(int argc, char *argv[])
     char buf[20];
     char txt[41];
     sha_finish(buf, &sha);
-
+#endif
     return EXIT_SUCCESS;
 }
