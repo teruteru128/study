@@ -1,5 +1,6 @@
 
 #include <time.h>
+#include "timeutil.h"
 
 int tmcomp(const struct tm *tm1, const struct tm *tm2)
 {

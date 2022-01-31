@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+// TODO: スレッド数はコンパイル時ではなく実行時に決定すべきでは？
 #ifndef THREAD_NUM
 #define THREAD_NUM 12
 #endif
@@ -27,6 +28,8 @@ struct globalConfig
 // 比較基準、null byteで初期化した後は書き込みをしないので共通化
 static const unsigned char target[16] = "";
 #endif
+
+#define local_clz(a) ((a) == 0 ? 64 : __builtin_clzl((a)))
 
 void *hash(void *arg)
 {
@@ -76,7 +79,7 @@ void *hash(void *arg)
       if (memcmp(hash, target, require_nlz))
         continue;
 #endif
-            nlz = getNLZ(hash, 16);
+            nlz = local_clz(*(unsigned long *)hash) >> 3;
             if (nlz < config->require_nlz)
                 continue;
             fprintf(stdout, "found : %zu, ", cnt);

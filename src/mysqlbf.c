@@ -129,7 +129,7 @@ void crack(char *hash)
             printf("Found pass: ");
             for (i = 0; i < len; i++)
                 putchar(pass[i]);
-            putchar("n");
+            putchar('\n');
             break;
         }
     }
