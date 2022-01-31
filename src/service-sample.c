@@ -9,6 +9,39 @@
 
 #include "server.h"
 
+struct config;
+/**
+ * @brief config object
+ * 構造体の定義とgetConfig関数のプロトタイプ宣言をヘッダーに置く
+ */
+struct config
+{
+};
+
+static struct config singleton = {};
+static pthread_once_t config_singleton_init = PTHREAD_ONCE_INIT;
+
+static void config_init_func() {
+    // 初期値の設定
+    // ファイルからのロード
+}
+
+struct config *getConfig()
+{
+    pthread_once(&config_singleton_init, config_init_func);
+    return &singleton;
+}
+
+int loadConfigFromFile(struct config *config, char *configfilepath)
+{
+    return 0;
+}
+
+int setupConfigFromCmdArgs(struct config *config, int argc, char **argv)
+{
+    return 0;
+}
+
 static void usage(int status)
 {
     fprintf(stderr, "argument count mismatch error.\nplease input a service "
@@ -26,7 +59,7 @@ void *taskthread(void *a)
     int sock = -1;
     unsigned short command = 0;
     size_t length;
-    while (running)
+    while (shutdown == 0)
     {
         pthread_mutex_lock(&acceptedsocket_mutex);
         while (acceptedsocket == -1)
@@ -94,7 +127,7 @@ void *acceptthrad(void *a)
     struct sockaddr_storage from_sock_addr = { 0 };
     socklen_t addr_len = sizeof(struct sockaddr_storage);
     int acsock;
-    while (running)
+    while (shutdown == 0)
     {
         acsock = accept(sock, (struct sockaddr *)&from_sock_addr, &addr_len);
         pthread_mutex_lock(&acceptedsocket_mutex);
@@ -132,6 +165,6 @@ int main(int argc, char *argv[])
     pthread_t acceptthread;
     pthread_create(&acceptthread, NULL, do_service, &arg);
     pthread_t work_threads[16];
-    running = 0;
+    shutdown = 1;
     return 0;
 }

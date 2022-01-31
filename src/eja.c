@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include "eja.h"
 
 /**
  * @brief ejaculation
