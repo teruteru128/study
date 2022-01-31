@@ -22,7 +22,7 @@
 static int listensocket = -1;
 
 // finish flag
-volatile int shutdown = 0;
+volatile int running = 1;
 
 int startServer()
 {
@@ -112,7 +112,7 @@ static void echo_back(int sock)
     sigemptyset(&sigmask);
     int selret = 0;
 
-    while (shutdown == 0)
+    while (running)
     {
         memset(buf1, 0, MAX_BUF_SIZE);
         len = recv(sock, buf1, sizeof(buf1), 0);
@@ -188,7 +188,7 @@ void *do_service(void *arg)
     int nfds, n;
     int conn_sock = -1;
     char name[NI_MAXHOST], service[NI_MAXSERV];
-    while (shutdown == 0)
+    while (running)
     {
         nfds = epoll_pwait(epollfd, events, MAX_EVENTS, -1, &sigmask);
         if (nfds == -1)
@@ -236,4 +236,4 @@ void *do_service(void *arg)
 /**
  * TODO: グローバル変数をフラグにして終了
  */
-void close_server() { shutdown = 1; }
+void close_server() { running = 0; }

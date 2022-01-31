@@ -34,13 +34,13 @@ static void sigint_action(int sig)
     calledthread = pthread_self();
 }
 
-static volatile int shutdown = 0;
+static volatile int running = 0;
 
 static void *signal_catcher(void *arg)
 {
     int sigc = 0;
     int time = 0;
-    while (shutdown == 0)
+    while (running)
     {
         sigc = flag;
         if (sigc != 0)
@@ -124,7 +124,7 @@ int main(int argc, char **argv)
                 printf("strerror_r error\n");
         }
     } while (ret != 0);
-    shutdown = 1;
+    running = 1;
     printf("sleep break\n");
     return 0;
 }

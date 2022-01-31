@@ -153,7 +153,8 @@
         "ioctls.h": "c",
         "ioctl-types.h": "c",
         "ttydefaults.h": "c",
-        "sha-1.h": "c"
+        "sha-1.h": "c",
+        "socket.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

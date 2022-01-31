@@ -59,7 +59,7 @@ void *taskthread(void *a)
     int sock = -1;
     unsigned short command = 0;
     size_t length;
-    while (shutdown == 0)
+    while (running)
     {
         pthread_mutex_lock(&acceptedsocket_mutex);
         while (acceptedsocket == -1)
@@ -127,7 +127,7 @@ void *acceptthrad(void *a)
     struct sockaddr_storage from_sock_addr = { 0 };
     socklen_t addr_len = sizeof(struct sockaddr_storage);
     int acsock;
-    while (shutdown == 0)
+    while (running)
     {
         acsock = accept(sock, (struct sockaddr *)&from_sock_addr, &addr_len);
         pthread_mutex_lock(&acceptedsocket_mutex);
@@ -165,6 +165,6 @@ int main(int argc, char *argv[])
     pthread_t acceptthread;
     pthread_create(&acceptthread, NULL, do_service, &arg);
     pthread_t work_threads[16];
-    shutdown = 1;
+    running = 0;
     return 0;
 }
