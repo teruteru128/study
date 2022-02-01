@@ -7,9 +7,7 @@
 int main(int argc, char *argv[])
 {
     CURLcode ret;
-    CURL *hnd;
-
-    hnd = curl_easy_init();
+    CURL *hnd = curl_easy_init();
     curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
     curl_easy_setopt(hnd, CURLOPT_URL, "http://xiwayy2kn32bo3ko.onion/tor/subject.txt");
     curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);

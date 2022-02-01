@@ -23,7 +23,7 @@ static pthread_t mainthread = 0;
  * signal(2)
  * sigaction(2)
  * signalfd(2)
- * TODO: Replace signal (2) with sigaction (2)
+ * TODO: Replace signal(2) with sigaction(2)
  */
 static void sigint_action(int sig)
 {
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
     }
     pid_t pid = getpid();
     mainthread = pthread_self();
-    printf("pid : %d, %lu\n", pid, mainthread);
+    printf("pid : %d, main thread id : %lu\n", pid, mainthread);
     int rc = set_signal_handler();
     if (rc != EXIT_SUCCESS)
     {

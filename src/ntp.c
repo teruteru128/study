@@ -32,11 +32,11 @@ void dumpNTPpacket(struct NTP_Packet *packet, FILE *out)
         fprintf(out, "%02x", a[i]);
         if ((i % 16) == 7)
         {
-            fprintf(out, " ");
+            fputs(" ", out);
         }
         if ((i % 16) == 15)
         {
-            fprintf(out, "\n");
+            fputs("\n", out);
         }
     }
 
