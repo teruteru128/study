@@ -5,12 +5,13 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include <curl/curl.h>
+#include <locale.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include <curl/curl.h>
 
 struct count
 {
@@ -18,7 +19,8 @@ struct count
     size_t count;
 };
 
-static size_t write_callback(char *ptr, size_t size, size_t nmemb, void *stream)
+static size_t write_callback(char *ptr, size_t size, size_t nmemb,
+                             void *stream)
 {
     struct count *count = (struct count *)stream;
     strptime(ptr + 9, "%F %T", &count->time);
@@ -28,17 +30,19 @@ static size_t write_callback(char *ptr, size_t size, size_t nmemb, void *stream)
 
 int main(int argc, char *argv[])
 {
+    setlocale(LC_ALL, "");
     curl_global_init(CURL_GLOBAL_ALL);
     CURLcode ret;
     CURL *hnd = curl_easy_init();
     struct count count;
     curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
-    curl_easy_setopt(hnd, CURLOPT_URL, "https://nyanpass.com/api.php/get_count");
+    curl_easy_setopt(hnd, CURLOPT_URL,
+                     "https://nyanpass.com/api.php/get_count");
     curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
     curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/7.68.0");
     curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
     curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, (long)CURL_HTTP_VERSION_2TLS);
-    curl_easy_setopt(hnd, CURLOPT_SSH_KNOWNHOSTS, "/home/teruteru128/.ssh/known_hosts");
+    curl_easy_setopt(hnd, CURLOPT_SSH_KNOWNHOSTS, "~/.ssh/known_hosts");
     curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
     curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &count);
     curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, write_callback);
@@ -62,14 +66,14 @@ int main(int argc, char *argv[])
     */
 
     char buf[BUFSIZ];
-    struct timespec spec = {.tv_sec = 1, .tv_nsec = 0};
+    struct timespec spec = { .tv_sec = 1, .tv_nsec = 0 };
     struct timespec rem;
     for (size_t i = 0; i < 3600; i++)
     {
         ret = curl_easy_perform(hnd);
         if (ret != CURLE_OK)
             break;
-        strftime(buf, BUFSIZ, "%FT%T+09:00", &count.time);
+        strftime(buf, BUFSIZ, "%FT%T%z", &count.time);
         printf("%s, %zu\n", buf, count.count);
         nanosleep(&spec, &rem);
     }

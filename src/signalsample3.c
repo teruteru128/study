@@ -25,8 +25,10 @@ static pthread_t mainthread = 0;
  * signalfd(2)
  * TODO: Replace signal(2) with sigaction(2)
  */
-static void sigint_action(int sig)
+static void sigint_action(int sig, siginfo_t *t, void*arg)
 {
+    ucontext_t *context = (ucontext_t *)arg;
+    (void)context;
     // fprintf(stdout, "SIGINT recive(%d)\n", sig);
     flag = sig;
     // 大体の場合メイン関数のスレッドと同じスレッドでシグナルを受け取る？
@@ -62,7 +64,7 @@ static int set_signal_handler(void)
 {
     struct sigaction act = { 0 };
     struct sigaction oldact = { 0 };
-    act.sa_handler = sigint_action;
+    act.sa_sigaction = sigint_action;
     int ret = sigaction(SIGINT, &act, &oldact);
     if (ret != 0)
     {

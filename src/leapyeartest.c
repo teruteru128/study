@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <time.h>
 #include "timeutil.h"
+#include <locale.h>
 
 void leapyeartest()
 {
@@ -19,6 +20,20 @@ void leapyeartest()
     time_t t = mktime(&uruu1);
     struct tm uruu2;
     localtime_r(&t, &uruu2);
-    strftime(buf, BUFSIZ, "%FT%T+09:00", &uruu2);
+    strftime(buf, BUFSIZ, "%FT%T%z", &uruu2);
     printf("%s, %d\n", buf, tmcomp(&uruu1, &uruu2));
+    // setlocale(3) を呼び出すかどうかで挙動が変わる
+    strftime(buf, BUFSIZ, "%Ex %EX %z", &uruu2);
+    printf("%s\n", buf);
+    t = time(NULL);
+    localtime_r(&t, &uruu2);
+    strftime(buf, BUFSIZ, "%EC/%Ey/%Ec/%X/%EX/%p", &uruu2);
+    printf("%s\n", buf);
+}
+
+int main(int argc, char const *argv[])
+{
+    setlocale(LC_ALL, "");
+    leapyeartest();
+    return 0;
 }

@@ -11,6 +11,7 @@
 #include <err.h>
 #include <errno.h>
 #include <limits.h>
+#include <locale.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,6 +88,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     const char *addressfilepath = argv[1];
+    setlocale(LC_ALL, "");
 
 #ifdef _DEBUG
     printf("%s\n", msgfilepath);

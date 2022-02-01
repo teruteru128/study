@@ -2,23 +2,24 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <inttypes.h>
+#include <locale.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/timerfd.h>
 #include <unistd.h>
-#include <inttypes.h>
 
 #define TIME_FORMAT_BUFFER_SIZE 64
 
 /**
  * @brief eventfd sample.
- * 
+ *
  * eventfd
  * timerfd
  * signalfd
- * 
+ *
  * Linuxにおけるウェイト処理
  * - sleep
  * - usleep
@@ -29,16 +30,18 @@
  *   timerfdはsleepとかusleep, nanosleepに比べると手間がかかりますねー
  *   そりゃfdだからねえ
  * - pthread_cond_timedwait
- * 
- * @param argc 
- * @param argv 
- * @return int 
+ *
+ * @param argc
+ * @param argv
+ * @return int
  */
 int main(int argc, char *argv[])
 {
+    setlocale(LC_ALL, "");
     struct timespec cur;
     clock_gettime(CLOCK_MONOTONIC, &cur);
-    printf("%ld.%09ld, %lf\n", cur.tv_sec, cur.tv_nsec, (double)cur.tv_sec / 86400);
+    printf("%ld.%09ld, %lf\n", cur.tv_sec, cur.tv_nsec,
+           (double)cur.tv_sec / 86400);
     clock_gettime(CLOCK_MONOTONIC, &cur);
     printf("%ld.%09ld\n", cur.tv_sec, cur.tv_nsec);
 
@@ -70,7 +73,7 @@ int main(int argc, char *argv[])
     }
 
     // expiration
-    uint64_t exp[2] = {0, 0};
+    uint64_t exp[2] = { 0, 0 };
     // max expiration
     const uint64_t max_exp = 16;
     // total expiration
@@ -97,7 +100,8 @@ int main(int argc, char *argv[])
         strftime(format, TIME_FORMAT_BUFFER_SIZE, "%FT%T.%%09ld%z", &tm);
         snprintf(formattedTime, TIME_FORMAT_BUFFER_SIZE, format, cur.tv_nsec);
         tot_exp += exp[0] + exp[1];
-        printf("%s, read : %" PRId64 ", %" PRId64 " , total : %" PRIu64 "\n", formattedTime, exp[0], exp[1], tot_exp);
+        printf("%s, read : %" PRId64 ", %" PRId64 " , total : %" PRIu64 "\n",
+               formattedTime, exp[0], exp[1], tot_exp);
     }
 
     fclose(timerf);
