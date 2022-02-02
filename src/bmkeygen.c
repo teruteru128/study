@@ -21,11 +21,11 @@
         return EXIT_FAILURE;                                                  \
     }
 
-#define PUBLIC_KEY_SIZE 32
-#define PRIVATE_KEY_SIZE 65
-#define KEY_NUM 128
+#define PRIVATE_KEY_SIZE 32
+#define PUBLIC_KEY_SIZE 65
+#define KEY_NUM 64
 
-//static char STDOUT_BUFFER[BUFSIZ] = "";
+static char STDOUT_BUFFER[BUFSIZ * 16] = "";
 
 int main(int argc, char *argv[], char *envp[])
 {
@@ -43,7 +43,7 @@ int main(int argc, char *argv[], char *envp[])
     BN_CTX *ctx = BN_CTX_new();
     errchk(ctx, BN_CTX_new);
     size_t nlz = 0;
-    unsigned char s[PUBLIC_KEY_SIZE * KEY_NUM] = "";
+    unsigned char s[PRIVATE_KEY_SIZE * KEY_NUM] = "";
     BIGNUM *tmp = NULL;
 
     if (access(argv[1], F_OK | R_OK) != 0)
@@ -64,28 +64,28 @@ int main(int argc, char *argv[], char *envp[])
     // public key working area
     EC_POINT *pubkeyp = EC_POINT_new(secp256k1);
     errchk(pubkeyp, EC_POINT_new);
-    unsigned char pubkey[PRIVATE_KEY_SIZE];
-    setvbuf(stdout, NULL, _IOFBF, 0);
+    unsigned char pubkey[PUBLIC_KEY_SIZE * KEY_NUM];
+    setvbuf(stdout, STDOUT_BUFFER, _IOFBF, BUFSIZ * 16);
 
     size_t count = 0;
     size_t i = 0;
-    while (fread(s, PUBLIC_KEY_SIZE, KEY_NUM, fin) == KEY_NUM)
+    while (fread(s, PRIVATE_KEY_SIZE, KEY_NUM, fin) == KEY_NUM)
     {
         for (i = 0; i < KEY_NUM; i++)
         {
-            tmp = BN_bin2bn(s + PUBLIC_KEY_SIZE * i, PUBLIC_KEY_SIZE, prikey);
+            tmp = BN_bin2bn(s + PRIVATE_KEY_SIZE * i, PRIVATE_KEY_SIZE, prikey);
             errchk(tmp, BN_bin2bn);
             EC_POINT_mul(secp256k1, pubkeyp, prikey, NULL, NULL, ctx);
             EC_POINT_point2oct(secp256k1, pubkeyp,
-                               POINT_CONVERSION_UNCOMPRESSED, pubkey, PRIVATE_KEY_SIZE, ctx);
-            fwrite(pubkey, PRIVATE_KEY_SIZE, 1, stdout);
-            /* 
-            if ((count++ % 256) == 255)
-            {
-                fflush(stdout);
-            }
-            */
+                               POINT_CONVERSION_UNCOMPRESSED, pubkey + PUBLIC_KEY_SIZE * i, PUBLIC_KEY_SIZE, ctx);
         }
+        fwrite(pubkey, PUBLIC_KEY_SIZE, KEY_NUM, stdout);
+        /* 
+        if ((count++ % 256) == 255)
+        {
+            fflush(stdout);
+        }
+        */
     }
     fflush(stdout);
     fclose(fin);
