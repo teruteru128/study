@@ -165,6 +165,7 @@ int main(int argc, char *argv[])
     pthread_t acceptthread;
     pthread_create(&acceptthread, NULL, do_service, &arg);
     pthread_t work_threads[16];
+    pthread_join(acceptthrad, NULL);
     running = 0;
     return 0;
 }

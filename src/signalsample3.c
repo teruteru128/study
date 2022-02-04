@@ -23,6 +23,15 @@ static pthread_t mainthread = 0;
  * signal(2)
  * sigaction(2)
  * signalfd(2)
+ * --
+ * sigwaitinfo, sigtimedwait - キューに入れられたシグナルを同期して待つ
+ * --
+ * select, pselect, FD_CLR, FD_ISSET, FD_SET, FD_ZERO - 同期 I/O の多重化
+ * poll, ppoll - ファイルディスクリプターにおけるイベントを待つ
+ * epoll(7) - I/O イベント通知機能
+ * signalfd - シグナル受け付け用のファイルディスクリプターを生成する
+ * timerfd_create, timerfd_settime, timerfd_gettime - ファイルディスクリプター経由で通知するタイマー
+ * --
  * TODO: Replace signal(2) with sigaction(2)
  */
 static void sigint_action(int sig, siginfo_t *t, void*arg)

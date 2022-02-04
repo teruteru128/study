@@ -15,6 +15,12 @@
 #define MAX_BUF_SIZE 1024
 #define MAX_EVENTS 16
 
+/*
+ * createServer() でサーバーオブジェクトを作成、startServer()に渡して起動？
+ * 最初からstartServer()で起動？
+ * 
+ */
+
 /**
  * @brief listening socket
  * リッスンソケットはどこで保持すべきなんだろうか？
