@@ -11,6 +11,7 @@
 #include <string.h>
 #include <sys/epoll.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #define MAX_BUF_SIZE 1024
 #define MAX_EVENTS 16
@@ -18,92 +19,15 @@
 /*
  * createServer() でサーバーオブジェクトを作成、startServer()に渡して起動？
  * 最初からstartServer()で起動？
- * 
  */
-
-/**
- * @brief listening socket
- * リッスンソケットはどこで保持すべきなんだろうか？
- */
-static int listensocket = -1;
 
 // finish flag
 volatile int running = 1;
 
-int startServer()
+static void *echo_back(void *arg)
 {
-    return 0;
-}
-
-/*
- * listen host name
- * listen family
- * listen port
- *
- * killsignal : sigint
- * reloadsignal : sighup
- */
-static int get_socket(const char *port)
-{
-    char hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
-
-    struct addrinfo hints = { 0 };
-    hints.ai_flags = AI_PASSIVE;
-    hints.ai_family = PF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
-
-    int ecode;
-    struct addrinfo *res;
-    if ((ecode = getaddrinfo(NULL, port, &hints, &res)) != 0)
-    {
-        fprintf(stderr, "failed getaddrinfo() %s\n", gai_strerror(ecode));
-        return -1;
-    }
-
-    int sock;
-    for (struct addrinfo *ptr = res; ptr != NULL; ptr = ptr->ai_next)
-    {
-        sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-        if (sock < 0)
-        {
-            continue;
-        }
-
-        if (bind(sock, ptr->ai_addr, ptr->ai_addrlen) < 0)
-        {
-            close(sock);
-            sock = -1;
-            continue;
-        }
-
-        if (listen(sock, SOMAXCONN) < 0)
-        {
-            close(sock);
-            sock = -1;
-            continue;
-        }
-    }
-    freeaddrinfo(res);
-
-    return sock;
-}
-
-int init_server(char *argv)
-{
-    if (listensocket != -1)
-    {
-        return 1;
-    }
-    int sock = get_socket(argv);
-    if (sock < 0)
-        return sock;
-    listensocket = sock;
-    return 0;
-}
-
-static void echo_back(int sock)
-{
+    int *sockbuf = (int *)arg;
+    int sock = *sockbuf;
     char buf1[MAX_BUF_SIZE];
     char buf2[MAX_BUF_SIZE];
     uint32_t *ptr = NULL, tmp;
@@ -117,6 +41,8 @@ static void echo_back(int sock)
     sigset_t sigmask;
     sigemptyset(&sigmask);
     int selret = 0;
+    free(sockbuf);
+    sockbuf = NULL;
 
     while (running)
     {
@@ -160,9 +86,77 @@ static void echo_back(int sock)
     }
 }
 
+struct config;
+extern struct config *getConfig();
+
+int cerate_server() { struct config *config = getConfig(); }
+
+int start_server() {}
+
+/**
+ * @brief Create listen scoket と accept wait thread と working thread
+ * を分割すべき
+ *
+ * @param arg
+ * @return void*
+ */
 void *do_service(void *arg)
 {
     struct service_arg *arg2 = (struct service_arg *)arg;
+    char hostbuf[NI_MAXHOST] = "";
+    char servicebuf[NI_MAXSERV] = "";
+
+    struct addrinfo hints = { 0 };
+    hints.ai_flags = AI_PASSIVE;
+    hints.ai_family = PF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+    hints.ai_addrlen = 0;
+    hints.ai_addr = NULL;
+    hints.ai_canonname = NULL;
+    hints.ai_next = NULL;
+
+    int ecode;
+    struct addrinfo *res;
+    if ((ecode = getaddrinfo(NULL, arg2->port, &hints, &res)) != 0)
+    {
+        fprintf(stderr, "failed getaddrinfo() %s\n", gai_strerror(ecode));
+        return NULL;
+    }
+
+    int listensockets[2] = { 0 };
+    int count = 0;
+    {
+        int sock;
+        for (struct addrinfo *ptr = res; ptr != NULL; ptr = ptr->ai_next)
+        {
+            sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+            if (sock < 0)
+            {
+                continue;
+            }
+
+            if (bind(sock, ptr->ai_addr, ptr->ai_addrlen) < 0)
+            {
+                close(sock);
+                sock = -1;
+                continue;
+            }
+
+            if (listen(sock, SOMAXCONN) < 0)
+            {
+                close(sock);
+                sock = -1;
+                continue;
+            }
+            listensockets[count++] = sock;
+            if (count >= 2)
+            {
+                break;
+            }
+        }
+    }
+    freeaddrinfo(res);
     if (init_server(arg2->port) < 0)
     {
         fprintf(stderr, "init_server failure.\n");
@@ -176,16 +170,19 @@ void *do_service(void *arg)
         exit(EXIT_FAILURE);
     }
     ev.events = EPOLLIN;
-    ev.data.fd = listensocket;
-    if (epoll_ctl(epollfd, EPOLL_CTL_ADD, listensocket, &ev) == -1)
+    for (size_t i = 0; i < count; i++)
     {
-        perror("epoll_ctl: listen_sock");
-        exit(EXIT_FAILURE);
+        ev.data.fd = listensockets[i];
+        if (epoll_ctl(epollfd, EPOLL_CTL_ADD, listensockets[i], &ev) == -1)
+        {
+            perror("epoll_ctl: listen_sock");
+            exit(EXIT_FAILURE);
+        }
     }
     struct timespec spec = { 3, 0 };
 
     sigset_t sigmask;
-    sigemptyset(&sigmask);
+    sigfillset(&sigmask);
 
     struct epoll_event events[MAX_EVENTS] = { 0 };
     struct sockaddr_storage from_sock_addr = { 0 };
@@ -194,6 +191,9 @@ void *do_service(void *arg)
     int nfds, n;
     int conn_sock = -1;
     char name[NI_MAXHOST], service[NI_MAXSERV];
+    int found = 0;
+    pthread_t a = 0;
+    int *sockbuf = NULL;
     while (running)
     {
         nfds = epoll_pwait(epollfd, events, MAX_EVENTS, -1, &sigmask);
@@ -204,22 +204,29 @@ void *do_service(void *arg)
         }
         for (n = 0; n < nfds; n++)
         {
-            if (events[n].data.fd == listensocket)
+            found = 0;
+            for (size_t i = 0; i < count; i++)
+            {
+                if (events[n].data.fd == listensockets[i])
+                    found = 1;
+            }
+            if (found != 1)
             {
                 conn_sock
-                    = accept(listensocket, (struct sockaddr *)&from_sock_addr,
-                             &addr_len);
+                    = accept(events[n].data.fd,
+                             (struct sockaddr *)&from_sock_addr, &addr_len);
                 if (conn_sock == -1)
                 {
                     perror("accept");
-                    exit(EXIT_FAILURE);
+                    //exit(EXIT_FAILURE);
+                    continue;
                 }
                 getnameinfo((struct sockaddr *)&from_sock_addr, addr_len, name,
                             NI_MAXHOST, service, NI_MAXSERV,
                             NI_NUMERICHOST | NI_NUMERICSERV);
 
-                fprintf(stderr, "port is %s\n", service);
-                fprintf(stderr, "host is %s\n", name);
+                fprintf(stderr, "family is %u\n", from_sock_addr.ss_family);
+                fprintf(stderr, "address is %s:%s\n", name, service);
                 // setnonblocking(conn_sock);
                 ev.events = EPOLLIN | EPOLLET;
                 ev.data.fd = conn_sock;
@@ -231,12 +238,14 @@ void *do_service(void *arg)
             }
             else
             {
-                // do_use_fd(events[n].data.fd);
+                sockbuf = malloc(sizeof(int));
+                *sockbuf = events[n].data.fd;
+                pthread_create(&a, NULL, echo_back, sockbuf);
+                pthread_detach(a);
             }
         }
     }
-    close(listensocket);
-    listensocket = -1;
+    close(epollfd);
 }
 
 /**

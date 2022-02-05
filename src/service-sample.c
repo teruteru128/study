@@ -16,13 +16,17 @@ struct config;
  */
 struct config
 {
+    char service[NI_MAXSERV];
+    int family;
 };
 
-static struct config singleton = {};
+static struct config singleton = {0};
 static pthread_once_t config_singleton_init = PTHREAD_ONCE_INIT;
 
 static void config_init_func() {
     // 初期値の設定
+    strncpy(singleton.service, "8080", NI_MAXSERV);
+    singleton.family = PF_UNSPEC;
     // ファイルからのロード
 }
 
@@ -44,7 +48,7 @@ int setupConfigFromCmdArgs(struct config *config, int argc, char **argv)
 
 static void usage(int status)
 {
-    fprintf(stderr, "argument count mismatch error.\nplease input a service "
+    fprintf(stdout, "argument count mismatch error.\nplease input a service "
                     "name or port number.\n");
     exit(status);
 }
@@ -59,6 +63,7 @@ void *taskthread(void *a)
     int sock = -1;
     unsigned short command = 0;
     size_t length;
+    ssize_t len = 0;
     while (running)
     {
         pthread_mutex_lock(&acceptedsocket_mutex);
@@ -69,13 +74,13 @@ void *taskthread(void *a)
         sock = acceptedsocket;
         acceptedsocket = -1;
         pthread_mutex_unlock(&acceptedsocket_mutex);
-        read(sock, &command, sizeof(unsigned short));
+        len = read(sock, &command, sizeof(unsigned short));
         command = be16toh(command);
 
         switch (command)
         {
         case 1:
-            read(sock, &length, sizeof(size_t));
+            len = read(sock, &length, sizeof(size_t));
             length = be64toh(length);
             break;
 
@@ -152,6 +157,7 @@ void *acceptthrad(void *a)
  * 1. 初期化スレッド
  * 2. acceptして接続を待つスレッド
  * 3. 受け入れた接続の対応をするスレッド群
+ * download thread / upload thread
  */
 int main(int argc, char *argv[])
 {
@@ -165,7 +171,7 @@ int main(int argc, char *argv[])
     pthread_t acceptthread;
     pthread_create(&acceptthread, NULL, do_service, &arg);
     pthread_t work_threads[16];
-    pthread_join(acceptthrad, NULL);
+    pthread_join(acceptthread, NULL);
     running = 0;
     return 0;
 }
