@@ -3,15 +3,16 @@
 #include "config.h"
 #endif
 #include "server.h"
+#include <errno.h>
 #include <netdb.h>
 #include <poll.h>
+#include <pthread.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/epoll.h>
 #include <unistd.h>
-#include <pthread.h>
 
 #define MAX_BUF_SIZE 1024
 #define MAX_EVENTS 16
@@ -30,7 +31,7 @@ static void *echo_back(void *arg)
     int sock = *sockbuf;
     char buf1[MAX_BUF_SIZE];
     char buf2[MAX_BUF_SIZE];
-    uint32_t *ptr = NULL, tmp;
+    uint32_t tmp;
     ssize_t len;
     int flg = 0;
     struct pollfd fds = { 0 };
@@ -59,8 +60,7 @@ static void *echo_back(void *arg)
             fprintf(stderr, "connection closed by remote host.\n");
             break;
         }
-        ptr = (uint32_t *)buf1;
-        tmp = ntohl(*ptr);
+        tmp = ntohl(*(uint32_t *)buf1);
         if (tmp == (uint32_t)-1)
         {
             fprintf(stderr, "exit command\n");
@@ -72,7 +72,7 @@ static void *echo_back(void *arg)
         }
         memset(buf2, 0, MAX_BUF_SIZE);
         snprintf(buf2, MAX_BUF_SIZE, "%u", tmp);
-        *ptr = htonl(tmp);
+        *(uint32_t *)buf1 = htonl(tmp);
 
         if (send(sock, buf2, (size_t)len, 0) != len)
         {
@@ -81,9 +81,11 @@ static void *echo_back(void *arg)
         }
         if (flg == -1)
         {
+            close(sock);
             break;
         }
     }
+    return NULL;
 }
 
 struct config;
@@ -94,15 +96,19 @@ int cerate_server() { struct config *config = getConfig(); }
 int start_server() {}
 
 /**
- * @brief Create listen scoket と accept wait thread と working thread
- * を分割すべき
+ * @brief Create listen scoket, set up epoll fd, wait accept, create working
+ * thread
+ * TODO: 分割
  *
  * @param arg
  * @return void*
  */
 void *do_service(void *arg)
 {
+    // 設定は引数ではなくグローバル領域からgetConfig関数とかでもらってくるべきでは？
     struct service_arg *arg2 = (struct service_arg *)arg;
+
+    // create listen socket
     char hostbuf[NI_MAXHOST] = "";
     char servicebuf[NI_MAXSERV] = "";
 
@@ -138,6 +144,7 @@ void *do_service(void *arg)
 
             if (bind(sock, ptr->ai_addr, ptr->ai_addrlen) < 0)
             {
+                perror("listen");
                 close(sock);
                 sock = -1;
                 continue;
@@ -145,6 +152,7 @@ void *do_service(void *arg)
 
             if (listen(sock, SOMAXCONN) < 0)
             {
+                perror("listen");
                 close(sock);
                 sock = -1;
                 continue;
@@ -157,28 +165,32 @@ void *do_service(void *arg)
         }
     }
     freeaddrinfo(res);
-    if (init_server(arg2->port) < 0)
-    {
-        fprintf(stderr, "init_server failure.\n");
-        exit(EXIT_FAILURE);
-    }
+    /* create listen socket ここまで */
+
+    /* setup epoll fd ここから */
     struct epoll_event ev = { 0 };
+    ev.events = EPOLLIN;
+    ev.data.u64 = 0;
+
     int epollfd = epoll_create1(0);
     if (epollfd == -1)
     {
         perror("epoll_create1");
         exit(EXIT_FAILURE);
     }
-    ev.events = EPOLLIN;
     for (size_t i = 0; i < count; i++)
     {
         ev.data.fd = listensockets[i];
         if (epoll_ctl(epollfd, EPOLL_CTL_ADD, listensockets[i], &ev) == -1)
         {
             perror("epoll_ctl: listen_sock");
+            close(epollfd);
             exit(EXIT_FAILURE);
         }
     }
+    /* setup epoll fd ここまで */
+
+    /**/
     struct timespec spec = { 3, 0 };
 
     sigset_t sigmask;
@@ -192,7 +204,7 @@ void *do_service(void *arg)
     int conn_sock = -1;
     char name[NI_MAXHOST], service[NI_MAXSERV];
     int found = 0;
-    pthread_t a = 0;
+    pthread_t thread = 0;
     int *sockbuf = NULL;
     while (running)
     {
@@ -200,7 +212,15 @@ void *do_service(void *arg)
         if (nfds == -1)
         {
             perror("epoll_wait");
-            exit(EXIT_FAILURE);
+            if (errno != EINTR)
+            {
+                exit(EXIT_FAILURE);
+            }
+            else
+            {
+                // 割り込み
+                continue;
+            }
         }
         for (n = 0; n < nfds; n++)
         {
@@ -218,7 +238,7 @@ void *do_service(void *arg)
                 if (conn_sock == -1)
                 {
                     perror("accept");
-                    //exit(EXIT_FAILURE);
+                    // exit(EXIT_FAILURE);
                     continue;
                 }
                 getnameinfo((struct sockaddr *)&from_sock_addr, addr_len, name,
@@ -240,8 +260,8 @@ void *do_service(void *arg)
             {
                 sockbuf = malloc(sizeof(int));
                 *sockbuf = events[n].data.fd;
-                pthread_create(&a, NULL, echo_back, sockbuf);
-                pthread_detach(a);
+                pthread_create(&thread, NULL, echo_back, sockbuf);
+                pthread_detach(thread);
             }
         }
     }

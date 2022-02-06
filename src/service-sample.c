@@ -20,14 +20,16 @@ struct config
     int family;
 };
 
-static struct config singleton = {0};
+static struct config singleton = { 0 };
 static pthread_once_t config_singleton_init = PTHREAD_ONCE_INIT;
 
-static void config_init_func() {
+static void config_init_func()
+{
     // 初期値の設定
+    // Javaのtomcatクラスは0を渡したときに使えるポートを自動で取ってきてくれたけど、あれどうやったんですかね……？
     strncpy(singleton.service, "8080", NI_MAXSERV);
     singleton.family = PF_UNSPEC;
-    // ファイルからのロード
+    // ファイルからのロードはこの関数からでは読みに行くファイルを渡せないため別の関数でやるべき
 }
 
 struct config *getConfig()

@@ -155,7 +155,8 @@
         "ttydefaults.h": "c",
         "sha-1.h": "c",
         "socket.h": "c",
-        "easy.h": "c"
+        "easy.h": "c",
+        "socket_type.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
