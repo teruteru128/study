@@ -77,7 +77,7 @@ int main(int argc, char const *argv[])
             hasError = 1;
             break;
         }
-        printf("うんちー！ %zu\n", i);
+        printf("うんちー！ %zu, %" PRIx64 "\n", i, expiredTimesNumber);
     }
     close(timerfd);
     printf("なんすかこれ\n");
