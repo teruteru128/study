@@ -3,6 +3,7 @@
 #include "config.h"
 #endif
 
+#include <inttypes.h>
 #include <locale.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -47,7 +48,7 @@ int main(int argc, char const *argv[])
     }
     spec.it_interval.tv_nsec = 0;
     size_t max_exp;
-    if (argc != 4)
+    if (argc < 4)
     {
         // (argc == 1) || (argc == 2) || (argc == 3)
         max_exp = 10;
@@ -68,7 +69,8 @@ int main(int argc, char const *argv[])
     uint64_t expiredTimesNumber = 0;
     ssize_t ret = 0;
     int hasError = 0;
-    for (size_t i = 0; i < max_exp; i++)
+    size_t i = 0;
+    while (i < max_exp)
     {
         ret = read(timerfd, &expiredTimesNumber, sizeof(uint64_t));
         if (ret != sizeof(uint64_t))
@@ -78,6 +80,7 @@ int main(int argc, char const *argv[])
             break;
         }
         printf("うんちー！ %zu, %" PRIx64 "\n", i, expiredTimesNumber);
+        i += expiredTimesNumber;
     }
     close(timerfd);
     printf("なんすかこれ\n");
