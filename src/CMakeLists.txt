@@ -100,7 +100,7 @@ target_link_libraries(bouyomiTalk study)
 add_executable(calc calc.c)
 target_link_libraries(calc gmp)
 
-add_executable(centos_rip centos_rip.c)
+add_executable(centos_rip centos_rip.c centos_rip-driver.c)
 
 add_executable(checkprimes checkprimes.c)
 
@@ -108,6 +108,8 @@ target_link_libraries(checkprimes gmp)
 
 add_executable(cl cl.c)
 target_link_libraries(cl study)
+
+add_executable(clocksample clocktest clocktest-driver.c)
 
 add_library(clocktest clocktest.c)
 

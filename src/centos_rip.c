@@ -9,7 +9,7 @@
  * @brief see https://centos.rip/
  * 複数のtimerfdをepoll ファイルディスクリプタで監視することも出来るんですねぇ
  */
-int yakusokunohi()
+int yakusokunohi(void)
 {
     struct tm countDownTM = { 0 };
     countDownTM.tm_sec = 0;
@@ -22,6 +22,13 @@ int yakusokunohi()
     countDownTM.tm_yday = 0;
     countDownTM.tm_isdst = 0;
     const time_t countDownDate = mktime(&countDownTM);
+    const time_t now = time(NULL);
+
+    if (difftime(countDownDate, now) <= 0)
+    {
+        fprintf(stdout, "もう終わっとるわ\n");
+        return 1;
+    }
 
     long secs = 0;
     long days;
@@ -86,10 +93,4 @@ int yakusokunohi()
     }
     close(timerfd);
     return ret;
-}
-
-int main(void)
-{
-    yakusokunohi();
-    return 0;
 }

@@ -2,9 +2,12 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <errno.h>
+#include <locale.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #define a(a)                                                                  \
@@ -18,7 +21,7 @@ struct cid
     clockid_t id;
 };
 
-void clocktest()
+void clocktest(void)
 {
     struct timespec res;
     struct timespec spec;
@@ -32,19 +35,38 @@ void clocktest()
                                       a(CLOCK_THREAD_CPUTIME_ID),
                                       a(CLOCK_REALTIME_ALARM),
                                       a(CLOCK_BOOTTIME_ALARM),
-                                      {"No.10, what is this?", 10},
+                                      { "No.10, what is this?", 10 },
                                       a(CLOCK_TAI),
                                       { "", 0 } };
+    int tmperrno = 0;
+    char *errmsg = NULL;
+    int haveerr = 0;
+    // locale_t currentLocale = uselocale((locale_t)0);
     for (size_t i = 0; cid[i].name[0] != '\0'; i++)
     {
+        haveerr = 0;
+        res.tv_sec = -1;
+        res.tv_nsec = 0;
         if (clock_getres(cid[i].id, &res) != 0)
         {
-            perror("clock_getres");
+            tmperrno = errno;
+            errmsg = strerror_l(tmperrno, (locale_t)0);
+            fprintf(stdout, "clock_getres(%d) : %s", cid[i].id, errmsg);
+            haveerr = 1;
         }
+        spec.tv_sec = -1;
+        spec.tv_nsec = 0;
         if (clock_gettime(cid[i].id, &spec))
         {
-            perror("clock_gettime");
+            tmperrno = errno;
+            errmsg = strerror_l(tmperrno, (locale_t)0);
+            if (haveerr != 0)
+                fputs(", ", stdout);
+            fprintf(stdout, "clock_gettime(%d) : %s", cid[i].id, errmsg);
+            haveerr = 1;
         }
+        if (haveerr != 0)
+            fputs(", ", stdout);
         printf("%s : %ld.%09ld, %ld.%09ld\n", cid[i].name, res.tv_sec,
                res.tv_nsec, spec.tv_sec, spec.tv_nsec);
     }

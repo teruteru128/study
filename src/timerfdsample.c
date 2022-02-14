@@ -21,7 +21,7 @@
  * - sleep
  * - usleep
  * - nanosleep
- * - selectのタイムアウト指定
+ * - select(2) のタイムアウト指定
  * - settimer
  * - timerfd
  *   timerfdはsleepとかusleep, nanosleepに比べると手間がかかりますねー
