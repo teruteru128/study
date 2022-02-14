@@ -1,6 +1,6 @@
 {
     "files.associations": {
-        "*.ts": "xml",
+        "*.ts": "typescript",
         ".classpath": "xml",
         "*.classpath": "xml",
         "*.tcc": "c",
@@ -156,7 +156,8 @@
         "sha-1.h": "c",
         "socket.h": "c",
         "easy.h": "c",
-        "socket_type.h": "c"
+        "socket_type.h": "c",
+        "inttypes.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

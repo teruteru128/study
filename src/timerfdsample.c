@@ -2,21 +2,23 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <inttypes.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/timerfd.h>
 #include <unistd.h>
-#include <inttypes.h>
 
 /**
  * @brief eventfd sample.
- * 
+ *
  * eventfd
  * timerfd
  * signalfd
  * epoll
- * 
+ *
+ * http://www.eyes-software.co.jp/news/archives/9
+ * https://web.archive.org/web/20220214123933/http://www.eyes-software.co.jp/news/archives/9
  * Linuxにおけるウェイト処理
  * - sleep
  * - usleep
@@ -27,27 +29,27 @@
  *   timerfdはsleepとかusleep, nanosleepに比べると手間がかかりますねー
  *   そりゃfdだからねえ
  * - pthread_cond_timedwait
- * 
+ *
  * データ型とか
  * time_t
  * <time.h>
  * time(2)
- * 
+ *
  * struct timespec
  * <time.h>
  * timespec_get()
- * 
+ *
  * struct tm
- * 
+ *
  * char*
- * 
+ *
  * timerfdを使って一定時間ごとにpthread_cond_signalとか
  * pthread_cond_broadcastとか使ってシグナルを送信するとか……
  * うーん邪悪
- * 
- * @param argc 
- * @param argv 
- * @return int 
+ *
+ * @param argc
+ * @param argv
+ * @return int
  */
 int main(int argc, char *argv[])
 {
