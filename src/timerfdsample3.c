@@ -74,7 +74,7 @@ int main(int argc, char const *argv[])
     while (i < max_exp)
     {
         ret = read(timerfd, &expiredTimesNumber, sizeof(uint64_t));
-        if (ret != sizeof(uint64_t))
+        if (ret != sizeof(uint64_t) && ret != 0)
         {
             perror("recv");
             hasError = 1;
