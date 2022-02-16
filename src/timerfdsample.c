@@ -68,8 +68,7 @@ int main(int argc, char *argv[])
     // it_intervalを両方0にすると繰り返しタイマーオフ
     spec.it_interval.tv_sec = 1;
     spec.it_interval.tv_nsec = 0;
-    int ret = timerfd_settime(timerfd, TFD_TIMER_ABSTIME, &spec, NULL);
-    if (ret != 0)
+    if (timerfd_settime(timerfd, TFD_TIMER_ABSTIME, &spec, NULL) != 0)
     {
         perror("timerfd_settime");
         close(timerfd);
@@ -83,6 +82,7 @@ int main(int argc, char *argv[])
     // total expiration
     uint64_t tot_exp = 0;
     ssize_t r = 0;
+    int ret = EXIT_SUCCESS;
     while (tot_exp < max_exp)
     {
         // recvで読み込むと失敗を返す

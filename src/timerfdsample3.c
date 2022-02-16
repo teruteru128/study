@@ -24,29 +24,29 @@ int main(int argc, char const *argv[])
         perror("timerfd_create");
         return EXIT_FAILURE;
     }
-    struct itimerspec spec;
+    struct itimerspec newSpec;
     if (argc < 2)
     {
         // argc == 1
-        spec.it_value.tv_sec = 1;
+        newSpec.it_value.tv_sec = 1;
     }
     else
     {
         // (argc == 2) || (argc == 3) || (argc == 4)
-        spec.it_value.tv_sec = strtol(argv[1], NULL, 0);
+        newSpec.it_value.tv_sec = strtol(argv[1], NULL, 0);
     }
-    spec.it_value.tv_nsec = 0;
+    newSpec.it_value.tv_nsec = 0;
     if (argc < 3)
     {
         // (argc == 1) || (argc == 2)
-        spec.it_interval.tv_sec = 1;
+        newSpec.it_interval.tv_sec = 1;
     }
     else
     {
         // (argc == 3) || (argc == 4)
-        spec.it_interval.tv_sec = strtol(argv[2], NULL, 0);
+        newSpec.it_interval.tv_sec = strtol(argv[2], NULL, 0);
     }
-    spec.it_interval.tv_nsec = 0;
+    newSpec.it_interval.tv_nsec = 0;
     size_t max_exp;
     if (argc < 4)
     {
@@ -58,18 +58,19 @@ int main(int argc, char const *argv[])
         // argc == 4
         max_exp = strtoul(argv[3], NULL, 0);
     }
-    int r = timerfd_settime(timerfd, 0, &spec, NULL);
-    if (r != 0)
+    struct itimerspec oldSpec;
+    if (timerfd_settime(timerfd, 0, &newSpec, &oldSpec) != 0)
     {
         perror("timerfd_settime");
         close(timerfd);
         return EXIT_FAILURE;
     }
+    printf("%lu.%lu, %lu.%lu\n", oldSpec.it_value.tv_sec, oldSpec.it_value.tv_nsec, oldSpec.it_interval.tv_sec, oldSpec.it_interval.tv_nsec);
 
     uint64_t expiredTimesNumber = 0;
     ssize_t ret = 0;
     int hasError = 0;
-    size_t i = 0;
+    uint64_t i = 0;
     while (i < max_exp)
     {
         ret = read(timerfd, &expiredTimesNumber, sizeof(uint64_t));

@@ -1,11 +1,11 @@
 
 #include <locale.h>
 
-int yakusokunohi(void);
+int rip(void);
 
 int main(void)
 {
     setlocale(LC_ALL, "");
-    yakusokunohi();
+    rip();
     return 0;
 }

@@ -9,7 +9,7 @@
  * @brief see https://centos.rip/
  * 複数のtimerfdをepoll ファイルディスクリプタで監視することも出来るんですねぇ
  */
-int yakusokunohi(void)
+int rip(void)
 {
     struct tm countDownTM = { 0 };
     countDownTM.tm_sec = 0;
@@ -41,14 +41,14 @@ int yakusokunohi(void)
 
     struct itimerspec timerspec = { 0 };
     timerspec.it_value.tv_sec = nowspec.tv_sec;
-    timerspec.it_value.tv_nsec = nowspec.tv_nsec + 50000000;
+    timerspec.it_value.tv_nsec = nowspec.tv_nsec + 50000000L;
     if (timerspec.it_value.tv_nsec >= 1000000000)
     {
         timerspec.it_value.tv_sec++;
-        timerspec.it_value.tv_nsec -= 1000000000;
+        timerspec.it_value.tv_nsec -= 1000000000L;
     }
     timerspec.it_interval.tv_sec = 0;
-    timerspec.it_interval.tv_nsec = 50000000;
+    timerspec.it_interval.tv_nsec = 50000000L;
 
     int timerfd = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
     if (timerfd < 0)

@@ -19,7 +19,7 @@
 
 int main(void)
 {
-#ifdef ENABLE_NLS
+#if defined(ENABLE_NLS)
     printf("ENABLE_NLS is enable\n");
 #else
     printf("ENABLE_NLS is disable\n");
