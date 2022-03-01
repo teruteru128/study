@@ -11,8 +11,8 @@
 #include <string.h>
 #include <unistd.h>
 
-static volatile int flag = 0;
-static pthread_t calledthread = 0;
+static volatile sig_atomic_t flag = 0;
+static volatile _Atomic(pthread_t) calledthread = 0;
 static pthread_t mainthread = 0;
 
 /**
@@ -30,11 +30,12 @@ static pthread_t mainthread = 0;
  * poll, ppoll - ファイルディスクリプターにおけるイベントを待つ
  * epoll(7) - I/O イベント通知機能
  * signalfd - シグナル受け付け用のファイルディスクリプターを生成する
- * timerfd_create, timerfd_settime, timerfd_gettime - ファイルディスクリプター経由で通知するタイマー
+ * timerfd_create, timerfd_settime, timerfd_gettime -
+ * ファイルディスクリプター経由で通知するタイマー
  * --
  * TODO: Replace signal(2) with sigaction(2)
  */
-static void sigint_action(int sig, siginfo_t *t, void*arg)
+static void sigint_action(int sig, siginfo_t *t, void *arg)
 {
     ucontext_t *context = (ucontext_t *)arg;
     (void)context;
@@ -42,15 +43,48 @@ static void sigint_action(int sig, siginfo_t *t, void*arg)
     flag = sig;
     // 大体の場合メイン関数のスレッドと同じスレッドでシグナルを受け取る？
     // あー、だからpthread関係を使うとデッドロックに陥るのか
+    // どのスレッドでシグナルハンドラをセットしても、シグナルハンドラが呼び出されるのはメインスレッド
     calledthread = pthread_self();
 }
 
-static volatile int running = 0;
+static int set_signal_handler(void)
+{
+    struct sigaction act = { 0 };
+    struct sigaction oldact = { 0 };
+    act.sa_sigaction = sigint_action;
+    int ret = sigaction(SIGINT, &act, &oldact);
+    if (ret != 0)
+    {
+        printf("Error: sigaction() SIGINT: %s\n", strerror(errno));
+        perror(NULL);
+        return (EXIT_FAILURE);
+    }
+    printf("func : %d, %p\n", ret, oldact.sa_handler);
+    ret = sigaction(SIGTERM, &act, &oldact);
+    if (ret != 0)
+    {
+        printf("Error: sigaction() SIGINT: %s\n", strerror(errno));
+        perror(NULL);
+        return (EXIT_FAILURE);
+    }
+    printf("func : %d, %p\n", ret, oldact.sa_handler);
+    return (EXIT_SUCCESS);
+}
+
+static pthread_barrier_t barrier;
+static volatile atomic_int running = 1;
 
 static void *signal_catcher(void *arg)
 {
     int sigc = 0;
     int time = 0;
+    int rc = set_signal_handler();
+    if (rc != EXIT_SUCCESS)
+    {
+        return NULL;
+    }
+    printf("set signal handler ok\n");
+    pthread_barrier_wait(&barrier);
     while (running)
     {
         sigc = flag;
@@ -69,22 +103,6 @@ static void *signal_catcher(void *arg)
     return NULL;
 }
 
-static int set_signal_handler(void)
-{
-    struct sigaction act = { 0 };
-    struct sigaction oldact = { 0 };
-    act.sa_sigaction = sigint_action;
-    int ret = sigaction(SIGINT, &act, &oldact);
-    if (ret != 0)
-    {
-        printf("Error: sigaction() SIGINT: %s\n", strerror(errno));
-        perror(NULL);
-        return (EXIT_FAILURE);
-    }
-    printf("func : %d, %p\n", ret, oldact.sa_handler);
-    return (EXIT_SUCCESS);
-}
-
 #define ERROR_MSG_BUF_SIZE 1024
 
 int main(int argc, char **argv)
@@ -96,21 +114,34 @@ int main(int argc, char **argv)
     }
     pid_t pid = getpid();
     mainthread = pthread_self();
-    printf("pid : %d, main thread id : %lu\n", pid, mainthread);
-    int rc = set_signal_handler();
+    pthread_barrier_init(&barrier, NULL, 2);
+    /*
+     * pthread_createで作成したスレッドにキーボード割り込みは発生するのか？
+     * =>作成したスレッドに割り込みが発生する条件は？
+     *   もしかするとプロセスに対して1回だけ？
+     */
+    printf("pid : %d , main thread id : %lu\n", pid, mainthread);
+    int rc = 0;
+    pthread_t catcherthread = 0;
+    rc = pthread_create(&catcherthread, NULL, signal_catcher, NULL);
     if (rc != EXIT_SUCCESS)
     {
+        perror("pthread_create");
         return EXIT_FAILURE;
     }
-    printf("set signal handler ok\n");
-    pthread_t catcherthread = 0;
-    pthread_create(&catcherthread, NULL, signal_catcher, NULL);
+    pthread_barrier_wait(&barrier);
+    pthread_barrier_destroy(&barrier);
     // 切り離し
-    pthread_detach(catcherthread);
+    rc = pthread_detach(catcherthread);
+    if (rc != EXIT_SUCCESS)
+    {
+        perror("pthread_detach");
+        return EXIT_FAILURE;
+    }
     int ret = 0;
-    struct timespec req = { 15, 0 };
+    struct timespec req = { 25, 0 };
     struct timespec rem = { 0 };
-    int errno_tmp = 0;
+    int errno_work = 0;
     char errmsgbuf[ERROR_MSG_BUF_SIZE];
     int retval = 0;
     do
@@ -119,18 +150,19 @@ int main(int argc, char **argv)
         ret = nanosleep(&req, &rem);
         if (ret != 0)
         {
-            printf("ret : %d, %2ld.%09ld\n", ret, rem.tv_sec, rem.tv_nsec);
+            printf("main: ret: %d, %2ld.%09ld, %d\n", ret, rem.tv_sec,
+                   rem.tv_nsec, flag);
             req.tv_sec = rem.tv_sec;
             req.tv_nsec = rem.tv_nsec;
         }
         // errno チェック
-        errno_tmp = errno;
-        if (errno_tmp != 0)
+        errno_work = errno;
+        if (errno_work != 0)
         {
             errno = 0;
-            retval = strerror_r(errno_tmp, errmsgbuf, ERROR_MSG_BUF_SIZE);
+            retval = strerror_r(errno_work, errmsgbuf, ERROR_MSG_BUF_SIZE);
             if (retval == 0)
-                printf("%s\n", errmsgbuf);
+                printf("errno check : %s\n", errmsgbuf);
             else
                 printf("strerror_r error\n");
         }
