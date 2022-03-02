@@ -157,7 +157,8 @@
         "socket.h": "c",
         "easy.h": "c",
         "socket_type.h": "c",
-        "inttypes.h": "c"
+        "inttypes.h": "c",
+        "chaincookies.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
