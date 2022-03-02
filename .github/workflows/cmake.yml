@@ -23,4 +23,4 @@ jobs:
       - name: build
         run: ninja -C build
       - name: test
-        run: ninja -C test
+        run: ninja -C build test
