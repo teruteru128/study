@@ -12,6 +12,8 @@
 #include <errno.h>
 #include <limits.h>
 #include <locale.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,40 +30,6 @@
 #ifndef STUDYDATADIR
 #define STUDYDATADIR PROJECT_SOURCE_DIR "/data"
 #endif
-
-int countDownToStartupTime(time_t targetTime)
-{
-    struct timespec spec;
-    spec.tv_sec = 0;
-    spec.tv_nsec = 100000000;
-    time_t now;
-    long secs = 0;
-    long days;
-    long hours;
-    long minutes;
-    long seconds;
-    while (1)
-    {
-        nanosleep(&spec, NULL);
-        now = time(NULL);
-        secs = (long)difftime(targetTime, now);
-        if (secs < 0)
-        {
-            // 現在時刻が起動時刻を超えたらbreak
-            break;
-        }
-        days = secs / (60 * 60 * 24);
-        hours = (secs % (60 * 60 * 24)) / (60 * 60);
-        minutes = (secs % (60 * 60)) / 60;
-        seconds = secs % 60;
-        fprintf(stdout, "起動まであと%03ldd%02ldh%02ldm%02lds\r", days, hours,
-                minutes, seconds);
-        fflush(stdout);
-    }
-    fputs("\n", stdout);
-    fflush(stdout);
-    return EXIT_SUCCESS;
-}
 
 /**
  * @brief HAHAHA!  BM-NB3mUXqpbGXKQHUP95fx7yqWHPkDTQp8
@@ -141,11 +109,22 @@ int main(int argc, char *argv[])
     die_if_fault_occurred(env);
 
     // message params
-    char fromaddress[ADDRBUFSIZE] = "BM-2cWy7cvHoq3f1rYMerRJp8PT653jjSuEdY";
+    char fromaddress[ADDRBUFSIZE] = ADDRESS_bitmessage;
     char *tmp = NULL;
-    char subject[] = "SGVsbG8gV29ybGQh";
+    char *subject = NULL;
+    BIO *bio_subject, *b64;
+    b64 = BIO_new(BIO_f_base64);
+    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+    bio_subject = BIO_new(BIO_s_mem());
+    BIO_get_mem_ptr(bio_subject, &subject);
+    BIO_set_close(bio_subject, BIO_NOCLOSE);
+    BIO_push(b64, bio_subject);
+    //BIO_write(b64, message, strlen(message));
+    BIO_flush(b64);
+    BIO_free_all(b64);
     char message[BUFSIZ] = "SGVsbG8gV29ybGQh";
     int encodingType = 2;
+    // 2419200 = 60*60*24*28
     int ttl = 2419200;
 
     xmlrpc_value *fromaddressv = xmlrpc_string_new(env, fromaddress);

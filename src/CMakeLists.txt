@@ -72,6 +72,10 @@ add_executable(bmkeysearch10 bmkeysearch10.c)
 target_link_libraries(bmkeysearch10 ${OPENSSL_CRYPTO_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} study)
 target_include_directories(bmkeysearch10 PRIVATE ${OPENSSL_INCLUDE_DIR})
 
+add_executable(bmkeysearch11 bmkeysearch11.c)
+target_link_libraries(bmkeysearch11 ${OPENSSL_CRYPTO_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} study)
+target_include_directories(bmkeysearch11 PRIVATE ${OPENSSL_INCLUDE_DIR})
+
 add_executable(bmsearchpass bmsearchpass.c)
 
 add_executable(bmspam bmspam.c)

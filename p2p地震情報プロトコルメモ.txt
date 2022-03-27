@@ -1,0 +1,23 @@
+joinToP2PNetwork
+  サーバー接続
+  プロトコルバージョン、クライアント名、クライアントバージョン通知
+  ピアID仮割当
+  if (リッスン) {
+    ポート開放チェック要求
+  }
+  ピア情報取得
+  foreach peer in peers
+    ピア接続(peer)
+  ピアID本割当
+  if (地震感知情報送信){
+    (RSA)鍵取得
+  }
+  地域ピア情報取得
+  プロトコル時刻取得
+  接続終了パケット送信
+
+sendHeartbeatToServer
+
+departFromP2PNetwork
+
+sendHeartbeatToPeer
