@@ -20,6 +20,6 @@ int main(int argc, char const *argv[])
     setlocale(LC_ALL, "");
     perror("");
 
-    printf("%lf\n", ('Z' - 'A' + 69) * 2.5 + 65);
+    printf("%lf\n", ('Z' - 'A' + 'E') * 2.5 + 'A');
     return 0;
 }
