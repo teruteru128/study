@@ -3,14 +3,14 @@
 #include "config.h"
 #endif
 #include <err.h>
+#include <random.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
-#include <random.h>
+#include <sys/random.h>
 #include <xorshift.h>
 
-#define URANDOM_PATH "/dev/urandom"
 #define MAX 1000000
 
 uint32_t seed = 0;
@@ -29,14 +29,10 @@ static void shuffle(char (*array)[4], size_t size)
 
 int main(int argc, char **argv)
 {
-    // /dev/urandom から8192バイトも読み込むことないよね？
-    if (read_file(URANDOM_PATH, &seed, sizeof(uint32_t), 1) != 0)
-    {
-        perror("failed");
-        return EXIT_FAILURE;
-    }
+    getrandom(&seed, sizeof(uint32_t), GRND_NONBLOCK);
 
-    char messages[][4] = {"フ", "ァ", "ル", "コ", "ン", "・", "パ", "ン", "チ", ""};
+    char messages[][4]
+        = { "フ", "ァ", "ル", "コ", "ン", "・", "パ", "ン", "チ", "" };
     size_t messages_size = 0;
     while (messages[messages_size][0] != '\0')
     {
@@ -50,7 +46,8 @@ int main(int argc, char **argv)
         for (i = 0; i < messages_size; i++)
         {
             fputs(messages[i], stdout);
-            // fputs(messages[(seed = xorshift(seed)) % messages_size], stdout);
+            // fputs(messages[(seed = xorshift(seed)) % messages_size],
+            // stdout);
         }
         fputs("\n", stdout);
     }

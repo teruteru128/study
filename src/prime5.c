@@ -6,9 +6,11 @@
 #include <stdlib.h>
 
 #include <gmp.h>
+#include <sys/random.h>
 #include <uuid/uuid.h>
 
-static void generate_output_filename(char *dest, size_t maxlen, size_t bit_length)
+static void generate_output_filename(char *dest, size_t maxlen,
+                                     size_t bit_length)
 {
     if (dest == NULL)
         return;
@@ -23,10 +25,10 @@ static void generate_output_filename(char *dest, size_t maxlen, size_t bit_lengt
 
 /**
  * @brief 素数探索の初期値を生成
- * 
- * @param argc 
- * @param argv 
- * @return int 
+ *
+ * @param argc
+ * @param argv
+ * @return int
  */
 int main(int argc, char *argv[])
 {
@@ -35,9 +37,7 @@ int main(int argc, char *argv[])
     mpz_t base;
     mpz_inits(base, NULL);
     unsigned char *p = calloc(buffer_size, sizeof(char));
-    FILE *fin = fopen("/dev/urandom", "rb");
-    fread(p, sizeof(unsigned char), buffer_size, fin);
-    fclose(fin);
+    getrandom(p, buffer_size, GRND_NONBLOCK);
     mpz_import(base, buffer_size, 1, sizeof(char), 0, 0, p);
     free(p);
     p = NULL;

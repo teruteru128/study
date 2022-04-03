@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/random.h>
 #include <unistd.h>
 #include <uuid/uuid.h>
 
@@ -16,16 +17,13 @@ pthread_cond_t prikeyraw_cond = PTHREAD_COND_INITIALIZER;
 void *keyreadthread(void *b)
 {
 
-    FILE *random = fopen("/dev/random", "rb");
-
-    for (size_t i = 0; i < 16777216; i++)
+    for (size_t i = 0; i < 16777216UL; i++)
     {
         pthread_mutex_lock(&prikeyraw_mutex);
-        fread(privatekey_raw, 32, 1, random);
+        getrandom(privatekey_raw, 32, GRND_RANDOM);
         pthread_cond_broadcast(&prikeyraw_cond);
         pthread_mutex_unlock(&prikeyraw_mutex);
     }
-    fclose(random);
     return NULL;
 }
 

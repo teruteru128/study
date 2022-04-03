@@ -2,10 +2,11 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <stdio.h>
-#include <stdlib.h>
 #include <byteswap.h>
 #include <openssl/evp.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/random.h>
 
 #define LIMIT 16
 
@@ -48,23 +49,9 @@ int main(int argc, char *argv[])
     rndctx_t ctx;
     ctx.count = 0;
     unsigned char buf[20];
-    FILE *r = fopen("/dev/urandom", "rb");
-    if (r == NULL)
-    {
-        return EXIT_FAILURE;
-    }
     size_t req = 12;
-    size_t len = fread(buf, sizeof(char), req, r);
-    if (len != req)
-    {
-        perror("fread error1");
-    }
-    len = fread(ctx.ctx, sizeof(char), req, r);
-    if (len != req)
-    {
-        perror("fread error2");
-    }
-    fclose(r);
+    getrandom(buf, req, GRND_NONBLOCK);
+    getrandom(ctx.ctx, req, GRND_NONBLOCK);
     *((uint64_t *)(buf + 12)) = htobe64(1);
     for (size_t i = 0; i < 20; i++)
     {

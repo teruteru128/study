@@ -2,9 +2,10 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <byteswap.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <byteswap.h>
+#include <sys/random.h>
 
 #define ROLLS 28
 #define DICE_SIZE 5
@@ -12,20 +13,8 @@
 // 暗号論的に安全な乱数を使ったサイコロのソフトウェア実装
 int main(int argc, char const *argv[])
 {
-    FILE *in = fopen("/dev/urandom", "rb");
-    if (!in)
-    {
-        perror("fopen urandom");
-        return EXIT_FAILURE;
-    }
     int64_t seed = 0;
-    size_t num = fread(&seed, sizeof(char), 8, in);
-    fclose(in);
-    if (num != 8)
-    {
-        perror("fread");
-        return EXIT_FAILURE;
-    }
+    getrandom(&seed, sizeof(int64_t), GRND_NONBLOCK);
     seed = htole64(seed);
     srandom(((seed >> 32) & 0xffffffff) ^ (seed & 0xffffffff));
     int roll[ROLLS];

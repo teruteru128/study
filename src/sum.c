@@ -2,18 +2,17 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <gmp.h>
+#include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <math.h>
-#include <gmp.h>
-#include <random.h>
+#include <sys/random.h>
 
-#define FILENAME "/dev/urandom"
 uint64_t readSeed()
 {
     uint64_t val = 0;
-    read_file(FILENAME, &val, sizeof(uint64_t), 1);
+    getrandom(&val, sizeof(uint64_t), GRND_NONBLOCK);
     return val;
 }
 

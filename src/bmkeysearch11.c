@@ -46,12 +46,14 @@ static char *buildTransmitdata(unsigned char *signpub, size_t signpublen,
     }
     // 140 + 128
     // FD03E8
+    // noncetrialsperbyte
     ret[268] = 'f';
     ret[269] = 'd';
     ret[270] = '0';
     ret[271] = 'f';
     ret[272] = 'a';
     ret[273] = '0';
+    // payloadlengthextrabytes
     ret[274] = 'f';
     ret[275] = 'd';
     ret[276] = '0';

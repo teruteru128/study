@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/random.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
@@ -72,10 +73,8 @@ static void *function(void *arg)
 
 int main(void)
 {
-    FILE *fin = fopen("/dev/urandom", "rb");
     uint64_t seed = 0;
-    fread(&seed, 8, 1, fin);
-    fclose(fin);
+    getrandom(&seed, sizeof(seed), GRND_NONBLOCK);
     verifier = seed;
 
     if (signal(SIGINT, act) == SIG_ERR)
@@ -92,7 +91,7 @@ int main(void)
 
     while (running)
     {
-        if(eflag)
+        if (eflag)
         {
             fprintf(stderr, "%d,verifier=%" PRIu64 "\n", sig, verifier);
             eflag = 0;
