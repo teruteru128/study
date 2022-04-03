@@ -79,7 +79,7 @@ target_include_directories(bmkeysearch11 PRIVATE ${OPENSSL_INCLUDE_DIR})
 add_executable(bmsearchpass bmsearchpass.c)
 
 add_executable(bmspam bmspam.c)
-target_link_libraries(bmspam study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util)
+target_link_libraries(bmspam study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util ${OPENSSL_CRYPTO_LIBRARIES})
 
 add_executable(bmsendmsg bmsendmsg.c)
 target_link_libraries(bmsendmsg study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util)

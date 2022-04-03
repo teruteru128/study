@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
     char *tmp = NULL;
     char *subject = NULL;
     BIO *bio_subject, *b64;
-    b64 = BIO_new(BIO_f_base64);
+    b64 = BIO_new(BIO_f_base64());
     BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
     bio_subject = BIO_new(BIO_s_mem());
     BIO_get_mem_ptr(bio_subject, &subject);
