@@ -8,7 +8,11 @@
 
 static pthread_key_t key;
 
-// func と同じスレッドで呼び出される
+/**
+ * @brief func と同じスレッドで呼び出される
+ * 
+ * @param buf 
+ */
 static void destructor(void *buf)
 {
     printf("dest: (%lu) %s\n", pthread_self(), (char *)buf);
@@ -18,6 +22,12 @@ static void destructor(void *buf)
 static atomic_long count = 0;
 #define TEXT_LENGTH 64
 
+/**
+ * @brief 
+ * 
+ * @param arg 
+ * @return void* 
+ */
 void *func(void *arg)
 {
     (void)arg;
