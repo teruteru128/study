@@ -305,6 +305,9 @@ target_link_libraries(mysqlaccesssample mysqlclient)
 add_executable(mysqlaccesssample2 mysqlaccesssample2.c)
 target_link_libraries(mysqlaccesssample2 mysqlclient)
 
+add_executable(mysqlbf mysqlbf.c)
+target_link_libraries(mysqlbf mysqlclient)
+
 add_executable(mysqlfast mysqlfast.c)
 target_link_libraries(mysqlfast mysqlclient)
 

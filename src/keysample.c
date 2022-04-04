@@ -31,11 +31,19 @@ void *func(void *arg)
 
 #define THREADS 128UL
 
+/**
+ * @brief スレッド固有データのサンプル
+ * EVP_MD_CTXとかをセットするんやろな、本来は
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char const *argv[])
 {
     printf("Hello! This is %lu!\n", pthread_self());
     pthread_key_create(&key, destructor);
-    pthread_t *threads = malloc(sizeof(pthread_t) * THREADS);
+    pthread_t threads[THREADS];
     int ret = 0;
     for (size_t i = 0; i < THREADS; i++)
     {
@@ -52,6 +60,5 @@ int main(int argc, char const *argv[])
     }
 
     pthread_key_delete(key);
-    free(threads);
     return 0;
 }
