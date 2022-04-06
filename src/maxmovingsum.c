@@ -2,11 +2,12 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <java_random.h>
+#include <limits.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include <limits.h>
-#include <java_random.h>
+#include <sys/random.h>
 
 #define WIDTH 5
 #define MINZ (-313)
@@ -18,11 +19,14 @@
  * 移動合計
  * 出力配列のチェックとかめんどくさいんですけどねー
  * 出力配列は呼び出し側で確保する？(int *outarray, size_t outarraysize)
- * 呼び出された側？(int **outarray, size_t *outarraysize)もしくは返り値でint *を返す？
+ * 呼び出された側？(int **outarray, size_t *outarraysize)もしくは返り値でint
+ * *を返す？
  */
-int moving_sum(const int *inarray, const size_t datasize, const size_t windowsize, int *outarray, size_t outarraysize)
+int moving_sum(const int *inarray, const size_t datasize,
+               const size_t windowsize, int *outarray, size_t outarraysize)
 {
-    if (inarray == NULL || datasize == 0 || windowsize == 0 || outarray == NULL || outarraysize == 0)
+    if (inarray == NULL || datasize == 0 || windowsize == 0 || outarray == NULL
+        || outarraysize == 0)
     {
         return 1;
     }
@@ -42,9 +46,12 @@ int moving_sum(const int *inarray, const size_t datasize, const size_t windowsiz
 }
 
 /* 移動平均 */
-void moving_average(int *inarray, const size_t datasize, const size_t windowsize, float *outarray, size_t outarraysize)
+void moving_average(int *inarray, const size_t datasize,
+                    const size_t windowsize, float *outarray,
+                    size_t outarraysize)
 {
-    if (inarray == NULL || datasize == 0 || windowsize == 0 || outarray == NULL || outarraysize == 0)
+    if (inarray == NULL || datasize == 0 || windowsize == 0 || outarray == NULL
+        || outarraysize == 0)
     {
         return;
     }
@@ -68,7 +75,8 @@ void moving_average(int *inarray, const size_t datasize, const size_t windowsize
  * 移動合計と配列の最大値の合成にすべきでは？
  * この関数はintで実装したけど、変数サイズと符号あり/なしで全部バラバラの実装するの？やだなあ……
  */
-int moving_sum_max(const int *inarray, const size_t datasize, const size_t windowsize)
+int moving_sum_max(const int *inarray, const size_t datasize,
+                   const size_t windowsize)
 {
     int sum = 0;
     for (size_t i = 0; i < windowsize; i++)
@@ -94,7 +102,9 @@ int main(int argc, char *argv[])
     int movingsum[621];
     float movingsum_f[621];
     int maxtmp = 0;
-    srand(114514);
+    unsigned int seed = 0;
+    getraandom(&seed, sizeof(unsigned int), GRND_NONBLOCK);
+    srand(seed);
     int64_t seed = lcg(114514);
     for (int i = 0; i < 625; i++)
     {

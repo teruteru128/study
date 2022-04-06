@@ -24,10 +24,9 @@
 /** * teamspeak * */
 static void initRandom()
 {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    srand48(((tv.tv_usec & 0xFFFFFFFF) << 32)
-            ^ ((tv.tv_usec >> 32) & 0xFFFFFFFF) ^ tv.tv_sec);
+    long seed = 0;
+    getrandom(((char *)&seed) + 2, 6, GRND_NONBLOCK);
+    srand48(seed);
 }
 
 static uint64_t getRandomU64()

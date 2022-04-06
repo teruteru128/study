@@ -15,7 +15,7 @@ static pthread_key_t key;
  */
 static void destructor(void *buf)
 {
-    printf("dest: (%lu) %s\n", pthread_self(), (char *)buf);
+    //printf("dest: (%lu) %s\n", pthread_self(), (char *)buf);
     free(buf);
 }
 
@@ -32,8 +32,8 @@ void *func(void *arg)
 {
     (void)arg;
     char *buf = malloc(TEXT_LENGTH);
-    snprintf(buf, TEXT_LENGTH, "うんちー！%ld", count++);
-    printf("func: (%lu) %s\n", pthread_self(), buf);
+    //snprintf(buf, TEXT_LENGTH, "うんちー！%ld", count++);
+    //printf("func: (%lu) %s\n", pthread_self(), buf);
     pthread_setspecific(key, buf);
     usleep(500000);
     return NULL;

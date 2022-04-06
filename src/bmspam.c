@@ -25,7 +25,6 @@
 #include <xmlrpc-c/base.h>
 #include <xmlrpc-c/client.h>
 
-#define USER_NAME "teruteru128"
 #define ADDRBUFSIZE 64
 #ifndef STUDYDATADIR
 #define STUDYDATADIR PROJECT_SOURCE_DIR "/data"
@@ -65,8 +64,14 @@ int main(int argc, char *argv[])
 
     fputs("起動します\n", stdout);
 
+    char *username = getenv("USER_NAME");
     char *password = getenv("BM_PASSWORD");
 
+    if (username == NULL || strlen(username) == 0)
+    {
+        fputs("環境変数 USER_NAME にユーザー名を設定してください。\n", stderr);
+        return 1;
+    }
     if (password == NULL)
     {
         fputs("環境変数 BM_PASSWORD にパスワードを設定してください。\n",
@@ -101,7 +106,7 @@ int main(int argc, char *argv[])
     die_if_fault_occurred(env);
 
     // auth config
-    xmlrpc_server_info_set_user(env, serverP, USER_NAME, password);
+    xmlrpc_server_info_set_user(env, serverP, username, password);
     die_if_fault_occurred(env);
 
     // auth enable
@@ -111,18 +116,8 @@ int main(int argc, char *argv[])
     // message params
     char fromaddress[ADDRBUFSIZE] = ADDRESS_bitmessage;
     char *tmp = NULL;
-    char *subject = NULL;
-    BIO *bio_subject, *b64;
-    b64 = BIO_new(BIO_f_base64());
-    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
-    bio_subject = BIO_new(BIO_s_mem());
-    BIO_get_mem_ptr(bio_subject, &subject);
-    BIO_set_close(bio_subject, BIO_NOCLOSE);
-    BIO_push(b64, bio_subject);
-    //BIO_write(b64, message, strlen(message));
-    BIO_flush(b64);
-    BIO_free_all(b64);
-    char message[BUFSIZ] = "SGVsbG8gV29ybGQh";
+    char *subject = "R2xvcnkgdG8gVWtyYWluZSE=";
+    const char message[BUFSIZ] = "RlVDSyBZT1UgUFVUSU4h";
     int encodingType = 2;
     // 2419200 = 60*60*24*28
     int ttl = 2419200;
@@ -147,10 +142,11 @@ int main(int argc, char *argv[])
     char toaddress[ADDRBUFSIZE] = "";
     xmlrpc_value *toaddressv = NULL;
     char *ackdata = NULL;
-    time_t t = 0;
-    struct tm machine_tm;
-    char strtime[BUFSIZ] = "";
+    struct timespec ts = {0};
+    struct tm machine_tm = {0};
+    char datetime[BUFSIZ] = "";
     size_t count = 0;
+    // toaddressってセミコロンつなぎにできないのか？
     while ((tmp = fgets(toaddress, ADDRBUFSIZE, toaddrfile)) != NULL)
     {
         /* remove crlf */
@@ -168,14 +164,16 @@ int main(int argc, char *argv[])
                                     encodingTypev, TTLv);
         free(ackdata);
 
-        t = time(NULL);
-        localtime_r(&t, &machine_tm);
-        strftime(strtime, BUFSIZ, "%EC%Ey%B%d日 %X %EX", &machine_tm);
-        printf("(%zu)%s: %s\n", count, toaddress, strtime);
+        clock_gettime(CLOCK_REALTIME, &ts);
+        localtime_r(&ts.tv_sec, &machine_tm);
+        strftime(datetime, BUFSIZ, "%EC%Ey%B%d日 %X %EX", &machine_tm);
+        printf("(%zu)%s: %s.%09ld\n", count, toaddress, datetime, ts.tv_nsec);
 
         /* Dispose of our result value. ゴミ掃除 */
         xmlrpc_DECREF(toaddressv);
-        sleep(1);
+        if ((count % 100UL) == 99UL)
+            sleep(30);
+        count++;
     }
     if (ferror(toaddrfile))
     {
