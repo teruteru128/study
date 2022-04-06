@@ -102,9 +102,9 @@ int main(int argc, char *argv[])
     int movingsum[621];
     float movingsum_f[621];
     int maxtmp = 0;
-    unsigned int seed = 0;
-    getraandom(&seed, sizeof(unsigned int), GRND_NONBLOCK);
-    srand(seed);
+    unsigned int buf = 0;
+    getrandom(&buf, sizeof(unsigned int), GRND_NONBLOCK);
+    srand(buf);
     int64_t seed = lcg(114514);
     for (int i = 0; i < 625; i++)
     {
