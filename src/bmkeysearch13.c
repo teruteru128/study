@@ -85,14 +85,19 @@ int main(int argc, char const *argv[])
     const EVP_MD *sha512 = EVP_sha512();
     const EVP_MD *ripemd160 = EVP_ripemd160();
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
-    FILE *keystxt = fopen("keys.txt", "wa");
-    FILE *keyssql = fopen("keys.sql", "wa");
+    FILE *addresstxt = fopen("address.txt", "wa");
+    FILE *insertsql = fopen("insert.sql", "wa");
+    if (addresstxt == NULL || insertsql == NULL)
+    {
+        perror("");
+        return EXIT_FAILURE;
+    }
     // CREATE TABLE pubkeys (address text, addressversion int, transmitdata
     // blob, time int, usedpersonally text, UNIQUE(address) ON CONFLICT
     // REPLACE);
     fputs("insert into pubkeys(address, addressversion, transmitdata, time, "
           "usedpersonally) values",
-          keyssql);
+          insertsql);
     size_t i = 0;
     size_t j = 0;
     unsigned char work[EVP_MAX_MD_SIZE] = "";
@@ -101,7 +106,7 @@ int main(int argc, char const *argv[])
     int isFirst = 1;
     size_t k = 0;
     unsigned char *signpubkey = NULL;
-    for (i = 0; i < 130; i += 65)
+    for (i = 130; i < 195; i += 65)
     {
         signpubkey = publickeys + i;
         for (j = 0; j < 4362076160UL; j += 65)
@@ -119,16 +124,16 @@ int main(int argc, char const *argv[])
                 address = encodeV4Address(work, 20);
                 transmitdatahex
                     = buildTransmitdata(signpubkey, 65, publickeys + j, 65);
-                fprintf(keystxt, "%s\n", address);
+                fprintf(addresstxt, "%s\n", address);
                 if (isFirst == 1)
                 {
                     isFirst = 0;
                 }
                 else
                 {
-                    fputs(",", keyssql);
+                    fputs(",", insertsql);
                 }
-                fprintf(keyssql, "\n('%s', 4, x'%s', %ld, 'yes')", address,
+                fprintf(insertsql, "\n('%s', 4, x'%s', %ld, 'yes')", address,
                         transmitdatahex, time(NULL) - (2 * 30 * 86400));
                 free(address);
                 free(transmitdatahex);
@@ -136,7 +141,7 @@ int main(int argc, char const *argv[])
                 {
                     fputs(";\nINSERT INTO pubkeys(address, addressversion, "
                           "transmitdata, time, usedpersonally) values",
-                          keyssql);
+                          insertsql);
                     isFirst = 1;
                 }
                 k++;
@@ -144,7 +149,9 @@ int main(int argc, char const *argv[])
         }
     }
 
-    fputs(";\n", keyssql);
+    fputs(";\n", insertsql);
+    fclose(insertsql);
+    fclose(addresstxt);
     free(publickeys);
     return 0;
 }
