@@ -54,17 +54,17 @@ static char *buildTransmitdata(unsigned char *signpub, size_t signpublen,
     // noncetrialsperbyte
     ret[268] = 'f';
     ret[269] = 'd';
-    ret[270] = '0';
-    ret[271] = '3';
-    ret[272] = 'e';
-    ret[273] = '8';
+    ret[270] = 'f';
+    ret[271] = 'f';
+    ret[272] = 'f';
+    ret[273] = 'f';
     // payloadlengthextrabytes
     ret[274] = 'f';
     ret[275] = 'd';
-    ret[276] = '0';
-    ret[277] = '3';
-    ret[278] = 'e';
-    ret[279] = '8';
+    ret[276] = 'f';
+    ret[277] = 'f';
+    ret[278] = 'f';
+    ret[279] = 'f';
     ret[280] = '\0';
 
     return ret;
@@ -88,9 +88,6 @@ int main(int argc, char const *argv[])
     // CREATE TABLE pubkeys (address text, addressversion int, transmitdata
     // blob, time int, usedpersonally text, UNIQUE(address) ON CONFLICT
     // REPLACE);
-    fputs("insert into pubkeys(address, addressversion, transmitdata, time, "
-          "usedpersonally) values",
-          stdout);
     size_t i = 0;
     size_t j = 0;
     unsigned char work[EVP_MAX_MD_SIZE] = "";
@@ -125,18 +122,11 @@ int main(int argc, char const *argv[])
                 {
                     fputs(",", stdout);
                 }
-                fprintf(stdout, "\n('%s', 4, x'%s', %ld, 'yes')", address,
-                        transmitdatahex, time(NULL) - (2 * 30 * 86400));
+                // UPDATE pubkeys set transmitdata = x'' where address = '';
+                fprintf(stdout, "UPDATE pubkeys set transmitdata = x'%s' where address = '%s';\n",
+                        transmitdatahex, address);
                 free(address);
                 free(transmitdatahex);
-                if ((k % 1000) == 999)
-                {
-                    fputs(";\nINSERT INTO pubkeys(address, addressversion, "
-                          "transmitdata, time, usedpersonally) values",
-                          stdout);
-                    isFirst = 1;
-                }
-                k++;
             }
         }
     }

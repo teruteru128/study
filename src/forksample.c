@@ -6,9 +6,10 @@
 
 int main(int argc, char *argv[])
 {
-    for (size_t i = 0; i < 10; i++)
+    pid_t pid = fork();
+    if (pid > 0)
     {
-        fork();
+        waitpid(pid, NULL, 0);
     }
     return 0;
 }

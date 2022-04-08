@@ -85,12 +85,14 @@ int main(int argc, char const *argv[])
     const EVP_MD *sha512 = EVP_sha512();
     const EVP_MD *ripemd160 = EVP_ripemd160();
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+    FILE *keystxt = fopen("keys.txt", "wa");
+    FILE *keyssql = fopen("keys.sql", "wa");
     // CREATE TABLE pubkeys (address text, addressversion int, transmitdata
     // blob, time int, usedpersonally text, UNIQUE(address) ON CONFLICT
     // REPLACE);
     fputs("insert into pubkeys(address, addressversion, transmitdata, time, "
           "usedpersonally) values",
-          stdout);
+          keyssql);
     size_t i = 0;
     size_t j = 0;
     unsigned char work[EVP_MAX_MD_SIZE] = "";
@@ -117,15 +119,16 @@ int main(int argc, char const *argv[])
                 address = encodeV4Address(work, 20);
                 transmitdatahex
                     = buildTransmitdata(signpubkey, 65, publickeys + j, 65);
+                fprintf(keystxt, "%s\n", address);
                 if (isFirst == 1)
                 {
                     isFirst = 0;
                 }
                 else
                 {
-                    fputs(",", stdout);
+                    fputs(",", keyssql);
                 }
-                fprintf(stdout, "\n('%s', 4, x'%s', %ld, 'yes')", address,
+                fprintf(keyssql, "\n('%s', 4, x'%s', %ld, 'yes')", address,
                         transmitdatahex, time(NULL) - (2 * 30 * 86400));
                 free(address);
                 free(transmitdatahex);
@@ -133,7 +136,7 @@ int main(int argc, char const *argv[])
                 {
                     fputs(";\nINSERT INTO pubkeys(address, addressversion, "
                           "transmitdata, time, usedpersonally) values",
-                          stdout);
+                          keyssql);
                     isFirst = 1;
                 }
                 k++;
@@ -141,7 +144,7 @@ int main(int argc, char const *argv[])
         }
     }
 
-    fputs(";\n", stdout);
+    fputs(";\n", keyssql);
     free(publickeys);
     return 0;
 }

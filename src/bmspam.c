@@ -1,5 +1,5 @@
 
-
+// USER_NAME=teruteru128 BM_PASSWORD=analbeads ./build/src/bmspam ./config/address1.txt
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

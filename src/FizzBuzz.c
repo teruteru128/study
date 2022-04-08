@@ -13,13 +13,13 @@
 #include <string.h>
 #include <printint.h>
 
-void showFizzBuzz()
+void showFizzBuzz(size_t a)
 {
     int n;
     int tmp;
-    for (n = 1; n <= 40; n++)
+    for (n = 1; n <= a; n++)
     {
-        if (n % 3 == 0 && n % 5 == 0)
+        if (n % 15 == 0)
         {
             printf("Fizz Buzz\n");
         }
@@ -38,11 +38,11 @@ void showFizzBuzz()
     }
 }
 
-#define MAX (100000000)
+#define MAX (100000000UL)
 int main(int argc, char *argv[])
 {
     setlocale(LC_ALL, "");
     bindtextdomain(PACKAGE, LOCALEDIR);
     textdomain(PACKAGE);
-    showFizzBuzz();
+    showFizzBuzz(MAX);
 }

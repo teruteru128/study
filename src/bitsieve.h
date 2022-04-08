@@ -3,6 +3,7 @@
 #define BITSIEVE_H
 
 #include <stdio.h>
+#include <stdint.h>
 #include <pthread.h>
 #include <gmp.h>
 #include "bitset.h"
@@ -13,7 +14,7 @@ struct BitSieve
 {
     size_t length;
     size_t bits_length;
-    unsigned long *bits;
+    uint64_t *bits;
 };
 #endif
 
