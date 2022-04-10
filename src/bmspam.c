@@ -1,5 +1,4 @@
 
-// USER_NAME=teruteru128 BM_PASSWORD=analbeads ./build/src/bmspam ./config/address1.txt
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -52,6 +51,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
+        fputs("アドレスファイルを指定してください\n", stderr);
         return 1;
     }
     const char *addressfilepath = argv[1];
@@ -116,11 +116,13 @@ int main(int argc, char *argv[])
     // message params
     char fromaddress[ADDRBUFSIZE] = ADDRESS_bitmessage;
     char *tmp = NULL;
-    char *subject = "R2xvcnkgdG8gVWtyYWluZSE=";
-    const char message[BUFSIZ] = "RlVDSyBZT1UgUFVUSU4h";
+    char *subject = "";
+    const char message[BUFSIZ] = "";
     int encodingType = 2;
+    // 3600から2419200まで
+    // 物量作戦を採用するならメッセージ本体を小さく、TTLを短く
     // 2419200 = 60*60*24*28
-    int ttl = 2419200;
+    int ttl = 3600;
 
     xmlrpc_value *fromaddressv = xmlrpc_string_new(env, fromaddress);
     die_if_fault_occurred(env);
@@ -171,8 +173,6 @@ int main(int argc, char *argv[])
 
         /* Dispose of our result value. ゴミ掃除 */
         xmlrpc_DECREF(toaddressv);
-        if ((count % 100UL) == 99UL)
-            sleep(30);
         count++;
     }
     if (ferror(toaddrfile))

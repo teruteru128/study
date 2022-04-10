@@ -84,6 +84,10 @@ add_executable(bmkeysearch13 bmkeysearch13.c)
 target_link_libraries(bmkeysearch13 ${OPENSSL_CRYPTO_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} study)
 target_include_directories(bmkeysearch13 PRIVATE ${OPENSSL_INCLUDE_DIR})
 
+add_executable(bmrandomaddressgenerator bmrandomaddressgenerator.c)
+target_link_libraries(bmrandomaddressgenerator ${OPENSSL_CRYPTO_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} study)
+target_include_directories(bmrandomaddressgenerator PRIVATE ${OPENSSL_INCLUDE_DIR})
+
 add_executable(bmsearchpass bmsearchpass.c)
 
 add_executable(bmspam bmspam.c)
