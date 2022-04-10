@@ -66,6 +66,7 @@ int main(int argc, char *argv[])
 
     char *username = getenv("USER_NAME");
     char *password = getenv("BM_PASSWORD");
+    char *serverUrl = getenv("SERVER_URL");
 
     if (username == NULL || strlen(username) == 0)
     {
@@ -82,6 +83,11 @@ int main(int argc, char *argv[])
     {
         fputs("環境変数 BM_PASSWORD の長さが0だが、それでええんか？\n",
               stderr);
+    }
+    if (serverUrl == NULL || strlen(serverUrl) == 0)
+    {
+        fputs("環境変数 SERVER_URL にサーバーアドレスを設定してください。(HTTP URL, example: http://192.168.12.5:8442/)\n", stderr);
+        return 1;
     }
 
     // error environment variable
@@ -102,7 +108,7 @@ int main(int argc, char *argv[])
     die_if_fault_occurred(env);
 
     // auth config object
-    xmlrpc_server_info *serverP = xmlrpc_server_info_new(env, SERVER_URL);
+    xmlrpc_server_info *serverP = xmlrpc_server_info_new(env, serverUrl);
     die_if_fault_occurred(env);
 
     // auth config
