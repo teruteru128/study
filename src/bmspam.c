@@ -69,6 +69,11 @@ int main(int argc, char *argv[])
     }
     const char *addressfilepath = argv[1];
     setlocale(LC_ALL, "");
+    size_t addressoffseet = 0;
+    if (argc >= 3)
+    {
+        addressoffseet = strtoul(argv[2], NULL, 10);
+    }
 
 #ifdef _DEBUG
     printf("%s\n", msgfilepath);
@@ -181,7 +186,7 @@ int main(int argc, char *argv[])
     struct tm machine_tm = { 0 };
     char datetime[BUFSIZ] = "";
     size_t count = 0;
-    for (size_t i = 0; i < 35098; i++)
+    for (size_t i = 0; i < addressoffseet; i++)
     {
         if (fgets(toaddress, ADDRBUFSIZE, toaddrfile) == NULL)
         {
