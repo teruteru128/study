@@ -1,4 +1,8 @@
 
+// USER_NAME=teruteru128 BM_PASSWORD=analbeads
+// SERVER_URL=http://192.168.12.5:8442/ ./build/src/bmspam
+// ./config/address1.txt USER_NAME=teruteru128 BM_PASSWORD=analbeads
+// SERVER_URL=http://192.168.12.5:8442/ ./build/src/bmspam imaginaryaddress.txt
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -14,6 +18,7 @@
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <pthread.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +33,14 @@
 #ifndef STUDYDATADIR
 #define STUDYDATADIR PROJECT_SOURCE_DIR "/data"
 #endif
+
+static volatile sig_atomic_t running = 1;
+
+static void handler(int sig, siginfo_t *info, void *ctx)
+{
+    (void)sig;
+    running = 0;
+}
 
 /**
  * @brief HAHAHA!  BM-NB3mUXqpbGXKQHUP95fx7yqWHPkDTQp8
@@ -86,7 +99,10 @@ int main(int argc, char *argv[])
     }
     if (serverUrl == NULL || strlen(serverUrl) == 0)
     {
-        fputs("環境変数 SERVER_URL にサーバーアドレスを設定してください。(HTTP URL, example: http://192.168.12.5:8442/)\n", stderr);
+        fputs(
+            "環境変数 SERVER_URL にサーバーアドレスを設定してください。(HTTP "
+            "URL, example: http://192.168.12.5:8442/)\n",
+            stderr);
         return 1;
     }
 
@@ -129,6 +145,17 @@ int main(int argc, char *argv[])
     // 物量作戦を採用するならメッセージ本体を小さく、TTLを短く
     // 2419200 = 60*60*24*28
     int ttl = 3600;
+    struct sigaction action = { 0 };
+    action.sa_sigaction = handler;
+    if (sigaction(SIGINT, &action, NULL) != 0)
+    {
+        perror("sigaction(SIGINT)");
+        xmlrpc_client_destroy(clientP);
+        xmlrpc_client_teardown_global_const();
+        /* Clean up our error-handling environment. */
+        xmlrpc_env_clean(env);
+        return EXIT_FAILURE;
+    }
 
     xmlrpc_value *fromaddressv = xmlrpc_string_new(env, fromaddress);
     die_if_fault_occurred(env);
@@ -150,12 +177,21 @@ int main(int argc, char *argv[])
     char toaddress[ADDRBUFSIZE] = "";
     xmlrpc_value *toaddressv = NULL;
     char *ackdata = NULL;
-    struct timespec ts = {0};
-    struct tm machine_tm = {0};
+    struct timespec ts = { 0 };
+    struct tm machine_tm = { 0 };
     char datetime[BUFSIZ] = "";
     size_t count = 0;
+    for (size_t i = 0; i < 35098; i++)
+    {
+        if (fgets(toaddress, ADDRBUFSIZE, toaddrfile) == NULL)
+        {
+            return 1;
+        }
+        count++;
+    }
     // toaddressってセミコロンつなぎにできないのか？
-    while ((tmp = fgets(toaddress, ADDRBUFSIZE, toaddrfile)) != NULL)
+    while ((tmp = fgets(toaddress, ADDRBUFSIZE, toaddrfile)) != NULL
+           && running)
     {
         /* remove crlf */
         char *crlf = strpbrk(toaddress, "\r\n");
@@ -185,6 +221,16 @@ int main(int argc, char *argv[])
     {
         perror("ferror(toaddrfile)");
     }
+    if (feof(toaddrfile))
+    {
+    }
+    else
+    {
+        if (running != 1)
+        {
+            fprintf(stderr, "%zu件\n", count);
+        }
+    }
     fclose(toaddrfile);
     xmlrpc_DECREF(fromaddressv);
     xmlrpc_DECREF(subjectv);
@@ -192,12 +238,12 @@ int main(int argc, char *argv[])
     xmlrpc_DECREF(encodingTypev);
     xmlrpc_DECREF(TTLv);
 
-    /* Clean up our error-handling environment. */
-    xmlrpc_env_clean(env);
-
     xmlrpc_client_destroy(clientP);
 
     xmlrpc_client_teardown_global_const();
+
+    /* Clean up our error-handling environment. */
+    xmlrpc_env_clean(env);
 
     return EXIT_SUCCESS;
 }

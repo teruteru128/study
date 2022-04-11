@@ -253,8 +253,18 @@ static int search_main(int argc, char **argv)
         pthread_mutex_unlock(&mutex);
     }
      */
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGHUP);
+    sigaddset(&set, SIGINT);
+    siginfo_t info = { 0 };
+    struct timespec timeout = { 0 };
+    // 0.5 s
+    timeout.tv_sec = 0;
+    timeout.tv_nsec = 500000000;
     while (!finished)
     {
+        sigtimedwait(&set, &info, &timeout);
     }
     fputs("終了しています。お待ち下さい。。。\n", stdout);
     for (size_t i = 0; i < threadNum; i++)
