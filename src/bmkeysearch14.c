@@ -56,7 +56,9 @@ int main(int argc, char const *argv[])
 #elif __BYTE_ORDER == __BIG_ENDIAN
             if (((*(uint64_t *)hashwork) & 0xffffffffff000000UL) == 0UL)
 #else
-#error "byte order error!"
+            // TODO ビルトイン関数が実装されているかどうかの判定ってどうしたらいいんだろうか？
+            if ((*(uint64_t *)hashwork) == 0
+                || __builtin_ctzl(be64toh(*(uint64_t *)hashwork)) >= 48)
 #endif
             {
                 for (k = 0; k < 20; k++)
