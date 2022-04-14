@@ -69,10 +69,10 @@ int main(int argc, char *argv[])
     }
     const char *addressfilepath = argv[1];
     setlocale(LC_ALL, "");
-    size_t addressoffseet = 0;
+    size_t addressoffset = 0;
     if (argc >= 3)
     {
-        addressoffseet = strtoul(argv[2], NULL, 10);
+        addressoffset = strtoul(argv[2], NULL, 10);
     }
 
 #ifdef _DEBUG
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
     struct tm machine_tm = { 0 };
     char datetime[BUFSIZ] = "";
     size_t count = 0;
-    for (size_t i = 0; i < addressoffseet; i++)
+    for (size_t i = 0; i < addressoffset; i++)
     {
         if (fgets(toaddress, ADDRBUFSIZE, toaddrfile) == NULL)
         {
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
         /* 文字列をxmlrpc文字列オブジェクトに変換する */
         toaddressv = xmlrpc_string_new(env, toaddress);
         die_if_fault_occurred(env);
-        for (size_t i = 0; i < 200000 && running; i++)
+        for (size_t i = 0; i < 180000 && running; i++)
         {
             ackdata = bmapi_sendMessage(env, clientP, serverP, toaddressv,
                                         fromaddressv, subjectv, messagev,

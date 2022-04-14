@@ -12,8 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static const char hextable[] = { '0', '1', '2', '3', '4', '5', '6', '7',
-                                 '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+#define HEXTABLE "0123456789abcdef"
 
 static char *buildTransmitdata(unsigned char *signpub, size_t signpublen,
                                unsigned char *encpub, size_t encpublen)
@@ -40,14 +39,14 @@ static char *buildTransmitdata(unsigned char *signpub, size_t signpublen,
     // signing key
     for (size_t i = 0; i < 64; i++)
     {
-        ret[(i << 1) + 12] = hextable[(signpub[i + 1] >> 4) & 0x0f];
-        ret[(i << 1) + 13] = hextable[(signpub[i + 1] >> 0) & 0x0f];
+        ret[(i << 1) + 12] = HEXTABLE[(signpub[i + 1] >> 4) & 0x0f];
+        ret[(i << 1) + 13] = HEXTABLE[(signpub[i + 1] >> 0) & 0x0f];
     }
     // encrypting key
     for (size_t i = 0; i < 64; i++)
     {
-        ret[(i << 1) + 140] = hextable[(encpub[i + 1] >> 4) & 0x0f];
-        ret[(i << 1) + 141] = hextable[(encpub[i + 1] >> 0) & 0x0f];
+        ret[(i << 1) + 140] = HEXTABLE[(encpub[i + 1] >> 4) & 0x0f];
+        ret[(i << 1) + 141] = HEXTABLE[(encpub[i + 1] >> 0) & 0x0f];
     }
     // 140 + 128
     // FD03E8

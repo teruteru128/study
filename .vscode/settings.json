@@ -158,10 +158,13 @@
         "easy.h": "c",
         "socket_type.h": "c",
         "inttypes.h": "c",
-        "chaincookies.h": "c"
+        "chaincookies.h": "c",
+        "sha.h": "c",
+        "ripemd.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
         "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
-    ]
+    ],
+    "C_Cpp.dimInactiveRegions": true
 }

@@ -2,15 +2,17 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
         fprintf(stderr, "%s <num>\n", argv[0]);
+        return 1;
     }
 
-    long n = strtol(argv[1], NULL, 10);
+    uint64_t n = strtoul(argv[1], NULL, 10);
     size_t count = 0;
     size_t count_triple = 0;
 
