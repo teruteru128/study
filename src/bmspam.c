@@ -194,9 +194,10 @@ int main(int argc, char *argv[])
         }
         count++;
     }
-    if ((tmp = fgets(toaddress, ADDRBUFSIZE, toaddrfile)) != NULL)
+    // toaddressってセミコロンつなぎにできないのか？
+    while ((tmp = fgets(toaddress, ADDRBUFSIZE, toaddrfile)) != NULL
+           && running)
     {
-        // toaddressってセミコロンつなぎにできないのか？
         /* remove crlf */
         char *crlf = strpbrk(toaddress, "\r\n");
         if (crlf != NULL)
@@ -206,23 +207,20 @@ int main(int argc, char *argv[])
         /* 文字列をxmlrpc文字列オブジェクトに変換する */
         toaddressv = xmlrpc_string_new(env, toaddress);
         die_if_fault_occurred(env);
-        for (size_t i = 0; i < 180000 && running; i++)
-        {
-            ackdata = bmapi_sendMessage(env, clientP, serverP, toaddressv,
-                                        fromaddressv, subjectv, messagev,
-                                        encodingTypev, TTLv);
-            free(ackdata);
 
-            clock_gettime(CLOCK_REALTIME, &ts);
-            localtime_r(&ts.tv_sec, &machine_tm);
-            strftime(datetime, BUFSIZ, "%EC%Ey%B%d日 %X %EX", &machine_tm);
-            printf("(%zu)%s: %s.%09ld\n", count, toaddress, datetime,
-                   ts.tv_nsec);
+        ackdata = bmapi_sendMessage(env, clientP, serverP, toaddressv,
+                                    fromaddressv, subjectv, messagev,
+                                    encodingTypev, TTLv);
+        free(ackdata);
 
-            count++;
-        }
+        clock_gettime(CLOCK_REALTIME, &ts);
+        localtime_r(&ts.tv_sec, &machine_tm);
+        strftime(datetime, BUFSIZ, "%EC%Ey%B%d日 %X %EX", &machine_tm);
+        printf("(%zu)%s: %s.%09ld\n", count, toaddress, datetime, ts.tv_nsec);
+
         /* Dispose of our result value. ゴミ掃除 */
         xmlrpc_DECREF(toaddressv);
+        count++;
     }
     if (ferror(toaddrfile))
     {
