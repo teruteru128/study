@@ -142,7 +142,6 @@ int main(int argc, char *argv[])
 
     // message params
     char fromaddress[ADDRBUFSIZE] = ADDRESS_bitmessage;
-    char *tmp = NULL;
     char *subject = "";
     const char message[BUFSIZ] = "";
     int encodingType = 2;
@@ -195,8 +194,7 @@ int main(int argc, char *argv[])
         count++;
     }
     // toaddressってセミコロンつなぎにできないのか？
-    while ((tmp = fgets(toaddress, ADDRBUFSIZE, toaddrfile)) != NULL
-           && running)
+    while (fgets(toaddress, ADDRBUFSIZE, toaddrfile) != NULL && running)
     {
         /* remove crlf */
         char *crlf = strpbrk(toaddress, "\r\n");
