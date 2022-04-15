@@ -7,7 +7,7 @@ RUN apt update && \
 
 COPY . .
 
-RUN cmake --build build -G ninja
+RUN cmake . --build build -G ninja
 RUN ninja -C build all
 
 FROM ubuntu:20.04
