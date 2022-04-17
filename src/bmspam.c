@@ -1,8 +1,4 @@
 
-// USER_NAME=teruteru128 BM_PASSWORD=analbeads
-// SERVER_URL=http://192.168.12.5:8442/ ./build/src/bmspam
-// ./config/address1.txt USER_NAME=teruteru128 BM_PASSWORD=analbeads
-// SERVER_URL=http://192.168.12.5:8442/ ./build/src/bmspam imaginaryaddress.txt
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -224,15 +220,9 @@ int main(int argc, char *argv[])
     {
         perror("ferror(toaddrfile)");
     }
-    if (feof(toaddrfile))
+    if (running != 1)
     {
-    }
-    else
-    {
-        if (running != 1)
-        {
-            fprintf(stderr, "%zu件\n", count);
-        }
+        fprintf(stdout, "%zu件\n", count);
     }
     fclose(toaddrfile);
     xmlrpc_DECREF(fromaddressv);
