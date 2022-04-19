@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
     // 3600から2419200まで
     // 物量作戦を採用するならメッセージ本体を小さく、TTLを短く
     // 2419200 = 60*60*24*28
-    int ttl = 3600;
+    int ttl = 2419200;
     struct sigaction action = { 0 };
     action.sa_sigaction = handler;
     if (sigaction(SIGINT, &action, NULL) != 0)
