@@ -1,10 +1,14 @@
 
-#include <stdio.h>
 #include <regex.h>
+#include <stdio.h>
 #include <stdlib.h>
-#define SRC "551 5 ABCDEFG:2005/03/27 12-34-56:12時34分頃,3,1,4,紀伊半島沖,ごく浅く,3.2,1,N12.3,E45.6,仙台管区気象台:-奈良県,+2,*下北山村,+1,*十津川村,*奈良川上村\r\n"
+#include <string.h>
+#define SRC                                                                        \
+    "551 5 ABCDEFG:2005/03/27 "                                                    \
+    "12-34-56:12時34分頃,3,1,4,紀伊半島沖,ごく浅く,3.2,1,N12.3,E45.6," \
+    "仙台管区気象台:-奈良県,+2,*下北山村,+1,*十津川村,*奈良川上村\r\n"
 
-int epsptest()
+int epsptest(void)
 {
 
     int code;
@@ -23,7 +27,8 @@ int epsptest()
      * "^[[:digit:]]{3}( [[:digit:]]+( .*)?)?$"
      * REG_NEWLINEはCRを除外しない
      */
-    int r = regcomp(&reg, "^([[:digit:]]{3}) ([[:digit:]]+)( (.+))?$", REG_EXTENDED | REG_NEWLINE);
+    int r = regcomp(&reg, "^([[:digit:]]{3}) ([[:digit:]]+)( (.+))?$",
+                    REG_EXTENDED | REG_NEWLINE);
     if (r != 0)
     {
         switch (r)

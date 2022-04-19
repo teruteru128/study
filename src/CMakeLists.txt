@@ -198,6 +198,8 @@ target_include_directories(enginetest PRIVATE ${CURL_INCLUDE_DIRS})
 
 add_executable(envgettest envgettest.c)
 
+add_executable(epspsample epspsample.c epspsample-driver.c)
+
 add_executable(errnosample1 errnosample1.c)
 target_link_libraries(errnosample1 ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(errnosample1 PRIVATE ${CURL_INCLUDE_DIRS})
