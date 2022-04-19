@@ -25,35 +25,52 @@ int epsptest(void)
      * "^[[:digit:]]{3} [[:digit:]]+( .+)?$"
      * "^[[:digit:]]{3} [[:digit:]]+( .+)?$"
      * "^[[:digit:]]{3}( [[:digit:]]+( .*)?)?$"
-     * REG_NEWLINEはCRを除外しない
+     * REG_NEWLINEはCRを除外しないのでstrpbrkあたりで引っ掛けて除去が必要
      */
     int r = regcomp(&reg, "^([[:digit:]]{3}) ([[:digit:]]+)( (.+))?$",
                     REG_EXTENDED | REG_NEWLINE);
     if (r != 0)
     {
-        switch (r)
-        {
-        case REG_BADRPT:
-            fprintf(stderr, "badrpt %d\n", r);
-            break;
-        default:
-            fprintf(stderr, "other %d\n", r);
-            break;
-        }
+        size_t errbuf_size = regerror(r, &reg, NULL, 0);
+        char *errbuf = malloc(errbuf_size);
+        regerror(r, &reg, errbuf, errbuf_size);
+        fprintf(stderr, "%s\n", errbuf);
+        free(errbuf);
         return EXIT_FAILURE;
     }
     regmatch_t match[5];
+    regoff_t diff = 0;
     if (regexec(&reg, SRC, 5, match, 0) == 0)
     {
         printf("matched : %d, %d\n", match[4].rm_so, match[4].rm_eo);
-        regoff_t diff = match[4].rm_eo - match[4].rm_so;
+        diff = match[4].rm_eo - match[4].rm_so;
         strncpy(buf, SRC + match[4].rm_so, (size_t)diff);
         char *crlfptr = strpbrk(buf, "\r\n");
         if (crlfptr != NULL)
         {
+            fprintf(stdout, "found crlf, %02x\n", *crlfptr);
             *crlfptr = '\0';
         }
         printf("%s\n", buf);
+    }
+    regfree(&reg);
+    r = regcomp(&reg, " ", REG_EXTENDED);
+    if (r != 0)
+    {
+        size_t errbuf_size = regerror(r, &reg, NULL, 0);
+        char *errbuf = malloc(errbuf_size);
+        regerror(r, &reg, errbuf, errbuf_size);
+        fprintf(stderr, "%s\n", errbuf);
+        free(errbuf);
+        return EXIT_FAILURE;
+    }
+    size_t i = 0;
+    if (regexec(&reg, SRC, 4, match, 0) == 0)
+    {
+        for (i = 0; i < 4; i++)
+        {
+            printf("match[%zu] = %d, %d\n", i, match[i].rm_so, match[i].rm_eo);
+        }
     }
     regfree(&reg);
     return EXIT_SUCCESS;
