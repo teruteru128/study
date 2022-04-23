@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #define HEXTABLE "0123456789abcdef"
@@ -38,7 +39,7 @@ int main(int argc, char const *argv[])
     struct tm machine_tm = { 0 };
     char datetime[BUFSIZ] = "";
     fputs("start\n", stdout);
-//#pragma acc parallel loop
+    //#pragma acc parallel loop
     for (i = 0; i < 4362076160UL; i += 65)
     {
         signpubkey = publickeys + i;
@@ -58,10 +59,10 @@ int main(int argc, char const *argv[])
 #elif __BYTE_ORDER == __BIG_ENDIAN
             if (((*(uint64_t *)hashwork) & 0xffffffffff000000UL) == 0UL)
 #else
-            // TODO
-            // ビルトイン関数が実装されているかどうかの判定ってどうしたらいいんだろうか？
-            if ((*(uint64_t *)hashwork) == 0
-                || __builtin_ctzl(be64toh(*(uint64_t *)hashwork)) >= 48)
+            // わざわざキャストしてからマスクして比較するのとどっちが早いんだろうか
+            // そもそも普通ビッグでもリトルでもないエンディアンを想定しない……？
+            if (hashwork[0] == 0 && hashwork[1] == 0 && hashwork[2] == 0
+                && hashwork[3] == 0 && hashwork[4] == 0)
 #endif
             {
                 for (k = 0; k < 20; k++)
@@ -79,6 +80,7 @@ int main(int argc, char const *argv[])
         printf("i: %10zu終わり(%s)\n", i / 65, datetime);
     }
 
+    memset(publickeys, 0, 4362076160UL);
     free(publickeys);
     return 0;
 }
