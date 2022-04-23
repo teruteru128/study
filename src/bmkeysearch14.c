@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
     struct tm machine_tm = { 0 };
     char datetime[BUFSIZ] = "";
     fputs("start\n", stdout);
-#pragma acc parallel loop
+//#pragma acc parallel loop
     for (i = 0; i < 4362076160UL; i += 65)
     {
         signpubkey = publickeys + i;
