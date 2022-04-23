@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <bitmessage.h>
 #include <bm.h>
+#include <locale.h>
 #include <openssl/evp.h>
 #include <openssl/ripemd.h>
 #include <openssl/sha.h>
@@ -71,14 +72,23 @@ static char *buildTransmitdata(unsigned char *signpub, size_t signpublen,
 
 int main(int argc, char const *argv[])
 {
+    setlocale(LC_ALL, "");
     unsigned char *publickeys = calloc(67108864UL, 65UL);
     {
         FILE *fin = fopen("publicKeys.bin", "rb");
         if (fin == NULL)
         {
+            perror("fopen");
             return 1;
         }
-        fread(publickeys, 65, 67108864, fin);
+        size_t objnum = fread(publickeys, 65, 67108864, fin);
+        if (objnum != 67108864)
+        {
+            perror("fread");
+            fclose(fin);
+            free(publickeys);
+            return EXIT_FAILURE;
+        }
         fclose(fin);
     }
     const EVP_MD *sha512 = EVP_sha512();
@@ -105,7 +115,14 @@ int main(int argc, char const *argv[])
     int isFirst = 1;
     size_t k = 0;
     unsigned char *signpubkey = NULL;
-    for (i = 130; i < 195; i += 65)
+    /*
+        0,     65
+       65,    130
+      130,    195
+      195,    260
+      260,    325
+    */
+    for (i = 260; i < 325; i += 65)
     {
         signpubkey = publickeys + i;
         for (j = 0; j < 4362076160UL; j += 65)
@@ -133,7 +150,7 @@ int main(int argc, char const *argv[])
                     fputs(",", insertsql);
                 }
                 fprintf(insertsql, "\n('%s', 4, x'%s', %ld, 'yes')", address,
-                        transmitdatahex, time(NULL) - (2 * 30 * 86400));
+                        transmitdatahex, time(NULL));
                 free(address);
                 free(transmitdatahex);
                 if ((k % 1000) == 999)

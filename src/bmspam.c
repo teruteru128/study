@@ -34,8 +34,10 @@ static volatile sig_atomic_t running = 1;
 
 static void handler(int sig, siginfo_t *info, void *ctx)
 {
-    (void)sig;
     running = 0;
+    (void)sig;
+    (void)info;
+    (void)ctx;
 }
 
 /**
@@ -53,8 +55,6 @@ static void handler(int sig, siginfo_t *info, void *ctx)
  *   // 後片付け
  *   global_cleanup();
  * }
- * TODO:
- * コマンドライン引数でtest.txtとaddressbook.txtを切り替えられるようにする
  * */
 int main(int argc, char *argv[])
 {
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
     char toaddress[ADDRBUFSIZE] = "";
     xmlrpc_value *toaddressv = NULL;
     char *ackdata = NULL;
-    struct timespec ts = { 0 };
+    struct timespec current_time = { 0 };
     struct tm machine_tm = { 0 };
     char datetime[BUFSIZ] = "";
     size_t count = 0;
@@ -189,6 +189,7 @@ int main(int argc, char *argv[])
         }
         count++;
     }
+    fprintf(stderr, "start\n");
     // toaddressってセミコロンつなぎにできないのか？
     while (fgets(toaddress, ADDRBUFSIZE, toaddrfile) != NULL && running)
     {
@@ -207,10 +208,11 @@ int main(int argc, char *argv[])
                                     encodingTypev, TTLv);
         free(ackdata);
 
-        clock_gettime(CLOCK_REALTIME, &ts);
-        localtime_r(&ts.tv_sec, &machine_tm);
-        strftime(datetime, BUFSIZ, "%EC%Ey%B%d日 %X %EX", &machine_tm);
-        printf("(%zu)%s: %s.%09ld\n", count, toaddress, datetime, ts.tv_nsec);
+        clock_gettime(CLOCK_REALTIME, &current_time);
+        localtime_r(&current_time.tv_sec, &machine_tm);
+        strftime(datetime, BUFSIZ, "%EC%Ey%B%d日 %X", &machine_tm);
+        printf("(%zu)%s: %s.%09ld\n", count, toaddress, datetime,
+               current_time.tv_nsec);
 
         /* Dispose of our result value. ゴミ掃除 */
         xmlrpc_DECREF(toaddressv);
