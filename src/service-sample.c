@@ -48,11 +48,11 @@ int setupConfigFromCmdArgs(struct config *config, int argc, char **argv)
     return 0;
 }
 
-static void usage(int status)
+static int usage(int status)
 {
     fprintf(stdout, "argument count mismatch error.\nplease input a service "
                     "name or port number.\n");
-    exit(status);
+    return status;
 }
 
 int acceptedsocket = -1;
@@ -165,8 +165,7 @@ int main(int argc, char *argv[])
 {
     if (argc != 2)
     {
-        usage(EXIT_FAILURE);
-        return 1;
+        return usage(EXIT_FAILURE);
     }
     struct service_arg arg;
     strncpy(arg.port, argv[1], NI_MAXSERV);
@@ -175,5 +174,5 @@ int main(int argc, char *argv[])
     pthread_t work_threads[16];
     pthread_join(acceptthread, NULL);
     running = 0;
-    return 0;
+    return EXIT_SUCCESS;
 }
