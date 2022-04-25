@@ -29,13 +29,36 @@ int main(int argc, char *argv[])
     struct addrinfo *res = NULL;
     hints.ai_socktype = SOCK_STREAM;
 
-    getaddrinfo(host, port, &hints, &res);
+    int errcode;
+    if (errcode = getaddrinfo(host, port, &hints, &res))
+    {
+        fprintf(stderr, "%s\n", gai_strerror(errcode));
+        return EXIT_FAILURE;
+    }
 
     int sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-    connect(sock, res->ai_addr, res->ai_addrlen);
+    if (sock == -1)
+    {
+        perror("socket");
+        freeaddrinfo(res);
+        return EXIT_FAILURE;
+    }
+    if (connect(sock, res->ai_addr, res->ai_addrlen) == -1)
+    {
+        perror("socket");
+        close(sock);
+        freeaddrinfo(res);
+        return EXIT_FAILURE;
+    }
     freeaddrinfo(res);
+    res = NULL;
 
-    send(sock, &header, 2, 0);
+    if (send(sock, &header, 2, 0) == -1)
+    {
+        perror("socket");
+        close(sock);
+        return EXIT_FAILURE;
+    }
 
     close(sock);
 

@@ -502,6 +502,8 @@ add_executable(timerfdsample2 timerfdsample2.c)
 
 add_executable(timerfdsample3 timerfdsample3.c)
 
+add_executable(timerfdsample4 timerfdsample4.c)
+
 add_executable(timesample timesample.c)
 
 add_executable(tntn ftnr.c eja.c tntn.c)

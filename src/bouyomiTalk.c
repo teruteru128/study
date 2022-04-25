@@ -151,6 +151,7 @@ int main(const int argc, const char *argv[])
     if (connect(sock, res->ai_addr, res->ai_addrlen) < 0)
     {
         perror("connect");
+        close(sock);
         freeaddrinfo(res);
         return 1;
     }
