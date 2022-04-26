@@ -20,28 +20,22 @@
 int main(int argc, char const *argv[])
 {
     char *lo = setlocale(LC_ALL, "");
-    perror("");
-    printf("%s\n", lo);
 
-    struct tm deadline_tm = { 0 };
-    deadline_tm.tm_sec = 0;
-    deadline_tm.tm_min = 0;
-    deadline_tm.tm_hour = 0;
-    deadline_tm.tm_mday = 27;
-    deadline_tm.tm_mon = 4;
-    deadline_tm.tm_year = 2022 - 1900;
-    deadline_tm.tm_wday = 0;
-    deadline_tm.tm_yday = 0;
-    deadline_tm.tm_isdst = 0;
-    deadline_tm.tm_gmtoff = 0;
-    deadline_tm.tm_zone = NULL;
-
-    time_t deadline = mktime(&deadline_tm);
-
-    time_t now = time(NULL);
-
-    printf("%lf\n", difftime(deadline, now));
-    printf("%zu\n", sizeof(struct tm));
+    char buf[512] = "";
+    char buf2[BUFSIZ] = "";
+    struct timespec spec;
+    struct tm tm;
+    for (size_t i = 0; i < 8192; i += 512)
+    {
+        clock_gettime(CLOCK_REALTIME, &spec);
+        localtime_r(&spec.tv_sec, &tm);
+        strftime(buf, 256, "%Ex %EX", &tm);
+        snprintf(buf2 + i, 512, "%s.%09ld", buf, spec.tv_nsec);
+    }
+    for (size_t i = 0; i < 8192; i += 512)
+    {
+        printf("%s\n", buf2 + i);
+    }
 
     return 0;
 }
