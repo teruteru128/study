@@ -88,6 +88,9 @@ add_executable(bmkeysearch14 bmkeysearch14.c)
 target_link_libraries(bmkeysearch14 ${OPENSSL_CRYPTO_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} study)
 target_include_directories(bmkeysearch14 PRIVATE ${OPENSSL_INCLUDE_DIR})
 
+add_executable(bmmultisendsample bmmultisendsample.c)
+target_link_libraries(bmmultisendsample study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util ${OPENSSL_CRYPTO_LIBRARIES})
+
 add_executable(bmrandomaddressgenerator bmrandomaddressgenerator.c)
 target_link_libraries(bmrandomaddressgenerator ${OPENSSL_CRYPTO_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} study)
 target_include_directories(bmrandomaddressgenerator PRIVATE ${OPENSSL_INCLUDE_DIR})

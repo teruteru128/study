@@ -21,7 +21,7 @@ int main(int argc, char const *argv[])
 {
     char *lo = setlocale(LC_ALL, "");
 
-    char buf[512] = "";
+    char buf[256] = "";
     char buf2[BUFSIZ] = "";
     struct timespec spec;
     struct tm tm;

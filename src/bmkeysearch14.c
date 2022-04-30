@@ -38,6 +38,9 @@ int main(int argc, char const *argv[])
     struct timespec ts = { 0 };
     struct tm machine_tm = { 0 };
     char datetime[BUFSIZ] = "";
+#if __BYTE_ORDER != __LITTLE_ENDIAN && __BYTE_ORDER != __BIG_ENDIAN
+    unsigned char target[20] = "";
+#endif
     fputs("start\n", stdout);
     //#pragma acc parallel loop
     for (i = 0; i < 4362076160UL; i += 65)
@@ -61,6 +64,7 @@ int main(int argc, char const *argv[])
 #else
             // わざわざキャストしてからマスクして比較するのとどっちが早いんだろうか
             // そもそも普通ビッグでもリトルでもないエンディアンを想定しない……？
+                // if (memcmp(hashwork, target, 5) == 0)
             if (hashwork[0] == 0 && hashwork[1] == 0 && hashwork[2] == 0
                 && hashwork[3] == 0 && hashwork[4] == 0)
 #endif

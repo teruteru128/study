@@ -160,7 +160,11 @@
         "inttypes.h": "c",
         "chaincookies.h": "c",
         "sha.h": "c",
-        "ripemd.h": "c"
+        "ripemd.h": "c",
+        "xmlrpc_client.h": "c",
+        "symhacks.h": "c",
+        "bio.h": "c",
+        "stdio2.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
