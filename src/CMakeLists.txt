@@ -437,7 +437,7 @@ target_link_libraries(selfmadelibsha study)
 
 add_executable(seq seq.c)
 
-add_executable(service-sample service-sample.c server.c)
+add_executable(service-sample service-sample.c server.c serverconfig.c)
 target_compile_definitions(service-sample PUBLIC _GNU_SOURCE)
 target_link_libraries(service-sample ${CMAKE_THREAD_LIBS_INIT})
 
@@ -462,6 +462,8 @@ target_link_libraries(slimesearch m study)
 
 add_executable(sntpc sntpc.c ntp.c)
 target_link_libraries(sntpc m study)
+
+add_executable(splitsample splitsample.c splitsample-driver.c)
 
 add_executable(ssh-keyconvert ssh-keyconvert.c)
 target_link_libraries(ssh-keyconvert ${OPENSSL_CRYPTO_LIBRARIES})

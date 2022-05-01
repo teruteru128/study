@@ -1,9 +1,8 @@
 
-#pragma once
 #ifndef SERVERCONFIG_H
 #define SERVERCONFIG_H 1
+#pragma once
 
-struct config;
-extern struct config *getConfig();
+void parse_args(int argc, char *argv[]);
 
 #endif

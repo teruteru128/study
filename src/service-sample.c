@@ -8,152 +8,22 @@
 #include <unistd.h>
 
 #include "server.h"
+#include "serverconfig.h"
 
-struct config;
-/**
- * @brief config object
- * 構造体の定義とgetConfig関数のプロトタイプ宣言をヘッダーに置く
- */
-struct config
-{
-    char service[NI_MAXSERV];
-    int family;
-};
-
-static struct config singleton = { 0 };
-static pthread_once_t config_singleton_init = PTHREAD_ONCE_INIT;
-
-static void config_init_func()
-{
-    // 初期値の設定
-    // Javaのtomcatクラスは0を渡したときに使えるポートを自動で取ってきてくれたけど、あれどうやったんですかね……？
-    strncpy(singleton.service, "8080", NI_MAXSERV);
-    singleton.family = PF_UNSPEC;
-    // ファイルからのロードはこの関数からでは読みに行くファイルを渡せないため別の関数でやるべき
-}
-
-struct config *getConfig()
-{
-    pthread_once(&config_singleton_init, config_init_func);
-    return &singleton;
-}
-
-int loadConfigFromFile(struct config *config, char *configfilepath)
-{
-    return 0;
-}
-
-int setupConfigFromCmdArgs(struct config *config, int argc, char **argv)
-{
-    return 0;
-}
-
-static int usage(int status)
-{
-    fprintf(stdout, "argument count mismatch error.\nplease input a service "
-                    "name or port number.\n");
-    return status;
-}
-
-int acceptedsocket = -1;
-pthread_mutex_t acceptedsocket_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t acceptedsocket_cond = PTHREAD_COND_INITIALIZER;
-
-void *taskthread(void *a)
-{
-
-    int sock = -1;
-    unsigned short command = 0;
-    size_t length;
-    ssize_t len = 0;
-    while (running)
-    {
-        pthread_mutex_lock(&acceptedsocket_mutex);
-        while (acceptedsocket == -1)
-        {
-            pthread_cond_wait(&acceptedsocket_cond, &acceptedsocket_mutex);
-        }
-        sock = acceptedsocket;
-        acceptedsocket = -1;
-        pthread_mutex_unlock(&acceptedsocket_mutex);
-        len = read(sock, &command, sizeof(unsigned short));
-        command = be16toh(command);
-
-        switch (command)
-        {
-        case 1:
-            len = read(sock, &length, sizeof(size_t));
-            length = be64toh(length);
-            break;
-
-        default:
-            break;
-        }
-    }
-    return NULL;
-}
-
-void *acceptthrad(void *a)
-{
-    char service[NI_MAXSERV] = "";
-    struct addrinfo hints;
-    hints.ai_flags = AI_PASSIVE;
-    hints.ai_family = PF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
-    struct addrinfo *res;
-
-    getaddrinfo(NULL, service, &hints, &res);
-
-    int sock = -1;
-
-    for (struct addrinfo *ptr = res; ptr != NULL; ptr = ptr->ai_next)
-    {
-        sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-        if (sock < 0)
-        {
-            continue;
-        }
-
-        if (bind(sock, ptr->ai_addr, ptr->ai_addrlen) < 0)
-        {
-            close(sock);
-            sock = -1;
-            continue;
-        }
-
-        if (listen(sock, SOMAXCONN) < 0)
-        {
-            close(sock);
-            sock = -1;
-            continue;
-        }
-    }
-    freeaddrinfo(res);
-
-    struct sockaddr_storage from_sock_addr = { 0 };
-    socklen_t addr_len = sizeof(struct sockaddr_storage);
-    int acsock;
-    while (running)
-    {
-        acsock = accept(sock, (struct sockaddr *)&from_sock_addr, &addr_len);
-        pthread_mutex_lock(&acceptedsocket_mutex);
-        acceptedsocket = acsock;
-        pthread_cond_signal(&acceptedsocket_cond);
-        pthread_mutex_unlock(&acceptedsocket_mutex);
-    }
-    return NULL;
-}
+static volatile int running = 1;
 
 /*
  * オプション
  * //disable-ipv4
  * //enable-ipv6
  *
- * 手順
+ * メインスレッド手続き
  * 1. 初期化
  * 2. accept(2)
  * 3. スレッド起動(pthread_create)
+ * 1. コマンドライン引数
+ * 2. 送受信スレッド立ち上げ
+ * 3. listenスレッド立ち上げ
  *
  * スレッド
  * 1. 初期化スレッド
@@ -163,16 +33,79 @@ void *acceptthrad(void *a)
  */
 int main(int argc, char *argv[])
 {
-    if (argc != 2)
+    // socket
+    int s = -1;
+
+    struct addrinfo hints;
+    struct addrinfo *res = NULL;
+    struct addrinfo *ptr = NULL;
+    hints.ai_flags = AI_PASSIVE;
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = 0;
+    hints.ai_addrlen = 0;
+    hints.ai_addr = NULL;
+    hints.ai_canonname = NULL;
+    hints.ai_next = NULL;
+
+    int ret = -1;
+    if ((ret = getaddrinfo(NULL, "6500", &hints, &res)) != 0)
     {
-        return usage(EXIT_FAILURE);
+        gai_strerror(ret);
+        return EXIT_FAILURE;
     }
-    struct service_arg arg;
-    strncpy(arg.port, argv[1], NI_MAXSERV);
-    pthread_t acceptthread;
-    pthread_create(&acceptthread, NULL, do_service, &arg);
-    pthread_t work_threads[16];
-    pthread_join(acceptthread, NULL);
-    running = 0;
+    for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
+    {
+        s = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+        if (s == -1)
+        {
+            continue;
+        }
+        if (bind(s, ptr->ai_addr, ptr->ai_addrlen) < 0)
+        {
+            close(s);
+            s = -1;
+            continue;
+        }
+        if (listen(s, SOMAXCONN) < 0)
+        {
+            fprintf(stderr, "listen\n");
+            close(s);
+            s = -1;
+            continue;
+        }
+    }
+    freeaddrinfo(res);
+    uint64_t command = 0;
+    struct sockaddr_storage from_sock_addr = { 0 };
+    socklen_t addr_len = sizeof(from_sock_addr);
+    int c = accept(s, (struct sockaddr *)&from_sock_addr, &addr_len);
+    if (read(c, &command, sizeof(uint64_t)) < 1)
+    {
+        close(c);
+        close(s);
+        return EXIT_FAILURE;
+    }
+    uint64_t length = 0;
+    if (read(length, &command, sizeof(uint64_t)) < 1)
+    {
+        close(c);
+        close(s);
+        return EXIT_FAILURE;
+    }
+    unsigned char buf[BUFSIZ] = "";
+    uint64_t i = length;
+    ssize_t size = 0;
+    while (i < length)
+    {
+        size = write(c, buf, BUFSIZ);
+        if (size < 0)
+        {
+            break;
+        }
+        i += size;
+    }
+    close(c);
+    close(s);
     return EXIT_SUCCESS;
 }
