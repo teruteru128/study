@@ -439,7 +439,7 @@ add_executable(seq seq.c)
 
 add_executable(service-sample service-sample.c server.c serverconfig.c)
 target_compile_definitions(service-sample PUBLIC _GNU_SOURCE)
-target_link_libraries(service-sample ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(service-sample ${CMAKE_THREAD_LIBS_INIT} study)
 
 add_executable(sha1rngsample sha1rngsample.c)
 target_link_libraries(sha1rngsample ${OPENSSL_CRYPTO_LIBRARIES})
