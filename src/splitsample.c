@@ -1,4 +1,5 @@
 
+#define _GNU_SOURCE 1
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -18,9 +19,9 @@ int split(char **dest, const char separator, const char *input, size_t limit)
     size_t sepnum = 0;
     char *work = strdupa(input);
     char *catch = NULL;
-    while((catch = strchr(work, separator)) != NULL)
+    while ((catch = strchr(work, separator)) != NULL)
     {
-        work = catch+1;
+        work = catch + 1;
         sepnum++;
     }
 
@@ -38,7 +39,7 @@ int split_regex(char **dest, char *str, char *pattern, size_t limit)
 {
     regex_t pt;
     int ret = regcomp(&pt, pattern, REG_EXTENDED | REG_NEWLINE | REG_ICASE);
-    if(ret != 0)
+    if (ret != 0)
     {
         return ret;
     }

@@ -2,7 +2,6 @@
 #define _GNU_SOURCE
 #include "config.h"
 
-#include <bm.h>
 #include <byteswap.h>
 #include <err.h>
 #include <errno.h>
