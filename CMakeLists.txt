@@ -49,7 +49,7 @@ if(GETTEXT_FOUND)
 endif(GETTEXT_FOUND)
 
 
-find_package(OpenSSL)
+find_package(OpenSSL REQUIRED)
 if(OPENSSL_FOUND)
 #    include_directories(${OPENSSL_INCLUDE_DIR})
 endif(OPENSSL_FOUND)

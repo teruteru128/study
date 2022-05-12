@@ -174,6 +174,8 @@ target_include_directories(curltest PRIVATE ${CURL_INCLUDE_DIRS})
 
 add_executable(dappun dappun.c)
 
+add_executable(dayofweeksearcher dayofweeksearcher.c)
+
 add_executable(deadlocksample deadlocksample.c)
 target_link_libraries(deadlocksample ${CMAKE_THREAD_LIBS_INIT})
 
