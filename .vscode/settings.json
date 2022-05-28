@@ -166,7 +166,8 @@
         "bio.h": "c",
         "stdio2.h": "c",
         "printaddrinfo.h": "c",
-        "errno-base.h": "c"
+        "errno-base.h": "c",
+        "struct_timespec.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

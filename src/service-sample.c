@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     int ret = -1;
     if ((ret = getaddrinfo(NULL, "6500", &hints, &res)) != 0)
     {
-        fprintf("%s\n", gai_strerror(ret));
+        fprintf(stdout, "%s\n", gai_strerror(ret));
         return EXIT_FAILURE;
     }
     for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
@@ -118,7 +118,9 @@ int main(int argc, char *argv[])
     char hbuf[NI_MAXHOST]; /* 返されるアドレスを格納する */
     char sbuf[NI_MAXSERV]; /* 返されるポート番号を格納する */
     // TODO: マルチスレッド化
-    unsigned char buf[BUFSIZ] = "";
+    size_t writebufsiz = 1024 * 1024 * 1024;
+    unsigned char *writebuf = malloc(writebufsiz);
+    memset(writebuf, 0, writebufsiz);
     while (running)
     {
         addr_len = sizeof(from_sock_addr);
@@ -150,23 +152,23 @@ int main(int argc, char *argv[])
         ssize_t size = 0;
         while (i > 0)
         {
-            if (i >= BUFSIZ)
+            if (i >= writebufsiz)
             {
                 // データ送信中に割り込み食らったら接続切れるんかな？
-                size = write(connection, buf, BUFSIZ);
+                size = write(connection, writebuf, writebufsiz);
                 if (size < 0)
                 {
-                    perror("");
+                    perror("write 1");
                     break;
                 }
                 i -= size;
             }
             else
             {
-                size = write(connection, buf, i);
+                size = write(connection, writebuf, i);
                 if (size < 0)
                 {
-                    perror("");
+                    perror("write 2");
                     break;
                 }
                 i = 0;
@@ -175,5 +177,6 @@ int main(int argc, char *argv[])
         close(connection);
     }
     close(serversocket);
+    free(writebuf);
     return EXIT_SUCCESS;
 }

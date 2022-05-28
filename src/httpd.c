@@ -107,7 +107,6 @@ int main(void)
         if (conn_sock == -1)
         {
             perror("accept");
-            close(conn_sock);
             close(listen_sockets[0]);
             exit(EXIT_FAILURE);
         }

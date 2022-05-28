@@ -31,7 +31,8 @@ int main(int argc, char *argv[])
     /* 引数の数をチェックする */
     if (argc < 3)
     {
-        fprintf(stderr, "usage: %s nodename servname\n", argv[0]);
+        fprintf(stderr, "usage: %s nodename servname <length> [buffer_size]\n",
+                argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -48,8 +49,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(rc));
         return EXIT_FAILURE;
     }
-
-    char buf[BUFSIZ];
+    size_t readbufsiz = 1024 * 1024 * 1024;
+    unsigned char *buf = malloc(readbufsiz);
     int sock = -1;
     ssize_t len = 0;
 
@@ -120,9 +121,9 @@ int main(int argc, char *argv[])
     /* サーバからの応答を表示する */
     while (sumoflen > 0)
     {
-        if (sumoflen >= BUFSIZ)
+        if (sumoflen >= readbufsiz)
         {
-            len = read(sock, buf, BUFSIZ);
+            len = read(sock, buf, readbufsiz);
             if (len < 0)
             {
                 perror("read 1");
