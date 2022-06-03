@@ -2,6 +2,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include "timerfdsample2.h"
 #include <inttypes.h>
 #include <locale.h>
 #include <stddef.h>
@@ -35,7 +36,7 @@
  * @param argv
  * @return int
  */
-int main(int argc, char *argv[])
+int timerfdsample2(void)
 {
     setlocale(LC_ALL, "");
     struct timespec cur;

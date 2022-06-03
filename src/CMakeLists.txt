@@ -503,13 +503,7 @@ target_link_libraries(threadAttr ${CMAKE_THREAD_LIBS_INIT})
 add_executable(threadcount threadcount.c)
 target_link_libraries(threadcount ${CMAKE_THREAD_LIBS_INIT})
 
-add_executable(timerfdsample timerfdsample.c)
-
-add_executable(timerfdsample2 timerfdsample2.c)
-
-add_executable(timerfdsample3 timerfdsample3.c)
-
-add_executable(timerfdsample4 timerfdsample4.c)
+add_executable(timerfdsample timerfdsample.c timerfdsample0.c timerfdsample1.c timerfdsample2.c timerfdsample3.c timerfdsample4.c)
 
 add_executable(timesample timesample.c)
 

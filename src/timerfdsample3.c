@@ -3,6 +3,7 @@
 #include "config.h"
 #endif
 
+#include "timerfdsample3.h"
 #include <inttypes.h>
 #include <locale.h>
 #include <stdint.h>
@@ -11,7 +12,14 @@
 #include <sys/timerfd.h>
 #include <unistd.h>
 
-int main(int argc, char const *argv[])
+/**
+ * @brief コマンドライン引数でtimerfdを制御できるようにした残骸
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
+int timerfdsample3(int argc, const char *argv[])
 {
     setlocale(LC_ALL, "");
     if ((argc != 1) && (argc != 2) && (argc != 3) && (argc != 4))

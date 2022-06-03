@@ -167,7 +167,11 @@
         "stdio2.h": "c",
         "printaddrinfo.h": "c",
         "errno-base.h": "c",
-        "struct_timespec.h": "c"
+        "struct_timespec.h": "c",
+        "error_t.h": "c",
+        "timerfdsample0.h": "c",
+        "timerfdsample2.h": "c",
+        "timerfdsample3.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

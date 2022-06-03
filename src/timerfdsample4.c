@@ -2,6 +2,7 @@
 #define _GNU_SOURCE
 #include "config.h"
 
+#include "timerfdsample4.h"
 #include <err.h>
 #include <errno.h>
 #include <locale.h>
@@ -23,7 +24,7 @@ static void handler(int sig, siginfo_t *info, void *ctx)
     (void)ctx;
 }
 
-int main(int argc, char const *argv[])
+int timerfdsample4(void)
 {
     char *lo = setlocale(LC_ALL, "");
     struct sigaction action = { 0 };

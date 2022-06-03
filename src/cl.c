@@ -50,6 +50,10 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     size_t readbufsiz = 1024 * 1024 * 1024;
+    if (argc >= 5)
+    {
+        readbufsiz = strtoul(argv[4], NULL, 10);
+    }
     unsigned char *buf = malloc(readbufsiz);
     int sock = -1;
     ssize_t len = 0;
