@@ -37,6 +37,9 @@ int main(int argc, const char *argv[])
     case 0:
         ret = timerfdsample0();
         break;
+    case 1:
+        ret = timerfdsample1();
+        break;
     case 2:
         ret = timerfdsample2();
         break;
