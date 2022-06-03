@@ -10,19 +10,20 @@
 int timerfdsample1(void)
 {
     fputs("10分おきに送信します\n", stdout);
-    int timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC);
+    int timerfd = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
     if (timerfd < 0)
     {
         perror("timerfd_create");
         return EXIT_FAILURE;
     }
     struct itimerspec spec;
-    spec.it_value.tv_sec = 600;
+    clock_gettime(CLOCK_REALTIME, &spec.it_value);
+    spec.it_value.tv_sec = ((spec.it_value.tv_sec + 599) / 600) * 600;
     spec.it_value.tv_nsec = 0;
     // it_intervalを両方0にすると繰り返しタイマーオフ
-    spec.it_interval.tv_sec = 600;
+    spec.it_interval.tv_sec = 5;
     spec.it_interval.tv_nsec = 0;
-    if (timerfd_settime(timerfd, 0, &spec, NULL) != 0)
+    if (timerfd_settime(timerfd, TFD_TIMER_ABSTIME, &spec, NULL) != 0)
     {
         perror("timerfd_settime");
         close(timerfd);
@@ -33,6 +34,7 @@ int timerfdsample1(void)
     uint64_t exp;
     ssize_t r = 0;
     int ret = EXIT_SUCCESS;
+    struct timespec current;
     while (1)
     {
         // recvで読み込むと失敗を返す
@@ -44,7 +46,8 @@ int timerfdsample1(void)
             ret = EXIT_FAILURE;
             break;
         }
-        printf("%ld\n", time(NULL));
+        clock_gettime(CLOCK_REALTIME_COARSE, &current);
+        printf("%ld.%09ld\n", current.tv_sec, current.tv_nsec);
     }
 
     close(timerfd);
