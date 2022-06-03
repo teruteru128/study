@@ -23,36 +23,8 @@ static void handler(int sig, siginfo_t *info, void *ctx)
     (void)ctx;
 }
 
-/*
- * オプション
- * //disable-ipv4
- * //enable-ipv6
- *
- * メインスレッド手続き
- * 1. 初期化
- * 2. accept(2)
- * 3. スレッド起動(pthread_create)
- * 1. コマンドライン引数
- * 2. 送受信スレッド立ち上げ
- * 3. listenスレッド立ち上げ
- *
- * スレッド
- * 1. 初期化スレッド
- * 2. acceptして接続を待つスレッド
- * 3. 受け入れた接続の対応をするスレッド群
- * download thread / upload thread
- */
-int main(int argc, char *argv[])
+int create_server_socket(const char *service)
 {
-
-    struct sigaction action = { 0 };
-    action.sa_sigaction = handler;
-    if (sigaction(SIGINT, &action, NULL) != 0)
-    {
-        perror("sigaction(SIGINT)");
-        return EXIT_FAILURE;
-    }
-
     // socket
     int serversocket = -1;
 
@@ -69,7 +41,7 @@ int main(int argc, char *argv[])
     hints.ai_next = NULL;
 
     int ret = -1;
-    if ((ret = getaddrinfo(NULL, "6500", &hints, &res)) != 0)
+    if ((ret = getaddrinfo(NULL, service, &hints, &res)) != 0)
     {
         fprintf(stdout, "%s\n", gai_strerror(ret));
         return EXIT_FAILURE;
@@ -104,13 +76,47 @@ int main(int argc, char *argv[])
         }
         break;
     }
-    if (serversocket == -1)
-    {
-        freeaddrinfo(res);
-        return EXIT_FAILURE;
-    }
     printaddrinfo(ptr);
     freeaddrinfo(res);
+    return serversocket;
+}
+
+/*
+ * オプション
+ * //disable-ipv4
+ * //enable-ipv6
+ *
+ * メインスレッド手続き
+ * 1. 初期化
+ * 2. accept(2)
+ * 3. スレッド起動(pthread_create)
+ * 1. コマンドライン引数
+ * 2. 送受信スレッド立ち上げ
+ * 3. listenスレッド立ち上げ
+ *
+ * スレッド
+ * 1. 初期化スレッド
+ * 2. acceptして接続を待つスレッド
+ * 3. 受け入れた接続の対応をするスレッド群
+ * download thread / upload thread
+ */
+int main(int argc, char *argv[])
+{
+
+    struct sigaction action = { 0 };
+    action.sa_sigaction = handler;
+    if (sigaction(SIGINT, &action, NULL) != 0)
+    {
+        perror("sigaction(SIGINT)");
+        return EXIT_FAILURE;
+    }
+
+    // socket
+    int serversocket = create_server_socket("6500");
+    if (serversocket == -1)
+    {
+        return EXIT_FAILURE;
+    }
     uint64_t command = 0;
     uint64_t length = 0;
     struct sockaddr_storage from_sock_addr = { 0 };

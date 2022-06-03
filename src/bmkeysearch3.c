@@ -222,9 +222,9 @@ static int search_main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     fclose(fin);
-    struct sigaction a = { 0 };
-    a.sa_handler = sigint_action;
-    if (sigaction(SIGINT, &a, NULL) != 0)
+    struct sigaction action = { 0 };
+    action.sa_handler = sigint_action;
+    if (sigaction(SIGINT, &action, NULL) != 0)
     {
         perror("sigaction(SIGINT)");
         free(publicKeys);
