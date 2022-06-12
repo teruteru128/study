@@ -24,31 +24,35 @@ void *function(void *arg)
     struct a *a = (struct a *)arg;
     size_t i = 88172645463325252UL;
     const size_t len = strlen(PUBLIC_KEY);
-    SHA_CTX ctx;
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    const EVP_MD *sha1 = EVP_sha1();
     char count[24];
     unsigned char hash[20];
-    size_t zerobyte = 0;
-    size_t max = 0;
+    int zerobyte = 0;
+    int max = 0;
     size_t max_i = 0;
+    uint64_t tmp = 0;
 
     pthread_barrier_wait(a->barrier);
+    int length = 0;
     //    for (; a->tid; i++)
     for (; max < 6; i++)
     {
-        SHA1_Init(&ctx);
-        SHA1_Update(&ctx, PUBLIC_KEY, len);
-        snprintf(count, 24, "%lu", i);
-        SHA1_Update(&ctx, count, 20);
-        SHA1_Final(hash, &ctx);
-        zerobyte = 0;
-        while (zerobyte < 20 && hash[zerobyte] == 0)
-            zerobyte++;
+        EVP_DigestInit(&ctx, sha1);
+        EVP_DigestUpdate(&ctx, PUBLIC_KEY, len);
+        length = snprintf(count, 24, "%zu", i);
+        EVP_DigestUpdate(&ctx, count, length);
+        EVP_DigestFinal(&ctx, hash, NULL);
+        tmp = htobe64(*(unsigned long *)hash);
+        zerobyte =((tmp == 0) ? 64UL : __builtin_clzl(tmp));
         if (zerobyte > max)
         {
+            // 更新したら置き換える
             max = zerobyte;
             max_i = i;
         }
     }
+    EVP_MD_CTX_free(&ctx);
     printf("%lu, %lu\n", max, max_i);
     printf("%lu\n", i);
     return NULL;

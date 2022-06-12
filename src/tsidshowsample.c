@@ -69,22 +69,23 @@ size_t calcDecodeLength(const char *b64input)
 static int deObfuscateInplace(unsigned char *data, uint32_t length)
 {
     unsigned char hash[SHA_DIGEST_LENGTH];
-    const EVP_MD *sha1 = EVP_sha1();
-    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
-    EVP_MD_CTX_free(mdctx);
-    SHA_CTX ctx;
-    if (SHA1_Init(&ctx) != 1)
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    if (EVP_DigestInit(ctx, EVP_sha1()) != 1)
     {
+        EVP_MD_CTX_free(ctx);
         return -1;
     }
-    if (SHA1_Update(&ctx, data + 20, strlen((char *)(data + 20))) != 1)
+    if (EVP_DigestUpdate(ctx, data + 20, strlen((char *)(data + 20))) != 1)
     {
+        EVP_MD_CTX_free(ctx);
         return -1;
     }
-    if (SHA1_Final(hash, &ctx) != 1)
+    if (EVP_DigestFinal(ctx, hash, NULL) != 1)
     {
+        EVP_MD_CTX_free(ctx);
         return -1;
     }
+    EVP_MD_CTX_free(ctx);
 
     for (int i = 0; i < 20; i++)
     {
@@ -308,19 +309,23 @@ static int getIDFingerprint(const char *publickey,
                             long unsigned int *outlen)
 {
     unsigned char hash[SHA_DIGEST_LENGTH];
-    SHA_CTX ctx;
-    if (SHA1_Init(&ctx) != 1)
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    if (EVP_DigestInit(ctx, EVP_sha1()) != 1)
     {
+        EVP_MD_CTX_free(ctx);
         return 1;
     }
-    if (SHA1_Update(&ctx, publickey, strlen(publickey)) != 1)
+    if (EVP_DigestUpdate(ctx, publickey, strlen(publickey)) != 1)
     {
+        EVP_MD_CTX_free(ctx);
         return 1;
     }
-    if (SHA1_Final(hash, &ctx) != 1)
+    if (EVP_DigestFinal(ctx, hash, NULL) != 1)
     {
+        EVP_MD_CTX_free(ctx);
         return 1;
     }
+    EVP_MD_CTX_free(ctx);
 
     if (base64_encode(hash, sizeof(hash) / sizeof(hash[0]), out, outlen) != 0)
     {
@@ -350,18 +355,18 @@ static uint8_t getSecurityLevel(const char *publickey, uint64_t counter)
     }
 
     unsigned char hash[20];
-    SHA_CTX ctx;
-    if (SHA1_Init(&ctx) != 1)
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    if (EVP_DigestInit(ctx, EVP_sha1()) != 1)
     {
         goto done;
     }
-    if (SHA1_Update(&ctx,
+    if (EVP_DigestUpdate(ctx,
                     (uint8_t *)hashinput,
                     publickey_len + (size_t)counter_len) != 1)
     {
         goto done;
     }
-    if (SHA1_Final((uint8_t *)hash, &ctx) != 1)
+    if (EVP_DigestFinal(ctx, hash, NULL) != 1)
     {
         goto done;
     }
@@ -384,6 +389,7 @@ static uint8_t getSecurityLevel(const char *publickey, uint64_t counter)
 
 done:
     safefree(hashinput);
+    EVP_MD_CTX_free(ctx);
 
     return 8 * zerobytes + zerobits;
 }

@@ -13,26 +13,89 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/acct.h>
+#include <sys/auxv.h>
+#include <sys/bitypes.h>
+#include <sys/cdefs.h>
+#include <sys/debugreg.h>
+#include <sys/dir.h>
 #include <sys/epoll.h>
+#include <sys/errno.h>
+#include <sys/eventfd.h>
+#include <sys/fanotify.h>
+#include <sys/fcntl.h>
+#include <sys/file.h>
+#include <sys/fsuid.h>
+#include <sys/gmon.h>
+#include <sys/gmon_out.h>
+#include <sys/inotify.h>
+#include <sys/io.h>
+#include <sys/ioctl.h>
+#include <sys/ipc.h>
+#include <sys/kd.h>
+#include <sys/klog.h>
+#include <sys/mman.h>
+#include <sys/mount.h>
+#include <sys/msg.h>
+#include <sys/mtio.h>
+#include <sys/param.h>
+#include <sys/pci.h>
+#include <sys/perm.h>
+#include <sys/personality.h>
+#include <sys/platform/x86.h>
+#include <sys/poll.h>
+#include <sys/prctl.h>
+#include <sys/procfs.h>
+#include <sys/profil.h>
+#include <sys/ptrace.h>
+#include <sys/queue.h>
+#include <sys/quota.h>
+#include <sys/random.h>
+#include <sys/raw.h>
+#include <sys/reboot.h>
+#include <sys/reg.h>
+#include <sys/resource.h>
+#include <sys/rseq.h>
+#include <sys/select.h>
+#include <sys/sem.h>
+#include <sys/sendfile.h>
+#include <sys/shm.h>
+#include <sys/signal.h>
+#include <sys/signalfd.h>
+#include <sys/single_threaded.h>
+#include <sys/socket.h>
+#include <sys/socketvar.h>
+#include <sys/soundcard.h>
+#include <sys/stat.h>
+#include <sys/statfs.h>
+#include <sys/statvfs.h>
+#include <sys/swap.h>
+#include <sys/syscall.h>
+#include <sys/sysinfo.h>
+#include <sys/syslog.h>
+#include <sys/sysmacros.h>
+#include <sys/termios.h>
+#include <sys/time.h>
+#include <sys/timeb.h>
+#include <sys/timerfd.h>
+#include <sys/times.h>
+#include <sys/timex.h>
+#include <sys/ttychars.h>
+#include <sys/ttydefaults.h>
+#include <sys/types.h>
+#include <sys/ucontext.h>
+#include <sys/uio.h>
+#include <sys/un.h>
+#include <sys/unistd.h>
+#include <sys/user.h>
+#include <sys/utsname.h>
+#include <sys/vfs.h>
+#include <sys/vlimit.h>
+#include <sys/vt.h>
+#include <sys/wait.h>
+#include <sys/xattr.h>
 #include <time.h>
 #include <unistd.h>
 #include <wchar.h>
 
-int main(int argc, char const *argv[])
-{
-    char *lo = setlocale(LC_ALL, "");
-
-    int epollfd = epoll_create(1);
-    struct epoll_event ev = { 0 };
-    ev.events = EPOLLIN;
-    ev.data.fd = 0;
-    // epoll は edge-poll の略？
-    // epoll_fd の fd に指定するものと ev.data.fd に指定するものでなんで2つあるんや
-    //fcntl(0, F_SETFL, O_NONBLOCK);
-    //epoll_ctl(epollfd, EPOLL_CTL_ADD, 0, &ev);
-    //epoll_ctl(epollfd, EPOLL_CTL_DEL, 0, &ev);
-    close(epollfd);
-    printf("%zu\n", sizeof(struct epoll_event));
-
-    return 0;
-}
+int main(int argc, char const *argv[]) { return 0; }

@@ -62,6 +62,7 @@ int main(int argc, char const *argv[])
 #elif __BYTE_ORDER == __BIG_ENDIAN
             if (((*(uint64_t *)hashwork) & 0xffffffffff000000UL) == 0UL)
 #else
+#error "what is this endian?"
             // わざわざキャストしてからマスクして比較するのとどっちが早いんだろうか
             // そもそも普通ビッグでもリトルでもないエンディアンを想定しない……？
                 // if (memcmp(hashwork, target, 5) == 0)

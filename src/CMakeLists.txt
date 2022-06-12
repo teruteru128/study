@@ -518,10 +518,6 @@ add_executable(tsidbench tsidbench.c)
 target_link_libraries(tsidbench ${OPENSSL_CRYPTO_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(tsidbench PRIVATE ${OPENSSL_INCLUDE_DIR})
 
-add_executable(tsidimprover tsidimprover.c)
-target_link_libraries(tsidimprover ${OPENSSL_CRYPTO_LIBRARIES} study)
-target_include_directories(tsidimprover PRIVATE ${OPENSSL_INCLUDE_DIR})
-
 add_executable(tsidshowsample tsidshowsample.c)
 target_link_libraries(tsidshowsample ${OPENSSL_CRYPTO_LIBRARIES} tommath tomcrypt)
 target_include_directories(tsidshowsample PRIVATE ${OPENSSL_INCLUDE_DIR})
