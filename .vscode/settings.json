@@ -171,7 +171,18 @@
         "error_t.h": "c",
         "timerfdsample0.h": "c",
         "timerfdsample2.h": "c",
-        "timerfdsample3.h": "c"
+        "timerfdsample3.h": "c",
+        "vm86.h": "c",
+        "un.h": "c",
+        "xattr.h": "c",
+        "reboot.h": "c",
+        "sysmacros.h": "c",
+        "mpreal.h": "c",
+        "z3++.h": "c",
+        "blosc-export.h": "c",
+        "armadillo": "c",
+        "*.f03": "c",
+        "sqlucode.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

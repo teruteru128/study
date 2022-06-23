@@ -1,7 +1,4 @@
 
-add_executable(CoDec CoDec.c)
-target_link_libraries(CoDec study)
-
 add_executable(FizzBuzz FizzBuzz.c)
 
 add_executable(Nabeatsu Nabeatsu.c)
@@ -171,8 +168,6 @@ target_include_directories(curloniontest PRIVATE ${CURL_INCLUDE_DIRS})
 add_executable(curltest curltest.c)
 target_link_libraries(curltest ${CURL_LIBRARIES})
 target_include_directories(curltest PRIVATE ${CURL_INCLUDE_DIRS})
-
-add_executable(dappun dappun.c)
 
 add_executable(dayofweeksearcher dayofweeksearcher.c)
 
@@ -507,7 +502,7 @@ add_executable(timerfdsample timerfdsample.c timerfdsample0.c timerfdsample1.c t
 
 add_executable(timesample timesample.c)
 
-add_executable(tntn ftnr.c eja.c tntn.c)
+add_executable(tntn chinpo.c eja.c ftnr.c ochinchin.c penis.c tntn.c)
 target_link_libraries(tntn study m)
 
 add_executable(totp totp.c)
