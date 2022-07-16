@@ -182,7 +182,8 @@
         "blosc-export.h": "c",
         "armadillo": "c",
         "*.f03": "c",
-        "sqlucode.h": "c"
+        "sqlucode.h": "c",
+        "complex.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
