@@ -27,8 +27,6 @@ int connect_to_server(char *name, char *service)
     struct addrinfo *ptr; /* 接続要求時に使う */
     /* 引数で指定されたアドレス、ポート番号からアドレス情報を得る */
     memset(&hints, 0, sizeof(hints));
-    hints.ai_flags = 0;
-    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
 
@@ -68,6 +66,28 @@ int connect_to_server(char *name, char *service)
 
         break;
     }
+    struct sockaddr_storage storage;
+    socklen_t socklen;
+    socklen = sizeof(storage);
+    rc = getsockname(sock, (struct sockaddr *)&storage, &socklen);
+    if (rc != 0)
+    {
+        perror("getsockname");
+    }
+    char host[NI_MAXHOST]; /* 返されるアドレスを格納する */
+
+    char serv[NI_MAXSERV]; /* 返されるポート番号を格納する */
+    rc = getnameinfo((struct sockaddr *)&storage, socklen, host, NI_MAXHOST,
+                     serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
+    if (rc != 0)
+    {
+        perror("getnameinfo");
+    }
+    else
+    {
+        printf("%s, %s\n", host, serv);
+    }
+
     /* アドレス情報を表示する */
     printaddrinfo(ptr);
     /* アドレス情報を開放する */
@@ -88,12 +108,13 @@ int main(int argc, char *argv[])
                 argv[0]);
         return EXIT_FAILURE;
     }
-    size_t readbufsiz = 1024 * 1024 * 1024;
+    size_t readbufsiz = BUFSIZ;
     if (argc >= 5)
     {
         readbufsiz = strtoul(argv[4], NULL, 10);
     }
     unsigned char *buf = malloc(readbufsiz);
+    memset(buf, 0, readbufsiz);
     ssize_t len = 0;
     int sock = connect_to_server(argv[1], argv[2]);
 
@@ -127,35 +148,24 @@ int main(int argc, char *argv[])
     }
 
     size_t sumoflen = length;
+    int rc = 0;
 
     /* サーバからの応答を表示する */
     while (sumoflen > 0)
     {
-        if (sumoflen >= readbufsiz)
+        len = read(sock, buf, readbufsiz);
+        if (len < 0)
         {
-            len = read(sock, buf, readbufsiz);
-            if (len < 0)
-            {
-                perror("read 1");
-                break;
-            }
-            sumoflen -= len;
+            perror("read 1");
+            rc = 1;
+            break;
         }
-        else
-        {
-            len = read(sock, buf, sumoflen);
-            if (len < 0)
-            {
-                perror("read 2");
-                break;
-            }
-            sumoflen = 0;
-        }
+        sumoflen -= len;
     }
     free(buf);
     buf = NULL;
 
     close(sock);
 
-    return EXIT_SUCCESS;
+    return rc != 0;
 }

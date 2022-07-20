@@ -182,18 +182,22 @@ int main(int argc, char *argv[])
     struct tm machine_tm = { 0 };
     char datetime[BUFSIZ] = "";
     size_t count = 0;
-    for (size_t i = 0; i < addressoffset; i++)
+    for (size_t i = 0; i < addressoffset; i++, count++)
     {
         if (fgets(toaddress, ADDRBUFSIZE, toaddrfile) == NULL)
         {
             return 1;
         }
-        count++;
     }
     fprintf(stderr, "start\n");
     // toaddressってセミコロンつなぎにできないのか？
-    while (fgets(toaddress, ADDRBUFSIZE, toaddrfile) != NULL && running)
+    const size_t sendlimit = addressoffset + 4000;
+    for (;fgets(toaddress, ADDRBUFSIZE, toaddrfile) != NULL && running; count++)
     {
+        if (count >= sendlimit)
+        {
+            break;
+        }
         /* remove crlf */
         char *crlf = strpbrk(toaddress, "\r\n");
         if (crlf != NULL)
@@ -217,7 +221,7 @@ int main(int argc, char *argv[])
 
         /* Dispose of our result value. ゴミ掃除 */
         xmlrpc_DECREF(toaddressv);
-        count++;
+        sleep(30);
     }
     if (ferror(toaddrfile))
     {

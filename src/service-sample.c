@@ -31,14 +31,9 @@ int create_server_socket(const char *service)
     struct addrinfo hints;
     struct addrinfo *res = NULL;
     struct addrinfo *ptr = NULL;
+    memset(&hints, 0, sizeof(hints));
     hints.ai_flags = AI_PASSIVE;
-    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = 0;
-    hints.ai_addrlen = 0;
-    hints.ai_addr = NULL;
-    hints.ai_canonname = NULL;
-    hints.ai_next = NULL;
 
     int ret = -1;
     if ((ret = getaddrinfo(NULL, service, &hints, &res)) != 0)
@@ -124,7 +119,7 @@ int main(int argc, char *argv[])
     char hbuf[NI_MAXHOST]; /* 返されるアドレスを格納する */
     char sbuf[NI_MAXSERV]; /* 返されるポート番号を格納する */
     // TODO: マルチスレッド化
-    size_t writebufsiz = 1024 * 1024 * 1024;
+    const size_t writebufsiz = BUFSIZ;
     unsigned char *writebuf = malloc(writebufsiz);
     memset(writebuf, 0, writebufsiz);
     while (running)
@@ -175,9 +170,10 @@ int main(int argc, char *argv[])
                 if (size < 0)
                 {
                     perror("write 2");
+                    fprintf(stderr, "write 2: %zd\n", size);
                     break;
                 }
-                i = 0;
+                i -= size;
             }
         }
         close(connection);
