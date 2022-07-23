@@ -191,13 +191,11 @@ int main(int argc, char *argv[])
     }
     fprintf(stderr, "start\n");
     // toaddressってセミコロンつなぎにできないのか？
-    const size_t sendlimit = addressoffset + 4000;
-    for (;fgets(toaddress, ADDRBUFSIZE, toaddrfile) != NULL && running; count++)
+    const size_t sendlimit = addressoffset + 12000;
+    for (; count < sendlimit
+           && fgets(toaddress, ADDRBUFSIZE, toaddrfile) != NULL && running;
+         count++)
     {
-        if (count >= sendlimit)
-        {
-            break;
-        }
         /* remove crlf */
         char *crlf = strpbrk(toaddress, "\r\n");
         if (crlf != NULL)
@@ -216,7 +214,7 @@ int main(int argc, char *argv[])
         clock_gettime(CLOCK_REALTIME, &current_time);
         localtime_r(&current_time.tv_sec, &machine_tm);
         strftime(datetime, BUFSIZ, "%EC%Ey%B%d日 %X", &machine_tm);
-        printf("(%zu)%s: %s.%09ld\n", count, toaddress, datetime,
+        printf("(%zu)%-38s: %s.%09ld\n", count, toaddress, datetime,
                current_time.tv_nsec);
 
         /* Dispose of our result value. ゴミ掃除 */
