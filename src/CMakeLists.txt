@@ -298,10 +298,8 @@ target_link_libraries(log-sample m)
 
 add_executable(loop-bench loop-bench.c)
 
-add_executable(main main.cpp)
-
-add_executable(main2 main2.c)
-target_link_libraries(main2 study m xmlrpc xmlrpc_client ${OPENSSL_CRYPTO_LIBRARIES})
+add_executable(main main.cpp main2.c)
+target_link_libraries(main study m xmlrpc xmlrpc_client ${OPENSSL_CRYPTO_LIBRARIES})
 
 add_executable(mappingsample mappingsample.c)
 target_link_libraries(mappingsample m)
