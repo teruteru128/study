@@ -65,11 +65,9 @@ int main(int argc, char *argv[])
     }
     const char *addressfilepath = argv[1];
     setlocale(LC_ALL, "");
-    size_t addressoffset = 0;
-    if (argc >= 3)
-    {
-        addressoffset = strtoul(argv[2], NULL, 10);
-    }
+    const size_t length = (argc >= 3) ? (strtoul(argv[2], NULL, 10)) : 12000;
+    const size_t addressoffset = (argc >= 4) ? (strtoul(argv[3], NULL, 10)) : 0;
+    const size_t sendlimit = addressoffset + length;
 
 #ifdef _DEBUG
     printf("%s\n", msgfilepath);
@@ -182,6 +180,7 @@ int main(int argc, char *argv[])
     struct tm machine_tm = { 0 };
     char datetime[BUFSIZ] = "";
     size_t count = 0;
+    fprintf(stderr, "seeking...\n");
     for (size_t i = 0; i < addressoffset; i++, count++)
     {
         if (fgets(toaddress, ADDRBUFSIZE, toaddrfile) == NULL)
@@ -189,9 +188,8 @@ int main(int argc, char *argv[])
             return 1;
         }
     }
-    fprintf(stderr, "start\n");
+    fprintf(stderr, "done, and start\n");
     // toaddressってセミコロンつなぎにできないのか？
-    const size_t sendlimit = addressoffset + 12000;
     for (; count < sendlimit
            && fgets(toaddress, ADDRBUFSIZE, toaddrfile) != NULL && running;
          count++)
@@ -219,7 +217,7 @@ int main(int argc, char *argv[])
 
         /* Dispose of our result value. ゴミ掃除 */
         xmlrpc_DECREF(toaddressv);
-        sleep(30);
+        sleep(25);
     }
     if (ferror(toaddrfile))
     {

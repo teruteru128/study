@@ -1,9 +1,6 @@
 #include <iostream>
 
-extern "C"
-{
-    int hiho(int, char **);
-}
+#include "main2.h"
 
 int main(int argc, char **argv)
 {
