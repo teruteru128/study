@@ -2,37 +2,63 @@
 #define _GNU_SOURCE
 #include "config.h"
 
+#include <err.h>
+#include <limits.h>
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
 
-#define STR "やったぜ。"
-
-int mbsample(void)
+struct kp
 {
-    setlocale(LC_CTYPE, "ja_JP.UTF-8");
-    char string[] = STR;
-    mbstate_t ps = { 0 };
-    int length = mbrlen(string, MB_CUR_MAX, &ps);
-    if (length < 0)
-    {
-        perror("mbrlen");
-        return EXIT_FAILURE;
-    }
-    wchar_t array[6];
-    int tmp = mbtowc(array, string, length);
-    array[1] = L'\0';
-    printf("wide character string: %ls\n", array);
-    return 0;
+    unsigned char prikey[32];
+    unsigned char pubkey[65];
+};
+
+int compar(const void *a, const void *b, void *c)
+{
+    return memcmp(((struct kp *)a)->pubkey, ((struct kp *)b)->pubkey, 65);
 }
 
 int hiho(int argc, char **argv)
 {
-    if (argc > 1)
-        printf("%c\n", (argv[1][0] + 8) & 0x7f);
-    else
-        printf("%c\n", 'G' + 8);
+    char privatekeyfilename[PATH_MAX] = "";
+    char publickeyfilename[PATH_MAX] = "";
+    struct kp *list = malloc(sizeof(struct kp) * 16777216 * 8);
+    FILE *privateKey = NULL;
+    FILE *publicKey = NULL;
+    int fail = 0;
+    for (size_t filenum = 0; filenum < 8; filenum++)
+    {
+        snprintf(privatekeyfilename, PATH_MAX, "privateKeys%zu.bin", filenum);
+        privateKey = fopen(privatekeyfilename, "rb");
+        snprintf(publickeyfilename, PATH_MAX, "publicKeys%zu.bin", filenum);
+        privateKey = fopen(publickeyfilename, "rb");
+        if (privateKey == NULL || publicKey == NULL)
+        {
+            fail = 1;
+            break;
+        }
+        for (size_t i = 0; i < 16777216; i++)
+        {
+            fread(list[filenum * 16777216 + i].prikey, 32, 1, privateKey);
+            fread(list[filenum * 16777216 + i].pubkey, 65, 1, publicKey);
+        }
+        fclose(privateKey);
+        fclose(publicKey);
+    }
+    if (fail != 0)
+    {
+        err(EXIT_FAILURE, "");
+    }
+
+    qsort_r(list, 16777216 * 8, sizeof(struct kp), compar, NULL);
+
+    for (size_t filenum = 0; filenum < 8; filenum++)
+    {
+        // 16777216件ずつファイルへ書き出し
+    }
+
+    free(list);
     return 0;
 }
