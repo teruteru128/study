@@ -94,6 +94,8 @@ target_include_directories(bmrandomaddressgenerator PRIVATE ${OPENSSL_INCLUDE_DI
 
 add_executable(bmsearchpass bmsearchpass.c)
 
+add_executable(bmsort bmsort.c)
+
 add_executable(bmspam bmspam.c)
 target_link_libraries(bmspam study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util ${OPENSSL_CRYPTO_LIBRARIES})
 
