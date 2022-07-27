@@ -2,6 +2,13 @@
 #include <gmp.h>
 #include <stdio.h>
 
+/**
+ * @brief ファイルに書いた整数が素数かどうか判定する
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char const *argv[])
 {
     if (argc < 2)

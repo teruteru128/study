@@ -183,7 +183,8 @@
         "armadillo": "c",
         "*.f03": "c",
         "sqlucode.h": "c",
-        "complex.h": "c"
+        "complex.h": "c",
+        "console.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

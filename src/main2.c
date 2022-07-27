@@ -25,6 +25,7 @@ const char *hex2bin(const char *hex, unsigned char *bin, size_t binsize)
 
     return hex;
 }
+
 int hiho(int argc, char **argv, const char **envp)
 {
     size_t lines = 0;
@@ -32,15 +33,15 @@ int hiho(int argc, char **argv, const char **envp)
     char pathname[PATH_MAX];
     unsigned char pubkeybuf[65] = { 0 };
     hex2bin(
-        "04f166d9114137a496ae1bede6b6ca6eab19b84d34984897183b7426650c33ed8aa8e"
-        "145e1a671c4c4d40eda5cf858273798e5746eb277a568c1b710abb440e46f",
+        "0400000063ca291bb91c80a6141de191592c8f5a50b522b523fbb1cdf5814ea586dfc"
+        "6aa167418f1eea92621f4f4544c591f9ee8334b7ac1dcc27917f1edf993aa",
         pubkeybuf, 65);
 
     unsigned char *buf = malloc(16777216 * 65);
     unsigned char *catch = NULL;
     for (size_t i = 0; i < 8; i++)
     {
-        snprintf(pathname, PATH_MAX, "out/publicKeys%zu.bin", i);
+        snprintf(pathname, PATH_MAX, "publicKeys%zu.bin", i);
         fin = fopen(pathname, "rb");
         if (fin == NULL)
         {
@@ -59,6 +60,8 @@ int hiho(int argc, char **argv, const char **envp)
         }
         fclose(fin);
     }
+    memset(buf, 0, 16777216 * 65);
+    free(buf);
 
     return 0;
 }
