@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/param.h>
+#include <sys/stat.h>
 
 struct kp
 {
@@ -23,64 +23,91 @@ int compar(const void *a, const void *b, void *c)
 
 int hiho(int argc, char **argv, const char **envp)
 {
-#if 0
     char privatekeyfilename[PATH_MAX] = "";
     char publickeyfilename[PATH_MAX] = "";
     struct kp *list = malloc(sizeof(struct kp) * 16777216 * 8);
     FILE *privateKey = NULL;
     FILE *publicKey = NULL;
     int fail = 0;
+    size_t i = 0;
     for (size_t filenum = 0; filenum < 8; filenum++)
     {
         snprintf(privatekeyfilename, PATH_MAX, "privateKeys%zu.bin", filenum);
         privateKey = fopen(privatekeyfilename, "rb");
         snprintf(publickeyfilename, PATH_MAX, "publicKeys%zu.bin", filenum);
-        privateKey = fopen(publickeyfilename, "rb");
+        publicKey = fopen(publickeyfilename, "rb");
         if (privateKey == NULL || publicKey == NULL)
         {
             fail = 1;
             break;
         }
-        for (size_t i = 0; i < 16777216; i++)
+        for (i = 0; i < 16777216; i++)
         {
-            fread(list[filenum * 16777216 + i].prikey, 32, 1, privateKey);
-            fread(list[filenum * 16777216 + i].pubkey, 65, 1, publicKey);
+            if (fread(list[filenum * 16777216 + i].prikey, 32, 1, privateKey)
+                != 1)
+            {
+                err(EXIT_FAILURE, "fread1");
+            }
+            if (fread(list[filenum * 16777216 + i].pubkey, 65, 1, publicKey)
+                != 1)
+            {
+                err(EXIT_FAILURE, "fread2");
+            };
         }
         fclose(privateKey);
+        privateKey = NULL;
         fclose(publicKey);
+        publicKey = NULL;
     }
     if (fail != 0)
     {
-        err(EXIT_FAILURE, "");
+        free(list);
+        err(EXIT_FAILURE, "error!");
     }
-
+    printf("LOADED\n");
     qsort_r(list, 16777216 * 8, sizeof(struct kp), compar, NULL);
+
+    struct stat st;
+
+    if (stat("out", &st) != 0)
+    {
+        // out dirがなかったら作る
+        mkdir("out", 0700);
+    }
 
     for (size_t filenum = 0; filenum < 8; filenum++)
     {
         // 16777216件ずつファイルへ書き出し
+        snprintf(privatekeyfilename, PATH_MAX, "out/privateKeys%zu.bin",
+                 filenum);
+        privateKey = fopen(privatekeyfilename, "wb");
+        snprintf(publickeyfilename, PATH_MAX, "out/publicKeys%zu.bin",
+                 filenum);
+        publicKey = fopen(publickeyfilename, "wb");
+        if (privateKey == NULL || publicKey == NULL)
+        {
+            fail = 1;
+            break;
+        }
+        for (i = 0; i < 16777216; i++)
+        {
+            if (fwrite(list[filenum * 16777216 + i].prikey, 32, 1, privateKey)
+                != 1)
+            {
+                err(EXIT_FAILURE, "fwrite1");
+            }
+            if (fwrite(list[filenum * 16777216 + i].pubkey, 65, 1, publicKey)
+                != 1)
+            {
+                err(EXIT_FAILURE, "fwrite1");
+            }
+        }
+        fclose(privateKey);
+        privateKey = NULL;
+        fclose(publicKey);
+        publicKey = NULL;
     }
 
     free(list);
-#endif
-    char *tail = NULL;
-    char envkey[64] = "";
-    size_t length = 0;
-    for (size_t i = 0; envp[i] != NULL; i++)
-    {
-        tail = strchr(envp[i], '=');
-        if (tail == NULL)
-        {
-            continue;
-        }
-        length = MIN(tail - envp[i], 64);
-        strncpy(envkey, envp[i], length);
-        envkey[length] = '\0';
-        printf("%s\n", envkey);
-    }
-    fputs("--\n", stdout);
-    printf("%s, %s, %d\n", getenv("_"), argv[0], strcmp(getenv("_"), argv[0]));
-    char *a = getenv("OLDPWD");
-    printf("%s\n", a);
     return 0;
 }
