@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-    int hiho(int, char **);
+    int hiho(int, char **, const char **);
 
 #ifdef __cplusplus
 }

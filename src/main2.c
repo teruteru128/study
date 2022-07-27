@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/param.h>
 
 struct kp
 {
@@ -20,8 +21,9 @@ int compar(const void *a, const void *b, void *c)
     return memcmp(((struct kp *)a)->pubkey, ((struct kp *)b)->pubkey, 65);
 }
 
-int hiho(int argc, char **argv)
+int hiho(int argc, char **argv, const char **envp)
 {
+#if 0
     char privatekeyfilename[PATH_MAX] = "";
     char publickeyfilename[PATH_MAX] = "";
     struct kp *list = malloc(sizeof(struct kp) * 16777216 * 8);
@@ -60,5 +62,25 @@ int hiho(int argc, char **argv)
     }
 
     free(list);
+#endif
+    char *tail = NULL;
+    char envkey[64] = "";
+    size_t length = 0;
+    for (size_t i = 0; envp[i] != NULL; i++)
+    {
+        tail = strchr(envp[i], '=');
+        if (tail == NULL)
+        {
+            continue;
+        }
+        length = MIN(tail - envp[i], 64);
+        strncpy(envkey, envp[i], length);
+        envkey[length] = '\0';
+        printf("%s\n", envkey);
+    }
+    fputs("--\n", stdout);
+    printf("%s, %s, %d\n", getenv("_"), argv[0], strcmp(getenv("_"), argv[0]));
+    char *a = getenv("OLDPWD");
+    printf("%s\n", a);
     return 0;
 }
