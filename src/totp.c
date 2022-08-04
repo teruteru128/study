@@ -37,7 +37,7 @@ __wur char *generateTOTP(const char *key, time_t time, size_t returnDigits,
     size_t otp = binary % (size_t)pow(10, (double)returnDigits);
 
     char format[10];
-    snprintf(format, 10, "%%0%lulu", returnDigits);
+    snprintf(format, 10, "%%0%zuzu", returnDigits);
     char *ret = calloc(returnDigits + 1, sizeof(char));
     // "%0xd"
     snprintf(ret, returnDigits + 1, format, otp);

@@ -10,13 +10,12 @@
  * */
 int main(void)
 {
-#if 0
     const char *msg = "yattaze.";
     EVP_MD_CTX *mdctx = NULL;
     int ret = 0;
 
     unsigned char *sig = NULL;
-    unsigned char hash[EVP_MAX_BLOCK_LENGTH];
+    unsigned char hash[EVP_MAX_MD_SIZE];
     unsigned int hashlen = 0;
     size_t length = 0;
     size_t *slen = &length;
@@ -78,7 +77,6 @@ err:
     if (sig && !ret)
         OPENSSL_free(sig);
     if (mdctx)
-        EVP_MD_CTX_destroy(mdctx);
-#endif
+        EVP_MD_CTX_free(mdctx);
     return 0;
 }
