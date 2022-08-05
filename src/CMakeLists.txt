@@ -24,6 +24,7 @@ add_executable(bcasttest bcasttest.c)
 add_executable(bino bino.c)
 
 add_executable(bm bm.c)
+target_link_libraries(bm study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util ${OPENSSL_CRYPTO_LIBRARIES})
 
 add_executable(bmkeygen bmkeygen.c)
 target_link_libraries(bmkeygen ${OPENSSL_CRYPTO_LIBRARIES})

@@ -66,7 +66,8 @@ int main(int argc, char *argv[])
     const char *addressfilepath = argv[1];
     setlocale(LC_ALL, "");
     const size_t length = (argc >= 3) ? (strtoul(argv[2], NULL, 10)) : 12000;
-    const size_t addressoffset = (argc >= 4) ? (strtoul(argv[3], NULL, 10)) : 0;
+    const size_t addressoffset
+        = (argc >= 4) ? (strtoul(argv[3], NULL, 10)) : 0;
     const size_t sendlimit = addressoffset + length;
 
 #ifdef _DEBUG
@@ -100,7 +101,7 @@ int main(int argc, char *argv[])
     {
         fputs(
             "環境変数 SERVER_URL にサーバーアドレスを設定してください。(HTTP "
-            "URL, example: http://192.168.12.5:8442/)\n",
+            "URL, example: http://192.168.1.1:8442/)\n",
             stderr);
         return 1;
     }
@@ -204,9 +205,9 @@ int main(int argc, char *argv[])
         toaddressv = xmlrpc_string_new(env, toaddress);
         die_if_fault_occurred(env);
 
-        ackdata = bmapi_sendMessage(env, clientP, serverP, toaddressv,
+        bmapi_sendMessage(env, clientP, serverP, toaddressv,
                                     fromaddressv, subjectv, messagev,
-                                    encodingTypev, TTLv);
+                                    encodingTypev, TTLv, &ackdata);
         free(ackdata);
 
         clock_gettime(CLOCK_REALTIME, &current_time);
@@ -234,6 +235,7 @@ int main(int argc, char *argv[])
     xmlrpc_DECREF(encodingTypev);
     xmlrpc_DECREF(TTLv);
 
+    xmlrpc_server_info_free(serverP);
     xmlrpc_client_destroy(clientP);
 
     xmlrpc_client_teardown_global_const();

@@ -184,7 +184,10 @@
         "*.f03": "c",
         "sqlucode.h": "c",
         "complex.h": "c",
-        "console.h": "c"
+        "console.h": "c",
+        "bmspam.h": "c",
+        "bmapi.h": "c",
+        "stdarg.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
