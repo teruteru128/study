@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include <openssl/evp.h>
+#include <openssl/opensslv.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +19,11 @@ int hmac(const char *crypto, unsigned char *key, size_t keysiz,
     // OpenSSL_add_all_ciphers();
     // OpenSSL_add_all_digests();
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD *md = EVP_MD_fetch(NULL, "SHA-1", NULL);
+#else
+    const EVP_MD *md = EVP_get_digestbyname("SHA-1");
+#endif
     if (md == NULL)
         return 1;
     EVP_PKEY *pkey
@@ -27,7 +32,10 @@ int hmac(const char *crypto, unsigned char *key, size_t keysiz,
     EVP_DigestSignUpdate(mdctx, msg, msglen);
     EVP_DigestSignFinal(mdctx, hash, s);
     EVP_MD_CTX_free(mdctx);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD_free(md);
+#else
+#endif
     return 0;
 }
 
