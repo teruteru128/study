@@ -479,9 +479,6 @@ target_link_libraries(atomic_fetch_addsample ${CMAKE_THREAD_LIBS_INIT})
 add_executable(atomicsample atomicsample.c)
 target_link_libraries(atomicsample ${CMAKE_THREAD_LIBS_INIT})
 
-add_executable(mutexsample mutexsample.c)
-target_link_libraries(mutexsample ${CMAKE_THREAD_LIBS_INIT})
-
 add_executable(strspntest strspntest.c)
 
 add_executable(sha-test sha-test.c)
