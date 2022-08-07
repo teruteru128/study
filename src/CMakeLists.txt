@@ -353,6 +353,8 @@ add_executable(pgpcrc24sample pgpcrc24sample.c)
 
 add_executable(pipesample pipesample.c)
 
+add_executable(pixiv pixiv.c)
+
 add_executable(pkeyencsample pkeyencsample.c)
 target_link_libraries(pkeyencsample ${OPENSSL_CRYPTO_LIBRARIES})
 target_include_directories(pkeyencsample PRIVATE ${OPENSSL_INCLUDE_DIR})

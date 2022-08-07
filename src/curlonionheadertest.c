@@ -16,7 +16,6 @@ int main(int argc, char *argv[])
     curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/7.68.0");
     curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
     curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, (long)CURL_HTTP_VERSION_2TLS);
-    curl_easy_setopt(hnd, CURLOPT_SSH_KNOWNHOSTS, "/home/teruteru128/.ssh/known_hosts");
     curl_easy_setopt(hnd, CURLOPT_FILETIME, 1L);
     curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
 
