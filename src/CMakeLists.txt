@@ -348,12 +348,16 @@ add_executable(openmpsample6 openmpsample6.c)
 add_executable(openmpsample7 openmpsample7-driver.c openmpsample7.c openmpsample7-stub.c)
 
 add_executable(passwordhashsample passwordhashsample.c)
+target_link_libraries(passwordhashsample ${OPENSSL_CRYPTO_LIBRARIES})
+target_include_directories(passwordhashsample PRIVATE ${OPENSSL_INCLUDE_DIR})
 
 add_executable(pgpcrc24sample pgpcrc24sample.c)
 
 add_executable(pipesample pipesample.c)
 
 add_executable(pixiv pixiv.c)
+target_link_libraries(pixiv ${CURL_LIBRARIES})
+target_include_directories(pixiv PRIVATE ${CURL_INCLUDE_DIRS})
 
 add_executable(pkeyencsample pkeyencsample.c)
 target_link_libraries(pkeyencsample ${OPENSSL_CRYPTO_LIBRARIES})

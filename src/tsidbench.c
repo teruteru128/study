@@ -38,11 +38,11 @@ void *function(void *arg)
     //    for (; a->tid; i++)
     for (; max < 6; i++)
     {
-        EVP_DigestInit(&ctx, sha1);
-        EVP_DigestUpdate(&ctx, PUBLIC_KEY, len);
+        EVP_DigestInit(ctx, sha1);
+        EVP_DigestUpdate(ctx, PUBLIC_KEY, len);
         length = snprintf(count, 24, "%zu", i);
-        EVP_DigestUpdate(&ctx, count, length);
-        EVP_DigestFinal(&ctx, hash, NULL);
+        EVP_DigestUpdate(ctx, count, length);
+        EVP_DigestFinal(ctx, hash, NULL);
         tmp = htobe64(*(unsigned long *)hash);
         zerobyte =((tmp == 0) ? 64UL : __builtin_clzl(tmp));
         if (zerobyte > max)
@@ -52,9 +52,9 @@ void *function(void *arg)
             max_i = i;
         }
     }
-    EVP_MD_CTX_free(&ctx);
-    printf("%lu, %lu\n", max, max_i);
-    printf("%lu\n", i);
+    EVP_MD_CTX_free(ctx);
+    printf("%d, %zu\n", max, max_i);
+    printf("%zu\n", i);
     return NULL;
 }
 

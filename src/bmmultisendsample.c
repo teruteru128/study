@@ -109,9 +109,9 @@ int main(int argc, char const *argv[])
     char toaddress[128]
         = "BM-FHmDQSDbdMPfupgfJRmwcrYxyXWW;BM-FHhkCqEMdaDSfLp8NjpSXSA9H7Td";
     xmlrpc_value *toaddressv = xmlrpc_string_new(env, toaddress);
-    char *ackdata
-        = bmapi_sendMessage(env, clientP, serverP, toaddressv, fromaddressv,
-                            subjectv, messagev, encodingTypev, TTLv);
+    char *ackdata = NULL;
+    bmapi_sendMessage(env, clientP, serverP, toaddressv, fromaddressv,
+                      subjectv, messagev, encodingTypev, TTLv, &ackdata);
     free(ackdata);
     xmlrpc_DECREF(fromaddressv);
     xmlrpc_DECREF(subjectv);

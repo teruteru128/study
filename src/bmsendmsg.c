@@ -120,9 +120,9 @@ int main(void)
     fputs("initialized\n", stderr);
 
     // send message
-    char *ackdata
-        = bmapi_sendMessage(&env, clientP, serverP, toaddressv, fromaddressv,
-                            subjectv, messagev, encodingTypev, TTLv);
+    char *ackdata = NULL;
+    bmapi_sendMessage(&env, clientP, serverP, toaddressv, fromaddressv,
+                      subjectv, messagev, encodingTypev, TTLv, &ackdata);
     free(ackdata);
 
     /* Dispose of our result value. ゴミ掃除 */
