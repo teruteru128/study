@@ -34,7 +34,6 @@ int hmac(const char *crypto, unsigned char *key, size_t keysiz,
     EVP_MD_CTX_free(mdctx);
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD_free(md);
-#else
 #endif
     return 0;
 }
