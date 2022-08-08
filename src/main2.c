@@ -78,6 +78,7 @@ char *generateTOTP(unsigned char *key, size_t keysiz, time_t time,
 const char base32table[33] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
 // TODO base32decodeの実装しんどいれす^q^
+// changebaseにbase32を導入？
 /**
  * @brief
  * https://qiita.com/waaaaRapy/items/8549890bda4f8ad33963#%E5%8B%95%E4%BD%9C%E3%83%86%E3%82%B9%E3%83%88
