@@ -187,7 +187,8 @@
         "console.h": "c",
         "bmspam.h": "c",
         "bmapi.h": "c",
-        "stdarg.h": "c"
+        "stdarg.h": "c",
+        "opensslv.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
