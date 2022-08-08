@@ -75,4 +75,22 @@ char *generateTOTP(unsigned char *key, size_t keysiz, time_t time,
     return result;
 }
 
-int hiho(int argc, char **argv, const char **envp) { return 0; }
+int hiho(int argc, char **argv, const char **envp)
+{
+    struct tm tmA;
+    memset(&tmA, 0, sizeof(struct tm));
+    tmA.tm_year = 2022 - 1900;
+    tmA.tm_mon = 7 - 1;
+    tmA.tm_mday = 31;
+    time_t a;
+    for (size_t i = 0; i < 45; i++, tmA.tm_mday++)
+    {
+        printf("%d月%d日%zu回 ", tmA.tm_mon + 1, tmA.tm_mday, i + 20);
+        a = mktime(&tmA);
+        printf("%d月%d日%zu回 ", tmA.tm_mon + 1, tmA.tm_mday, i + 20);
+        localtime_r(&a, &tmA);
+        printf("%d月%d日%zu回\n", tmA.tm_mon + 1, tmA.tm_mday, i + 20);
+    }
+
+    return 0;
+}
