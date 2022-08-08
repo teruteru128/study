@@ -75,22 +75,51 @@ char *generateTOTP(unsigned char *key, size_t keysiz, time_t time,
     return result;
 }
 
-int hiho(int argc, char **argv, const char **envp)
+const char base32table[33] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+// TODO base32decodeの実装しんどいれす^q^
+/**
+ * @brief
+ * https://qiita.com/waaaaRapy/items/8549890bda4f8ad33963#%E5%8B%95%E4%BD%9C%E3%83%86%E3%82%B9%E3%83%88
+ *
+ * @param src
+ * @param srclen
+ * @param out
+ * @param outlen
+ * @return int
+ */
+int base32decode(const char *src, const size_t srclen, unsigned char **out,
+                 size_t *outlen)
 {
-    struct tm tmA;
-    memset(&tmA, 0, sizeof(struct tm));
-    tmA.tm_year = 2022 - 1900;
-    tmA.tm_mon = 7 - 1;
-    tmA.tm_mday = 31;
-    time_t a;
-    for (size_t i = 0; i < 45; i++, tmA.tm_mday++)
+    //
+    if (out == NULL || outlen == NULL)
+        return 1;
+
+    *outlen = (srclen * 5) / 8;
+
+    unsigned char *data = malloc(srclen);
+    char *j = NULL;
+    for (size_t i = 0; i < srclen; i++)
     {
-        printf("%d月%d日%zu回 ", tmA.tm_mon + 1, tmA.tm_mday, i + 20);
-        a = mktime(&tmA);
-        printf("%d月%d日%zu回 ", tmA.tm_mon + 1, tmA.tm_mday, i + 20);
-        localtime_r(&a, &tmA);
-        printf("%d月%d日%zu回\n", tmA.tm_mon + 1, tmA.tm_mday, i + 20);
+        if ((j = strchr(base32table, src[i])) != NULL)
+        {
+            data[i] = j - base32table;
+        }
+    }
+
+    *out = malloc(*outlen);
+    uint32_t tmp = 0;
+    for (size_t i = 0, k = 0; i < srclen; i += 8, k += 5)
+    {
+        *out[k] = data[i + 0] << 3 | data[i + 1] >> 2;
+        tmp = 0;
+        for (size_t shift = 30, l = 1; shift >= 0; shift-=5, l++)
+        {
+            tmp |= data[i + l] << shift;
+        }
     }
 
     return 0;
 }
+
+int hiho(int argc, char **argv, const char **envp) { return 0; }
