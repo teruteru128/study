@@ -75,7 +75,9 @@ char *generateTOTP(unsigned char *key, size_t keysiz, time_t time,
     return result;
 }
 
-const char base32table[33] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+#define BASE32_TABLE "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+
+const char base32table[33] = BASE32_TABLE;
 
 // TODO base32decodeの実装しんどいれす^q^
 // changebaseにbase32を導入？
@@ -114,7 +116,7 @@ int base32decode(const char *src, const size_t srclen, unsigned char **out,
     {
         *out[k] = data[i + 0] << 3 | data[i + 1] >> 2;
         tmp = 0;
-        for (size_t shift = 30, l = 1; shift >= 0; shift-=5, l++)
+        for (size_t shift = 30, l = 1; shift >= 0; shift -= 5, l++)
         {
             tmp |= data[i + l] << shift;
         }
@@ -123,4 +125,8 @@ int base32decode(const char *src, const size_t srclen, unsigned char **out,
     return 0;
 }
 
-int hiho(int argc, char **argv, const char **envp) { return 0; }
+int hiho(int argc, char **argv, const char **envp)
+{
+    printf("%p\n", printf);
+    return 0;
+}

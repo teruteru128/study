@@ -299,6 +299,8 @@ add_executable(localesample3 localesample3.c)
 add_executable(log-sample log-sample.c)
 target_link_libraries(log-sample m)
 
+add_executable(logging-sample logging-sample.c)
+
 add_executable(loop-bench loop-bench.c)
 
 add_executable(main main.cpp main2.c)
