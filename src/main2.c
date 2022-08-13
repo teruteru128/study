@@ -125,8 +125,58 @@ int base32decode(const char *src, const size_t srclen, unsigned char **out,
     return 0;
 }
 
+char a(int a)
+{
+    if (0 <= a && a < 26)
+    {
+        // A-Z
+        return 'A' + a;
+    }
+    if (26 <= a && a < 52)
+    {
+        // a-z
+        return a + 71;
+    }
+    if (52 <= a && a < 62)
+    {
+        // 0-9
+        return a - 4;
+    }
+    if (62 == a)
+    {
+        return '+';
+    }
+    if (63 == a)
+    {
+        return '/';
+    }
+}
+
 int hiho(int argc, char **argv, const char **envp)
 {
-    printf("%p\n", printf);
+    /* 
+    div_t d0;
+    div_t d1;
+    div_t d2;
+    for (size_t i = 0; i < 456976; i++)
+    {
+        d0 = div(i, 26);
+        d1 = div(d0.quot, 26);
+        d2 = div(d1.quot, 26);
+        printf("%zu %c%c%c%c\n", i, 'A' + d2.quot, 'A' + d2.rem, 'A' + d1.rem,
+               'A' + d0.rem);
+    }
+
+    printf("0x%02x 0x%02x\n", '/', '+');
+     */
+    printf("%c\n", a(0));
+    printf("%c\n", a(25));
+    printf("%c\n", a(26));
+    printf("%c\n", a(51));
+    printf("%c\n", a(52));
+    printf("%c\n", a(61));
+    printf("%c\n", a(62));
+    printf("%c\n", a(63));
+
     return 0;
 }
