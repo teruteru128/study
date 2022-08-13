@@ -125,36 +125,18 @@ int base32decode(const char *src, const size_t srclen, unsigned char **out,
     return 0;
 }
 
-char a(int a)
-{
-    if (0 <= a && a < 26)
-    {
-        // A-Z
-        return 'A' + a;
-    }
-    if (26 <= a && a < 52)
-    {
-        // a-z
-        return a + 71;
-    }
-    if (52 <= a && a < 62)
-    {
-        // 0-9
-        return a - 4;
-    }
-    if (62 == a)
-    {
-        return '+';
-    }
-    if (63 == a)
-    {
-        return '/';
-    }
-}
+#define CHARS                                                                 \
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"                                              \
+    "abcdefghijklmnopqrstuvwxyz"                                              \
+    "0123456789+/"
+
+char a(int a) { return CHARS[a]; }
+
+#define LEN 10
 
 int hiho(int argc, char **argv, const char **envp)
 {
-    /* 
+    /*
     div_t d0;
     div_t d1;
     div_t d2;
