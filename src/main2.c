@@ -9,7 +9,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <time.h>
+#include <unistd.h>
 
 int hmac(const char *crypto, unsigned char *key, size_t keysiz,
          unsigned char *msg, size_t msglen, unsigned char *hash, size_t *s)
@@ -125,40 +128,32 @@ int base32decode(const char *src, const size_t srclen, unsigned char **out,
     return 0;
 }
 
-#define CHARS                                                                 \
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"                                              \
-    "abcdefghijklmnopqrstuvwxyz"                                              \
-    "0123456789+/"
-
-char a(int a) { return CHARS[a]; }
-
-#define LEN 10
-
 int hiho(int argc, char **argv, const char **envp)
 {
-    /*
-    div_t d0;
-    div_t d1;
-    div_t d2;
-    for (size_t i = 0; i < 456976; i++)
+    // execシリーズで自分自身を起動するとどうなるの
+    pid_t pid = 0;
+    printf("%p, %p\n", argv, argv[0]);
+    if ((pid = fork()) == 0)
     {
-        d0 = div(i, 26);
-        d1 = div(d0.quot, 26);
-        d2 = div(d1.quot, 26);
-        printf("%zu %c%c%c%c\n", i, 'A' + d2.quot, 'A' + d2.rem, 'A' + d1.rem,
-               'A' + d0.rem);
+        // 子プロセス
+        char *argv[] = { "/bin/echo", "hello world", NULL };
+        char *envp[] = { NULL };
+        execve(argv[0], argv, envp);
+        perror("execve");
+        exit(EXIT_FAILURE);
     }
-
-    printf("0x%02x 0x%02x\n", '/', '+');
-     */
-    printf("%c\n", a(0));
-    printf("%c\n", a(25));
-    printf("%c\n", a(26));
-    printf("%c\n", a(51));
-    printf("%c\n", a(52));
-    printf("%c\n", a(61));
-    printf("%c\n", a(62));
-    printf("%c\n", a(63));
-
+    else if (pid > 0)
+    {
+        // 親プロセス
+        int status;
+        int ret = waitpid(pid, &status, 0);
+        printf("%d %d %d\n", pid, ret, status);
+    }
+    else
+    {
+        // プロセス起動失敗
+        perror("failed to fork");
+        return 0;
+    }
     return 0;
 }
