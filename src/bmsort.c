@@ -13,7 +13,7 @@ struct kp
     unsigned char pubkey[65];
 };
 
-int compar(const void *a, const void *b, void *c)
+int compar(const void *a, const void *b, void *arg)
 {
     return memcmp(((struct kp *)a)->pubkey, ((struct kp *)b)->pubkey, 65);
 }
