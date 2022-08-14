@@ -188,7 +188,9 @@
         "bmspam.h": "c",
         "bmapi.h": "c",
         "stdarg.h": "c",
-        "opensslv.h": "c"
+        "opensslv.h": "c",
+        "shuffle.h": "c",
+        "xorshift.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
