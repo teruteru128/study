@@ -17,7 +17,7 @@
 #include <string.h>
 #endif
 #include <limits.h>
-#include <inttypes.h>
+#include <stdint.h>
 
 extern char *ltoa(long, char *, int);
 

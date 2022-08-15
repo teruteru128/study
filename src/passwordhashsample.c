@@ -33,7 +33,7 @@ int main(void)
     EVP_DigestUpdate(mdctx, hash, (size_t)hashlen);
     EVP_DigestFinal(mdctx, hash, &hashlen);
 
-    BIGNUM *priv = BN_bin2bn(hash, (int)&hashlen, NULL);
+    BIGNUM *priv = BN_bin2bn(hash, (int)hashlen, NULL);
 
     EC_GROUP *group = EC_GROUP_new_by_curve_name(NID_secp256k1);
     EC_POINT *pub = EC_POINT_new(group);

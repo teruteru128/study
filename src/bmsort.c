@@ -1,4 +1,5 @@
 
+#define _GNU_SOURCE 1
 #include <err.h>
 #include <limits.h>
 #include <locale.h>

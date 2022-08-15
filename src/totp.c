@@ -10,6 +10,11 @@
 #include <openssl/hmac.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+
+static const int32_t DIGITS_POWER[9]
+    //  0  1   2    3     4      5       6        7         8
+    = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000 };
 
 __wur char *generateTOTP(const char *key, time_t time, size_t returnDigits,
                          const EVP_MD *md)
@@ -30,14 +35,14 @@ __wur char *generateTOTP(const char *key, time_t time, size_t returnDigits,
     HMAC_CTX_free(ctx);
     free(key1);
 
-    size_t offset = (size_t)(mac[maclen - 1] & 0xf);
+    unsigned char offset = mac[maclen - 1] & 0xf;
 
-    size_t binary = (size_t)(htobe32(*(int *)(mac + offset)));
+    int32_t binary = htobe32(*(int *)(mac + offset));
 
-    size_t otp = binary % (size_t)pow(10, (double)returnDigits);
+    int32_t otp = binary % DIGITS_POWER[returnDigits];
 
     char format[10];
-    snprintf(format, 10, "%%0%zuzu", returnDigits);
+    snprintf(format, 10, "%%0%zu" PRId32, returnDigits);
     char *ret = calloc(returnDigits + 1, sizeof(char));
     // "%0xd"
     snprintf(ret, returnDigits + 1, format, otp);

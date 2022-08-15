@@ -69,8 +69,8 @@ int loadPrivateKey(unsigned char *privateKey)
 #define SIZE 67108864UL
 #define CTX_SIZE 4
 
-static inline unsigned long hash(EVP_MD_CTX *mdctx, EVP_MD *sha512,
-                                 EVP_MD *ripemd160, unsigned char *work,
+static inline unsigned long hash(EVP_MD_CTX *mdctx, const EVP_MD *sha512,
+                                 const EVP_MD *ripemd160, unsigned char *work,
                                  unsigned char *signKey, unsigned char *enckey)
 {
     char *signWIF = NULL;
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
         {
             encKey = memories + j;
             // i, j
-            tmp = hash(mdctx, sha512, ripemd160, work, signKey, encKey);
+            tmp = hash(mdctx, sha512, ripemd160, work, (unsigned char *)signKey, (unsigned char *)encKey);
             // htobe64はいるようないらないような
             // tmp = clzl(*(unsigned long *)work);
             counts[tmp]++;
