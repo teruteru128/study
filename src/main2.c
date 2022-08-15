@@ -128,10 +128,34 @@ int base32decode(const char *src, const size_t srclen, unsigned char **out,
     return 0;
 }
 
-void shuffle(void *a, size_t nmemb, size_t size) {}
-
 int hiho(int argc, char **argv, const char **envp)
 {
-    printf("%zu\n", strlen("ファルコン・パンチ"));
-    return 0;
+    // execシリーズで自分自身を起動するとどうなるの
+    pid_t pid = 0;
+    printf("%p, %p\n", argv, argv[0]);
+    int status;
+    size_t i = 0;
+
+    if ((pid = fork()) == 0)
+    {
+        // 子プロセス
+        char *localargv[] = { "/bin/true", NULL };
+        char *localenvp[] = { NULL };
+        execve(localargv[0], localargv, localenvp);
+        perror("execve");
+        exit(EXIT_FAILURE);
+    }
+    else if (pid > 0)
+    {
+        // 親プロセス
+        int ret = waitpid(pid, &status, 0);
+        printf("%d %d %d\n", pid, ret, status);
+    }
+    else
+    {
+        // プロセス起動失敗
+        perror("failed to fork");
+        return EXIT_FAILURE;
+    }
+    return status;
 }

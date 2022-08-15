@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     for (; j < MAX; j++)
     {
         shuffle(messages, 3, strlen(messages) / 3);
-        fprintf(stdout, "%s\n", messages);
+        fprintf(stdout, "%zu: %s\n", j, messages);
     }
 
     return EXIT_SUCCESS;
