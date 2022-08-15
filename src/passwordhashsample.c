@@ -1,4 +1,7 @@
 
+#define OPENSSL_API_COMPAT 0x30000000L
+#define OPENSSL_NO_DEPRECATED 1
+#include <openssl/core_names.h>
 #include <openssl/ec.h>
 #include <openssl/evp.h>
 #include <stdio.h>
@@ -40,13 +43,19 @@ int main(void)
     BN_CTX *ctx = BN_CTX_new();
     EC_POINT_mul(group, pub, priv, NULL, NULL, ctx);
 
+    EVP_PKEY *pkey = EVP_PKEY_new();
+    EVP_PKEY_set_type(pkey, EVP_PKEY_EC);
+    EVP_PKEY_set_utf8_string_param(pkey, OSSL_PKEY_PARAM_GROUP_NAME,
+                                   "secp256k1");
     EC_KEY *key = EC_KEY_new_by_curve_name(NID_secp256k1);
     EC_KEY_set_private_key(key, priv);
     EC_KEY_set_public_key(key, pub);
+    EVP_PKEY_set_bn_param(pkey, OSSL_PKEY_PARAM_PRIV_KEY, priv);
+    EVP_PKEY_set_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY, priv, 0);
 
     /* Initialise the DigestSign operation - SHA-256 has been selected as the
      * message digest function in this example */
-    if (1 != EVP_DigestSignInit(mdctx, NULL, EVP_sha256(), NULL, key))
+    if (1 != EVP_DigestSignInit(mdctx, NULL, EVP_sha256(), NULL, pkey))
         goto err;
 
     /* Call update with the message */

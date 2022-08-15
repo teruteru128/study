@@ -191,7 +191,8 @@
         "opensslv.h": "c",
         "shuffle.h": "c",
         "xorshift.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "core_names.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

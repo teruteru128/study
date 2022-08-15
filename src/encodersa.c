@@ -173,7 +173,7 @@ static EVP_PKEY *calc_RSA(EVP_PKEY *dest, BIGNUM *e, BIGNUM *p, BIGNUM *q,
         goto err2;
 
     EVP_PKEY *work = (dest == NULL) ? EVP_PKEY_new() : dest;
-    EVP_PKEY_CTX *pkctx = EVP_PKEY_CTX_new_from_name(NULL, "RSA", NULL);
+    //EVP_PKEY_CTX *pkctx = EVP_PKEY_CTX_new_from_name(NULL, "RSA", NULL);
     EVP_PKEY_set_type(work, EVP_PKEY_RSA);
     EVP_PKEY_set_bn_param(work, OSSL_PKEY_PARAM_RSA_N, n);
     EVP_PKEY_set_bn_param(work, OSSL_PKEY_PARAM_RSA_E, e);

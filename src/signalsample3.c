@@ -76,7 +76,7 @@ static volatile atomic_int running = 1;
 
 static void *signal_catcher(void *arg)
 {
-    sig_t sigc = 0;
+    int sigc = 0;
     int time = 0;
     int rc = set_signal_handler();
     if (rc != EXIT_SUCCESS)
