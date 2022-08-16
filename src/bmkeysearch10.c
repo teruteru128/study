@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
                 free(keu);
             }
             // j, i
-            tmp = hash(mdctx, sha512, ripemd160, work, encKey, signKey);
+            tmp = hash(mdctx, sha512, ripemd160, work, (unsigned char *)encKey, (unsigned char *)signKey);
             // htobe64はいるようないらないような
             // tmp = clzl(*(unsigned long *)work);
             counts[tmp]++;
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
             }
         }
         // i, i
-        tmp = hash(mdctx, sha512, ripemd160, work, signKey, signKey);
+        tmp = hash(mdctx, sha512, ripemd160, work, (unsigned char *)signKey, (unsigned char *)signKey);
         // htobe64はいるようないらないような
         // tmp = clzl(*(unsigned long *)work);
         counts[tmp]++;
