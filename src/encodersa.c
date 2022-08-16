@@ -10,14 +10,10 @@
 #include <locale.h>
 #include <openssl/bn.h>
 #include <openssl/opensslv.h>
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-#include <openssl/core_names.h>
-#endif
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
-#include <openssl/types.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,6 +21,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <uuid/uuid.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/core_names.h>
+#include <openssl/types.h>
+#endif
 
 #define CONST_E 65537
 #define BUFFERSIZE 65537
