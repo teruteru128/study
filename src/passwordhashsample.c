@@ -4,6 +4,7 @@
 #include <openssl/core_names.h>
 #include <openssl/ec.h>
 #include <openssl/evp.h>
+#include <openssl/opensslv.h>
 #include <stdio.h>
 
 /**
@@ -42,16 +43,23 @@ int main(void)
     EC_POINT *pub = EC_POINT_new(group);
     BN_CTX *ctx = BN_CTX_new();
     EC_POINT_mul(group, pub, priv, NULL, NULL, ctx);
+    unsigned char buf[65];
+    EC_POINT_point2oct(group, pub, POINT_CONVERSION_UNCOMPRESSED, buf, 65,
+                       ctx);
 
     EVP_PKEY *pkey = EVP_PKEY_new();
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_PKEY_set_type(pkey, EVP_PKEY_EC);
     EVP_PKEY_set_utf8_string_param(pkey, OSSL_PKEY_PARAM_GROUP_NAME,
                                    "secp256k1");
+    EVP_PKEY_set_bn_param(pkey, OSSL_PKEY_PARAM_PRIV_KEY, priv);
+    EVP_PKEY_set_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY, buf, 65);
+#else
     EC_KEY *key = EC_KEY_new_by_curve_name(NID_secp256k1);
     EC_KEY_set_private_key(key, priv);
     EC_KEY_set_public_key(key, pub);
-    EVP_PKEY_set_bn_param(pkey, OSSL_PKEY_PARAM_PRIV_KEY, priv);
-    EVP_PKEY_set_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY, priv, 0);
+    EVP_PKEY_set1_EC_KEY(pkey, key);
+#endif
 
     /* Initialise the DigestSign operation - SHA-256 has been selected as the
      * message digest function in this example */
@@ -71,7 +79,7 @@ int main(void)
     if (!(sig = OPENSSL_malloc(sizeof(unsigned char) * (*slen))))
         goto err;
     /* Obtain the signature */
-    if (1 != EVP_DigestSignFinal(mdctx, *sig, slen))
+    if (1 != EVP_DigestSignFinal(mdctx, sig, slen))
         goto err;
 
     /* Success */
