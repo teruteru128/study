@@ -12,6 +12,8 @@ target_link_libraries(TSIdentityTool tommath tomcrypt)
 
 add_executable(addpadding addpadding.c)
 
+add_executable(alignformatter alignformatter.c)
+
 add_executable(alimentsample alimentsample.c)
 
 add_executable(argsample argsample.c)
