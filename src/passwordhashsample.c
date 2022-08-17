@@ -1,11 +1,14 @@
 
 #define OPENSSL_API_COMPAT 0x30000000L
 #define OPENSSL_NO_DEPRECATED 1
-#include <openssl/core_names.h>
 #include <openssl/ec.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
 #include <stdio.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/core_names.h>
+#endif
 
 /**
  * @brief
