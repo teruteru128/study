@@ -222,6 +222,9 @@ add_executable(evprsaverifysample evprsaverifysample.c)
 add_executable(evptest evptest.c)
 target_link_libraries(evptest ${OPENSSL_CRYPTO_LIBRARIES})
 
+add_executable(example example.c)
+target_link_libraries(example ${PNG_LIBRARIES})
+
 add_executable(falcon falcon.c)
 target_link_libraries(falcon study)
 
@@ -306,7 +309,8 @@ add_executable(logging-sample logging-sample.c)
 add_executable(loop-bench loop-bench.c)
 
 add_executable(main main.cpp main2.c)
-target_link_libraries(main study m xmlrpc xmlrpc_client ${OPENSSL_CRYPTO_LIBRARIES})
+target_include_directories(main PRIVATE ${PNG_INCLUDE_DIRS})
+target_link_libraries(main study m xmlrpc xmlrpc_client ${OPENSSL_CRYPTO_LIBRARIES} ${PNG_LIBRARIES})
 
 add_executable(mappingsample mappingsample.c)
 target_link_libraries(mappingsample m)
