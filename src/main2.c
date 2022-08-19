@@ -2,6 +2,7 @@
 #define _GNU_SOURCE
 #include "config.h"
 
+#include "yattaze.h"
 #include <math.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
@@ -14,29 +15,38 @@
 #include <time.h>
 #include <unistd.h>
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/core_names.h>
+#include <openssl/types.h>
+#endif
+
 int hmac(const char *crypto, unsigned char *key, size_t keysiz,
          unsigned char *msg, size_t msglen, unsigned char *hash, size_t *s)
 {
     // TODO: EVP_MAC が OpenSSL に直接導入されるのは ver. 3.0 以降
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    EVP_MAC *mac = EVP_MAC_fetch(NULL, "HMAC", "provider=default");
+    EVP_MAC_CTX *macctx = EVP_MAC_CTX_new(mac);
+    OSSL_PARAM params[2]
+        = { OSSL_PARAM_utf8_string(OSSL_MAC_PARAM_DIGEST, "SHA-1", 0),
+            OSSL_PARAM_END };
+    EVP_MAC_init(macctx, key, keysiz, params);
+    EVP_MAC_update(macctx, msg, msglen);
+    EVP_MAC_final(macctx, hash, s, 20);
+    EVP_MAC_CTX_free(macctx);
+#else
     // OpenSSL_add_all_algorithms();
     // OpenSSL_add_all_ciphers();
     // OpenSSL_add_all_digests();
-    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    EVP_MD *md = EVP_MD_fetch(NULL, "SHA-1", NULL);
-#else
     const EVP_MD *md = EVP_get_digestbyname("SHA-1");
-#endif
-    if (md == NULL)
-        return 1;
     EVP_PKEY *pkey
         = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, key, (int)keysiz);
+    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
     EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey);
     EVP_DigestSignUpdate(mdctx, msg, msglen);
     EVP_DigestSignFinal(mdctx, hash, s);
     EVP_MD_CTX_free(mdctx);
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    EVP_MD_free(md);
+    EVP_PKEY_free(pkey);
 #endif
     return 0;
 }
@@ -78,34 +88,4 @@ char *generateTOTP(unsigned char *key, size_t keysiz, time_t time,
     return result;
 }
 
-int hiho(int argc, char **argv, const char **envp)
-{
-    // execシリーズで自分自身を起動するとどうなるの
-    pid_t pid = 0;
-    printf("%p, %p\n", argv, argv[0]);
-    int status = 0;
-    size_t i = 0;
-
-    if ((pid = fork()) == 0)
-    {
-        // 子プロセス
-        char *localargv[] = { "/bin/echo", "hello world", NULL };
-        char *localenvp[] = { NULL };
-        execve(localargv[0], localargv, localenvp);
-        perror("execve");
-        exit(EXIT_FAILURE);
-    }
-    else if (pid > 0)
-    {
-        // 親プロセス
-        int ret = waitpid(pid, &status, 0);
-        printf("%d %d %d\n", pid, ret, status);
-    }
-    else
-    {
-        // プロセス起動失敗
-        perror("failed to fork");
-        return EXIT_FAILURE;
-    }
-    return status;
-}
+int hiho(int argc, char **argv, const char **envp) { return 0; }
