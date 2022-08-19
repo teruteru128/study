@@ -73,6 +73,10 @@ if(OpenACC_CXX_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenACC_CXX_FLAGS}")
 endif()
 
+find_package(PNG REQUIRED)
+if(PNG_FOUND)
+endif(PNG_FOUND)
+
 # see https://cliutils.gitlab.io/modern-cmake/chapters/packages/CUDA.html
 check_language(CUDA)
 if(CMAKE_CUDA_COMPILER)
