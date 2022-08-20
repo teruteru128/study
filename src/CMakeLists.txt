@@ -222,9 +222,6 @@ add_executable(evprsaverifysample evprsaverifysample.c)
 add_executable(evptest evptest.c)
 target_link_libraries(evptest ${OPENSSL_CRYPTO_LIBRARIES})
 
-add_executable(example example.c)
-target_link_libraries(example ${PNG_LIBRARIES})
-
 add_executable(falcon falcon.c)
 target_link_libraries(falcon study)
 
