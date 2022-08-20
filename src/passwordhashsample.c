@@ -1,12 +1,12 @@
 
 #define OPENSSL_API_COMPAT 0x30000000L
 #define OPENSSL_NO_DEPRECATED 1
+#include "yattaze.h"
 #include <openssl/ec.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
 #include <stdio.h>
-#include "yattaze.h"
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/core_names.h>
@@ -22,6 +22,7 @@
 int main(void)
 {
     const char *msg = YATTAZE;
+    const EVP_MD *sha256 = EVP_sha256();
     EVP_MD_CTX *mdctx = NULL;
     int ret = 0;
 
@@ -36,7 +37,11 @@ int main(void)
     if (!(mdctx = EVP_MD_CTX_new()))
         goto err;
 
-    if (EVP_DigestInit_ex2(mdctx, EVP_sha256(), NULL) != 1)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    if (EVP_DigestInit_ex2(mdctx, sha256, NULL) != 1)
+#else
+    if (EVP_DigestInit_ex(mdctx, sha256, NULL) != 1)
+#endif
     {
         return EXIT_FAILURE;
     }
@@ -49,7 +54,11 @@ int main(void)
     {
         return 1;
     }
-    if (EVP_DigestInit(mdctx, EVP_sha256()) != 1)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    if (EVP_DigestInit_ex2(mdctx, sha256, NULL) != 1)
+#else
+    if (EVP_DigestInit_ex(mdctx, sha256, NULL) != 1)
+#endif
     {
         return 1;
     }
