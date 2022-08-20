@@ -2,11 +2,14 @@
 #define OPENSSL_API_COMPAT 0x30000000L
 #define OPENSSL_NO_DEPRECATED 1
 #include "yattaze.h"
+#include <openssl/bn.h>
+// ec.h includes string.h
 #include <openssl/ec.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
 #include <stdio.h>
+#include <string.h>
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/core_names.h>
