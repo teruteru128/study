@@ -2,10 +2,34 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <inttypes.h>
+#include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/param.h>
 
 #define X 25
+
+// TODO オーバーフロー対策
+uint64_t binomial(uint64_t n, uint64_t k)
+{
+    // 分母
+    uint64_t denominator = 1;
+    // 分子
+    uint64_t numerator = 1;
+    k = MIN(k, n - k);
+    size_t i, j, l = n - k + 1;
+    for (j = n; j >= l; j--)
+    {
+        numerator *= j;
+    }
+    for (i = k; i >= 1; i--)
+    {
+        denominator *= i;
+    }
+    return numerator / denominator;
+}
 
 /**
  * binomial coefficient
@@ -23,32 +47,19 @@
  */
 int main(int argc, char *argv[])
 {
-    long array1[X], array2[X];
-    int i,j;
-    /*
-    for(i = 0; i < X; i++)
+
+    int i, j;
+    for (i = 0; i <= X; i++)
     {
-        array1[i] = array2[i] = 0;
-    }
-    */
-    array1[0] = 1;
-    for(i = 1; i < X; i++)
-        array1[i] = 0;
-    for(i = 0; i < X; i++)
-    {
-        for(j = 0; j <= i; j++)
+        for (j = 0; j <= i; j++)
         {
-            array2[j] = array1[j];
+            if (j != 0)
+            {
+                printf(" ");
+            }
+            printf("%" PRIu64, binomial(i, j));
         }
-        for(j = 1; j <= i; j++)
-        {
-            array2[j] += array1[j - 1];
-        }
-        for(j = 0; j <= i; j++)
-        {
-            printf("%ld%s", array2[j], j != i ? " " : "\n");
-            array1[j] = array2[j];
-        }
+        printf("\n");
     }
     return EXIT_SUCCESS;
 }
