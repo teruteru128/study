@@ -16,6 +16,10 @@ void e(png_struct *a, png_const_charp b)
     printf("%s\n", b);
 }
 
+/**
+ * @brief pngファイルを読み込んで解像度を書き換えてファイルに書き出す
+ * 
+ */
 int hiho(int argc, char **argv, const char **envp)
 {
     int32_t width = 0, height = 0, res_x = 0, res_y = 0;
@@ -23,10 +27,12 @@ int hiho(int argc, char **argv, const char **envp)
         compression_method = 0, filter_method = 0;
     int type = PNG_RESOLUTION_METER;
     png_byte **row_pointers = NULL;
+    const char inpath[]
+        = "/mnt/g/iandm/image/waifu2x/pixiv.net/"
+          "32668232_p0(UpRGB)(noise_scale)(Level0)(x8.000000).png";
+    const char outpath[] = "32668232_p0_350dpi.png";
     {
-        FILE *infp = fopen("/mnt/g/iandm/image/waifu2x/pixiv.net/"
-                           "86287248_p0(UpRGB)(scale)(x4.000000).png",
-                           "rb");
+        FILE *infp = fopen(inpath, "rb");
         if (infp == NULL)
         {
             perror("fopen");
@@ -71,16 +77,29 @@ int hiho(int argc, char **argv, const char **envp)
 
         png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 
-        png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth,
-                     &color_type, &interlace_method, &compression_method,
-                     &filter_method);
-        printf("%" PRId32 " %" PRId32 "\n", width, height);
-        printf("%d %d %d %d %d\n", bit_depth, color_type, interlace_method,
-               compression_method, filter_method);
-        unsigned int ret
-            = png_get_pHYs(png_ptr, info_ptr, &res_x, &res_y, &type);
-        printf("pHYs: %u %" PRId32 " %" PRId32 " %" PRId32 "\n", ret, res_x,
-               res_y, type);
+        // 画像ヘッダ
+        if (png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth,
+                         &color_type, &interlace_method, &compression_method,
+                         &filter_method))
+        {
+            printf("image header: %" PRId32 " %" PRId32 "\n", width, height);
+            printf("%d %d %d %d %d\n", bit_depth, color_type, interlace_method,
+                   compression_method, filter_method);
+        }
+        else
+        {
+            printf("png_get_IHDR failed\n");
+        }
+        // 物理ピクセル解像度
+        if (png_get_pHYs(png_ptr, info_ptr, &res_x, &res_y, &type))
+        {
+            printf("physical pixel resolution: %" PRId32 " %" PRId32 " %d\n",
+                   res_x, res_y, type);
+        }
+        else
+        {
+            printf("png_get_pHYs failed\n");
+        }
 
         // dupliacte rows
         png_byte **original_row_pointers = png_get_rows(png_ptr, info_ptr);
@@ -97,7 +116,7 @@ int hiho(int argc, char **argv, const char **envp)
     }
     printf("read ok\n");
     {
-        FILE *outfp = fopen("86287248_p0_350dpi.png", "wb");
+        FILE *outfp = fopen(outpath, "wb");
         png_struct *outpng_ptr
             = png_create_write_struct(PNG_LIBPNG_VER_STRING, e, e, e);
         if (outpng_ptr == NULL)
@@ -120,7 +139,6 @@ int hiho(int argc, char **argv, const char **envp)
              */
             png_destroy_read_struct(&outpng_ptr, &outinfo_ptr, NULL);
             fclose(outfp);
-            perror("うんちー！2");
             /* If we get here, we had a problem reading the file. */
             return (EXIT_FAILURE);
         }
