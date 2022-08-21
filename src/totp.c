@@ -17,6 +17,7 @@
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/core_names.h>
+#include <openssl/param_build.h>
 #include <openssl/types.h>
 #endif
 
@@ -27,13 +28,16 @@ int hmac(const char *crypto, unsigned char *key, size_t keysiz,
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MAC *mac = EVP_MAC_fetch(NULL, "HMAC", "provider=default");
     EVP_MAC_CTX *macctx = EVP_MAC_CTX_new(mac);
-    OSSL_PARAM params[2]
-        = { OSSL_PARAM_utf8_string(OSSL_MAC_PARAM_DIGEST, crypto, 0),
-            OSSL_PARAM_END };
+    OSSL_PARAM_BLD *param_bld = OSSL_PARAM_BLD_new();
+    OSSL_PARAM_BLD_push_utf8_string(param_bld, OSSL_MAC_PARAM_DIGEST, crypto,
+                                    0);
+    OSSL_PARAM *params = OSSL_PARAM_BLD_to_param(param_bld);
     EVP_MAC_init(macctx, key, keysiz, params);
     EVP_MAC_update(macctx, msg, msglen);
     EVP_MAC_final(macctx, hash, s, 20);
     EVP_MAC_CTX_free(macctx);
+    OSSL_PARAM_free(params);
+    OSSL_PARAM_BLD_free(param_bld);
 #else
     // OpenSSL_add_all_algorithms();
     // OpenSSL_add_all_ciphers();
@@ -89,12 +93,12 @@ char *generateTOTP(unsigned char *key, size_t keysiz, time_t time,
 }
 
 /**
- * @brief 
- * 
+ * @brief
+ *
  * @param key base32 encoded text key
- * @param time 
- * @param returnDigits 
- * @return char* 
+ * @param time
+ * @param returnDigits
+ * @return char*
  */
 char *generateTOTP_SHA1(const char *key, time_t time, size_t returnDigits)
 {
