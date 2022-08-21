@@ -37,7 +37,9 @@ struct task *unused_node_bulk_dequeue(size_t num);
  * 
  * @param task 
  */
-void unused_node_bulk_enqueue(struct task *task);
+void unused_node_bulk_enqueue(struct task *task)
+{
+}
 
 void clear_task(struct task *task)
 {
