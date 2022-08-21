@@ -9,12 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-void e(png_struct *a, png_const_charp b)
-{
-    png_get_error_ptr(a);
-    printf("%s\n", b);
-}
+#include <time.h>
 
 // 画像ヘッダ
 struct IHDR
@@ -46,7 +41,7 @@ static int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys)
     }
     png_error_ptr p;
     png_struct *png_ptr
-        = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, e, e);
+        = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (!png_ptr)
         return (EXIT_FAILURE);
 
@@ -127,7 +122,7 @@ static int write_png(const char *outpath, struct IHDR *ihdr, struct pHYs *phys)
 {
     FILE *outfp = fopen(outpath, "wb");
     png_struct *outpng_ptr
-        = png_create_write_struct(PNG_LIBPNG_VER_STRING, e, e, e);
+        = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (outpng_ptr == NULL)
     {
         printf("outpng_ptr is null\n");
@@ -174,6 +169,7 @@ static int write_png(const char *outpath, struct IHDR *ihdr, struct pHYs *phys)
  */
 int hiho(int argc, char **argv, const char **envp)
 {
+    /*
     struct IHDR ihdr = { 0 };
     struct pHYs phys = { 0 };
     const char inpath[]
@@ -191,6 +187,32 @@ int hiho(int argc, char **argv, const char **envp)
         row_pointers[y] = NULL;
     }
     free(row_pointers);
+    */
+
+    time_t currenttime = time(NULL);
+    struct tm c_tm = { 0 };
+    struct tm target_tm = { 0 };
+    localtime_r(&currenttime, &c_tm);
+    target_tm.tm_year = c_tm.tm_year;
+    target_tm.tm_mon = 9;
+    target_tm.tm_mday = 1;
+    time_t target_time = mktime(&target_tm);
+    int64_t allofseconds = (int64_t)difftime(target_time, currenttime);
+    if (allofseconds <= 0)
+    {
+        // 現在時刻は10月1日午前0時0分0秒以降
+        // 来年の10月1日
+        target_tm.tm_year++;
+        target_time = mktime(&target_tm);
+        allofseconds = difftime(target_time, currenttime);
+    }
+    int64_t day = allofseconds / 86400;
+    int64_t hour = (allofseconds % 86400) / 3600;
+    int64_t min = (allofseconds % 3600) / 60;
+    int64_t sec = allofseconds % 60;
+    printf("次の10月1日まであと%" PRId64 "日%" PRId64 "時間%" PRId64
+           "分%" PRId64 "秒\n",
+           day, hour, min, sec);
 
     return 0;
 }
