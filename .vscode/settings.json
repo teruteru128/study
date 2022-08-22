@@ -195,7 +195,10 @@
         "core_names.h": "c",
         "netdb.h": "c",
         "rsa.h": "c",
-        "png.h": "c"
+        "png.h": "c",
+        "hmac.h": "c",
+        "pem2.h": "c",
+        "syslimits.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

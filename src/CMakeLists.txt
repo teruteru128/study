@@ -189,6 +189,9 @@ add_executable(doublerandom doublerandom.c)
 add_executable(dragon dragon.c)
 target_link_libraries(dragon study)
 
+add_executable(editpngphys editpngphys.c)
+target_link_libraries(editpngphys ${PNG_LIBRARIES})
+
 add_executable(eckeygentest eckeygentest.c timeutil.c)
 target_link_libraries(eckeygentest m ${OPENSSL_CRYPTO_LIBRARIES})
 target_include_directories(eckeygentest PRIVATE ${CURL_INCLUDE_DIRS})
@@ -334,6 +337,9 @@ target_link_libraries(mysqlbf mysqlclient)
 
 add_executable(mysqlfast mysqlfast.c)
 target_link_libraries(mysqlfast mysqlclient)
+
+add_executable(octorber october.c)
+#target_link_libraries(octorber)
 
 add_executable(oncecallsample oncecallsample.c)
 target_link_libraries(oncecallsample ${CMAKE_THREAD_LIBS_INIT})
