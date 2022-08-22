@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// 画像ヘッダ
+// 画像ヘッダチャンク
 struct IHDR
 {
     int32_t width;
@@ -17,7 +17,7 @@ struct IHDR
     int compression_method;
     int filter_method;
 };
-// 物理ピクセル解像度
+// 物理ピクセル解像度チャンク
 struct pHYs
 {
     int32_t res_x;
@@ -32,8 +32,8 @@ static int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
     {
         return 1;
     }
-    FILE *infp = fopen(inpath, "rb");
-    if (infp == NULL)
+    FILE *fp = fopen(inpath, "rb");
+    if (fp == NULL)
     {
         perror("fopen");
         return EXIT_FAILURE;
@@ -42,12 +42,16 @@ static int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
     png_struct *png_ptr
         = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (!png_ptr)
+    {
+        fclose(fp);
         return (EXIT_FAILURE);
+    }
 
     png_info *info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr)
     {
         png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+        fclose(fp);
         return (EXIT_FAILURE);
     }
 
@@ -61,11 +65,11 @@ static int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
         /* Free all of the memory associated with the png_ptr and info_ptr.
          */
         png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-        fclose(infp);
+        fclose(fp);
         /* If we get here, we had a problem reading the file. */
         return (EXIT_FAILURE);
     }
-    png_init_io(png_ptr, infp);
+    png_init_io(png_ptr, fp);
     png_set_sig_bytes(png_ptr, 0);
 
     png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
@@ -113,7 +117,7 @@ static int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
     }
 
     png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-    fclose(infp);
+    fclose(fp);
     return 0;
 }
 
@@ -151,11 +155,10 @@ static int write_png(const char *outpath, struct IHDR *ihdr, struct pHYs *phys,
      * PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
      * PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT
      */
-    png_set_IHDR(png_ptr, info_ptr, ihdr->width, ihdr->height,
-                 ihdr->bit_depth, ihdr->color_type, ihdr->interlace_method,
+    png_set_IHDR(png_ptr, info_ptr, ihdr->width, ihdr->height, ihdr->bit_depth,
+                 ihdr->color_type, ihdr->interlace_method,
                  ihdr->compression_method, ihdr->filter_method);
-    png_set_pHYs(png_ptr, info_ptr, phys->res_x, phys->res_y,
-                 phys->type);
+    png_set_pHYs(png_ptr, info_ptr, phys->res_x, phys->res_y, phys->type);
     png_set_rows(png_ptr, info_ptr, row_pointers);
     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
     png_destroy_write_struct(&png_ptr, &info_ptr);
