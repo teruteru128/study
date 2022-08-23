@@ -198,7 +198,9 @@
         "png.h": "c",
         "hmac.h": "c",
         "pem2.h": "c",
-        "syslimits.h": "c"
+        "syslimits.h": "c",
+        "math.h": "c",
+        "pnglibconf.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
