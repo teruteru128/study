@@ -338,8 +338,8 @@ target_link_libraries(mysqlbf mysqlclient)
 add_executable(mysqlfast mysqlfast.c)
 target_link_libraries(mysqlfast mysqlclient)
 
-add_executable(octorber october.c)
-#target_link_libraries(octorber)
+add_executable(octorberfirst octoberfirst.c)
+#target_link_libraries(octorberfirst)
 
 add_executable(oncecallsample oncecallsample.c)
 target_link_libraries(oncecallsample ${CMAKE_THREAD_LIBS_INIT})
