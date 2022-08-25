@@ -70,6 +70,8 @@ int hiho(int argc, char **argv, const char **envp)
     printf("%a, %08" PRIx32 "\n", e.a, e.b);
     e.b = 0x3f7fffff;
     printf("%1$a, %1$f, %2$08" PRIx32 "\n", e.a, e.b);
+    e.b = 0x7fc00000;
+    printf("%1$a, %1$f, %2$08" PRIx32 "\n", e.a, e.b);
     printf("--\n");
     printf("%lu\n", (0x5DEECE66DUL * 0xDFE05BCB1365UL) & 0xFFFFFFFFFFFFUL);
     printf("%012lx\n", (0x5DEECE66DUL * 0x5DEECE66DUL) & 0xFFFFFFFFFFFFUL);
