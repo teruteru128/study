@@ -2,18 +2,12 @@
 #define _GNU_SOURCE
 
 #include <inttypes.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <setjmp.h>
+#include <math.h>
+#include <stdfix.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-#include <openssl/core_names.h>
-#include <openssl/param_build.h>
-#include <openssl/types.h>
-#endif
+#include <string.h>
 
 /*
  * 秘密鍵かな？
@@ -31,6 +25,9 @@
  * cLtHGFI7X/Xl6Ly03DczMzl2bsHJmI2BMQKKCckUek5vTIiltDPfT3PxdT6zxW1LzwVqJIsQEkxxPNTswgpSFg==
  * pMQBNF+F12AXT3T0mQq7S0l1VcCr/Dw2Q54zeuHH0/1ExLgbhHEsmAHf3WR9nK/Ku1Mc/eU3vaAO78yplJB76A==
  * QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQQ==
+ * ↓2回連続getFloatで-1が出るseed 2つ
+ * 125352706827826
+ * 116229385253865
  */
 int hiho(int argc, char **argv, const char **envp)
 {
@@ -40,20 +37,51 @@ int hiho(int argc, char **argv, const char **envp)
     uint64_t c = 0x44088125286DL ^ 0x5DEECE66DL;
     b = ((c * 0x5DEECE66DL) + 0xb) & 0xFFFFFFFFFFFFL;
     a = ((b * 0x5DEECE66DL) + 0xb) & 0xFFFFFFFFFFFFL;
-    printf("0x%016" PRIx64 "->0x%016" PRIx64 "->0x%016" PRIx64 "\n", c ^ 0x5DEECE66DL, b, a);
-    a = 0xffffff000000L;
-    for (; a < 0x1000000000000L; a++)
+    printf("0x%016" PRIx64 "->0x%016" PRIx64 "->0x%016" PRIx64 "\n",
+           c ^ 0x5DEECE66DL, b, a);
+    printf("--\n");
+    for (a = 0xffffff000000L; a < 0x1000000000000L; a++)
     {
         b = ((a - 0xb) * 0xDFE05BCB1365L) & 0xFFFFFFFFFFFFL;
         c = ((b - 0xb) * 0xDFE05BCB1365L) & 0xFFFFFFFFFFFFL;
-        if ((b & 0xffffff800000L) == 0xffffff800000L)
+        if ((b & 0xffffff000000L) == 0xffffff000000L)
         {
-            printf("0x%016" PRIx64 "->0x%016" PRIx64 "->0x%016" PRIx64 "\n", c ^ 0x5DEECE66DL, b, a);
-            b_max = b;
+            printf("%1$" PRIu64 ", 0x%1$016" PRIx64 "->0x%2$016" PRIx64 "->0x%3$016" PRIx64 "\n",
+                   c ^ 0x5DEECE66DL, b, a);
         }
     }
-    // ↓2回連続getFloatで-1が出るseed 2つ
-    // 125352706827826
-    // 116229385253865
+    printf("--\n");
+    union a
+    {
+        double a;
+        uint64_t b;
+    } d;
+    union b
+    {
+        float a;
+        int32_t b;
+    } e;
+
+    d.a = 1;
+    printf("%la, %016" PRIx64 "\n", d.a, d.b);
+    d.b = 0x3fefffffffffffff;
+    printf("%la, %016" PRIx64 "\n", d.a, d.b);
+    e.a = 0xffffff / (float)(1 << 24);
+    printf("%a, %08" PRIx32 "\n", e.a, e.b);
+    e.b = 0x3f7fffff;
+    printf("%1$a, %1$f, %2$08" PRIx32 "\n", e.a, e.b);
+    printf("--\n");
+    printf("%lu\n", (0x5DEECE66DUL * 0xDFE05BCB1365UL) & 0xFFFFFFFFFFFFUL);
+    printf("%012lx\n", (0x5DEECE66DUL * 0x5DEECE66DUL) & 0xFFFFFFFFFFFFUL);
+    printf("%012lx\n", (0xbb20b4600a69UL * 0x5DEECE66DUL) & 0xFFFFFFFFFFFFUL);
+    printf("%012lx\n", (0xe7a191a625d9L * 0xDFE05BCB1365UL) & 0xFFFFFFFFFFFFUL);
+    printf("%lu\n", (0xd498bd0ac4b5UL * 0x13a1f16f099dUL) & 0xFFFFFFFFFFFFUL);
+    a = 1;
+    b = ((a * 0x5DEECE66DL) + 0xb) & 0xFFFFFFFFFFFFL;
+    c = ((b * 0x5DEECE66DL) + 0xb) & 0xFFFFFFFFFFFFL;
+    printf("%016lx\n", c);
+    printf("%016lx\n", (c - 0x40942DE6BAUL) * 0xe7a191a625d9L & 0xFFFFFFFFFFFFL);
+    printf("%016lx\n", ((1 * 0xbb20b4600a69UL) + 0x40942DE6BAUL) & 0xFFFFFFFFFFFFL);
+    printf("%016lx\n", (0xe7a191a625d9L * 0xbb20b4600a69UL) & 0xffffffffffffL);
     return 0;
 }
