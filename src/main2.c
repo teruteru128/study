@@ -9,6 +9,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MULTIPLIER 0x5DEECE66DUL
+#define ADDEND 0xBUL
+#define INVERSE_MULTIPLIER 0xDFE05BCB1365UL
+
+#define DOUBLE_MULTIPLIER 0xBB20B4600A69UL
+#define DOUBLE_ADDEND 0x0040942DE6BAUL
+#define DOUBLE_INVERSE_MULTIPLIER 0xE7A191A625D9UL
+
+#define TRIPLE_MULTIPLIER 0xD498BD0AC4B5UL
+#define TRIPLE_ADDEND 0x0AA8544E593DUL
+#define TRIPLE_INVERSE_MULTIPLIER 0x13A1F16F099DUL
+
+#define MASK 0xFFFFFFFFFFFFUL
+
 /*
  * 秘密鍵かな？
  * ioxhJc1lIE2m+WFdBg3ieQb6rk8sSvg3wRv/ImJz2tc=
@@ -34,20 +48,20 @@ int hiho(int argc, char **argv, const char **envp)
     uint64_t a = 0;
     uint64_t b = 0;
     uint64_t b_max = 0;
-    uint64_t c = 0x44088125286DL ^ 0x5DEECE66DL;
-    b = ((c * 0x5DEECE66DL) + 0xb) & 0xFFFFFFFFFFFFL;
-    a = ((b * 0x5DEECE66DL) + 0xb) & 0xFFFFFFFFFFFFL;
+    uint64_t c = 0x44088125286DL ^ MULTIPLIER;
+    b = ((c * MULTIPLIER) + ADDEND) & 0xFFFFFFFFFFFFL;
+    a = ((b * MULTIPLIER) + ADDEND) & 0xFFFFFFFFFFFFL;
     printf("0x%016" PRIx64 "->0x%016" PRIx64 "->0x%016" PRIx64 "\n",
-           c ^ 0x5DEECE66DL, b, a);
+           c ^ MULTIPLIER, b, a);
     printf("--\n");
     for (a = 0xffffff000000L; a < 0x1000000000000L; a++)
     {
-        b = ((a - 0xb) * 0xDFE05BCB1365L) & 0xFFFFFFFFFFFFL;
-        c = ((b - 0xb) * 0xDFE05BCB1365L) & 0xFFFFFFFFFFFFL;
+        b = ((a - ADDEND) * 0xDFE05BCB1365L) & 0xFFFFFFFFFFFFL;
+        c = ((b - ADDEND) * 0xDFE05BCB1365L) & 0xFFFFFFFFFFFFL;
         if ((b & 0xffffff000000L) == 0xffffff000000L)
         {
             printf("%1$" PRIu64 ", 0x%1$016" PRIx64 "->0x%2$016" PRIx64 "->0x%3$016" PRIx64 "\n",
-                   c ^ 0x5DEECE66DL, b, a);
+                   c ^ MULTIPLIER, b, a);
         }
     }
     printf("--\n");
@@ -73,17 +87,18 @@ int hiho(int argc, char **argv, const char **envp)
     e.b = 0x7fc00000;
     printf("%1$a, %1$f, %2$08" PRIx32 "\n", e.a, e.b);
     printf("--\n");
-    printf("%lu\n", (0x5DEECE66DUL * 0xDFE05BCB1365UL) & 0xFFFFFFFFFFFFUL);
-    printf("%012lx\n", (0x5DEECE66DUL * 0x5DEECE66DUL) & 0xFFFFFFFFFFFFUL);
-    printf("%012lx\n", (0xbb20b4600a69UL * 0x5DEECE66DUL) & 0xFFFFFFFFFFFFUL);
-    printf("%012lx\n", (0xe7a191a625d9L * 0xDFE05BCB1365UL) & 0xFFFFFFFFFFFFUL);
-    printf("%lu\n", (0xd498bd0ac4b5UL * 0x13a1f16f099dUL) & 0xFFFFFFFFFFFFUL);
+    printf("%lu\n", (MULTIPLIER * INVERSE_MULTIPLIER) & MASK);
+    printf("double multi: %012lx\n", (MULTIPLIER * MULTIPLIER) & MASK);
+    printf("triple multi: %012lx\n", (DOUBLE_MULTIPLIER * MULTIPLIER) & MASK);
+    printf("%012lx\n", (ADDEND * MULTIPLIER + ADDEND) & MASK);
+    printf("triple inver: %012lx\n", (DOUBLE_INVERSE_MULTIPLIER * INVERSE_MULTIPLIER) & MASK);
+    printf("%012lx\n", (TRIPLE_MULTIPLIER * TRIPLE_INVERSE_MULTIPLIER) & MASK);
     a = 1;
-    b = ((a * 0x5DEECE66DL) + 0xb) & 0xFFFFFFFFFFFFL;
-    c = ((b * 0x5DEECE66DL) + 0xb) & 0xFFFFFFFFFFFFL;
-    printf("%016lx\n", c);
-    printf("%016lx\n", (c - 0x40942DE6BAUL) * 0xe7a191a625d9L & 0xFFFFFFFFFFFFL);
-    printf("%016lx\n", ((1 * 0xbb20b4600a69UL) + 0x40942DE6BAUL) & 0xFFFFFFFFFFFFL);
-    printf("%016lx\n", (0xe7a191a625d9L * 0xbb20b4600a69UL) & 0xffffffffffffL);
+    b = ((a * MULTIPLIER) + ADDEND) & MASK;
+    c = ((b * MULTIPLIER) + ADDEND) & MASK;
+    printf("%012lx\n", c);
+    printf("%012lx\n", (c - DOUBLE_ADDEND) * DOUBLE_INVERSE_MULTIPLIER & MASK);
+    printf("%012lx\n", ((1 * DOUBLE_MULTIPLIER) + DOUBLE_ADDEND) & MASK);
+    printf("%012lx\n", (DOUBLE_INVERSE_MULTIPLIER * DOUBLE_MULTIPLIER) & MASK);
     return 0;
 }

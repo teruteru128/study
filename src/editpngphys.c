@@ -175,9 +175,9 @@ int main(int argc, char const *argv[], const char **envp)
     struct IHDR ihdr = { 0 };
     struct pHYs phys = { 0 };
     const char inpath[] = "/mnt/g/iandm/image/waifu2x/pixiv.net/"
-                          "52629088_p0(RGB)(scale)(x2.000000)(16bit).png";
+                          "87422440_p0(UpRGB)(noise_scale)(Level0)(x4.000000).png";
     const char outpath[]
-        = "/mnt/g/iandm/image/waifu2x/pixiv.net/52629088_p0_350dpi.png";
+        = "/mnt/g/iandm/image/waifu2x/pixiv.net/87422440_p0_350dpi.png";
     png_byte **row_pointers = NULL;
     read_png(inpath, &ihdr, &phys, &row_pointers);
     printf("read ok\n");
