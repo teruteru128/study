@@ -2,26 +2,11 @@
 #define _GNU_SOURCE
 
 #include <inttypes.h>
-#include <math.h>
-#include <stdfix.h>
+#include <regex.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define MULTIPLIER 0x5DEECE66DUL
-#define ADDEND 0xBUL
-#define INVERSE_MULTIPLIER 0xDFE05BCB1365UL
-
-#define DOUBLE_MULTIPLIER 0xBB20B4600A69UL
-#define DOUBLE_ADDEND 0x0040942DE6BAUL
-#define DOUBLE_INVERSE_MULTIPLIER 0xE7A191A625D9UL
-
-#define TRIPLE_MULTIPLIER 0xD498BD0AC4B5UL
-#define TRIPLE_ADDEND 0x0AA8544E593DUL
-#define TRIPLE_INVERSE_MULTIPLIER 0x13A1F16F099DUL
-
-#define MASK 0xFFFFFFFFFFFFUL
 
 /*
  * 秘密鍵かな？
@@ -45,60 +30,38 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    uint64_t a = 0;
-    uint64_t b = 0;
-    uint64_t b_max = 0;
-    uint64_t c = 0x44088125286DL ^ MULTIPLIER;
-    b = ((c * MULTIPLIER) + ADDEND) & 0xFFFFFFFFFFFFL;
-    a = ((b * MULTIPLIER) + ADDEND) & 0xFFFFFFFFFFFFL;
-    printf("0x%016" PRIx64 "->0x%016" PRIx64 "->0x%016" PRIx64 "\n",
-           c ^ MULTIPLIER, b, a);
-    printf("--\n");
-    for (a = 0xffffff000000L; a < 0x1000000000000L; a++)
+    regex_t *re = malloc(sizeof(regex_t));
+    int errcode = 0;
+    if ((errcode = regcomp(re, "v", REG_EXTENDED)) != 0)
     {
-        b = ((a - ADDEND) * 0xDFE05BCB1365L) & 0xFFFFFFFFFFFFL;
-        c = ((b - ADDEND) * 0xDFE05BCB1365L) & 0xFFFFFFFFFFFFL;
-        if ((b & 0xffffff000000L) == 0xffffff000000L)
-        {
-            printf("%1$" PRIu64 ", 0x%1$016" PRIx64 "->0x%2$016" PRIx64 "->0x%3$016" PRIx64 "\n",
-                   c ^ MULTIPLIER, b, a);
-        }
+        size_t len = regerror(errcode, re, NULL, 0);
+        char *buf = malloc(len);
+        regerror(errcode, re, buf, len);
+        fprintf(stderr, "%s\n", buf);
+        free(buf);
+        buf = NULL;
     }
-    printf("--\n");
-    union a
+    else
     {
-        double a;
-        uint64_t b;
-    } d;
-    union b
-    {
-        float a;
-        int32_t b;
-    } e;
+        printf("regcomp ok!\n");
+    }
 
-    d.a = 1;
-    printf("%la, %016" PRIx64 "\n", d.a, d.b);
-    d.b = 0x3fefffffffffffff;
-    printf("%la, %016" PRIx64 "\n", d.a, d.b);
-    e.a = 0xffffff / (float)(1 << 24);
-    printf("%a, %08" PRIx32 "\n", e.a, e.b);
-    e.b = 0x3f7fffff;
-    printf("%1$a, %1$f, %2$08" PRIx32 "\n", e.a, e.b);
-    e.b = 0x7fc00000;
-    printf("%1$a, %1$f, %2$08" PRIx32 "\n", e.a, e.b);
-    printf("--\n");
-    printf("%lu\n", (MULTIPLIER * INVERSE_MULTIPLIER) & MASK);
-    printf("double multi: %012lx\n", (MULTIPLIER * MULTIPLIER) & MASK);
-    printf("triple multi: %012lx\n", (DOUBLE_MULTIPLIER * MULTIPLIER) & MASK);
-    printf("%012lx\n", (ADDEND * MULTIPLIER + ADDEND) & MASK);
-    printf("triple inver: %012lx\n", (DOUBLE_INVERSE_MULTIPLIER * INVERSE_MULTIPLIER) & MASK);
-    printf("%012lx\n", (TRIPLE_MULTIPLIER * TRIPLE_INVERSE_MULTIPLIER) & MASK);
-    a = 1;
-    b = ((a * MULTIPLIER) + ADDEND) & MASK;
-    c = ((b * MULTIPLIER) + ADDEND) & MASK;
-    printf("%012lx\n", c);
-    printf("%012lx\n", (c - DOUBLE_ADDEND) * DOUBLE_INVERSE_MULTIPLIER & MASK);
-    printf("%012lx\n", ((1 * DOUBLE_MULTIPLIER) + DOUBLE_ADDEND) & MASK);
-    printf("%012lx\n", (DOUBLE_INVERSE_MULTIPLIER * DOUBLE_MULTIPLIER) & MASK);
+    errcode = regexec(re, "a", 0, NULL, 0);
+    if (errcode != 0)
+    {
+        size_t len = regerror(errcode, re, NULL, 0);
+        char *buf = malloc(len);
+        regerror(errcode, re, buf, len);
+        fprintf(stderr, "%s\n", buf);
+        free(buf);
+        buf = NULL;
+    }
+    else
+    {
+        printf("match %d\n", errcode);
+    }
+
+    regfree(re);
+    free(re);
     return 0;
 }
