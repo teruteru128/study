@@ -2,6 +2,7 @@
 #define _GNU_SOURCE
 
 #include <errno.h>
+#include <math.h>
 #include <netdb.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -10,6 +11,60 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+int createlistensocket(int *family, int *protocol)
+{
+    int listen_socket = -1;
+    struct addrinfo hints, *res = NULL, *ptr = NULL;
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_flags = AI_PASSIVE;
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_protocol = IPPROTO_TCP;
+    // service を "0" にしてlistenポートを開くテスト
+    int rc = getaddrinfo(NULL, "0", &hints, &res);
+    if (rc != 0)
+    {
+        fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(rc));
+        return -1;
+    }
+    for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
+    {
+        if ((listen_socket
+             = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol))
+            == -1)
+        {
+            fprintf(stderr, "socket: %s\n", strerror(errno));
+            continue;
+        }
+        if (bind(listen_socket, ptr->ai_addr, ptr->ai_addrlen) < 0)
+        {
+            fprintf(stderr, "bind, %d: %s\n", listen_socket, strerror(errno));
+            close(listen_socket);
+            listen_socket = -1;
+            continue;
+        }
+        if (listen(listen_socket, SOMAXCONN) < 0)
+        {
+            fprintf(stderr, "listen\n");
+            close(listen_socket);
+            listen_socket = -1;
+            continue;
+        }
+
+        printf("bind OK\n");
+        if (family != NULL)
+        {
+            *family = ptr->ai_family;
+        }
+        if (protocol != NULL)
+        {
+            *protocol = ptr->ai_protocol;
+        }
+        break;
+    }
+    freeaddrinfo(res);
+    return listen_socket;
+}
 
 /*
  * 秘密鍵かな？
@@ -34,56 +89,18 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    struct addrinfo hints, *res = NULL, *ptr = NULL;
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_flags = AI_PASSIVE;
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_protocol = IPPROTO_TCP;
-    int rc = getaddrinfo(NULL, "0", &hints, &res);
-    if (rc != 0)
-    {
-        fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(rc));
-        return EXIT_FAILURE;
-    }
-    int listen_socket = -1;
+
     int family = 0;
     int protocol = 0;
-    for (ptr = res; ptr != NULL; ptr = ptr->ai_next)
-    {
-        if ((listen_socket
-             = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol))
-            == -1)
-            continue;
-        if (bind(listen_socket, ptr->ai_addr, ptr->ai_addrlen) < 0)
-        {
-            fprintf(stderr, "bind, %d: %s\n", listen_socket, strerror(errno));
-            close(listen_socket);
-            listen_socket = -1;
-            continue;
-        }
-        if (listen(listen_socket, SOMAXCONN) < 0)
-        {
-            fprintf(stderr, "listen\n");
-            close(listen_socket);
-            listen_socket = -1;
-            continue;
-        }
-
-        printf("bind OK");
-        family = ptr->ai_family;
-        protocol = ptr->ai_protocol;
-        break;
-    }
-    printf("%p, listen_socket = %d\n", ptr, listen_socket);
+    int listen_socket = createlistensocket(&family, &protocol);
     if (listen_socket == -1)
     {
-        perror("");
         return EXIT_FAILURE;
     }
-    struct sockaddr_storage storage;
+    struct sockaddr_storage storage = { 0 };
     socklen_t storage_size = sizeof(struct sockaddr_storage);
-    rc = getsockname(listen_socket, (struct sockaddr *)&storage,
-                     &storage_size);
+    int rc = getsockname(listen_socket, (struct sockaddr *)&storage,
+                         &storage_size);
     if (rc != 0)
     {
         perror("getsockname");
@@ -101,7 +118,6 @@ int hiho(int argc, char **argv, const char **envp)
         return EXIT_FAILURE;
     }
     printf("%s %s %d %d\n", host, port, family, protocol);
-    freeaddrinfo(res);
 
     return 0;
 }
