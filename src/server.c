@@ -16,7 +16,6 @@
 #include <sys/random.h>
 #include <unistd.h>
 
-/*
 void *work(void *arg)
 {
     (void)arg;
@@ -45,7 +44,7 @@ int main(int argc, char const *argv[])
     {
         listen_socket
             = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-        if (listen_socket != -1)
+        if (listen_socket == -1)
             continue;
         if (bind(listen_socket, ptr->ai_addr, ptr->ai_addrlen) < 0)
         {
@@ -61,6 +60,7 @@ int main(int argc, char const *argv[])
             listen_socket = -1;
             continue;
         }
+        break;
     }
     freeaddrinfo(res);
     if (listen_socket == -1)
@@ -93,26 +93,23 @@ int main(int argc, char const *argv[])
             switch (*(uint64_t *)buf)
             {
             case 1:
-            // ゼロ埋めデータ
+                // ゼロ埋めデータ
                 totalwritesiz = *(uint64_t *)(buf + 8);
-                writebufsiz = datalen >= 24
-                                    ? be64toh(*(uint64_t *)(buf + 16))
-                                    : BUFSIZ;
+                writebufsiz = datalen >= 24 ? be64toh(*(uint64_t *)(buf + 16))
+                                            : BUFSIZ;
                 writebuf = malloc(writebufsiz);
                 memset(writebuf, 0, writebufsiz);
             case 2:
-            // ランダム(未初期化)データ
+                // ランダム(未初期化)データ
                 totalwritesiz = *(uint64_t *)(buf + 8);
-                writebufsiz = datalen >= 24
-                                    ? be64toh(*(uint64_t *)(buf + 16))
-                                    : BUFSIZ;
+                writebufsiz = datalen >= 24 ? be64toh(*(uint64_t *)(buf + 16))
+                                            : BUFSIZ;
                 writebuf = malloc(writebufsiz);
             case 3:
-            // ランダム(生成器)データ
+                // ランダム(生成器)データ
                 totalwritesiz = *(uint64_t *)(buf + 8);
-                writebufsiz = datalen >= 24
-                                    ? be64toh(*(uint64_t *)(buf + 16))
-                                    : BUFSIZ;
+                writebufsiz = datalen >= 24 ? be64toh(*(uint64_t *)(buf + 16))
+                                            : BUFSIZ;
                 writebuf = malloc(writebufsiz);
                 getrandom(writebuf, writebufsiz, GRND_NONBLOCK);
             case -1:
@@ -160,4 +157,3 @@ finish:
     close(listen_socket);
     return 0;
 }
-*/

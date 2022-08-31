@@ -200,7 +200,10 @@
         "pem2.h": "c",
         "syslimits.h": "c",
         "math.h": "c",
-        "pnglibconf.h": "c"
+        "pnglibconf.h": "c",
+        "bn.h": "c",
+        "stdnoreturn.h": "c",
+        "stdfix.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
