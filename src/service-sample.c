@@ -25,6 +25,8 @@ static void handler(int sig, siginfo_t *info, void *ctx)
 
 int create_server_socket(const char *service)
 {
+    if (service == NULL)
+        return -1;
     // socket
     int serversocket = -1;
 
