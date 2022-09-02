@@ -1,9 +1,13 @@
 
 #define _GNU_SOURCE
+#define OPENSSL_API_COMPAT 0x30000000L
+#define OPENSSL_NO_DEPRECATED 1
 
 #include <errno.h>
 #include <math.h>
 #include <netdb.h>
+#include <openssl/bn.h>
+#include <openssl/opensslv.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,6 +70,15 @@ int createlistensocket(int *family, int *protocol)
     return listen_socket;
 }
 
+BIGNUM *a(BIGNUM *src)
+{
+    char *dec = BN_bn2dec(src);
+    BIGNUM *desc = NULL;
+    BN_hex2bn(&desc, dec);
+    OPENSSL_free(dec);
+    return desc;
+}
+
 /*
  * 秘密鍵かな？
  * ioxhJc1lIE2m+WFdBg3ieQb6rk8sSvg3wRv/ImJz2tc=
@@ -89,35 +102,36 @@ int createlistensocket(int *family, int *protocol)
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-
-    int family = 0;
-    int protocol = 0;
-    int listen_socket = createlistensocket(&family, &protocol);
-    if (listen_socket == -1)
-    {
-        return EXIT_FAILURE;
-    }
-    struct sockaddr_storage storage = { 0 };
-    socklen_t storage_size = sizeof(struct sockaddr_storage);
-    int rc = getsockname(listen_socket, (struct sockaddr *)&storage,
-                         &storage_size);
-    if (rc != 0)
-    {
-        perror("getsockname");
-        return EXIT_FAILURE;
-    }
-    close(listen_socket);
-    char host[NI_MAXHOST];
-    char port[NI_MAXSERV];
-    rc = getnameinfo((struct sockaddr *)&storage, storage_size, host,
-                     NI_MAXHOST, port, NI_MAXSERV,
-                     NI_NUMERICHOST | NI_NUMERICSERV);
-    if (rc != 0)
-    {
-        perror("getnameinfo");
-        return EXIT_FAILURE;
-    }
-    printf("%s %s %d %d\n", host, port, family, protocol);
+    /*
+        int family = 0;
+        int protocol = 0;
+        int listen_socket = createlistensocket(&family, &protocol);
+        if (listen_socket == -1)
+        {
+            return EXIT_FAILURE;
+        }
+        struct sockaddr_storage storage = { 0 };
+        socklen_t storage_size = sizeof(struct sockaddr_storage);
+        int rc = getsockname(listen_socket, (struct sockaddr *)&storage,
+                             &storage_size);
+        if (rc != 0)
+        {
+            perror("getsockname");
+            return EXIT_FAILURE;
+        }
+        close(listen_socket);
+        char host[NI_MAXHOST];
+        char port[NI_MAXSERV];
+        rc = getnameinfo((struct sockaddr *)&storage, storage_size, host,
+                         NI_MAXHOST, port, NI_MAXSERV,
+                         NI_NUMERICHOST | NI_NUMERICSERV);
+        if (rc != 0)
+        {
+            perror("getnameinfo");
+            return EXIT_FAILURE;
+        }
+        printf("%s %s %d %d\n", host, port, family, protocol); */
+        printf("%c\n", 'C' + 8);
 
     return 0;
 }
