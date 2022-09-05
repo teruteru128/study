@@ -103,38 +103,20 @@ BIGNUM *a(BIGNUM *src)
  */
 int hiho(int argc, char **argv, const char **envp)
 {
+    struct tm tm1 = { 0 };
+    struct tm tm2 = { 0 };
+    tm1.tm_year = tm2.tm_year = 2022 - 1900;
+    tm1.tm_mon = tm2.tm_mon = 9 - 1;
+    tm1.tm_mday = tm2.tm_mday = 5;
+    tm1.tm_hour = tm2.tm_hour = 14;
+    tm1.tm_min = 49;
+    tm1.tm_sec = 57;
 
-    int family = 0;
-    int protocol = 0;
-    int listen_socket = createlistensocket(&family, &protocol);
-    if (listen_socket == -1)
-    {
-        return EXIT_FAILURE;
-    }
-    struct sockaddr_storage storage = { 0 };
-    socklen_t storage_size = sizeof(struct sockaddr_storage);
-    int rc = getsockname(listen_socket, (struct sockaddr *)&storage,
-                         &storage_size);
-    if (rc != 0)
-    {
-        perror("getsockname");
-        close(listen_socket);
-        return EXIT_FAILURE;
-    }
-    listen(listen_socket, 10);
-    close(listen_socket);
-    char host[NI_MAXHOST];
-    char port[NI_MAXSERV];
-    rc = getnameinfo((struct sockaddr *)&storage, storage_size, host,
-                     NI_MAXHOST, port, NI_MAXSERV,
-                     NI_NUMERICHOST | NI_NUMERICSERV);
-    if (rc != 0)
-    {
-        perror("getnameinfo");
-        return EXIT_FAILURE;
-    }
-    printf("%s %s %d %d\n", host, port, family, protocol);
-    printf("%c\n", 'C' + 8);
+    tm2.tm_min = 52;
+    tm2.tm_sec = 42;
 
+    time_t time1 = mktime(&tm1);
+    time_t time2 = mktime(&tm2);
+    printf("%" PRId64 "\n", (int64_t)difftime(time2, time1));
     return 0;
 }
