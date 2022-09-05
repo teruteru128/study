@@ -91,12 +91,6 @@ int function_bcast(const int argc, const char **argv)
         printf("%zu/%zu send(%lf%%)\n", successed, LENGTH,
                (double)(successed * 100) / LENGTH);
         free(message);
-        if ((i & 0x1ff) == 0x1ff)
-        {
-            printf("5分待ちまーす\n");
-            // 5分待つ
-            sleep(300);
-        }
     }
 
     xmlrpc_server_info_free(serverP);
