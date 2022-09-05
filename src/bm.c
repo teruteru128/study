@@ -1,11 +1,15 @@
 
+#include <base64.h>
 #include <bm.h>
 #include <bmapi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <unistd.h>
 
 #define NAME "TR BM TEST CLIENT"
+#define LENGTH 1047552lu
 
 int function_bcast(const int argc, const char **argv)
 {
@@ -29,7 +33,9 @@ int function_bcast(const int argc, const char **argv)
     }
     if (password == NULL)
     {
-        fputs("環境変数 BM_PASSWORD にパスワードを設定してください。(長さ0のパスワードは一応許容しています)\n",
+        fputs("環境変数 BM_PASSWORD "
+              "にパスワードを設定してください。("
+              "長さ0のパスワードは一応許容しています)\n",
               stderr);
         return 1;
     }
@@ -65,10 +71,33 @@ int function_bcast(const int argc, const char **argv)
     xmlrpc_server_info_allow_auth_basic(env, serverP);
     die_if_fault_occurred(env);
 
-    char *ackdata = NULL;
-    bmapi_sendBroadcast(env, clientP, serverP, "BM-2cWytQ6fyG6c69ofik1kmK5aB3nCJCDb47", "U2FtcGxlIGJyb2FkY2FzdA==", "SGVsbG8h", 2, 4 * 86400,
-                        &ackdata);
-    free(ackdata);
+    struct timespec spec;
+    char buf1[512] = "";
+    char buf2[BUFSIZ] = "";
+    struct tm tm;
+    char *message = NULL;
+    size_t successed = 0;
+    for (size_t i = 0; i < 1047552; i++)
+    {
+        clock_gettime(CLOCK_REALTIME, &spec);
+        localtime_r(&spec.tv_sec, &tm);
+        strftime(buf1, 512, "%Y/%m/%d %T", &tm);
+        snprintf(buf2, BUFSIZ, "%s.%09ld", buf1, spec.tv_nsec);
+        message = base64encode(buf2, strlen(buf2));
+        bmapi_sendBroadcast(
+            env, clientP, serverP, "BM-2cWytQ6fyG6c69ofik1kmK5aB3nCJCDb47",
+            "U2FtcGxlIGJyb2FkY2FzdA==", message, 2, 4 * 86400, NULL);
+        successed = i + 1;
+        printf("%zu/%zu send(%lf%%)\n", successed, LENGTH,
+               (double)(successed * 100) / LENGTH);
+        free(message);
+        if ((i & 0x1ff) == 0x1ff)
+        {
+            printf("5分待ちまーす\n");
+            // 5分待つ
+            sleep(300);
+        }
+    }
 
     xmlrpc_server_info_free(serverP);
     xmlrpc_client_destroy(clientP);

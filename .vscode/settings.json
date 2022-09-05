@@ -203,7 +203,12 @@
         "pnglibconf.h": "c",
         "bn.h": "c",
         "stdnoreturn.h": "c",
-        "stdfix.h": "c"
+        "stdfix.h": "c",
+        "base64.h": "c",
+        "clc.h": "c",
+        "clcfunc.h": "c",
+        "cl.h": "c",
+        "cl_version.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
