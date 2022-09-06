@@ -3,7 +3,6 @@
 #define OPENSSL_API_COMPAT 0x30000000L
 #define OPENSSL_NO_DEPRECATED 1
 
-#include <CL/cl.h>
 #include <errno.h>
 #include <math.h>
 #include <netdb.h>

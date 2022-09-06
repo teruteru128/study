@@ -208,7 +208,9 @@
         "clc.h": "c",
         "clcfunc.h": "c",
         "cl.h": "c",
-        "cl_version.h": "c"
+        "cl_version.h": "c",
+        "internal-string-list.h": "c",
+        "floatn.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
