@@ -7,7 +7,10 @@
 #include <math.h>
 #include <netdb.h>
 #include <openssl/bn.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
 #include <openssl/opensslv.h>
+#include <openssl/provider.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,5 +44,34 @@
 int hiho(int argc, char **argv, const char **envp)
 {
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
+    EVP_MD *md = EVP_MD_fetch(NULL, "ripemd160", "provider=legacy");
+    if (md == NULL)
+    {
+        fprintf(stderr, "%s\n", ERR_reason_error_string(ERR_get_error()));
+        return 1;
+    }
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    if (!EVP_DigestInit_ex2(ctx, md, NULL))
+    {
+        EVP_MD_CTX_free(ctx);
+        EVP_MD_free(md);
+        return 1;
+    }
+    unsigned char hash[EVP_MAX_MD_SIZE];
+    unsigned int length = EVP_MAX_MD_SIZE;
+    EVP_DigestFinal_ex(ctx, hash, &length);
+    printf("length:%d->%d\n", EVP_MAX_MD_SIZE, length);
+    for (size_t i = 0; i < length; i++)
+    {
+        /* code */
+        printf("%02x", hash[i]);
+    }
+    printf("\n");
+    EVP_MD_CTX_free(ctx);
+    EVP_MD_free(md);
+    OSSL_PROVIDER_unload(legacy);
+#endif
     return 0;
 }
