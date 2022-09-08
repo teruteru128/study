@@ -10,7 +10,6 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
-#include <openssl/provider.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,6 +18,10 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/provider.h>
+#endif
 
 /*
  * 秘密鍵かな？
