@@ -60,6 +60,13 @@ static void bs_sieveSingle(struct BitSieve *bs, size_t limit, size_t start,
     }
 }
 
+/**
+ * @brief smallsieve generator
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char *argv[])
 {
     BitSieve small = { 0, 0, NULL };

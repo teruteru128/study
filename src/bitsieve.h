@@ -23,6 +23,7 @@ struct bs_ctx
     size_t start;
     pthread_mutex_t mutex;
 };
+struct BitSieve *bs_new(void);
 struct BitSieve *bs_getInstance(mpz_t *base, size_t searchLen);
 void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen);
 void bs_free(struct BitSieve *bs);

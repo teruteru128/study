@@ -67,7 +67,10 @@ static void bs_sieveSingle(struct BitSieve *bs, size_t limit, size_t start,
     }
 }
 
-static struct BitSieve smallSieve;
+static struct BitSieve *smallSieve = NULL;
+
+// FIXME 決め打ちを止める
+#define BS_FILE "/mnt/h/Data/0x1000000000smallsieve.bs"
 
 static void bs_smallSieve_Constract(void)
 {
@@ -76,14 +79,23 @@ static void bs_smallSieve_Constract(void)
     struct timespec finish;
     struct timespec diff;
     clock_gettime(CLOCK_MONOTONIC, &start);
-    if (access("../0x800000000smallsieve.bs", F_OK | R_OK) != 0)
+    smallSieve = bs_new();
+    if (access(BS_FILE, F_OK | R_OK) == 0)
     {
-        fputs("既知素数ファイルが見つかりました。ロードを行います...\n", stderr);
-        FILE *fin = fopen("0x800000000smallsieve.bs", "rb");
-        bs_filein(&smallSieve, fin);
+        fputs("既知素数ファイルが見つかりました。ロードを行います...\n",
+              stderr);
+        FILE *fin = fopen(BS_FILE, "rb");
+        if (fin == NULL)
+        {
+            perror("fopen 0x800000000smallsieve.bs");
+            exit(1);
+        }
+        bs_filein(smallSieve, fin);
         fclose(fin);
         goto fin;
-    }else{
+    }
+    else
+    {
         fputs("?\n", stderr);
     }
     /*
@@ -92,7 +104,7 @@ static void bs_smallSieve_Constract(void)
      * lengthが非常に長い場合、smallSieveの長さを大きくしても良いのかも？
      */
     // smallSieve.length = 1 * 64; // 64
-    smallSieve.length = 150 * 64; // 9600
+    smallSieve->length = 150 * 64; // 9600
     // smallSieve.length = 500 * 64; // 32000
     // smallSieve.length = 512 * 64; // 32768
     // smallSieve.length = 780 * 64; // 49920
@@ -102,15 +114,15 @@ static void bs_smallSieve_Constract(void)
     // smallSieve.length = 65536 * 64; // 4,194,304
     // smallSieve.length = 1048576 * 64; // 67,108,864
     // smallSieve.length = 67108864 * 64UL; // 4,294,967,296
-    smallSieve.bits_length = unitIndex(smallSieve.length - 1) + 1;
-    smallSieve.bits = calloc(smallSieve.bits_length, sizeof(unsigned long));
-    if (smallSieve.bits == NULL)
+    smallSieve->bits_length = unitIndex(smallSieve->length - 1) + 1;
+    smallSieve->bits = calloc(smallSieve->bits_length, sizeof(unsigned long));
+    if (smallSieve->bits == NULL)
     {
         perror("smallSieve.bits = calloc");
         exit(1);
     }
 
-    bs_set(&smallSieve, 0);
+    bs_set(smallSieve, 0);
     size_t nextIndex = 1;
     size_t nextPrime = 3;
 
@@ -118,13 +130,13 @@ static void bs_smallSieve_Constract(void)
     do
     {
         // nextPrimeの倍数を塗りつぶす
-        bs_sieveSingle(&smallSieve, smallSieve.length, nextIndex + nextPrime,
+        bs_sieveSingle(smallSieve, smallSieve->length, nextIndex + nextPrime,
                        nextPrime);
         // nextIndexの次から探して塗りつぶされていない最初のindexを探す
         nextIndex
-            = bs_sieveSearch(&smallSieve, smallSieve.length, nextIndex + 1);
+            = bs_sieveSearch(smallSieve, smallSieve->length, nextIndex + 1);
         nextPrime = 2 * nextIndex + 1;
-    } while ((nextIndex != (size_t)-1) && (nextPrime < smallSieve.length));
+    } while ((nextIndex != (size_t)-1) && (nextPrime < smallSieve->length));
 fin:
     clock_gettime(CLOCK_MONOTONIC, &finish);
     difftimespec(&diff, &finish, &start);
@@ -137,6 +149,12 @@ static pthread_once_t smallSieveInitialize = PTHREAD_ONCE_INIT;
 void bs_initSmallSieve()
 {
     pthread_once(&smallSieveInitialize, bs_smallSieve_Constract);
+}
+
+struct BitSieve *bs_new(void)
+{
+    struct BitSieve *instance = calloc(1, sizeof(struct BitSieve));
+    return instance;
 }
 
 /**
@@ -162,7 +180,7 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
     bs->bits = calloc(bs->bits_length, sizeof(unsigned long));
     size_t start = 0;
 
-    size_t step = bs_sieveSearch(&smallSieve, smallSieve.length, start);
+    size_t step = bs_sieveSearch(smallSieve, smallSieve->length, start);
     size_t convertedStep = ((step * 2) + 1);
 
     do
@@ -172,7 +190,7 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
             start += convertedStep;
         bs_sieveSingle(bs, searchLen, (start - 1UL) / 2UL, convertedStep);
 
-        step = bs_sieveSearch(&smallSieve, smallSieve.length, step + 1UL);
+        step = bs_sieveSearch(smallSieve, smallSieve->length, step + 1UL);
         convertedStep = step * 2UL + 1UL;
     } while (step != (size_t)-1);
     struct timespec finish;
@@ -185,7 +203,7 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
 
 struct BitSieve *bs_getInstance(mpz_t *base, size_t searchLen)
 {
-    struct BitSieve *instance = calloc(1, sizeof(struct BitSieve));
+    struct BitSieve *instance = bs_new();
     bs_initInstance(instance, base, searchLen);
     return instance;
 }
@@ -202,6 +220,7 @@ void bs_free(struct BitSieve *bs)
         }
         bs->bits_length = 0;
         bs->length = 0;
+        free(bs);
     }
 }
 
@@ -430,7 +449,7 @@ size_t bs_getNextStep(struct bs_ctx *ctx)
 {
     pthread_mutex_lock(&ctx->mutex);
     size_t returnstep
-        = bs_sieveSearch(&smallSieve, smallSieve.length, ctx->start);
+        = bs_sieveSearch(smallSieve, smallSieve->length, ctx->start);
     ctx->start = returnstep + 1UL;
     pthread_mutex_unlock(&ctx->mutex);
     return returnstep;

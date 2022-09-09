@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <gmp.h>
 #include <string.h>
-#define PUBLISH_STRUCT_BS
 #include "bitsieve.h"
 
 // bitsieveをエクスポートして毎回使い回せば早くなるんじゃねえか？作戦
@@ -27,8 +26,8 @@ int exportBitSieve_main(int argc, const char *argv[])
 
     const size_t searchLength = mpz_sizeinbase(base, 2) / 20 * 64;
     //printf("%lu\n", searchLength);
-    struct BitSieve bitSieve;
-    bs_initInstance(&bitSieve, &base, searchLength);
+    struct BitSieve *bitSieve = bs_new();
+    bs_initInstance(bitSieve, &base, searchLength);
 
     char outfilename[FILENAME_MAX] = "";
 #if 1
@@ -48,9 +47,9 @@ int exportBitSieve_main(int argc, const char *argv[])
     snprintf(outfilename, FILENAME_MAX, "%s.bs", argv[1]);
 #endif
     FILE *fout = fopen(outfilename, "wb");
-    bs_fileout(fout, &bitSieve);
+    bs_fileout(fout, bitSieve);
     fclose(fout);
-    bs_free(&bitSieve);
+    bs_free(bitSieve);
     mpz_clear(base);
     return 0;
 }

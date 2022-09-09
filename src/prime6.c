@@ -8,7 +8,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
-#define PUBLISH_STRUCT_BS
 #include "bitsieve.h"
 
 #include <gmp.h>
@@ -46,9 +45,9 @@ int main(int argc, char *argv[])
     mpz_set(p, initValue);
     mpz_add_ui(p, p, 44008U +8546U);
 
-    struct BitSieve searchSieve;
-    bs_initInstance(&searchSieve, &p, (size_t)SEARCH_LENGTH);
-    mpz_t *candidate = bs_retrieve(&searchSieve, &p, DEFAULT_CERTAINTY);
+    struct BitSieve *searchSieve = bs_new();
+    bs_initInstance(searchSieve, &p, (size_t)SEARCH_LENGTH);
+    mpz_t *candidate = bs_retrieve(searchSieve, &p, DEFAULT_CERTAINTY);
 
     while ((candidate == NULL) || (mpz_sizeinbase(*candidate, 2) != BIT_LENGTH))
     {
@@ -61,13 +60,13 @@ int main(int argc, char *argv[])
             break;
         }
         mpz_clrbit(p, 0);
-        bs_free(&searchSieve);
-        bs_initInstance(&searchSieve, &p, SEARCH_LENGTH);
+        bs_free(searchSieve);
+        bs_initInstance(searchSieve, &p, SEARCH_LENGTH);
         mpz_clear(*candidate);
         free(candidate);
-        candidate = bs_retrieve(&searchSieve, &p, DEFAULT_CERTAINTY);
+        candidate = bs_retrieve(searchSieve, &p, DEFAULT_CERTAINTY);
     }
-    bs_free(&searchSieve);
+    bs_free(searchSieve);
     if (candidate != NULL)
     {
         gmp_printf("%Zd\n", *candidate);

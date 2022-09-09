@@ -39,12 +39,12 @@ int main(int argc, char *argv[])
     }
     mpz_inp_str(initValue, fin, 16);
     fclose(fin);
-    struct BitSieve searchSieve;
-    bs_initInstance(&searchSieve, &initValue, (size_t)SEARCH_LENGTH);
+    struct BitSieve *searchSieve = bs_new();
+    bs_initInstance(searchSieve, &initValue, (size_t)SEARCH_LENGTH);
     size_t k = 0;
-    for (size_t i = 0; i < searchSieve.bits_length; i++)
+    for (size_t i = 0; i < searchSieve->bits_length; i++)
     {
-        unsigned long nextLong = ~searchSieve.bits[i];
+        unsigned long nextLong = ~searchSieve->bits[i];
         //printf("%016lx\n", nextLong);
         for (size_t j = 0; j < 64; j++)
         {
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
             nextLong >>= 1;
         }
     }
-    bs_free(&searchSieve);
+    bs_free(searchSieve);
     mpz_clear(initValue);
     return EXIT_SUCCESS;
 }

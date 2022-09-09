@@ -4,6 +4,7 @@
 #define OPENSSL_NO_DEPRECATED 1
 
 #include <errno.h>
+#include <gmp.h>
 #include <math.h>
 #include <netdb.h>
 #include <openssl/bn.h>
@@ -47,45 +48,36 @@
 int hiho(int argc, char **argv, const char **envp)
 {
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    EVP_MD *md = EVP_MD_fetch(NULL, "sha512", NULL);
-    if (md == NULL)
+    if (argc < 3)
     {
-        fprintf(stderr, "%s\n", ERR_reason_error_string(ERR_get_error()));
+        fprintf(stderr, "initialvalueファイル2個入れてクレメンス\n");
+        fprintf(stderr, "initial value っていうかbase numberですよねこれ\n");
         return 1;
     }
-    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-    unsigned char hash[EVP_MAX_MD_SIZE];
-    unsigned int length = 0;
-    size_t i = 0;
-    for (uint64_t j = 0; j < 10; j++)
+    FILE *in1 = fopen(argv[1], "r");
+    FILE *in2 = fopen(argv[2], "r");
+    if (in1 == NULL || in2 == NULL)
     {
-        if (!EVP_DigestInit_ex2(ctx, md, NULL))
+        if (in1 != NULL)
         {
-            fprintf(stderr, "%s\n", ERR_reason_error_string(ERR_get_error()));
-            break;
+            fclose(in1);
         }
-        if (!EVP_DigestUpdate(ctx, &j, 8))
+        if (in2 != NULL)
         {
-            fprintf(stderr, "%s\n", ERR_reason_error_string(ERR_get_error()));
-            break;
+            fclose(in2);
         }
-        if (!EVP_DigestFinal_ex(ctx, hash, &length))
-        {
-            fprintf(stderr, "%s\n", ERR_reason_error_string(ERR_get_error()));
-            break;
-        }
-        printf("length:%d->%d\n", EVP_MAX_MD_SIZE, length);
-        for (i = 0; i < length; i++)
-        {
-            /* code */
-            printf("%02x", hash[i]);
-        }
-        printf("\n");
-        EVP_MD_CTX_reset(ctx);
+        return 1;
     }
-    EVP_MD_CTX_free(ctx);
-    EVP_MD_free(md);
-#endif
+    __mpz_struct p[3];
+    mpz_inits(p, p + 1, p + 2, NULL);
+    mpz_inp_str(p, in1, 16);
+    mpz_inp_str(p + 1, in2, 16);
+    fclose(in1);
+    fclose(in2);
+    mpz_mul(p + 2, p, p + 1);
+    size_t size = mpz_size(p + 2);
+    size_t sizeinbase2 = mpz_sizeinbase(p + 2, 2);
+    printf("%zu, %zu\n", size, sizeinbase2);
+    mpz_clears(p, p + 1, p + 2, NULL);
     return 0;
 }
