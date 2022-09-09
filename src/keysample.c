@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 /**
@@ -34,7 +35,8 @@ void *func(void *arg)
     snprintf(buf, TEXT_LENGTH, "うんちー！%2ld", count++);
     printf("func: (%lu) %s\n", pthread_self(), buf);
     pthread_setspecific(*key, buf);
-    usleep(500000);
+    struct timespec request = { .tv_sec = 0, .tv_nsec = 500000000 };
+    nanosleep(&request, NULL);
     return NULL;
 }
 

@@ -1,6 +1,8 @@
 
 #define _GNU_SOURCE
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #include "timerfdsample4.h"
 #include <err.h>

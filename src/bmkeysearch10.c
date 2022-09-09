@@ -14,9 +14,9 @@
 #include <string.h>
 #include <time.h>
 
-int loadPublicKey(unsigned char *memories)
+static int loadPublicKey(unsigned char *memories, char *publicKeyFilePath)
 {
-    FILE *fin = fopen(PROJECT_SOURCE_DIR "/publicKeys.bin", "rb");
+    FILE *fin = fopen(publicKeyFilePath, "rb");
     if (fin == NULL)
     {
         perror("fopen1");
@@ -35,15 +35,15 @@ int loadPublicKey(unsigned char *memories)
     return 0;
 }
 
-int loadPrivateKey(unsigned char *privateKey)
+int loadPrivateKey(unsigned char *privateKey, char *privateKeyFilePath)
 {
     char filepath[PATH_MAX] = "";
     FILE *fin = NULL;
     size_t readed = 0;
     for (int i = 0; i < 4; i++)
     {
-        snprintf(filepath, PATH_MAX, PROJECT_SOURCE_DIR "/privateKeys%d.bin",
-                 i);
+        snprintf(filepath, PATH_MAX, "%s/privateKeys%d.bin",
+                 privateKeyFilePath, i);
         fin = fopen(filepath, "rb");
         if (fin == NULL)
         {
@@ -101,6 +101,11 @@ static inline unsigned long hash(EVP_MD_CTX *mdctx, const EVP_MD *sha512,
  */
 int main(int argc, char *argv[])
 {
+    if (argc < 2)
+    {
+        fprintf(stderr, "%s [public key file] [private]", argv[0]);
+        return 1;
+    }
     PublicKey *memories = malloc(SIZE * PUBLIC_KEY_LENGTH);
     if (memories == NULL)
     {
@@ -113,8 +118,8 @@ int main(int argc, char *argv[])
         perror("malloc");
         return 1;
     }
-    loadPublicKey((unsigned char *)memories);
-    if (loadPrivateKey((unsigned char *)privateKey))
+    loadPublicKey((unsigned char *)memories, argv[1]);
+    if (loadPrivateKey((unsigned char *)privateKey, NULL))
     {
         free(memories);
         memset(privateKey, 0, PRIVATE_KEY_LENGTH * SIZE);
@@ -151,7 +156,8 @@ int main(int argc, char *argv[])
         {
             encKey = memories + j;
             // i, j
-            tmp = hash(mdctx, sha512, ripemd160, work, (unsigned char *)signKey, (unsigned char *)encKey);
+            tmp = hash(mdctx, sha512, ripemd160, work,
+                       (unsigned char *)signKey, (unsigned char *)encKey);
             // htobe64はいるようないらないような
             // tmp = clzl(*(unsigned long *)work);
             counts[tmp]++;
@@ -174,7 +180,8 @@ int main(int argc, char *argv[])
                 free(keu);
             }
             // j, i
-            tmp = hash(mdctx, sha512, ripemd160, work, (unsigned char *)encKey, (unsigned char *)signKey);
+            tmp = hash(mdctx, sha512, ripemd160, work, (unsigned char *)encKey,
+                       (unsigned char *)signKey);
             // htobe64はいるようないらないような
             // tmp = clzl(*(unsigned long *)work);
             counts[tmp]++;
@@ -198,7 +205,8 @@ int main(int argc, char *argv[])
             }
         }
         // i, i
-        tmp = hash(mdctx, sha512, ripemd160, work, (unsigned char *)signKey, (unsigned char *)signKey);
+        tmp = hash(mdctx, sha512, ripemd160, work, (unsigned char *)signKey,
+                   (unsigned char *)signKey);
         // htobe64はいるようないらないような
         // tmp = clzl(*(unsigned long *)work);
         counts[tmp]++;

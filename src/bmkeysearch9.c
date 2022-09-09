@@ -14,9 +14,9 @@
 #include <string.h>
 #include <time.h>
 
-int loadPublicKey(unsigned char *memories)
+int loadPublicKey(unsigned char *memories, char *path)
 {
-    FILE *fin = fopen(PROJECT_SOURCE_DIR "/publicKeys.bin", "rb");
+    FILE *fin = fopen(path, "rb");
     if (fin == NULL)
     {
         perror("fopen1");
@@ -35,14 +35,14 @@ int loadPublicKey(unsigned char *memories)
     return 0;
 }
 
-int loadPrivateKey(unsigned char *privateKey)
+int loadPrivateKey(unsigned char *privateKey, char *path)
 {
     char filepath[PATH_MAX] = "";
     FILE *fin = NULL;
     size_t readed = 0;
     for (int i = 0; i < 4; i++)
     {
-        snprintf(filepath, PATH_MAX, PROJECT_SOURCE_DIR "/privateKeys%d.bin", i);
+        snprintf(filepath, PATH_MAX, "%s/privateKeys%d.bin", path, i);
         fin = fopen(filepath, "rb");
         if (fin == NULL)
         {
@@ -78,6 +78,11 @@ int loadPrivateKey(unsigned char *privateKey)
  */
 int main(int argc, char *argv[])
 {
+    if (argc < 3)
+    {
+        fprintf(stderr, "%s [public key file] [private key dir]\n", argv[0]);
+        return 1;
+    }
     PublicKey *memories = malloc(SIZE * PUBLIC_KEY_LENGTH);
     if (memories == NULL)
     {
@@ -90,8 +95,8 @@ int main(int argc, char *argv[])
         perror("malloc");
         return 1;
     }
-    loadPublicKey((unsigned char *)memories);
-    if (loadPrivateKey((unsigned char *)privateKey))
+    loadPublicKey((unsigned char *)memories, argv[1]);
+    if (loadPrivateKey((unsigned char *)privateKey, argv[2]))
     {
         free(memories);
         memset(privateKey, 0, PRIVATE_KEY_LENGTH * SIZE);

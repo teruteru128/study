@@ -5,29 +5,32 @@
 
 #include <omp.h>
 #include <stdio.h>
+#include <time.h>
 #include <unistd.h>
 
 #define LOOPNUM 4
+
+static const struct timespec request = {.tv_sec =1, .tv_nsec = 0};
 
 void funcA(const int n)
 {
     for (int i = 0;i < LOOPNUM;i++) {
         printf("funcA t=%d %d\n", omp_get_thread_num(), n);
-        sleep(1);
+        nanosleep(&request, NULL);
     }
 }
 void funcB(const int n)
 {
     for (int i = 0;i < LOOPNUM;i++) {
         printf("funcB t=%d %d\n", omp_get_thread_num(), n);
-        sleep(1);
+        nanosleep(&request, NULL);
     }
 }
 void funcC(const int n)
 {
     for (int i = 0;i < LOOPNUM;i++) {
         printf("funcC t=%d %d\n", omp_get_thread_num(), n);
-        sleep(1);
+        nanosleep(&request, NULL);
     }
 }
 

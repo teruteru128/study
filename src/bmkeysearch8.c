@@ -13,9 +13,9 @@
 #include <string.h>
 #include <time.h>
 
-int loadPublicKey(unsigned char *memories)
+static int loadPublicKey(unsigned char *memories, char *publicKeyFilePath)
 {
-    FILE *fin = fopen(PROJECT_SOURCE_DIR "/publicKeys.bin", "rb");
+    FILE *fin = fopen(publicKeyFilePath, "rb");
     if (fin == NULL)
     {
         perror("fopen");
@@ -48,8 +48,13 @@ int loadPublicKey(unsigned char *memories)
  */
 int main(int argc, char *argv[])
 {
+    if (argc < 2)
+    {
+        fprintf(stderr, "%s [public key file]", argv[0]);
+        return 1;
+    }
     PublicKey *memories = malloc(SIZE * PUBLIC_KEY_LENGTH);
-    loadPublicKey((unsigned char *)memories);
+    loadPublicKey((unsigned char *)memories, argv[1]);
     const EVP_MD *sha512 = EVP_sha512();
     const EVP_MD *ripemd160 = EVP_ripemd160();
     EVP_MD_CTX *sharedmdctx[CTX_SIZE] = { NULL };

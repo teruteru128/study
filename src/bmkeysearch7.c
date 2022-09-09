@@ -15,9 +15,9 @@
 #include <string.h>
 #include <time.h>
 
-int loadPublicKey(unsigned char *memories)
+static int loadPublicKey(unsigned char *memories, char *publicKeyFilePath)
 {
-    FILE *fin = fopen(PROJECT_SOURCE_DIR "/publicKeys.bin", "rb");
+    FILE *fin = fopen(publicKeyFilePath, "rb");
     if (fin == NULL)
     {
         perror("fopen");
@@ -49,8 +49,13 @@ int loadPublicKey(unsigned char *memories)
  */
 int main(int argc, char *argv[])
 {
-    PublicKey *memories = malloc(4362076160UL);
-    loadPublicKey((unsigned char *)memories);
+    if (argc < 2)
+    {
+        fprintf(stderr, "%s [public key file]", argv[0]);
+        return 1;
+    }
+    PublicKey *memories = malloc(65UL * 4 * 16777216);
+    loadPublicKey((unsigned char *)memories, argv[1]);
     const EVP_MD *sha512 = EVP_sha512();
     const EVP_MD *ripemd160 = EVP_ripemd160();
     EVP_MD_CTX *mdctx = NULL;
@@ -106,7 +111,8 @@ int main(int argc, char *argv[])
                         address = encodeV4Address(hash, 20);
                         if (strcasestr(address, "ninja") != 0)
                         {
-                            printf("%lu, %zu, %zu, %s\n", tmp, ii, jj, address);
+                            printf("%lu, %zu, %zu, %s\n", tmp, ii, jj,
+                                   address);
                             fflush(stdout);
                         }
                         free(address);

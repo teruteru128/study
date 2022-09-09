@@ -1,6 +1,7 @@
 
 #include <pthread.h>
 #include <stdio.h>
+#include <time.h>
 #include <unistd.h>
 
 static pthread_once_t once_control = PTHREAD_ONCE_INIT;
@@ -10,10 +11,11 @@ static size_t i = 0;
 
 static void call(void)
 {
+    struct timespec request = { .tv_sec = 0, .tv_nsec = 250000000 };
     for (; i < count; i++)
     {
         printf("call-%d-%c\n", once_control, 'A' + (char)i % 26);
-        usleep(250000);
+        nanosleep(&request, NULL);
     }
     printf("call-%d-%c\n", once_control, 'A' + (char)i % 26);
     count += 30;
