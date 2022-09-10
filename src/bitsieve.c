@@ -170,6 +170,11 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
     printf("篩の初期化を開始します...\n");
     bs_initSmallSieve();
     struct timespec startt;
+    struct tm tm;
+    clock_gettime(CLOCK_REALTIME, &startt);
+    localtime_r(&startt.tv_sec, &tm);
+    printf("%d/%d/%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+           tm.tm_hour, tm.tm_min, tm.tm_sec);
     clock_gettime(CLOCK_MONOTONIC, &startt);
     if (bs == NULL || base == NULL)
     {
@@ -197,8 +202,11 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
     clock_gettime(CLOCK_MONOTONIC, &finish);
     struct timespec diff;
     difftimespec(&diff, &finish, &startt);
-    printf("篩の初期化を完了しました. %ld.%09lds\n", diff.tv_sec,
-           diff.tv_nsec);
+    clock_gettime(CLOCK_REALTIME, &finish);
+    localtime_r(&finish.tv_sec, &tm);
+    printf("%d/%d/%d %d:%d:%d: 篩の初期化を完了しました. (%ld.%09lds)\n",
+           tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min,
+           tm.tm_sec, diff.tv_sec, diff.tv_nsec);
 }
 
 struct BitSieve *bs_getInstance(mpz_t *base, size_t searchLen)
