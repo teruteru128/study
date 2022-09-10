@@ -575,7 +575,7 @@ target_link_libraries(sum gmp study)
 target_include_directories(sum PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(teamspeakIdUpgrader teamspeakIdUpgrader.c)
-target_link_libraries(teamspeakIdUpgrader study ${OPENSSL_CRYPTO_LIBRARIES})
+target_link_libraries(teamspeakIdUpgrader study ${OPENSSL_CRYPTO_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(teamspeakIdUpgrader PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(teamspeakcalc teamspeakcalc.c)
