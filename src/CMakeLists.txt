@@ -323,7 +323,7 @@ target_link_libraries(keypairgenerator ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_CRYPT
 target_include_directories(keypairgenerator PRIVATE ${OPENSSL_INCLUDE_DIR})
 
 add_executable(keysample keysample.c)
-target_link_libraries(keypairgenerator ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(keysample ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(kxsample kxsample.c)
 target_link_libraries(kxsample sodium)
