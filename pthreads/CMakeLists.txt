@@ -1,4 +1,5 @@
 add_executable(condTimedWait condTimedWait.c)
+target_link_libraries(condTimedWait PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 add_executable(condWait condWait.c)
 add_executable(fastPrimeNumber fastPrimeNumber.c)
 add_executable(fastPrimeNumber2 fastPrimeNumber2.c)
