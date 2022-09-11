@@ -1,16 +1,21 @@
 /* ftm.c - from feature_test_macros(7) */
 
+#define _GNU_SOURCE
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include <stddef.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 
+#define p(mac) printf(#mac " defined\n")
+
 int main(int argc, char *argv[])
 {
 #ifdef _POSIX_SOURCE
-    printf("_POSIX_SOURCE defined\n");
+    p(_POSIX_SOURCE);
 #endif
 
 #ifdef _POSIX_C_SOURCE
@@ -18,11 +23,11 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef _ISOC99_SOURCE
-    printf("_ISOC99_SOURCE defined\n");
+    p(_ISOC99_SOURCE);
 #endif
 
 #ifdef _ISOC11_SOURCE
-    printf("_ISOC11_SOURCE defined\n");
+    p(_ISOC11_SOURCE);
 #endif
 
 #ifdef _XOPEN_SOURCE
@@ -30,11 +35,11 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef _XOPEN_SOURCE_EXTENDED
-    printf("_XOPEN_SOURCE_EXTENDED defined\n");
+    p(_XOPEN_SOURCE_EXTENDED);
 #endif
 
 #ifdef _LARGEFILE64_SOURCE
-    printf("_LARGEFILE64_SOURCE defined\n");
+    p(_LARGEFILE64_SOURCE);
 #endif
 
 #ifdef _FILE_OFFSET_BITS
@@ -42,45 +47,47 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef _BSD_SOURCE
-    printf("_BSD_SOURCE defined\n");
+    p(_BSD_SOURCE);
 #endif
 
 #ifdef _SVID_SOURCE
-    printf("_SVID_SOURCE defined\n");
+    p(_SVID_SOURCE);
 #endif
 
 #ifdef _DEFAULT_SOURCE
-    printf("_DEFAULT_SOURCE defined\n");
+    p(_DEFAULT_SOURCE);
 #endif
 
 #ifdef _ATFILE_SOURCE
-    printf("_ATFILE_SOURCE defined\n");
+    p(_ATFILE_SOURCE);
 #endif
 
 #ifdef _GNU_SOURCE
-    printf("_GNU_SOURCE defined\n");
+    p(_GNU_SOURCE);
 #endif
 
 #ifdef _REENTRANT
-    printf("_REENTRANT defined\n");
+    p(_REENTRANT);
 #endif
 
 #ifdef _THREAD_SAFE
-    printf("_THREAD_SAFE defined\n");
+    p(_THREAD_SAFE);
 #endif
 
 #ifdef _FORTIFY_SOURCE
-    printf("_FORTIFY_SOURCE defined\n");
+    printf("_FORTIFY_SOURCE defined: %d\n", _FORTIFY_SOURCE);
 #endif
 
 #ifdef BYTE_ORDER
-    printf("BYTE_ORDER defined\n");
+    p(BYTE_ORDER);
 #if BYTE_ORDER == LITTLE_ENDIAN
     printf("BYTE_ORDER is LITTLE_ENDIAN\n");
 #elif BYTE_ORDER == BIG_ENDIAN
     printf("BYTE_ORDER is BIG_ENDIAN\n");
 #elif BYTE_ORDER == PDP_ENDIAN
     printf("BYTE_ORDER is PDP_ENDIAN\n");
+#else
+    printf("BYTE_ORDER is UNKNOWN ENDIAN\n");
 #endif
 #endif
 
