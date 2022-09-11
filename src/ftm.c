@@ -42,6 +42,10 @@ int main(int argc, char *argv[])
     p(_LARGEFILE64_SOURCE);
 #endif
 
+#ifdef _LARGEFILE_SOURCE
+    p(_LARGEFILE_SOURCE);
+#endif
+
 #ifdef _FILE_OFFSET_BITS
     printf("_FILE_OFFSET_BITS defined: %d\n", _FILE_OFFSET_BITS);
 #endif
