@@ -69,79 +69,65 @@ static void bs_sieveSingle(struct BitSieve *bs, size_t limit, size_t start,
 
 static struct BitSieve *smallSieve = NULL;
 
-// FIXME 決め打ちを止める
-#define BS_FILE "/mnt/h/Data/0x1000000000smallsieve.bs"
-
 static void bs_smallSieve_Constract(void)
 {
-    printf("small sieveの初期化を開始します...\n");
-    struct timespec start;
-    struct timespec finish;
-    struct timespec diff;
-    clock_gettime(CLOCK_MONOTONIC, &start);
     smallSieve = bs_new();
-    if (access(BS_FILE, F_OK | R_OK) == 0)
+    char *bs_file = getenv("SMALL_BITSIEVE_FILE");
+    if (bs_file != NULL && access(bs_file, F_OK | R_OK) == 0)
     {
-        fputs("既知素数ファイルが見つかりました。ロードを行います...\n",
-              stderr);
-        FILE *fin = fopen(BS_FILE, "rb");
+        FILE *fin = fopen(bs_file, "rb");
         if (fin == NULL)
         {
-            perror("fopen 0x800000000smallsieve.bs");
+            perror("fopen small bitsieve file");
             exit(1);
         }
         bs_filein(smallSieve, fin);
         fclose(fin);
-        goto fin;
     }
     else
     {
-        fputs("?\n", stderr);
-    }
-    /*
-     * このふるいの長さはJavaで実装されているものをそのまま流用しているため、最適化するには独自に実験して選択する必要があります。
-     * 対象のbit
-     * lengthが非常に長い場合、smallSieveの長さを大きくしても良いのかも？
-     */
-    // smallSieve.length = 1 * 64; // 64
-    smallSieve->length = 150 * 64; // 9600
-    // smallSieve.length = 500 * 64; // 32000
-    // smallSieve.length = 512 * 64; // 32768
-    // smallSieve.length = 780 * 64; // 49920
-    // smallSieve.length = 1024 * 64; // 65536
-    // smallSieve.length = 6554 * 64; // 419456
-    // smallSieve.length = 8192 * 64; // 524288
-    // smallSieve.length = 65536 * 64; // 4,194,304
-    // smallSieve.length = 1048576 * 64; // 67,108,864
-    // smallSieve.length = 67108864 * 64UL; // 4,294,967,296
-    smallSieve->bits_length = unitIndex(smallSieve->length - 1) + 1;
-    smallSieve->bits = calloc(smallSieve->bits_length, sizeof(unsigned long));
-    if (smallSieve->bits == NULL)
-    {
-        perror("smallSieve.bits = calloc");
-        exit(1);
-    }
+        /*
+         * このふるいの長さはJavaで実装されているものをそのまま流用しているため、最適化するには独自に実験して選択する必要があります。
+         * 対象のbit
+         * lengthが非常に長い場合、smallSieveの長さを大きくしても良いのかも？
+         */
+        // smallSieve.length = 1 * 64; // 64
+        smallSieve->length = 150 * 64; // 9600
+        // smallSieve.length = 500 * 64; // 32000
+        // smallSieve.length = 512 * 64; // 32768
+        // smallSieve.length = 780 * 64; // 49920
+        // smallSieve.length = 1024 * 64; // 65536
+        // smallSieve.length = 6554 * 64; // 419456
+        // smallSieve.length = 8192 * 64; // 524288
+        // smallSieve.length = 65536 * 64; // 4,194,304
+        // smallSieve.length = 1048576 * 64; // 67,108,864
+        // smallSieve.length = 67108864 * 64UL; // 4,294,967,296
+        smallSieve->bits_length = unitIndex(smallSieve->length - 1) + 1;
+        smallSieve->bits
+            = calloc(smallSieve->bits_length, sizeof(unsigned long));
+        if (smallSieve->bits == NULL)
+        {
+            perror("smallSieve.bits = calloc");
+            exit(1);
+        }
 
-    bs_set(smallSieve, 0);
-    size_t nextIndex = 1;
-    size_t nextPrime = 3;
+        bs_set(smallSieve, 0);
+        size_t nextIndex = 1;
+        size_t nextPrime = 3;
 
-    /* エラトステネスの篩ループ */
-    do
-    {
-        // nextPrimeの倍数を塗りつぶす
-        bs_sieveSingle(smallSieve, smallSieve->length, nextIndex + nextPrime,
-                       nextPrime);
-        // nextIndexの次から探して塗りつぶされていない最初のindexを探す
-        nextIndex
-            = bs_sieveSearch(smallSieve, smallSieve->length, nextIndex + 1);
-        nextPrime = 2 * nextIndex + 1;
-    } while ((nextIndex != (size_t)-1) && (nextPrime < smallSieve->length));
-fin:
-    clock_gettime(CLOCK_MONOTONIC, &finish);
-    difftimespec(&diff, &finish, &start);
-    printf("small sieveの初期化を完了しました. %ld.%09lds\n", diff.tv_sec,
-           diff.tv_nsec);
+        /* エラトステネスの篩ループ */
+        do
+        {
+            // nextPrimeの倍数を塗りつぶす
+            bs_sieveSingle(smallSieve, smallSieve->length,
+                           nextIndex + nextPrime, nextPrime);
+            // nextIndexの次から探して塗りつぶされていない最初のindexを探す
+            nextIndex = bs_sieveSearch(smallSieve, smallSieve->length,
+                                       nextIndex + 1);
+            nextPrime = 2 * nextIndex + 1;
+        } while ((nextIndex != (size_t)-1)
+                 && (nextPrime < smallSieve->length));
+    }
 }
 
 static pthread_once_t smallSieveInitialize = PTHREAD_ONCE_INIT;
@@ -167,15 +153,7 @@ struct BitSieve *bs_new(void)
  */
 void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
 {
-    printf("篩の初期化を開始します...\n");
     bs_initSmallSieve();
-    struct timespec startt;
-    struct tm tm;
-    clock_gettime(CLOCK_REALTIME, &startt);
-    localtime_r(&startt.tv_sec, &tm);
-    printf("%d/%d/%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
-           tm.tm_hour, tm.tm_min, tm.tm_sec);
-    clock_gettime(CLOCK_MONOTONIC, &startt);
     if (bs == NULL || base == NULL)
     {
         return;
@@ -198,15 +176,6 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
         step = bs_sieveSearch(smallSieve, smallSieve->length, step + 1UL);
         convertedStep = step * 2UL + 1UL;
     } while (step != (size_t)-1);
-    struct timespec finish;
-    clock_gettime(CLOCK_MONOTONIC, &finish);
-    struct timespec diff;
-    difftimespec(&diff, &finish, &startt);
-    clock_gettime(CLOCK_REALTIME, &finish);
-    localtime_r(&finish.tv_sec, &tm);
-    printf("%d/%d/%d %d:%d:%d: 篩の初期化を完了しました. (%ld.%09lds)\n",
-           tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min,
-           tm.tm_sec, diff.tv_sec, diff.tv_nsec);
 }
 
 struct BitSieve *bs_getInstance(mpz_t *base, size_t searchLen)

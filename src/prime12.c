@@ -3,6 +3,7 @@
 #include "config.h"
 #endif
 #include "bitsieve.h"
+#include "timeutil.h"
 #include <gmp.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -54,7 +55,24 @@ int exportBitSieve_main(int argc, const char *argv[])
     const size_t searchLength = mpz_sizeinbase(base, 2) / 20 * 64;
     // printf("%lu\n", searchLength);
     struct BitSieve *bitSieve = bs_new();
+    printf("篩の初期化を開始します...\n");
+    struct timespec startt;
+    struct tm tm;
+    clock_gettime(CLOCK_REALTIME, &startt);
+    localtime_r(&startt.tv_sec, &tm);
+    printf("%d/%d/%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+           tm.tm_hour, tm.tm_min, tm.tm_sec);
+    clock_gettime(CLOCK_MONOTONIC, &startt);
     bs_initInstance(bitSieve, &base, searchLength);
+    struct timespec finish;
+    clock_gettime(CLOCK_MONOTONIC, &finish);
+    struct timespec diff;
+    difftimespec(&diff, &finish, &startt);
+    clock_gettime(CLOCK_REALTIME, &finish);
+    localtime_r(&finish.tv_sec, &tm);
+    printf("%d/%d/%d %d:%d:%d: 篩の初期化を完了しました. (%ld.%09lds)\n",
+           tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min,
+           tm.tm_sec, diff.tv_sec, diff.tv_nsec);
 
     char outfilename[FILENAME_MAX] = "";
     replaceextension(outfilename, FILENAME_MAX, argv[1], "bs");
