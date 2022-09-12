@@ -24,25 +24,25 @@ int main(int argc, char **argv)
 
     uuid_generate_random(uuid);
     uuid_unparse(uuid, out);
-    printf("%s\n", out);
+    printf("random: %s\n", out);
     uuid_generate_md5(uuid, NAMESPACE_DNS, PYTHON_ORG, strlen(PYTHON_ORG));
     uuid_unparse(uuid, out);
-    printf("%s\n", out);
+    printf("md5 with dns: %s\n", out);
     uuid_generate_sha1(uuid, NAMESPACE_DNS, PYTHON_ORG, strlen(PYTHON_ORG));
     uuid_unparse(uuid, out);
-    printf("%s\n", out);
+    printf("sha1 with dns: %s\n", out);
     uuid_generate_sha1(uuid, NAMESPACE_URL, PYTHON_ORG, strlen(PYTHON_ORG));
     uuid_unparse(uuid, out);
-    printf("%s\n", out);
+    printf("sha1 with url: %s\n", out);
     uuid_generate_sha1(uuid, NAMESPACE_OID, PYTHON_ORG, strlen(PYTHON_ORG));
     uuid_unparse(uuid, out);
-    printf("%s\n", out);
+    printf("sha1 with oid: %s\n", out);
     uuid_generate_sha1(uuid, NAMESPACE_X500, PYTHON_ORG, strlen(PYTHON_ORG));
     uuid_unparse(uuid, out);
-    printf("%s\n", out);
+    printf("sha1 with x500: %s\n", out);
     uuid_generate_sha1(uuid, RUNTIME_GENERATED_PROFILE_NAMESPACE_GUID, CMD, strlen(CMD));
     uuid_unparse(uuid, out);
-    printf("%s\n", out);
+    printf("sha1 with guid: %s\n", out);
 
     return EXIT_SUCCESS;
 }

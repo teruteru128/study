@@ -48,36 +48,11 @@
 int hiho(int argc, char **argv, const char **envp)
 {
 
-    if (argc < 3)
+    char url[] = "https://www.nicovideo.jp/watch/sm29322092";
+    size_t len = strlen(url);
+    for (size_t i = 0; i < len; i++)
     {
-        fprintf(stderr, "initialvalueファイル2個入れてクレメンス\n");
-        fprintf(stderr, "initial value っていうかbase numberですよねこれ\n");
-        return 1;
+        printf("%1$c %1$03d %1$02x\n", url[i]);
     }
-    FILE *in1 = fopen(argv[1], "r");
-    FILE *in2 = fopen(argv[2], "r");
-    if (in1 == NULL || in2 == NULL)
-    {
-        if (in1 != NULL)
-        {
-            fclose(in1);
-        }
-        if (in2 != NULL)
-        {
-            fclose(in2);
-        }
-        return 1;
-    }
-    __mpz_struct p[3];
-    mpz_inits(p, p + 1, p + 2, NULL);
-    mpz_inp_str(p, in1, 16);
-    mpz_inp_str(p + 1, in2, 16);
-    fclose(in1);
-    fclose(in2);
-    mpz_mul(p + 2, p, p + 1);
-    size_t size = mpz_size(p + 2);
-    size_t sizeinbase2 = mpz_sizeinbase(p + 2, 2);
-    printf("%zu, %zu\n", size, sizeinbase2);
-    mpz_clears(p, p + 1, p + 2, NULL);
     return 0;
 }
