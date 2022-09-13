@@ -40,6 +40,7 @@
  */
 int main(void)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD *sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
 #else
     const EVP_MD *sha1 = EVP_sha1();
