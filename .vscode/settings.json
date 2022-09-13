@@ -1,11 +1,11 @@
 {
     "files.associations": {
+        "*.ts": "typescript",
+        ".classpath": "xml",
         "*.classpath": "xml",
         "*.f03": "c",
         "*.in": "cpp",
         "*.tcc": "c",
-        "*.ts": "typescript",
-        ".classpath": "xml",
         "algorithm": "c",
         "alloca.h": "c",
         "args.h": "c",
@@ -70,6 +70,7 @@
         "ec.h": "c",
         "eja.h": "c",
         "endian.h": "c",
+        "endianness.h": "c",
         "epsp-parser.h": "c",
         "epsp-type.h": "c",
         "epsp_parser.h": "c",
@@ -212,6 +213,7 @@
         "xorshift.h": "c",
         "yattaze.h": "c",
         "z3++.h": "c",
+        "uintn-identity.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

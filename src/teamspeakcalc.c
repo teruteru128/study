@@ -59,13 +59,15 @@ int main(void)
         in1Length = strlen(DEFAULT_IDENTITY);
         memcpy(in1, DEFAULT_IDENTITY, in1Length);
         in2 = in1 + in1Length;
+        // 0x0029E0C3A72
+        // 0x01000000000
+        // 0x10000000000
 #pragma omp for
-        for (verifier = 11241536114; verifier < 1099511627776UL; verifier++)
+        for (verifier = 11241536114; verifier < 0x01000000000UL; verifier++)
         {
             EVP_DigestInit(ctx, sha1);
-            EVP_DigestUpdate(ctx, in1, in1Length);
             verifierLength = snprintf(in2, IN2_SIZE, "%" PRIu64, verifier);
-            EVP_DigestUpdate(ctx, in2, verifierLength);
+            EVP_DigestUpdate(ctx, in1, in1Length + verifierLength);
             EVP_DigestFinal(ctx, md, NULL);
             // if (memcmp(md, "\0\0\0\0\0", 3) == 0)
             c = __builtin_ctzl(le64toh(*(unsigned long *)md));
