@@ -8,6 +8,7 @@
 #include <math.h>
 #include <netdb.h>
 #include <openssl/bn.h>
+#include <openssl/ec.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
@@ -47,12 +48,11 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-
-    char url[] = "https://www.nicovideo.jp/watch/sm29322092";
-    size_t len = strlen(url);
-    for (size_t i = 0; i < len; i++)
-    {
-        printf("%1$c %1$03d %1$02x\n", url[i]);
+    size_t c = (0x10000000000UL-11241536114UL)/16;
+    size_t i = 0;
+    for(i = 11241536114UL; i < 0x10000000000UL;i += c){
+        printf("%zu\n", i);
     }
+    printf("%zu\n", i);
     return 0;
 }

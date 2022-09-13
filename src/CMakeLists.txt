@@ -579,8 +579,9 @@ target_link_libraries(teamspeakIdUpgrader study ${OPENSSL_CRYPTO_LIBRARIES} ${CM
 target_include_directories(teamspeakIdUpgrader PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(teamspeakcalc teamspeakcalc.c)
-target_link_libraries(teamspeakcalc study ${OPENSSL_CRYPTO_LIBRARIES})
+target_link_libraries(teamspeakcalc study ${OPENSSL_CRYPTO_LIBRARIES} $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_LIBRARIES}>)
 target_include_directories(teamspeakcalc PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
+target_compile_options(teamspeakcalc PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 
 add_executable(threadAttr threadAttr.c)
 target_link_libraries(threadAttr ${CMAKE_THREAD_LIBS_INIT})
