@@ -41,6 +41,9 @@
 int main(void)
 {
     EVP_MD *sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
+#else
+    const EVP_MD *sha1 = EVP_sha1();
+#endif
     EVP_MD_CTX *ctx = NULL;
     unsigned char md[EVP_MAX_MD_SIZE];
     int i = 0;
@@ -59,7 +62,6 @@ int main(void)
         in1Length = strlen(DEFAULT_IDENTITY);
         memcpy(in1, DEFAULT_IDENTITY, in1Length);
         in2 = in1 + in1Length;
-        // 0x0029E0C3A72
         // 0x01000000000
         // 0x10000000000
 #pragma omp for
@@ -100,7 +102,9 @@ int main(void)
         ctx = NULL;
     }
 
-    /* DEAD CODE ***********************/
+    printf("終わり！\n");
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD_free(sha1);
+#endif
     return EXIT_SUCCESS;
 }
