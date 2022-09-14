@@ -55,7 +55,14 @@ int main(void)
     size_t verifierLength = 0;
     int c = -1;
     int c_max = INT_MIN;
+    time_t start = time(NULL);
+    time_t finish = 0;
+    struct tm tm = { 0 };
+    localtime_r(&start, &tm);
+    char timebuf[512] = "";
+    strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
 
+    printf("開始: %s\n", timebuf);
 #pragma omp parallel private(ctx, md, i, in1, in1Length, in2, verifierLength, \
                              c)
     {
@@ -103,7 +110,10 @@ int main(void)
         ctx = NULL;
     }
 
-    printf("終わり！\n");
+    finish = time(NULL);
+    localtime_r(&finish, &tm);
+    strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
+    printf("終わり！: %s(%ld)\n", timebuf, (int64_t)difftime(finish, start));
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD_free(sha1);
 #endif
