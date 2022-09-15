@@ -35,10 +35,8 @@
     "MEwDAgcAAgEgAiBK4dcDZUSLCxmvRfMWMAQf1JzSrLzZakLqDsULzT28OwIhAILbBS66JoN" \
     "1Xo2YsC1xDPDhukJjVO2guoeL+AM27Vfn"
 
-/**
- *
- */
-int main(void)
+// ルーチン
+void routine(const char *in)
 {
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD *sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
@@ -48,36 +46,37 @@ int main(void)
     EVP_MD_CTX *ctx = NULL;
     unsigned char md[EVP_MAX_MD_SIZE];
     int i = 0;
-    char in1[125] = "";
-    uint64_t in1Length = 0;
-    char *in2 = NULL;
+    // 公開鍵長さ
+    const size_t publickey_string_length = strlen(DEFAULT_IDENTITY);
+    // 配列長さ
+    const size_t input_buffer_size = publickey_string_length + IN2_SIZE;
+    char input_buffer[input_buffer_size];
+    char *verifier_head_ptr = NULL;
     uint64_t verifier = 0;
     size_t verifierLength = 0;
     int c = -1;
     int c_max = INT_MIN;
-    time_t start = time(NULL);
-    time_t finish = 0;
-    struct tm tm = { 0 };
-    localtime_r(&start, &tm);
-    char timebuf[512] = "";
-    strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
-
-    printf("開始: %s\n", timebuf);
-#pragma omp parallel private(ctx, md, i, in1, in1Length, in2, verifierLength, \
-                             c)
+#pragma omp parallel private(ctx, md, i, input_buffer, verifier_head_ptr,     \
+                             verifierLength, c)
     {
         ctx = EVP_MD_CTX_new();
-        in1Length = strlen(DEFAULT_IDENTITY);
-        memcpy(in1, DEFAULT_IDENTITY, in1Length);
-        in2 = in1 + in1Length;
-        // 0x01000000000
+        // ゼロ埋め初期化
+        memset(input_buffer, 0, input_buffer_size);
+        // バッファに公開鍵をコピー
+        memcpy(input_buffer, DEFAULT_IDENTITY, publickey_string_length);
+        verifier_head_ptr = input_buffer + publickey_string_length;
+        // 0x01000000000を8スレ->2.5h
         // 0x10000000000
 #pragma omp for
         for (verifier = 11241536114; verifier < 0x01000000000UL; verifier++)
         {
+            // 公開鍵の末尾にverifierを書き込み
+            verifierLength
+                = snprintf(verifier_head_ptr, IN2_SIZE, "%" PRIu64, verifier);
+            // SHA1でハッシュを作成
             EVP_DigestInit(ctx, sha1);
-            verifierLength = snprintf(in2, IN2_SIZE, "%" PRIu64, verifier);
-            EVP_DigestUpdate(ctx, in1, in1Length + verifierLength);
+            EVP_DigestUpdate(ctx, input_buffer,
+                             publickey_string_length + verifierLength);
             EVP_DigestFinal(ctx, md, NULL);
             // if (memcmp(md, "\0\0\0\0\0", 3) == 0)
             c = __builtin_ctzl(le64toh(*(unsigned long *)md));
@@ -109,13 +108,33 @@ int main(void)
         EVP_MD_CTX_free(ctx);
         ctx = NULL;
     }
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    EVP_MD_free(sha1);
+#else
+    // Do nothing because EVP_MD is const
+#endif
+}
 
+/**
+ *
+ */
+int main(const int argc, const char *argv[])
+{
+    const char *publicKey = (argc >= 2) ? argv[1] : DEFAULT_IDENTITY;
+    time_t start = 0;
+    time_t finish = 0;
+    struct tm tm = { 0 };
+    localtime_r(&start, &tm);
+    char timebuf[512] = "";
+    strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
+
+    printf("開始: %s\n", timebuf);
+    start = time(NULL);
+    routine(DEFAULT_IDENTITY);
     finish = time(NULL);
     localtime_r(&finish, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
-    printf("終わり！: %s(%ld)\n", timebuf, (int64_t)difftime(finish, start));
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    EVP_MD_free(sha1);
-#endif
+    printf("終わり！: %s(%" PRId64 ")\n", timebuf,
+           (int64_t)difftime(finish, start));
     return EXIT_SUCCESS;
 }
