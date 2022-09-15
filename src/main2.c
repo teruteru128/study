@@ -48,11 +48,6 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    size_t c = (0x10000000000UL-11241536114UL)/16;
-    size_t i = 0;
-    for(i = 11241536114UL; i < 0x10000000000UL;i += c){
-        printf("%zu\n", i);
-    }
-    printf("%zu\n", i);
+    printf("%lf\n", fmod(12.1, 0.125));
     return 0;
 }
