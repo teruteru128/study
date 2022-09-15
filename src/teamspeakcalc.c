@@ -47,7 +47,7 @@ void routine(const char *in)
     unsigned char md[EVP_MAX_MD_SIZE];
     int i = 0;
     // 公開鍵長さ
-    const size_t publickey_string_length = strlen(DEFAULT_IDENTITY);
+    const size_t publickey_string_length = strlen(in);
     // 配列長さ
     const size_t input_buffer_size = publickey_string_length + IN2_SIZE;
     char input_buffer[input_buffer_size];
@@ -63,12 +63,13 @@ void routine(const char *in)
         // ゼロ埋め初期化
         memset(input_buffer, 0, input_buffer_size);
         // バッファに公開鍵をコピー
-        memcpy(input_buffer, DEFAULT_IDENTITY, publickey_string_length);
+        memcpy(input_buffer, in, publickey_string_length);
         verifier_head_ptr = input_buffer + publickey_string_length;
-        // 0x01000000000を8スレ->2.5h
+        // 0x01000000000を8スレ->2.5h,12スレ->1.67h(100min)->2.07h
         // 0x10000000000
 #pragma omp for
-        for (verifier = 11241536114; verifier < 0x01000000000UL; verifier++)
+        for (verifier = 0x01000000000UL; verifier < 0x02000000000UL;
+             verifier++)
         {
             // 公開鍵の末尾にverifierを書き込み
             verifierLength
@@ -124,13 +125,13 @@ int main(const int argc, const char *argv[])
     time_t start = 0;
     time_t finish = 0;
     struct tm tm = { 0 };
-    localtime_r(&start, &tm);
     char timebuf[512] = "";
-    strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
 
-    printf("開始: %s\n", timebuf);
     start = time(NULL);
-    routine(DEFAULT_IDENTITY);
+    localtime_r(&start, &tm);
+    strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
+    printf("開始: %s\n", timebuf);
+    routine(ANDROID_IDENTITY);
     finish = time(NULL);
     localtime_r(&finish, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
