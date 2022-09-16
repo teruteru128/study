@@ -48,11 +48,13 @@ void routine(const char *in)
     unsigned char md[EVP_MAX_MD_SIZE];
     int i = 0;
     // 公開鍵長さ
-    const size_t publickey_string_length = strlen(in);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_DigestInit_ex2(ctx, sha1, NULL);
-    EVP_DigestUpdate(ctx, in, publickey_string_length);
+#else
+    EVP_DigestInit_ex(ctx, sha1);
+#endif
+    EVP_DigestUpdate(ctx, in, strlen(in));
     // 配列長さ
-    const size_t input_buffer_size = IN2_SIZE;
     char counter_buffer[IN2_SIZE];
     uint64_t verifier = 0;
     int clz = -1;
@@ -60,7 +62,11 @@ void routine(const char *in)
 #pragma omp parallel private(workctx, md, i, counter_buffer, clz)
     {
         workctx = EVP_MD_CTX_new();
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
         EVP_DigestInit_ex2(workctx, sha1, NULL);
+#else
+        EVP_DigestInit_ex(workctx, sha1);
+#endif
         // one shotフラグを使ってまとめてupdateするより早いcopyしたほうが早い
         // 0x01000000000を8スレ->2.5h,12スレ->1.67h(100min)->2.07h
         // 0x10000000000
