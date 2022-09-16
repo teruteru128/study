@@ -66,9 +66,17 @@ int hiho(int argc, char **argv, const char **envp)
     size_t verifierLength = 0;
     unsigned char md[EVP_MAX_MD_SIZE];
     int i = 0;
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_DigestInit_ex2(ctx, sha1, NULL);
+#else
+    EVP_DigestInit_ex(ctx, sha1, NULL);
+#endif
     EVP_MD_CTX_set_flags(workctx, EVP_MD_CTX_FLAG_ONESHOT);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_DigestInit_ex2(workctx, sha1, NULL);
+#else
+    EVP_DigestInit_ex(workctx, sha1, NULL);
+#endif
     EVP_DigestUpdate(ctx, ANDROID_IDENTITY, publickey_string_length);
     for (uint64_t verifier = 310269759027UL; verifier < 310269759600UL;
          verifier++)
