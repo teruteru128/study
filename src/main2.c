@@ -48,6 +48,8 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    printf("%lf\n", fmod(12.1, 0.125));
+    // 1yard penis->344.004 L
+    unsigned char a[8] = {255, 0, 0, 0, 0, 0, 0, 0};
+    printf("%016lx\n", *(uint64_t *)a);
     return 0;
 }
