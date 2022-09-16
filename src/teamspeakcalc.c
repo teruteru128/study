@@ -43,28 +43,25 @@ void routine(const char *in)
 #else
     const EVP_MD *sha1 = EVP_sha1();
 #endif
-    EVP_MD_CTX *ctx = NULL;
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    EVP_MD_CTX *workctx = NULL;
     unsigned char md[EVP_MAX_MD_SIZE];
     int i = 0;
     // 公開鍵長さ
     const size_t publickey_string_length = strlen(in);
+    EVP_DigestInit_ex2(ctx, sha1, NULL);
+    EVP_DigestUpdate(ctx, in, publickey_string_length);
     // 配列長さ
-    const size_t input_buffer_size = publickey_string_length + IN2_SIZE;
-    char input_buffer[input_buffer_size];
-    char *verifier_head_ptr = NULL;
+    const size_t input_buffer_size = IN2_SIZE;
+    char counter_buffer[IN2_SIZE];
     uint64_t verifier = 0;
-    size_t verifierLength = 0;
-    int c = -1;
-    int c_max = INT_MIN;
-#pragma omp parallel private(ctx, md, i, input_buffer, verifier_head_ptr,     \
-                             verifierLength, c)
+    int clz = -1;
+    int clz_max = INT_MIN;
+#pragma omp parallel private(workctx, md, i, counter_buffer, clz)
     {
-        ctx = EVP_MD_CTX_new();
-        // ゼロ埋め初期化
-        memset(input_buffer, 0, input_buffer_size);
-        // バッファに公開鍵をコピー
-        memcpy(input_buffer, in, publickey_string_length);
-        verifier_head_ptr = input_buffer + publickey_string_length;
+        workctx = EVP_MD_CTX_new();
+        EVP_DigestInit_ex2(workctx, sha1, NULL);
+        // one shotフラグを使ってまとめてupdateするより早いcopyしたほうが早い
         // 0x01000000000を8スレ->2.5h,12スレ->1.67h(100min)->2.07h
         // 0x10000000000
 #pragma omp for
@@ -72,28 +69,31 @@ void routine(const char *in)
              verifier++)
         {
             // 公開鍵の末尾にverifierを書き込み
-            verifierLength
-                = snprintf(verifier_head_ptr, IN2_SIZE, "%" PRIu64, verifier);
             // SHA1でハッシュを作成
-            EVP_DigestInit(ctx, sha1);
-            EVP_DigestUpdate(ctx, input_buffer,
-                             publickey_string_length + verifierLength);
-            EVP_DigestFinal(ctx, md, NULL);
+            EVP_MD_CTX_copy_ex(workctx, ctx);
+            EVP_DigestUpdate(
+                workctx, counter_buffer,
+                snprintf(counter_buffer, IN2_SIZE, "%" PRIu64, verifier));
+            EVP_DigestFinal_ex(workctx, md, NULL);
+
             // if (memcmp(md, "\0\0\0\0\0", 3) == 0)
-            c = __builtin_ctzl(le64toh(*(unsigned long *)md));
+            // 念のため先頭64ビットが0の場合に備える
+            clz = (*(uint64_t *)md == 0)
+                      ? 64
+                      : __builtin_ctzl(le64toh(*(uint64_t *)md));
 #pragma omp critical
-            if (c_max < c)
+            if (clz_max < clz)
             {
-                printf("update!:%2d -> %2d(%" PRIu64 ")\n", c_max, c,
+                printf("update!:%2d -> %2d(%" PRIu64 ")\n", clz_max, clz,
                        verifier);
                 for (i = 0; i < SHA_DIGEST_LENGTH; i++)
                 {
                     printf("%02x", md[i]);
                 }
                 printf("\n");
-                c_max = c;
+                clz_max = clz;
             }
-            if (c >= 40)
+            if (clz >= 40)
             {
 #pragma omp critical
                 {
@@ -106,9 +106,10 @@ void routine(const char *in)
                 }
             }
         }
-        EVP_MD_CTX_free(ctx);
-        ctx = NULL;
+        EVP_MD_CTX_free(workctx);
+        workctx = NULL;
     }
+    EVP_MD_CTX_free(ctx);
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD_free(sha1);
 #else
