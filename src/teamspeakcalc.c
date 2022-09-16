@@ -51,7 +51,7 @@ void routine(const char *in)
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_DigestInit_ex2(ctx, sha1, NULL);
 #else
-    EVP_DigestInit_ex(ctx, sha1);
+    EVP_DigestInit_ex(ctx, sha1, NULL);
 #endif
     EVP_DigestUpdate(ctx, in, strlen(in));
     // 配列長さ
@@ -65,7 +65,7 @@ void routine(const char *in)
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
         EVP_DigestInit_ex2(workctx, sha1, NULL);
 #else
-        EVP_DigestInit_ex(workctx, sha1);
+        EVP_DigestInit_ex(workctx, sha1, NULL);
 #endif
         // one shotフラグを使ってまとめてupdateするより早いcopyしたほうが早い
         // 0x01000000000を8スレ->2.5h,12スレ->1.67h(100min)->2.07h
