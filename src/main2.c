@@ -12,6 +12,7 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
+#include <openssl/sha.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,6 +25,10 @@
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/provider.h>
 #endif
+#define IN2_SIZE 21
+#define ANDROID_IDENTITY                                                      \
+    "MEwDAgcAAgEgAiBK4dcDZUSLCxmvRfMWMAQf1JzSrLzZakLqDsULzT28OwIhAILbBS66JoN" \
+    "1Xo2YsC1xDPDhukJjVO2guoeL+AM27Vfn"
 
 /*
  * 秘密鍵かな？
@@ -48,8 +53,46 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    // 1yard penis->344.004 L
-    unsigned char a[8] = {255, 0, 0, 0, 0, 0, 0, 0};
-    printf("%016lx\n", *(uint64_t *)a);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    EVP_MD *sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
+#else
+    const EVP_MD *sha1 = EVP_sha1();
+#endif
+    // 公開鍵長さ
+    const size_t publickey_string_length = strlen(ANDROID_IDENTITY);
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    EVP_MD_CTX *workctx = EVP_MD_CTX_new();
+    char input_buffer[IN2_SIZE];
+    size_t verifierLength = 0;
+    unsigned char md[EVP_MAX_MD_SIZE];
+    int i = 0;
+    EVP_DigestInit_ex2(ctx, sha1, NULL);
+    EVP_MD_CTX_set_flags(workctx, EVP_MD_CTX_FLAG_ONESHOT);
+    EVP_DigestInit_ex2(workctx, sha1, NULL);
+    EVP_DigestUpdate(ctx, ANDROID_IDENTITY, publickey_string_length);
+    for (uint64_t verifier = 310269759027UL; verifier < 310269759600UL;
+         verifier++)
+    {
+        EVP_MD_CTX_copy_ex(workctx, ctx);
+        EVP_DigestUpdate(
+            workctx, input_buffer,
+            snprintf(input_buffer, IN2_SIZE, "%" PRIu64, verifier));
+        EVP_DigestFinal_ex(workctx, md, NULL);
+
+        printf("%" PRIu64 ":", verifier);
+        for (i = 0; i < SHA_DIGEST_LENGTH; i++)
+        {
+            printf("%02x", md[i]);
+        }
+        printf("\n");
+    }
+
+    EVP_MD_CTX_free(ctx);
+    EVP_MD_CTX_free(workctx);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    EVP_MD_free(sha1);
+#else
+    // Do nothing because EVP_MD is const
+#endif
     return 0;
 }
