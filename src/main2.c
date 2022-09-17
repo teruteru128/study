@@ -7,6 +7,7 @@
 #include <gmp.h>
 #include <math.h>
 #include <netdb.h>
+#include <omp.h>
 #include <openssl/bn.h>
 #include <openssl/ec.h>
 #include <openssl/err.h>
@@ -53,54 +54,13 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    EVP_MD *sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
-#else
-    const EVP_MD *sha1 = EVP_sha1();
-#endif
-    // 公開鍵長さ
-    const size_t publickey_string_length = strlen(ANDROID_IDENTITY);
-    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-    EVP_MD_CTX *workctx = EVP_MD_CTX_new();
-    char input_buffer[IN2_SIZE];
-    size_t verifierLength = 0;
-    unsigned char md[EVP_MAX_MD_SIZE];
-    int i = 0;
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    EVP_DigestInit_ex2(ctx, sha1, NULL);
-#else
-    EVP_DigestInit_ex(ctx, sha1, NULL);
-#endif
-    EVP_MD_CTX_set_flags(workctx, EVP_MD_CTX_FLAG_ONESHOT);
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    EVP_DigestInit_ex2(workctx, sha1, NULL);
-#else
-    EVP_DigestInit_ex(workctx, sha1, NULL);
-#endif
-    EVP_DigestUpdate(ctx, ANDROID_IDENTITY, publickey_string_length);
-    for (uint64_t verifier = 310269759027UL; verifier < 310269759600UL;
-         verifier++)
+#pragma omp parallel
     {
-        EVP_MD_CTX_copy_ex(workctx, ctx);
-        EVP_DigestUpdate(
-            workctx, input_buffer,
-            snprintf(input_buffer, IN2_SIZE, "%" PRIu64, verifier));
-        EVP_DigestFinal_ex(workctx, md, NULL);
-
-        printf("%" PRIu64 ":", verifier);
-        for (i = 0; i < SHA_DIGEST_LENGTH; i++)
+    int *errno_p = __errno_location();
+#pragma omp critical
         {
-            printf("%02x", md[i]);
+            printf("%2d/%d, %p\n", omp_get_thread_num(), omp_get_num_threads(), errno_p);
         }
-        printf("\n");
     }
-
-    EVP_MD_CTX_free(ctx);
-    EVP_MD_CTX_free(workctx);
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    EVP_MD_free(sha1);
-#else
-    // Do nothing because EVP_MD is const
-#endif
     return 0;
 }

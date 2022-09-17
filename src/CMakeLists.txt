@@ -348,7 +348,8 @@ add_executable(loop-bench loop-bench.c)
 
 add_executable(main main.cpp main2.c)
 target_include_directories(main PRIVATE ${PNG_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/libstudy/include)
-target_link_libraries(main study m xmlrpc xmlrpc_client ${OPENSSL_CRYPTO_LIBRARIES} ${PNG_LIBRARIES} gmp)
+target_link_libraries(main study m xmlrpc xmlrpc_client ${OPENSSL_CRYPTO_LIBRARIES} ${PNG_LIBRARIES} gmp $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_LIBRARIES}>)
+target_compile_options(main PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 
 add_executable(mappingsample mappingsample.c)
 target_link_libraries(mappingsample m)
