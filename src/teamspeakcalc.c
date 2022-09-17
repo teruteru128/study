@@ -67,11 +67,12 @@ void routine(const char *in)
 #else
         EVP_DigestInit_ex(workctx, sha1, NULL);
 #endif
-        // one shotフラグを使ってまとめてupdateするより早いcopyしたほうが早い
+        // one shotフラグを使ってまとめてupdateするよりcopyしたほうが早い
         // 0x01000000000を8スレ->2.5h,12スレ->1.67h(100min)->2.07h
+        // 0x06000000000を16スレ->3.4h
         // 0x10000000000
 #pragma omp for
-        for (verifier = 0x01000000000UL; verifier < 0x02000000000UL;
+        for (verifier = 0x00000000000UL; verifier < 0x10000000000UL;
              verifier++)
         {
             // 公開鍵の末尾にverifierを書き込み
