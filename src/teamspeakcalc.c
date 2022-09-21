@@ -28,15 +28,25 @@
 
 #define IN2_SIZE 21
 
-#define DEFAULT_IDENTITY                                                      \
-    "MEwDAgcAAgEgAiEA/4wiwfLIWgVHTUmqF9f6n1FzsvaO/"                           \
-    "80YoDP91I+NB78CIGo3pZSOCKIz6mCKSS1POh5TN1tuSdgtLxcnsjG6iVTr"
 #define ANDROID_IDENTITY                                                      \
     "MEwDAgcAAgEgAiBK4dcDZUSLCxmvRfMWMAQf1JzSrLzZakLqDsULzT28OwIhAILbBS66JoN" \
     "1Xo2YsC1xDPDhukJjVO2guoeL+AM27Vfn"
+#define DEFAULT_IDENTITY                                                      \
+    "MEwDAgcAAgEgAiEA/4wiwfLIWgVHTUmqF9f6n1FzsvaO/"                           \
+    "80YoDP91I+NB78CIGo3pZSOCKIz6mCKSS1POh5TN1tuSdgtLxcnsjG6iVTr"
+#define MAIN_IDENTITY                                                         \
+    "MEwDAgcAAgEgAiEA7Vo1+"                                                   \
+    "Orf2xuuu6hTPAPldSfrUZZ7WYAzpRcO5DoYFLoCIF1JKVBctOGvMOy495O/"             \
+    "BWFuFEYH4i1f6vU0b9+a64RD"
+#define NEW_ID_IDENTITY                                                       \
+    "MEwDAgcAAgEgAiEA+i4ptdb7Q5ldNJjyJTd/+hC+ac2YoPoIXYLgPRJE6egCIBcdWTjBr/"  \
+    "iW3QjAAl389HYDZF/0GwuxH+MpXdDBrpl0"
+#define THIRD_IDENTITY                                                        \
+    "MEsDAgcAAgEgAiAoQPNcS7L4k+q2qf3U7uyujtwRQNS3pLKN/"                       \
+    "zrRGERGagIgFjdV1JlqHF8BiIQne0/E3jVM7hWda/USrFI58per45s="
 
 // ルーチン
-void routine(const char *in)
+void routine(const char *in, const uint64_t start_v, const uint64_t finish_v)
 {
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD *sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
@@ -58,7 +68,6 @@ void routine(const char *in)
     char counter_buffer[IN2_SIZE];
     uint64_t verifier = 0;
     int clz = -1;
-    int clz_max = INT_MIN;
 #pragma omp parallel private(workctx, md, i, counter_buffer, clz)
     {
         workctx = EVP_MD_CTX_new();
@@ -68,12 +77,8 @@ void routine(const char *in)
         EVP_DigestInit_ex(workctx, sha1, NULL);
 #endif
         // one shotフラグを使ってまとめてupdateするよりcopyしたほうが早い
-        // 0x01000000000を8スレ->2.5h,12スレ->1.67h(100min)->2.07h
-        // 0x06000000000を16スレ->3.4h
-        // 0x10000000000
 #pragma omp for
-        for (verifier = 0x00000000000UL; verifier < 0x10000000000UL;
-             verifier++)
+        for (verifier = start_v; verifier < finish_v; verifier++)
         {
             // 公開鍵の末尾にverifierを書き込み
             // SHA1でハッシュを作成
@@ -88,23 +93,11 @@ void routine(const char *in)
             clz = (*(uint64_t *)md == 0)
                       ? 64
                       : __builtin_ctzl(le64toh(*(uint64_t *)md));
-#pragma omp critical
-            if (clz_max < clz)
-            {
-                printf("update!:%2d -> %2d(%" PRIu64 ")\n", clz_max, clz,
-                       verifier);
-                for (i = 0; i < SHA_DIGEST_LENGTH; i++)
-                {
-                    printf("%02x", md[i]);
-                }
-                printf("\n");
-                clz_max = clz;
-            }
             if (clz >= 40)
             {
 #pragma omp critical
                 {
-                    printf(_("verifier : %" PRIu64 "\n"), verifier);
+                    printf(_("verifier : %d(%" PRIu64 ")\n"), clz, verifier);
                     for (i = 0; i < SHA_DIGEST_LENGTH; i++)
                     {
                         printf("%02x", md[i]);
@@ -125,7 +118,13 @@ void routine(const char *in)
 }
 
 /**
- *
+ * ANDROID_IDENTITY: 0x10000000000UL まで完
+ * DEFAULT_IDENTITY: 0x10000000000UL まで完
+ * MAIN_IDENTITY: 0x48000000000UL まで完
+ * NEW_ID_IDENTITY: 0x00000000000UL まで完
+ * THIRD_IDENTITY: 0
+ * 0x18000000000を16スレ->7.6h
+ * 0x10000000000
  */
 int main(const int argc, const char *argv[])
 {
@@ -139,7 +138,7 @@ int main(const int argc, const char *argv[])
     localtime_r(&start, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
     printf("開始: %s\n", timebuf);
-    routine(ANDROID_IDENTITY);
+    routine(publicKey, 0x30000000000UL, 0x48000000000UL);
     finish = time(NULL);
     localtime_r(&finish, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);

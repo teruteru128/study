@@ -213,7 +213,8 @@
         "xorshift.h": "c",
         "yattaze.h": "c",
         "z3++.h": "c",
-        "uintn-identity.h": "c"
+        "uintn-identity.h": "c",
+        "omp.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

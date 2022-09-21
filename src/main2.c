@@ -8,6 +8,7 @@
 #include <math.h>
 #include <netdb.h>
 #include <omp.h>
+#include <openssl/bio.h>
 #include <openssl/bn.h>
 #include <openssl/ec.h>
 #include <openssl/err.h>
@@ -52,15 +53,4 @@
  * 116229385253865
  * preforkする場合ってforkするのはlistenソケットを開く前？開いた後？
  */
-int hiho(int argc, char **argv, const char **envp)
-{
-#pragma omp parallel
-    {
-    int *errno_p = __errno_location();
-#pragma omp critical
-        {
-            printf("%2d/%d, %p\n", omp_get_thread_num(), omp_get_num_threads(), errno_p);
-        }
-    }
-    return 0;
-}
+int hiho(int argc, char **argv, const char **envp) { return 0; }

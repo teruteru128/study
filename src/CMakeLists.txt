@@ -195,6 +195,8 @@ add_executable(curltest curltest.c)
 target_link_libraries(curltest ${CURL_LIBRARIES})
 target_include_directories(curltest PRIVATE ${CURL_INCLUDE_DIRS})
 
+add_executable(danceparade danceparade.c)
+
 add_executable(dayofweeksearcher dayofweeksearcher.c)
 
 add_executable(deadlocksample deadlocksample.c)
