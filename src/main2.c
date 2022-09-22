@@ -24,7 +24,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
 #include <openssl/provider.h>
 #endif
 #define IN2_SIZE 21

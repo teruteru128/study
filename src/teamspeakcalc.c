@@ -48,7 +48,7 @@
 // ルーチン
 void routine(const char *in, const uint64_t start_v, const uint64_t finish_v)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
     EVP_MD *sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
 #else
     const EVP_MD *sha1 = EVP_sha1();
@@ -58,7 +58,7 @@ void routine(const char *in, const uint64_t start_v, const uint64_t finish_v)
     unsigned char md[EVP_MAX_MD_SIZE];
     int i = 0;
     // 公開鍵長さ
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
     EVP_DigestInit_ex2(ctx, sha1, NULL);
 #else
     EVP_DigestInit_ex(ctx, sha1, NULL);
@@ -71,7 +71,7 @@ void routine(const char *in, const uint64_t start_v, const uint64_t finish_v)
 #pragma omp parallel private(workctx, md, i, counter_buffer, clz)
     {
         workctx = EVP_MD_CTX_new();
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
         EVP_DigestInit_ex2(workctx, sha1, NULL);
 #else
         EVP_DigestInit_ex(workctx, sha1, NULL);

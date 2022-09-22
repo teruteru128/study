@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
 #include <openssl/core_names.h>
 #include <openssl/types.h>
 #endif
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
         perror("fopen");
         return EXIT_FAILURE;
     }
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
     EVP_PKEY *rsa = PEM_read_PUBKEY_ex(fin, NULL, NULL, NULL, NULL, NULL);
 #else
     RSA *rsa = PEM_read_RSA_PUBKEY(fin, NULL, NULL, NULL);
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     int e_len_be = 0;
     unsigned char *e_bin = NULL;
     {
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
         BIGNUM *e = NULL;
         EVP_PKEY_get_bn_param(rsa, OSSL_PKEY_PARAM_RSA_E, &e);
 #else
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "%08x\n", e_len);
         e_bin = malloc(e_len);
         BN_bn2bin(e, e_bin);
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
         BN_clear_free(e);
 #endif
     }
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     int n_len_be = 0;
     unsigned char *n_bin = NULL;
     {
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
         BIGNUM *n = NULL;
         EVP_PKEY_get_bn_param(rsa, OSSL_PKEY_PARAM_RSA_N, &n);
 #else
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "%08x\n", n_len);
         n_bin = calloc(n_len, sizeof(unsigned char));
         BN_bn2bin(n, n_bin);
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
         BN_clear_free(n);
 #endif
     }
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     fwrite(&padding, 1, 1, stdout);
     fwrite(n_bin, 1, (size_t)n_len, stdout);
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
     EVP_PKEY_free(rsa);
 #else
     RSA_free(rsa);

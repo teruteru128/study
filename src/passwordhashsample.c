@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
 #include <openssl/core_names.h>
 #include <openssl/param_build.h>
 #endif
@@ -40,7 +40,7 @@ int main(void)
     if (!(mdctx = EVP_MD_CTX_new()))
         goto err;
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
     if (EVP_DigestInit_ex2(mdctx, sha256, NULL) != 1)
 #else
     if (EVP_DigestInit_ex(mdctx, sha256, NULL) != 1)
@@ -57,7 +57,7 @@ int main(void)
     {
         return 1;
     }
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
     if (EVP_DigestInit_ex2(mdctx, sha256, NULL) != 1)
 #else
     if (EVP_DigestInit_ex(mdctx, sha256, NULL) != 1)
@@ -83,7 +83,7 @@ int main(void)
     EC_POINT_mul(group, pub, priv, NULL, NULL, ctx);
 
     EVP_PKEY *pkey = NULL;
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
     OSSL_PARAM_BLD *param_bld = OSSL_PARAM_BLD_new();
     OSSL_PARAM *params = NULL;
     if (OSSL_PARAM_BLD_push_utf8_string(param_bld, OSSL_PKEY_PARAM_GROUP_NAME,
