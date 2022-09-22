@@ -349,8 +349,8 @@ add_executable(logging-sample logging-sample.c)
 add_executable(loop-bench loop-bench.c)
 
 add_executable(main main.cpp main2.c)
-target_include_directories(main PRIVATE ${PNG_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/libstudy/include)
-target_link_libraries(main study m xmlrpc xmlrpc_client ${OPENSSL_CRYPTO_LIBRARIES} ${PNG_LIBRARIES} gmp $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_LIBRARIES}>)
+target_include_directories(main PRIVATE ${PNG_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/libstudy/include $<$<BOOL:${OpenCL_FOUND}>:${OpenCL_INCLUDE_DIRS}>)
+target_link_libraries(main study m xmlrpc xmlrpc_client ${OPENSSL_CRYPTO_LIBRARIES} ${PNG_LIBRARIES} gmp $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_LIBRARIES}> $<$<BOOL:${OpenCL_FOUND}>:${OpenCL_LIBRARIES}>)
 target_compile_options(main PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 
 add_executable(mappingsample mappingsample.c)
@@ -582,9 +582,10 @@ target_link_libraries(teamspeakIdUpgrader study ${OPENSSL_CRYPTO_LIBRARIES} ${CM
 target_include_directories(teamspeakIdUpgrader PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(teamspeakcalc teamspeakcalc.c)
-target_link_libraries(teamspeakcalc study ${OPENSSL_CRYPTO_LIBRARIES} $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_LIBRARIES}>)
-target_include_directories(teamspeakcalc PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
+target_link_libraries(teamspeakcalc study ${OPENSSL_CRYPTO_LIBRARIES} $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_LIBRARIES}> $<$<BOOL:${GETTEXT_FOUND}>:${Intl_LIBRARIES}>)
+target_include_directories(teamspeakcalc PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include $<$<BOOL:${GETTEXT_FOUND}>:${Intl_INCLUDE_DIRS}>)
 target_compile_options(teamspeakcalc PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_definitions(teamspeakcalc PRIVATE $<$<BOOL:${GETTEXT_FOUND}>:ENABLE_NLS>)
 
 add_executable(threadAttr threadAttr.c)
 target_link_libraries(threadAttr ${CMAKE_THREAD_LIBS_INIT})

@@ -27,10 +27,6 @@
 #if OPENSSL_VERSION_PREREQ(3, 0)
 #include <openssl/provider.h>
 #endif
-#define IN2_SIZE 21
-#define ANDROID_IDENTITY                                                      \
-    "MEwDAgcAAgEgAiBK4dcDZUSLCxmvRfMWMAQf1JzSrLzZakLqDsULzT28OwIhAILbBS66JoN" \
-    "1Xo2YsC1xDPDhukJjVO2guoeL+AM27Vfn"
 
 /*
  * 秘密鍵かな？
@@ -53,4 +49,9 @@
  * 116229385253865
  * preforkする場合ってforkするのはlistenソケットを開く前？開いた後？
  */
-int hiho(int argc, char **argv, const char **envp) { return 0; }
+int hiho(int argc, char **argv, const char **envp)
+{
+    unsigned char *a = "ぷもも";
+    printf("%s\n", a);
+    return 0;
+}

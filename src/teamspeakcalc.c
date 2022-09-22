@@ -46,8 +46,10 @@
     "zrRGERGagIgFjdV1JlqHF8BiIQne0/E3jVM7hWda/USrFI58per45s="
 
 // ルーチン
-void routine(const char *in, const uint64_t start_v, const uint64_t finish_v)
+void routine(const char *publickey, const uint64_t start_v, const uint64_t finish_v)
 {
+  printf("Public key: %s\n", publickey);
+  printf("Search range: %" PRIu64 "->%" PRIu64 "\n", start_v, finish_v);
 #if OPENSSL_VERSION_PREREQ(3, 0)
     EVP_MD *sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
 #else
@@ -57,13 +59,12 @@ void routine(const char *in, const uint64_t start_v, const uint64_t finish_v)
     EVP_MD_CTX *workctx = NULL;
     unsigned char md[EVP_MAX_MD_SIZE];
     int i = 0;
-    // 公開鍵長さ
 #if OPENSSL_VERSION_PREREQ(3, 0)
     EVP_DigestInit_ex2(ctx, sha1, NULL);
 #else
     EVP_DigestInit_ex(ctx, sha1, NULL);
 #endif
-    EVP_DigestUpdate(ctx, in, strlen(in));
+    EVP_DigestUpdate(ctx, publickey, strlen(publickey));
     // 配列長さ
     char counter_buffer[IN2_SIZE];
     uint64_t verifier = 0;
@@ -110,7 +111,7 @@ void routine(const char *in, const uint64_t start_v, const uint64_t finish_v)
         workctx = NULL;
     }
     EVP_MD_CTX_free(ctx);
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_PREREQ(3, 0)
     EVP_MD_free(sha1);
 #else
     // Do nothing because EVP_MD is const
@@ -119,8 +120,8 @@ void routine(const char *in, const uint64_t start_v, const uint64_t finish_v)
 
 /**
  * ANDROID_IDENTITY: 0x10000000000UL まで完
- * DEFAULT_IDENTITY: 0x10000000000UL まで完
- * MAIN_IDENTITY: 0x48000000000UL まで完
+ * DEFAULT_IDENTITY: 0-0x10000000000UL, 0x48000000000UL - 0x50000000000ULまで完
+ * MAIN_IDENTITY: 0x6C000000000UL まで完
  * NEW_ID_IDENTITY: 0x00000000000UL まで完
  * THIRD_IDENTITY: 0
  * 0x18000000000を16スレ->7.6h
@@ -128,7 +129,7 @@ void routine(const char *in, const uint64_t start_v, const uint64_t finish_v)
  */
 int main(const int argc, const char *argv[])
 {
-    const char *publicKey = (argc >= 2) ? argv[1] : DEFAULT_IDENTITY;
+    const char *publicKey = (argc >= 2) ? argv[1] : MAIN_IDENTITY;
     time_t start = 0;
     time_t finish = 0;
     struct tm tm = { 0 };
@@ -138,7 +139,7 @@ int main(const int argc, const char *argv[])
     localtime_r(&start, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
     printf("開始: %s\n", timebuf);
-    routine(publicKey, 0x30000000000UL, 0x48000000000UL);
+    routine(publicKey, 0x6C000000000UL, 0x70000000000UL);
     finish = time(NULL);
     localtime_r(&finish, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);

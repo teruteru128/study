@@ -70,6 +70,9 @@ if(OpenACC_CXX_FOUND)
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenACC_CXX_FLAGS}")
 endif()
 
+find_package(OpenCL)
+find_package(OpenGL)
+
 find_package(PNG REQUIRED)
 if(PNG_FOUND)
 endif(PNG_FOUND)
