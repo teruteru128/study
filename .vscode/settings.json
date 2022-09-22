@@ -216,7 +216,9 @@
         "uintn-identity.h": "c",
         "omp.h": "c",
         "macros.h": "c",
-        "opencl.h": "c"
+        "opencl.h": "c",
+        "cl_ext.h": "c",
+        "cl_gl.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
