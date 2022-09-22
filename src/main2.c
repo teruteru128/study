@@ -3,8 +3,10 @@
 #define OPENSSL_API_COMPAT 0x30000000L
 #define OPENSSL_NO_DEPRECATED 1
 
+#include <CL/opencl.h>
 #include <errno.h>
 #include <gmp.h>
+#include <inttypes.h>
 #include <math.h>
 #include <netdb.h>
 #include <omp.h>
@@ -51,7 +53,86 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    unsigned char *a = "ぷもも";
-    printf("%s\n", a);
-    return 0;
+    // プラットフォーム取得
+    cl_uint platformNumber = 0;
+    cl_platform_id platformIds[8];
+    clGetPlatformIDs(8, platformIds, &platformNumber);
+
+    char string[256];
+    cl_device_type type = 0;
+    cl_uint value;
+    size_t sizes[3];
+    cl_ulong ulvalue;
+    for (unsigned int i = 0; i < platformNumber; i++)
+    {
+        printf("platform idx : %d\n", i);
+        cl_platform_id platform = platformIds[i];
+        clGetPlatformInfo(platform, CL_PLATFORM_VENDOR, 256, string, NULL);
+        printf("platform vendor : %s\n", string);
+        clGetPlatformInfo(platform, CL_PLATFORM_NAME, 256, string, NULL);
+        printf("platform name : %s\n", string);
+        clGetPlatformInfo(platform, CL_PLATFORM_VERSION, 256, string, NULL);
+        printf("platform version : %s\n", string);
+        clGetPlatformInfo(platform, CL_PLATFORM_EXTENSIONS, 256, string, NULL);
+        printf("platform extensions : %s\n", string);
+
+        // デバイス取得
+        cl_uint deviceNumber = 0;
+        cl_device_id deviceIds[8];
+        clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 8, deviceIds,
+                       &deviceNumber);
+        for (size_t j = 0; j < deviceNumber; j++)
+        {
+            cl_device_id device = deviceIds[j];
+            clGetDeviceInfo(device, CL_DEVICE_NAME, 256, string, NULL);
+            printf("    device name : %s\n", string);
+
+            clGetDeviceInfo(device, CL_DEVICE_TYPE, sizeof(cl_device_type),
+                            &type, NULL);
+            if (type != 0)
+            {
+                if ((type & CL_DEVICE_TYPE_DEFAULT) == CL_DEVICE_TYPE_DEFAULT)
+                    printf("    device type : DEFAULT\n");
+                if ((type & CL_DEVICE_TYPE_CPU) == CL_DEVICE_TYPE_CPU)
+                    printf("    device type : CPU\n");
+                if ((type & CL_DEVICE_TYPE_GPU) == CL_DEVICE_TYPE_GPU)
+                    printf("    device type : GPU\n");
+                if ((type & CL_DEVICE_TYPE_ACCELERATOR)
+                    == CL_DEVICE_TYPE_ACCELERATOR)
+                    printf("    device type : ACCELERATOR\n");
+#ifdef CL_VERSION_1_2
+                if ((type & CL_DEVICE_TYPE_CUSTOM) == CL_DEVICE_TYPE_CUSTOM)
+                    printf("    device type : CUSTOM\n");
+#endif
+                if ((type & CL_DEVICE_TYPE_ALL) == CL_DEVICE_TYPE_ALL)
+                    printf("    device type : ALL\n");
+            }
+            else
+            {
+                printf("    device type : EMPTY\n");
+            }
+
+            clGetDeviceInfo(device, CL_DEVICE_MAX_COMPUTE_UNITS,
+                            sizeof(cl_uint), &value, NULL);
+            printf("    device max compute units : %" PRIu32 "\n", value);
+
+            clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES,
+                            sizeof(size_t) * 3, sizes, NULL);
+            printf("    device max work item sizes : [%zu][%zu][%zu]\n",
+                   sizes[0], sizes[1], sizes[2]);
+
+            clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE,
+                            sizeof(cl_uint), &value, NULL);
+            printf("    device max work group size : %" PRIu32 "\n", value);
+
+            clGetDeviceInfo(device, CL_DEVICE_MAX_MEM_ALLOC_SIZE,
+                            sizeof(cl_ulong), &ulvalue, NULL);
+            printf("    device max mem alloc size : %" PRIu64 "\n", ulvalue);
+
+            clGetDeviceInfo(device, CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE,
+                            sizeof(cl_ulong), &ulvalue, NULL);
+            printf("    device max constant buffer size : %" PRIu64 "\n",
+                   ulvalue);
+        }
+    }
 }
