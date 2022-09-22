@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/core_names.h>
 #include <openssl/param_build.h>
 #include <openssl/types.h>
@@ -25,7 +25,7 @@ int hmac(const char *crypto, unsigned char *key, size_t keysiz,
          unsigned char *msg, size_t msglen, unsigned char *hash, size_t *s)
 {
     // TODO: EVP_MAC が OpenSSL に直接導入されるのは ver. 3.0 以降
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MAC *mac = EVP_MAC_fetch(NULL, "HMAC", "provider=default");
     EVP_MAC_CTX *macctx = EVP_MAC_CTX_new(mac);
     OSSL_PARAM_BLD *param_bld = OSSL_PARAM_BLD_new();

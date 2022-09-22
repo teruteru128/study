@@ -7,14 +7,14 @@
 #include <openssl/engine.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/provider.h>
 #endif
 #include <stdio.h>
 
 int main(int argc, char **argv)
 {
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     OSSL_PROVIDER *def;
     OSSL_PROVIDER *legacy;
     OSSL_PROVIDER *fips;

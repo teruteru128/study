@@ -50,7 +50,7 @@ void routine(const char *publickey, const uint64_t start_v, const uint64_t finis
 {
   printf("Public key: %s\n", publickey);
   printf("Search range: %" PRIu64 "->%" PRIu64 "\n", start_v, finish_v);
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD *sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
 #else
     const EVP_MD *sha1 = EVP_sha1();
@@ -59,7 +59,7 @@ void routine(const char *publickey, const uint64_t start_v, const uint64_t finis
     EVP_MD_CTX *workctx = NULL;
     unsigned char md[EVP_MAX_MD_SIZE];
     int i = 0;
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_DigestInit_ex2(ctx, sha1, NULL);
 #else
     EVP_DigestInit_ex(ctx, sha1, NULL);
@@ -72,7 +72,7 @@ void routine(const char *publickey, const uint64_t start_v, const uint64_t finis
 #pragma omp parallel private(workctx, md, i, counter_buffer, clz)
     {
         workctx = EVP_MD_CTX_new();
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
         EVP_DigestInit_ex2(workctx, sha1, NULL);
 #else
         EVP_DigestInit_ex(workctx, sha1, NULL);
@@ -111,7 +111,7 @@ void routine(const char *publickey, const uint64_t start_v, const uint64_t finis
         workctx = NULL;
     }
     EVP_MD_CTX_free(ctx);
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD_free(sha1);
 #else
     // Do nothing because EVP_MD is const
@@ -121,7 +121,7 @@ void routine(const char *publickey, const uint64_t start_v, const uint64_t finis
 /**
  * ANDROID_IDENTITY: 0x10000000000UL まで完
  * DEFAULT_IDENTITY: 0-0x10000000000UL, 0x48000000000UL - 0x50000000000ULまで完
- * MAIN_IDENTITY: 0x6C000000000UL まで完
+ * MAIN_IDENTITY: 0x70000000000UL まで完
  * NEW_ID_IDENTITY: 0x00000000000UL まで完
  * THIRD_IDENTITY: 0
  * 0x18000000000を16スレ->7.6h

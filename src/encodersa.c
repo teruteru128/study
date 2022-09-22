@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <uuid/uuid.h>
 
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/core_names.h>
 #include <openssl/types.h>
 #endif
@@ -108,7 +108,7 @@ static void generate_output_filename(char *dest, size_t maxlen, int bitLength)
     snprintf(dest, maxlen, "%dbit-%s-priv.pem", bitLength, uuidstr);
 }
 
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
 static EVP_PKEY *calc_RSA(EVP_PKEY *dest, BIGNUM *e, BIGNUM *p, BIGNUM *q,
                           BN_CTX *ctx)
 #else
@@ -180,7 +180,7 @@ static RSA *calc_RSA(RSA *dest, BIGNUM *e, BIGNUM *p, BIGNUM *q, BN_CTX *ctx)
     if (!BN_mod_inverse(iqmp, qSecure, p, ctx))
         goto err2;
 
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_PKEY *work = (dest == NULL) ? EVP_PKEY_new() : dest;
     // EVP_PKEY_CTX *pkctx = EVP_PKEY_CTX_new_from_name(NULL, "RSA", NULL);
     EVP_PKEY_set_type(work, EVP_PKEY_RSA);
@@ -258,7 +258,7 @@ int encode_rsa_main(const int argc, const char *argv[])
     readBigNum(p, infile1);
     readBigNum(q, infile2);
 
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_PKEY *rsa = calc_RSA(NULL, e, p, q, ctx);
 #else
     RSA *rsa = calc_RSA(NULL, e, p, q, ctx);
@@ -273,7 +273,7 @@ int encode_rsa_main(const int argc, const char *argv[])
 
     // ファイル書き出し
 
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     BIGNUM *n = NULL;
     EVP_PKEY_get_bn_param(rsa, OSSL_PKEY_PARAM_RSA_N, &n);
 #else
@@ -287,14 +287,14 @@ int encode_rsa_main(const int argc, const char *argv[])
     if (fout == NULL)
     {
         perror("fout outfile");
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
         EVP_PKEY_free(rsa);
 #else
         RSA_free(rsa);
 #endif
         goto err;
     }
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     if (!PEM_write_PrivateKey(fout, rsa, NULL, NULL, 0, NULL, NULL))
 #else
     if (!PEM_write_RSAPrivateKey(fout, rsa, NULL, NULL, 0, NULL, NULL))
@@ -302,7 +302,7 @@ int encode_rsa_main(const int argc, const char *argv[])
     {
         perror(ERR_reason_error_string(ERR_get_error()));
     }
-#if OPENSSL_VERSION_PREREQ(3, 0)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_PKEY_free(rsa);
 #else
     RSA_free(rsa);
