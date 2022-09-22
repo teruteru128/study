@@ -139,7 +139,7 @@ int main(const int argc, const char *argv[])
     localtime_r(&start, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
     printf("開始: %s\n", timebuf);
-    routine(publicKey, 0x6C000000000UL, 0x70000000000UL);
+    routine(publicKey, 0x70000000000UL, 0x80000000000UL);
     finish = time(NULL);
     localtime_r(&finish, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);

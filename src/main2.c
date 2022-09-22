@@ -63,6 +63,7 @@ int hiho(int argc, char **argv, const char **envp)
     cl_uint value;
     size_t sizes[3];
     cl_ulong ulvalue;
+    cl_int ret = 0;
     for (unsigned int i = 0; i < platformNumber; i++)
     {
         printf("platform idx : %d\n", i);
@@ -78,7 +79,7 @@ int hiho(int argc, char **argv, const char **envp)
 
         // デバイス取得
         cl_uint deviceNumber = 0;
-        cl_device_id deviceIds[8];
+        cl_device_id deviceIds[8] = { NULL };
         clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 8, deviceIds,
                        &deviceNumber);
         for (size_t j = 0; j < deviceNumber; j++)
@@ -133,6 +134,8 @@ int hiho(int argc, char **argv, const char **envp)
                             sizeof(cl_ulong), &ulvalue, NULL);
             printf("    device max constant buffer size : %" PRIu64 "\n",
                    ulvalue);
+            clReleaseDevice(deviceIds[i]);
         }
+        clUnloadPlatformCompiler(platformIds[i]);
     }
 }
