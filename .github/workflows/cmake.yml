@@ -18,8 +18,8 @@ jobs:
         run: sudo curl -o /tmp/rocm.gpg -fsSL https://repo.radeon.com/rocm/rocm.gpg.key
       - name: add repos
         run: |
-          sudo bash -c "echo \"deb [arch=amd64 signed-by=/tmp/rocm.gpg] https://repo.radeon.com/rocm/apt/5.2 ubuntu main\" >> /etc/apt/sources.list.d/rocm.list"
-          sudo bash -c "echo \"deb [signed-by=/tmp/rocm.gpg] https://repo.radeon.com/amdgpu/22.20/ubuntu focal main\" >> /etc/apt/sources.list.d/amdgpu.list"
+          sudo bash -c "echo \"deb \[arch=amd64 signed-by=/tmp/rocm.gpg\] https://repo.radeon.com/rocm/apt/5.2 ubuntu main\" >> /etc/apt/sources.list.d/rocm.list"
+          sudo bash -c "echo \"deb \[signed-by=/tmp/rocm.gpg\] https://repo.radeon.com/amdgpu/22.20/ubuntu focal main\" >> /etc/apt/sources.list.d/amdgpu.list"
       - name: apt update
         run: sudo apt update
       - name: apt upgrade
