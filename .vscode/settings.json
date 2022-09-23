@@ -218,7 +218,8 @@
         "macros.h": "c",
         "opencl.h": "c",
         "cl_ext.h": "c",
-        "cl_gl.h": "c"
+        "cl_gl.h": "c",
+        "cl_platform.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

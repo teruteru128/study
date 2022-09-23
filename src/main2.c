@@ -23,6 +23,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -58,7 +59,7 @@ int hiho(int argc, char **argv, const char **envp)
     cl_platform_id platformIds[8];
     clGetPlatformIDs(8, platformIds, &platformNumber);
 
-    char string[256];
+    char string[256] = "";
     cl_device_type type = 0;
     cl_uint value;
     size_t sizes[3];
@@ -134,9 +135,9 @@ int hiho(int argc, char **argv, const char **envp)
                             sizeof(cl_ulong), &ulvalue, NULL);
             printf("    device max constant buffer size : %" PRIu64 "\n",
                    ulvalue);
-            clReleaseDevice(deviceIds[i]);
+            clReleaseDevice(device);
         }
-        clUnloadPlatformCompiler(platformIds[i]);
+        clUnloadPlatformCompiler(platform);
     }
     return 0;
 }

@@ -55,16 +55,16 @@ void routine(const char *publickey, const uint64_t start_v, const uint64_t finis
 #else
     const EVP_MD *sha1 = EVP_sha1();
 #endif
-    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    EVP_MD_CTX *srcctx = EVP_MD_CTX_new();
     EVP_MD_CTX *workctx = NULL;
     unsigned char md[EVP_MAX_MD_SIZE];
     int i = 0;
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    EVP_DigestInit_ex2(ctx, sha1, NULL);
+    EVP_DigestInit_ex2(srcctx, sha1, NULL);
 #else
-    EVP_DigestInit_ex(ctx, sha1, NULL);
+    EVP_DigestInit_ex(srcctx, sha1, NULL);
 #endif
-    EVP_DigestUpdate(ctx, publickey, strlen(publickey));
+    EVP_DigestUpdate(srcctx, publickey, strlen(publickey));
     // 配列長さ
     char counter_buffer[IN2_SIZE];
     uint64_t verifier = 0;
@@ -83,7 +83,7 @@ void routine(const char *publickey, const uint64_t start_v, const uint64_t finis
         {
             // 公開鍵の末尾にverifierを書き込み
             // SHA1でハッシュを作成
-            EVP_MD_CTX_copy_ex(workctx, ctx);
+            EVP_MD_CTX_copy_ex(workctx, srcctx);
             EVP_DigestUpdate(
                 workctx, counter_buffer,
                 snprintf(counter_buffer, IN2_SIZE, "%" PRIu64, verifier));
@@ -110,7 +110,7 @@ void routine(const char *publickey, const uint64_t start_v, const uint64_t finis
         EVP_MD_CTX_free(workctx);
         workctx = NULL;
     }
-    EVP_MD_CTX_free(ctx);
+    EVP_MD_CTX_free(srcctx);
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD_free(sha1);
 #else
@@ -121,7 +121,7 @@ void routine(const char *publickey, const uint64_t start_v, const uint64_t finis
 /**
  * ANDROID_IDENTITY: 0x10000000000UL まで完
  * DEFAULT_IDENTITY: 0-0x10000000000UL, 0x48000000000UL - 0x50000000000ULまで完
- * MAIN_IDENTITY: 0x70000000000UL まで完
+ * MAIN_IDENTITY: 0x78000000000UL まで完
  * NEW_ID_IDENTITY: 0x00000000000UL まで完
  * THIRD_IDENTITY: 0
  * 0x18000000000を16スレ->7.6h
@@ -139,7 +139,7 @@ int main(const int argc, const char *argv[])
     localtime_r(&start, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
     printf("開始: %s\n", timebuf);
-    routine(publicKey, 0x70000000000UL, 0x80000000000UL);
+    routine(publicKey, 0x78000000000UL, 0x98000000000UL);
     finish = time(NULL);
     localtime_r(&finish, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
