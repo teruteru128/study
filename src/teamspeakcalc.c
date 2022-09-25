@@ -38,7 +38,7 @@
     "MEwDAgcAAgEgAiEA7Vo1+"                                                   \
     "Orf2xuuu6hTPAPldSfrUZZ7WYAzpRcO5DoYFLoCIF1JKVBctOGvMOy495O/"             \
     "BWFuFEYH4i1f6vU0b9+a64RD"
-#define NEW_ID_IDENTITY                                                       \
+#define NEW_IDENTITY                                                          \
     "MEwDAgcAAgEgAiEA+i4ptdb7Q5ldNJjyJTd/+hC+ac2YoPoIXYLgPRJE6egCIBcdWTjBr/"  \
     "iW3QjAAl389HYDZF/0GwuxH+MpXdDBrpl0"
 #define THIRD_IDENTITY                                                        \
@@ -46,10 +46,11 @@
     "zrRGERGagIgFjdV1JlqHF8BiIQne0/E3jVM7hWda/USrFI58per45s="
 
 // ルーチン
-void routine(const char *publickey, const uint64_t start_v, const uint64_t finish_v)
+void routine(const char *publickey, const uint64_t start_v,
+             const uint64_t finish_v)
 {
-  printf("Public key: %s\n", publickey);
-  printf("Search range: %" PRIu64 "->%" PRIu64 "\n", start_v, finish_v);
+    printf("Public key: %s\n", publickey);
+    printf("Search range: %" PRIu64 "->%" PRIu64 "\n", start_v, finish_v);
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD *sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
 #else
@@ -121,26 +122,25 @@ void routine(const char *publickey, const uint64_t start_v, const uint64_t finis
 /**
  * ANDROID_IDENTITY: 0x10000000000UL まで完
  * DEFAULT_IDENTITY: 0-0x10000000000UL, 0x48000000000UL - 0x50000000000ULまで完
- * MAIN_IDENTITY: 0x78000000000UL まで完
- * NEW_ID_IDENTITY: 0x00000000000UL まで完
- * THIRD_IDENTITY: 0
- * 0x18000000000を16スレ->7.6h
- * 0x10000000000
+ * MAIN_IDENTITY: 0x98000000000UL まで完
+ * NEW_IDENTITY: 0x2A000000000UL まで完
+ * THIRD_IDENTITY: 0x11000000000UL まで完
+ * 0x02000000000を 8スレ->ほぼ1時間
+ * 0x20000000000を16スレ->37610s(11.4h)
+ * 0x2A200000000を16スレ->15h?
  */
 int main(const int argc, const char *argv[])
 {
-    const char *publicKey = (argc >= 2) ? argv[1] : MAIN_IDENTITY;
-    time_t start = 0;
-    time_t finish = 0;
+    const char *publicKey = (argc >= 2) ? argv[1] : THIRD_IDENTITY;
     struct tm tm = { 0 };
     char timebuf[512] = "";
 
-    start = time(NULL);
+    time_t start = time(NULL);
     localtime_r(&start, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
     printf("開始: %s\n", timebuf);
-    routine(publicKey, 0x78000000000UL, 0x98000000000UL);
-    finish = time(NULL);
+    routine(publicKey, 0x11000000000UL, 0x14000000000UL);
+    time_t finish = time(NULL);
     localtime_r(&finish, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
     printf("終わり！: %s(%" PRId64 ")\n", timebuf,
