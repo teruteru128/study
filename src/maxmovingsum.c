@@ -103,7 +103,12 @@ int main(int argc, char *argv[])
     float movingsum_f[621];
     int maxtmp = 0;
     unsigned int buf = 0;
-    getrandom(&buf, sizeof(unsigned int), GRND_NONBLOCK);
+    ssize_t numberOfRandomBytes
+        = getrandom(&buf, sizeof(unsigned int), GRND_NONBLOCK);
+    if (numberOfRandomBytes < 0)
+    {
+        return 1;
+    }
     srand(buf);
     int64_t seed = lcg(114514);
     for (int i = 0; i < 625; i++)

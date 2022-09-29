@@ -11,7 +11,11 @@
 int main(int argc, char *argv[])
 {
     unsigned char buf[18];
-    getrandom(buf, 18, GRND_RANDOM);
+    ssize_t numberOfRandomBytes = getrandom(buf, 18, GRND_RANDOM);
+    if (numberOfRandomBytes < 0)
+    {
+        return 1;
+    }
     unsigned int j = 0;
     unsigned int k = 0;
     for (size_t i = 0; i < 6; i++)

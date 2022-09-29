@@ -74,7 +74,12 @@ static void *function(void *arg)
 int main(void)
 {
     uint64_t seed = 0;
-    getrandom(&seed, sizeof(seed), GRND_NONBLOCK);
+    ssize_t numberOfRandomBytes
+        = getrandom(&seed, sizeof(seed), GRND_NONBLOCK);
+    if (numberOfRandomBytes < 0)
+    {
+        return 1;
+    }
     verifier = seed;
 
     if (signal(SIGINT, act) == SIG_ERR)

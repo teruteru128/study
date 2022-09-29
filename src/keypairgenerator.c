@@ -16,13 +16,20 @@ pthread_cond_t prikeyraw_cond = PTHREAD_COND_INITIALIZER;
 
 void *keyreadthread(void *b)
 {
-
+    ssize_t numberOfRandomBytes = 0;
     for (size_t i = 0; i < 16777216UL; i++)
     {
         pthread_mutex_lock(&prikeyraw_mutex);
-        getrandom(privatekey_raw, 32, GRND_RANDOM);
-        pthread_cond_broadcast(&prikeyraw_cond);
+        numberOfRandomBytes = getrandom(privatekey_raw, 32, GRND_RANDOM);
+        if (numberOfRandomBytes >= 0)
+        {
+            pthread_cond_broadcast(&prikeyraw_cond);
+        }
         pthread_mutex_unlock(&prikeyraw_mutex);
+        if (numberOfRandomBytes < 0)
+        {
+            break;
+        }
     }
     return NULL;
 }

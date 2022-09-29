@@ -77,6 +77,7 @@ int main(int argc, char const *argv[])
     unsigned char *writebuf = NULL;
     ssize_t datalen = 0;
     size_t count = 0;
+    ssize_t numberOfRandomBytes = 0;
     while (1)
     {
         addr_len = sizeof(from_sock_addr);
@@ -99,22 +100,32 @@ int main(int argc, char const *argv[])
                                             : BUFSIZ;
                 writebuf = malloc(writebufsiz);
                 memset(writebuf, 0, writebufsiz);
+                break;
             case 2:
                 // ランダム(未初期化)データ
                 totalwritesiz = *(uint64_t *)(buf + 8);
                 writebufsiz = datalen >= 24 ? be64toh(*(uint64_t *)(buf + 16))
                                             : BUFSIZ;
                 writebuf = malloc(writebufsiz);
+                break;
             case 3:
                 // ランダム(生成器)データ
                 totalwritesiz = *(uint64_t *)(buf + 8);
                 writebufsiz = datalen >= 24 ? be64toh(*(uint64_t *)(buf + 16))
                                             : BUFSIZ;
                 writebuf = malloc(writebufsiz);
-                getrandom(writebuf, writebufsiz, GRND_NONBLOCK);
+                numberOfRandomBytes
+                    = getrandom(writebuf, writebufsiz, GRND_NONBLOCK);
+                break;
             case -1:
+                break;
             default:
                 break;
+            }
+            if (numberOfRandomBytes < numberOfRandomBytes)
+            {
+                close(conn_sock);
+                conn_sock = -1;
             }
             if (writebuf != NULL)
             {

@@ -15,7 +15,12 @@
 int main(int argc, char **argv)
 {
     int32_t seed;
-    getrandom(&seed, sizeof(int32_t), GRND_NONBLOCK);
+    ssize_t numberOfRandomBytes
+        = getrandom(&seed, sizeof(int32_t), GRND_NONBLOCK);
+    if (numberOfRandomBytes < 0)
+    {
+        return 1;
+    }
     srandom(seed);
     // 31bits
     unsigned long l = (unsigned long)random();

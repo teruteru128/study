@@ -37,7 +37,11 @@ int main(int argc, char *argv[])
     mpz_t base;
     mpz_inits(base, NULL);
     unsigned char *p = calloc(buffer_size, sizeof(char));
-    getrandom(p, buffer_size, GRND_NONBLOCK);
+    ssize_t numberOfRandomBytes = getrandom(p, buffer_size, GRND_NONBLOCK);
+    if (numberOfRandomBytes < 0)
+    {
+        return 1;
+    }
     mpz_import(base, buffer_size, 1, sizeof(char), 0, 0, p);
     free(p);
     p = NULL;

@@ -15,7 +15,13 @@
 
 int main(int argc, char **argv)
 {
-    getrandom(getseedp(), sizeof(uint32_t), GRND_NONBLOCK);
+    ssize_t numberOfRandomBytes = 0;
+    numberOfRandomBytes
+        = getrandom(getseedp(), sizeof(uint32_t), GRND_NONBLOCK);
+    if (numberOfRandomBytes < 0)
+    {
+        return 1;
+    }
 
     char messages[] = "ファルコン・パンチ";
     size_t messages_size = 9;

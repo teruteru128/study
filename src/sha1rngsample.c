@@ -50,8 +50,16 @@ int main(int argc, char *argv[])
     ctx.count = 0;
     unsigned char buf[20];
     size_t req = 12;
-    getrandom(buf, req, GRND_NONBLOCK);
-    getrandom(ctx.ctx, req, GRND_NONBLOCK);
+    ssize_t numberOfRandomBytes = getrandom(buf, req, GRND_NONBLOCK);
+    if (numberOfRandomBytes < 0)
+    {
+        return 1;
+    }
+    numberOfRandomBytes = getrandom(ctx.ctx, req, GRND_NONBLOCK);
+    if (numberOfRandomBytes < 0)
+    {
+        return 1;
+    }
     *((uint64_t *)(buf + 12)) = htobe64(1);
     for (size_t i = 0; i < 20; i++)
     {

@@ -8,9 +8,14 @@ int main(int argc, char const *argv[])
 {
     char ripe[20] = "";
     char *address = NULL;
+    ssize_t numberOfRandomBytes;
     for (size_t i = 0; i < 16777216UL; i++)
     {
-        getrandom(ripe + 1, 19, GRND_NONBLOCK);
+        numberOfRandomBytes = getrandom(ripe + 1, 19, GRND_NONBLOCK);
+        if (numberOfRandomBytes < 0)
+        {
+            return 1;
+        }
         address = encodeV4Address(ripe, 20);
         printf("%s\n", address);
         free(address);

@@ -50,7 +50,7 @@ void routine(const char *publickey, const uint64_t start_v,
              const uint64_t finish_v)
 {
     printf("Public key: %s\n", publickey);
-    printf("Search range: %" PRIu64 "->%" PRIu64 "\n", start_v, finish_v);
+    printf("Search range: %" PRIu64 " -> %" PRIu64 "\n", start_v, finish_v);
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD *sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
 #else
@@ -121,29 +121,46 @@ void routine(const char *publickey, const uint64_t start_v,
 
 /**
  * ANDROID_IDENTITY: 0x10000000000UL まで完
- * DEFAULT_IDENTITY: 0-0x10000000000UL, 0x48000000000UL - 0x50000000000ULまで完
- * MAIN_IDENTITY: 0x98000000000UL まで完
+ * DEFAULT_IDENTITY: 0x50000000000UL まで完
+ * MAIN_IDENTITY: 0xA0000000000UL, 0xA8000000000UL - 0xB0000000000ULまで完
  * NEW_IDENTITY: 0x2A000000000UL まで完
- * THIRD_IDENTITY: 0x11000000000UL まで完
+ * THIRD_IDENTITY: 0x34000000000UL まで完
  * 0x02000000000を 8スレ->ほぼ1時間
  * 0x20000000000を16スレ->37610s(11.4h)
  * 0x2A200000000を16スレ->15h?
  */
 int main(const int argc, const char *argv[])
 {
-    const char *publicKey = (argc >= 2) ? argv[1] : THIRD_IDENTITY;
+    const char *publicKey = (argc >= 2) ? argv[1] : MAIN_IDENTITY;
     struct tm tm = { 0 };
     char timebuf[512] = "";
 
-    time_t start = time(NULL);
+    time_t start = 0;
+    time_t finish = 0;
+    start = time(NULL);
     localtime_r(&start, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
     printf("開始: %s\n", timebuf);
-    routine(publicKey, 0x11000000000UL, 0x14000000000UL);
-    time_t finish = time(NULL);
+    routine(publicKey, 0xA0000000000UL, 0xA8000000000UL);
+    finish = time(NULL);
     localtime_r(&finish, &tm);
     strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
     printf("終わり！: %s(%" PRId64 ")\n", timebuf,
-           (int64_t)difftime(finish, start));
+            (int64_t)difftime(finish, start));
+    for (size_t start_v = 0xB0000000000UL, finish_v = start_v + 0x2000000000UL;
+         start_v < 0xCA000000000UL;
+         start_v += 0x2000000000UL, finish_v += 0x2000000000UL)
+    {
+        start = time(NULL);
+        localtime_r(&start, &tm);
+        strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
+        printf("開始: %s\n", timebuf);
+        routine(publicKey, start_v, finish_v);
+        finish = time(NULL);
+        localtime_r(&finish, &tm);
+        strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
+        printf("終わり！: %s(%" PRId64 ")\n", timebuf,
+               (int64_t)difftime(finish, start));
+    }
     return EXIT_SUCCESS;
 }

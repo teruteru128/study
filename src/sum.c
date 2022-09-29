@@ -12,8 +12,14 @@
 uint64_t readSeed()
 {
     uint64_t val = 0;
-    getrandom(&val, sizeof(uint64_t), GRND_NONBLOCK);
-    return val;
+    ssize_t numberOfRandomBytes
+        = getrandom(&val, sizeof(uint64_t), GRND_NONBLOCK);
+    if (numberOfRandomBytes < 0)
+    {
+        return 0;
+    }
+    else
+        return val;
 }
 
 int main(int argc, char *argv[])

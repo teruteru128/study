@@ -21,7 +21,12 @@
 int main(int argc, char *argv[])
 {
     uint64_t buf1 = 0;
-    getrandom(&buf1, sizeof(uint64_t), GRND_NONBLOCK);
+    ssize_t numberOfRandomBytes
+        = getrandom(&buf1, sizeof(uint64_t), GRND_NONBLOCK);
+    if (numberOfRandomBytes < 0)
+    {
+        return 1;
+    }
 
     char *base64 = base64encode((char *)&buf1, sizeof(uint64_t));
     size_t length = strlen(base64);
