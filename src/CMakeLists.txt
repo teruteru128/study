@@ -213,9 +213,6 @@ add_executable(dragon dragon.c)
 target_link_libraries(dragon study)
 target_include_directories(dragon PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
-add_executable(editpngphys editpngphys.c)
-target_link_libraries(editpngphys ${PNG_LIBRARIES})
-
 add_executable(eckeygentest eckeygentest.c timeutil.c)
 target_link_libraries(eckeygentest m ${OPENSSL_CRYPTO_LIBRARIES})
 target_include_directories(eckeygentest PRIVATE ${CURL_INCLUDE_DIRS})
@@ -436,6 +433,12 @@ target_include_directories(pixiv PRIVATE ${CURL_INCLUDE_DIRS})
 add_executable(pkeyencsample pkeyencsample.c)
 target_link_libraries(pkeyencsample ${OPENSSL_CRYPTO_LIBRARIES})
 target_include_directories(pkeyencsample PRIVATE ${OPENSSL_INCLUDE_DIR})
+
+add_executable(pngconcat pngconcat.c pngreadwrite.c)
+target_link_libraries(pngconcat ${PNG_LIBRARIES})
+
+add_executable(pngphysedit pngphysedit.c pngreadwrite.c)
+target_link_libraries(pngphysedit ${PNG_LIBRARIES})
 
 add_executable(portscanner portscanner.c)
 

@@ -70,7 +70,9 @@ int hiho(int argc, char **argv, const char **envp)
     regex_t p = { 0 };
 
     int ret = 0;
-    if ((ret = regcomp(&p, pattern, REG_EXTENDED | REG_ICASE | REG_NEWLINE | REG_NOSUB)) != 0)
+    if ((ret = regcomp(&p, pattern,
+                       REG_EXTENDED | REG_ICASE | REG_NEWLINE | REG_NOSUB))
+        != 0)
     {
         size_t errbuf_size = regerror(ret, &p, NULL, 0);
         char *errbuf = malloc(errbuf_size);
@@ -79,6 +81,9 @@ int hiho(int argc, char **argv, const char **envp)
         free(errbuf);
         return 1;
     }
+    printf("%u %u %u %u %u %u %u\n", p.can_be_null, p.regs_allocated,
+           p.fastmap_accurate, p.no_sub, p.not_bol, p.not_eol,
+           p.newline_anchor);
     char buf[BUFSIZ] = "";
     while (fgets(buf, BUFSIZ, stdin) != NULL)
     {

@@ -1,32 +1,12 @@
 
+#include "pngheaders.h"
 #include <inttypes.h>
-#include <math.h>
 #include <png.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
-// 画像ヘッダチャンク
-struct IHDR
-{
-    int32_t width;
-    int32_t height;
-    int bit_depth;
-    int color_type;
-    int interlace_method;
-    int compression_method;
-    int filter_method;
-};
-// 物理ピクセル解像度チャンク
-struct pHYs
-{
-    int32_t res_x;
-    int32_t res_y;
-    int type;
-};
-
-static int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
-                    png_byte ***row_pointers)
+int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
+             png_colorp *palettes, int *num_palette, png_byte ***row_pointers)
 {
     if (inpath == NULL || row_pointers == NULL)
     {
@@ -81,7 +61,7 @@ static int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
                          &ihdr->interlace_method, &ihdr->compression_method,
                          &ihdr->filter_method))
         {
-            printf("image header: %" PRId32 " %" PRId32 "\n", ihdr->width,
+            printf("image header: %" PRId32 " x %" PRId32 " ", ihdr->width,
                    ihdr->height);
             printf("%d %d %d %d %d\n", ihdr->bit_depth, ihdr->color_type,
                    ihdr->interlace_method, ihdr->compression_method,
@@ -90,6 +70,18 @@ static int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
         else
         {
             printf("png_get_IHDR failed\n");
+        }
+    }
+    if (palettes && num_palette)
+    {
+        png_color *tmp = NULL;
+        int num_work = 0;
+        if (png_get_PLTE(png_ptr, info_ptr, &tmp, &num_work))
+        {
+            *palettes = malloc(sizeof(png_color) * num_work);
+            memcpy(*palettes, tmp, sizeof(png_color) * num_work);
+            *num_palette = num_work;
+            printf("get PLTE %d\n", *num_palette);
         }
     }
     if (phys)
@@ -110,6 +102,7 @@ static int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
     png_byte **original_row_pointers = png_get_rows(png_ptr, info_ptr);
     *row_pointers = malloc(sizeof(png_byte *) * ihdr->height);
     size_t rowsize = png_get_rowbytes(png_ptr, info_ptr);
+    printf("rowsize : %zu\n", rowsize);
     for (size_t y = 0; y < ihdr->height; y++)
     {
         (*row_pointers)[y] = malloc(rowsize);
@@ -121,8 +114,8 @@ static int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
     return 0;
 }
 
-static int write_png(const char *outpath, struct IHDR *ihdr, struct pHYs *phys,
-                     png_byte **row_pointers)
+int write_png(const char *outpath, struct IHDR *ihdr, struct pHYs *phys,
+              png_colorp palettes, int num_palette, png_byte **row_pointers)
 {
     FILE *fp = fopen(outpath, "wb");
     png_struct *png_ptr
@@ -158,37 +151,19 @@ static int write_png(const char *outpath, struct IHDR *ihdr, struct pHYs *phys,
     png_set_IHDR(png_ptr, info_ptr, ihdr->width, ihdr->height, ihdr->bit_depth,
                  ihdr->color_type, ihdr->interlace_method,
                  ihdr->compression_method, ihdr->filter_method);
-    png_set_pHYs(png_ptr, info_ptr, phys->res_x, phys->res_y, phys->type);
+    printf("set IHDR %"PRId32" x %"PRId32"\n", ihdr->width, ihdr->height);
+    if (palettes && num_palette)
+    {
+        png_set_PLTE(png_ptr, info_ptr, palettes, num_palette);
+        printf("set PLTE %d\n", num_palette);
+    }
+    if (phys)
+    {
+        png_set_pHYs(png_ptr, info_ptr, phys->res_x, phys->res_y, phys->type);
+    }
     png_set_rows(png_ptr, info_ptr, row_pointers);
     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
     png_destroy_write_struct(&png_ptr, &info_ptr);
     fclose(fp);
-    return 0;
-}
-
-/**
- * @brief pngファイルを読み込んで解像度を書き換えてファイルに書き出す
- *
- */
-int main(int argc, char const *argv[], const char **envp)
-{
-    struct IHDR ihdr = { 0 };
-    struct pHYs phys = { 0 };
-    const char inpath[] = "/mnt/g/iandm/image/waifu2x/pixiv.net/"
-                          "87422440_p0(UpRGB)(noise_scale)(Level0)(x4.000000).png";
-    const char outpath[]
-        = "/mnt/g/iandm/image/waifu2x/pixiv.net/87422440_p0_350dpi.png";
-    png_byte **row_pointers = NULL;
-    read_png(inpath, &ihdr, &phys, &row_pointers);
-    printf("read ok\n");
-    // 350 dpi to dots per meter
-    phys.res_x = phys.res_y = floor((350 * 10000) / 254.);
-    write_png(outpath, &ihdr, &phys, row_pointers);
-    for (size_t y = 0; y < ihdr.height; y++)
-    {
-        free(row_pointers[y]);
-        row_pointers[y] = NULL;
-    }
-    free(row_pointers);
     return 0;
 }
