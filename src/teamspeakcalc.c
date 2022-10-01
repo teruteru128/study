@@ -45,7 +45,13 @@
     "MEsDAgcAAgEgAiAoQPNcS7L4k+q2qf3U7uyujtwRQNS3pLKN/"                       \
     "zrRGERGagIgFjdV1JlqHF8BiIQne0/E3jVM7hWda/USrFI58per45s="
 
-// ルーチン
+/**
+ * @brief ルーチン
+ * 
+ * @param publickey 
+ * @param start_v 
+ * @param finish_v 
+ */
 void routine(const char *publickey, const uint64_t start_v,
              const uint64_t finish_v)
 {
@@ -99,7 +105,7 @@ void routine(const char *publickey, const uint64_t start_v,
             {
 #pragma omp critical
                 {
-                    printf(_("verifier : %d(%" PRIu64 ")\n"), clz, verifier);
+                    printf(_("verifier : %d(%" PRIu64 ") "), clz, verifier);
                     for (i = 0; i < SHA_DIGEST_LENGTH; i++)
                     {
                         printf("%02x", md[i]);
@@ -122,7 +128,7 @@ void routine(const char *publickey, const uint64_t start_v,
 /**
  * ANDROID_IDENTITY: 0x10000000000UL まで完
  * DEFAULT_IDENTITY: 0x50000000000UL まで完
- * MAIN_IDENTITY: 0xA0000000000UL, 0xA8000000000UL - 0xB0000000000ULまで完
+ * MAIN_IDENTITY: 0x100000000000UL まで完
  * NEW_IDENTITY: 0x2A000000000UL まで完
  * THIRD_IDENTITY: 0x34000000000UL まで完
  * 0x02000000000を 8スレ->ほぼ1時間
@@ -137,18 +143,8 @@ int main(const int argc, const char *argv[])
 
     time_t start = 0;
     time_t finish = 0;
-    start = time(NULL);
-    localtime_r(&start, &tm);
-    strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
-    printf("開始: %s\n", timebuf);
-    routine(publicKey, 0xA0000000000UL, 0xA8000000000UL);
-    finish = time(NULL);
-    localtime_r(&finish, &tm);
-    strftime(timebuf, 512, "%Y/%m/%d %T", &tm);
-    printf("終わり！: %s(%" PRId64 ")\n", timebuf,
-            (int64_t)difftime(finish, start));
-    for (size_t start_v = 0xB0000000000UL, finish_v = start_v + 0x2000000000UL;
-         start_v < 0xCA000000000UL;
+    for (size_t start_v = 0xD8000000000UL, finish_v = start_v + 0x2000000000UL;
+         start_v < 0x100000000000UL;
          start_v += 0x2000000000UL, finish_v += 0x2000000000UL)
     {
         start = time(NULL);
