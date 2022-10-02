@@ -8,7 +8,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-struct kp
+struct keypair
 {
     unsigned char prikey[32];
     unsigned char pubkey[65];
@@ -16,14 +16,15 @@ struct kp
 
 int compar(const void *a, const void *b, void *arg)
 {
-    return memcmp(((struct kp *)a)->pubkey, ((struct kp *)b)->pubkey, 65);
+    return memcmp(((struct keypair *)a)->pubkey, ((struct keypair *)b)->pubkey,
+                  65);
 }
 
 int main(int argc, char const *argv[])
 {
     char privatekeyfilename[PATH_MAX] = "";
     char publickeyfilename[PATH_MAX] = "";
-    struct kp *list = malloc(sizeof(struct kp) * 16777216 * 8);
+    struct keypair *list = calloc(1 << 27, sizeof(struct keypair));
     FILE *privateKey = NULL;
     FILE *publicKey = NULL;
     int fail = 0;
@@ -41,13 +42,12 @@ int main(int argc, char const *argv[])
         }
         for (i = 0; i < 16777216; i++)
         {
-            if (fread(list[filenum * 16777216 + i].prikey, 32, 1, privateKey)
+            if (fread(list[(filenum << 24) + i].prikey, 32, 1, privateKey)
                 != 1)
             {
                 err(EXIT_FAILURE, "fread1");
             }
-            if (fread(list[filenum * 16777216 + i].pubkey, 65, 1, publicKey)
-                != 1)
+            if (fread(list[(filenum << 24) + i].pubkey, 65, 1, publicKey) != 1)
             {
                 err(EXIT_FAILURE, "fread2");
             };
@@ -63,7 +63,7 @@ int main(int argc, char const *argv[])
         err(EXIT_FAILURE, "error!");
     }
     printf("LOADED\n");
-    qsort_r(list, 16777216 * 8, sizeof(struct kp), compar, NULL);
+    qsort_r(list, 16777216 * 8, sizeof(struct keypair), compar, NULL);
 
     struct stat st;
 
