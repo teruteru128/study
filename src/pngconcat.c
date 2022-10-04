@@ -1,9 +1,9 @@
 
 #include "pngheaders.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 void pathcon(char *out, size_t cap, const char *in1, const char *in2)
 {
@@ -78,15 +78,14 @@ int main(int argc, char const *argv[])
             input_rgb[i][y] = malloc(sizeof(png_byte) * 3 * in_ihdr[i].width);
             for (size_t x = 0; x < in_ihdr[i].width; x++)
             {
-                input_rgb[i][y][x * 3 + 0]
+                input_rgb[i][y][(x << 1) + x + 0]
                     = palettes[i][input_data[i][y][x]].red;
-                input_rgb[i][y][x * 3 + 1]
+                input_rgb[i][y][(x << 1) + x + 1]
                     = palettes[i][input_data[i][y][x]].green;
-                input_rgb[i][y][x * 3 + 2]
+                input_rgb[i][y][(x << 1) + x + 2]
                     = palettes[i][input_data[i][y][x]].blue;
             }
         }
-
     }
 
     // 書き出しキャンバス
