@@ -5,6 +5,8 @@
 #include <sys/random.h>
 
 #define BUFFER_SIZE 480
+#define WIDTH 1920
+#define HEIGHT 1080
 
 /**
  * @brief カラーパレットを2個にして見るテスト
@@ -16,8 +18,8 @@
 int main(int argc, char const *argv[])
 {
     struct IHDR ihdr = { 0 };
-    ihdr.width = 1920;
-    ihdr.height = 1080;
+    ihdr.width = WIDTH;
+    ihdr.height = HEIGHT;
     ihdr.bit_depth = 8;
     ihdr.color_type = PNG_COLOR_TYPE_PALETTE;
     ihdr.interlace_method = PNG_INTERLACE_NONE;
@@ -30,30 +32,34 @@ int main(int argc, char const *argv[])
     pallets[1].red = 229;
     pallets[1].green = 215;
     pallets[1].blue = 94;
-    png_byte **data = malloc(sizeof(png_byte *) * 1080);
-    for (size_t y = 0; y < 1080; y++)
+    png_byte **data = malloc(sizeof(png_byte *) * HEIGHT);
+    for (size_t y = 0; y < HEIGHT; y++)
     {
-        data[y] = malloc(sizeof(png_byte) * 1920);
+        data[y] = malloc(sizeof(png_byte) * WIDTH);
     }
     unsigned char buf[BUFFER_SIZE];
     ssize_t successsize = 0;
-    for (size_t y = 0; y < 1080; y++)
+    for (size_t y = 0; y < HEIGHT; y++)
     {
-        /* 
         successsize = getrandom(buf, BUFFER_SIZE, 0);
         if (successsize < BUFFER_SIZE)
         {
             fprintf(stderr, "fail!");
             break;
-        } */
-        for (size_t x = 0; x < 1920; x++)
+        }
+        for (size_t x = 0; x < WIDTH; x++)
         {
+            // BUFFER_SIZE が 240 のとき
+            // data[y][x] = (buf[x >> 3] >> (x & 7)) & 1;
+            // BUFFER_SIZE が 480 のとき
+            // data[y][x] = ((buf[x >> 3] >> (x & 6)) & 3) < 3;
             data[y][x] = 0;
         }
     }
 
+    // write_png("map5.png", &ihdr, NULL, pallets, 2, data);
     write_png("map5.png", &ihdr, NULL, pallets, 1, data);
-    for (size_t y = 0; y < 1080; y++)
+    for (size_t y = 0; y < HEIGHT; y++)
     {
         free(data[y]);
         data[y] = NULL;

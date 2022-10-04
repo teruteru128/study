@@ -152,7 +152,7 @@ int write_png(const char *outpath, struct IHDR *ihdr, struct pHYs *phys,
                  ihdr->color_type, ihdr->interlace_method,
                  ihdr->compression_method, ihdr->filter_method);
     printf("set IHDR %"PRId32" x %"PRId32"\n", ihdr->width, ihdr->height);
-    if (palettes && num_palette)
+    if (palettes)
     {
         png_set_PLTE(png_ptr, info_ptr, palettes, num_palette);
         printf("set PLTE %d\n", num_palette);
