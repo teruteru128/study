@@ -5,14 +5,16 @@
 #include <string.h>
 #include <math.h>
 
-void pathcon(char **out, const char *in1, const char *in2)
+void pathcon(char *out, size_t cap, const char *in1, const char *in2)
 {
+    out[0] = '\0';
     size_t len1 = strlen(in1);
-    size_t length = len1 + strlen(in2) + 1;
-    *out = malloc(length);
-    strcpy(*out, in1);
-    strcpy((*out) + len1, in2);
-    (*out)[length - 1] = '\0';
+    size_t len2 = strlen(in2);
+    size_t cap_nokori = cap;
+    strncat(out, in1, cap_nokori);
+    out += len1;
+    cap_nokori -= len1;
+    strncat(out, in2, cap_nokori);
 }
 
 void con(png_byte **output_data, png_byte ***input_data, size_t width)
@@ -60,11 +62,11 @@ int main(int argc, char const *argv[])
     struct IHDR out_ihdr = { 0 };
     png_byte **input_data[4] = { NULL };
     png_byte **input_rgb[4] = { NULL };
-    char *inputpath = NULL;
+    char inputpath[PATH_MAX];
     // 画像4枚読み込み
     for (size_t i = 0; i < 4; i++)
     {
-        pathcon(&inputpath, inputfiledir, inputfilenamearray[i]);
+        pathcon(inputpath, PATH_MAX, inputfiledir, inputfilenamearray[i]);
         if (read_png(inputpath, &in_ihdr[i], NULL, &palettes[i],
                      num_palette + i, &input_data[i]))
         {
@@ -85,8 +87,6 @@ int main(int argc, char const *argv[])
             }
         }
 
-        free(inputpath);
-        inputpath = NULL;
     }
 
     // 書き出しキャンバス
