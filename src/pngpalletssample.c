@@ -20,8 +20,8 @@ int main(int argc, char const *argv[])
     struct IHDR ihdr = { 0 };
     ihdr.width = WIDTH;
     ihdr.height = HEIGHT;
-    ihdr.bit_depth = 8;
-    ihdr.color_type = PNG_COLOR_TYPE_PALETTE;
+    ihdr.bit_depth = 1;
+    ihdr.color_type = PNG_COLOR_TYPE_GRAY;
     ihdr.interlace_method = PNG_INTERLACE_NONE;
     ihdr.compression_method = PNG_COMPRESSION_TYPE_DEFAULT;
     ihdr.filter_method = PNG_NO_FILTERS;
@@ -35,7 +35,7 @@ int main(int argc, char const *argv[])
     png_byte **data = malloc(sizeof(png_byte *) * HEIGHT);
     for (size_t y = 0; y < HEIGHT; y++)
     {
-        data[y] = malloc(sizeof(png_byte) * WIDTH);
+        data[y] = malloc(sizeof(png_byte) * WIDTH/8);
     }
     unsigned char buf[BUFFER_SIZE];
     ssize_t successsize = 0;
@@ -47,18 +47,18 @@ int main(int argc, char const *argv[])
             fprintf(stderr, "fail!");
             break;
         }
-        for (size_t x = 0; x < WIDTH; x++)
+        for (size_t x = 0; x < 240; x++)
         {
             // BUFFER_SIZE が 240 のとき
             // data[y][x] = (buf[x >> 3] >> (x & 7)) & 1;
             // BUFFER_SIZE が 480 のとき
             // data[y][x] = ((buf[x >> 3] >> (x & 6)) & 3) < 3;
-            data[y][x] = 0;
+            data[y][x] = 0xff;
         }
     }
 
     // write_png("map5.png", &ihdr, NULL, pallets, 2, data);
-    write_png("map5.png", &ihdr, NULL, pallets, 1, data);
+    write_png("png_pallets_sample7.png", &ihdr, NULL, NULL, 0, data);
     for (size_t y = 0; y < HEIGHT; y++)
     {
         free(data[y]);
