@@ -8,6 +8,19 @@
     "12-34-56:12時34分頃,3,1,4,紀伊半島沖,ごく浅く,3.2,1,N12.3,E45.6," \
     "仙台管区気象台:-奈良県,+2,*下北山村,+1,*十津川村,*奈良川上村\r\n"
 
+void printregerror(int r, const regex_t *reg)
+{
+    if (r != 0)
+    {
+        size_t errbuf_size = regerror(r, reg, NULL, 0);
+        char *errbuf = malloc(errbuf_size);
+        regerror(r, &reg, errbuf, errbuf_size);
+        fprintf(stderr, "%s\n", errbuf);
+        free(errbuf);
+        return EXIT_FAILURE;
+    }
+}
+
 int epsptest(void)
 {
 
@@ -29,15 +42,7 @@ int epsptest(void)
      */
     int r = regcomp(&reg, "^([[:digit:]]{3}) ([[:digit:]]+)( (.+))?$",
                     REG_EXTENDED | REG_NEWLINE);
-    if (r != 0)
-    {
-        size_t errbuf_size = regerror(r, &reg, NULL, 0);
-        char *errbuf = malloc(errbuf_size);
-        regerror(r, &reg, errbuf, errbuf_size);
-        fprintf(stderr, "%s\n", errbuf);
-        free(errbuf);
-        return EXIT_FAILURE;
-    }
+    printregerror(r, &reg);
     regmatch_t match[5];
     regoff_t diff = 0;
     if (regexec(&reg, SRC, 5, match, 0) == 0)
@@ -55,15 +60,7 @@ int epsptest(void)
     }
     regfree(&reg);
     r = regcomp(&reg, " ", REG_EXTENDED);
-    if (r != 0)
-    {
-        size_t errbuf_size = regerror(r, &reg, NULL, 0);
-        char *errbuf = malloc(errbuf_size);
-        regerror(r, &reg, errbuf, errbuf_size);
-        fprintf(stderr, "%s\n", errbuf);
-        free(errbuf);
-        return EXIT_FAILURE;
-    }
+    printregerror(r, &reg);
     size_t i = 0;
     if (regexec(&reg, SRC, 4, match, 0) == 0)
     {

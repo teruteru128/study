@@ -27,6 +27,9 @@ target_include_directories(argsample PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/inclu
 
 add_executable(argparsesample argparsesample.c)
 
+add_executable(barrier_test barrier_test.c)
+target_link_libraries(barrier_test PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+
 add_executable(bcasttest bcasttest.c)
 
 add_executable(bino bino.c)
@@ -361,6 +364,8 @@ target_include_directories(maxmovingsum PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/i
 add_executable(md5fullzero md5fullzero.c)
 target_link_libraries(md5fullzero m ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_CRYPTO_LIBRARIES} study xmlrpc xmlrpc_client)
 target_include_directories(md5fullzero PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
+
+add_executable(mine mine.c)
 
 add_executable(mineseed mineseed.c)
 target_link_libraries(mineseed study)
