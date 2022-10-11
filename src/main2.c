@@ -35,6 +35,148 @@
 #include <openssl/types.h>
 #endif
 
+static struct gaicb **reqs = NULL;
+static int nreqs = 0;
+
+static char *getcmd(void)
+{
+    static char buf[256];
+
+    fputs("> ", stdout);
+    fflush(stdout);
+    if (fgets(buf, sizeof(buf), stdin) == NULL)
+        return NULL;
+
+    if (buf[strlen(buf) - 1] == '\n')
+        buf[strlen(buf) - 1] = 0;
+
+    return buf;
+}
+
+/* Add requests for specified hostnames */
+static void add_requests(void)
+{
+    int nreqs_base = nreqs;
+    char *host;
+    int ret;
+
+    while ((host = strtok(NULL, " ")))
+    {
+        nreqs++;
+        reqs = realloc(reqs, nreqs * sizeof(reqs[0]));
+
+        reqs[nreqs - 1] = calloc(1, sizeof(*reqs[0]));
+        reqs[nreqs - 1]->ar_name = strdup(host);
+    }
+
+    /* Queue nreqs_base..nreqs requests. */
+
+    ret = getaddrinfo_a(GAI_NOWAIT, &reqs[nreqs_base], nreqs - nreqs_base,
+                        NULL);
+    if (ret)
+    {
+        fprintf(stderr, "getaddrinfo_a() failed: %s\n", gai_strerror(ret));
+        exit(EXIT_FAILURE);
+    }
+}
+
+/* Wait until at least one of specified requests completes */
+static void wait_requests(void)
+{
+    char *id;
+    int i, ret, n;
+    struct gaicb const **wait_reqs = calloc(nreqs, sizeof(*wait_reqs));
+    /* NULL elements are ignored by gai_suspend(). */
+
+    while ((id = strtok(NULL, " ")) != NULL)
+    {
+        n = atoi(id);
+
+        if (n >= nreqs)
+        {
+            printf("Bad request number: %s\n", id);
+            return;
+        }
+
+        wait_reqs[n] = reqs[n];
+    }
+
+    ret = gai_suspend(wait_reqs, nreqs, NULL);
+    if (ret)
+    {
+        printf("gai_suspend(): %s\n", gai_strerror(ret));
+        return;
+    }
+
+    for (i = 0; i < nreqs; i++)
+    {
+        if (wait_reqs[i] == NULL)
+            continue;
+
+        ret = gai_error(reqs[i]);
+        if (ret == EAI_INPROGRESS)
+            continue;
+
+        printf("[%02d] %s: %s\n", i, reqs[i]->ar_name,
+               ret == 0 ? "Finished" : gai_strerror(ret));
+    }
+}
+
+/* Cancel specified requests */
+static void cancel_requests(void)
+{
+    char *id;
+    int ret, n;
+
+    while ((id = strtok(NULL, " ")) != NULL)
+    {
+        n = atoi(id);
+
+        if (n >= nreqs)
+        {
+            printf("Bad request number: %s\n", id);
+            return;
+        }
+
+        ret = gai_cancel(reqs[n]);
+        printf("[%s] %s: %s\n", id, reqs[atoi(id)]->ar_name,
+               gai_strerror(ret));
+    }
+}
+
+/* List all requests */
+static void list_requests(void)
+{
+    int i, ret;
+    char host[NI_MAXHOST];
+    struct addrinfo *res;
+
+    for (i = 0; i < nreqs; i++)
+    {
+        printf("[%02d] %s: ", i, reqs[i]->ar_name);
+        ret = gai_error(reqs[i]);
+
+        if (!ret)
+        {
+            res = reqs[i]->ar_result;
+
+            ret = getnameinfo(res->ai_addr, res->ai_addrlen, host,
+                              sizeof(host), NULL, 0, NI_NUMERICHOST);
+            if (ret)
+            {
+                fprintf(stderr, "getnameinfo() failed: %s\n",
+                        gai_strerror(ret));
+                exit(EXIT_FAILURE);
+            }
+            puts(host);
+        }
+        else
+        {
+            puts(gai_strerror(ret));
+        }
+    }
+}
+
 /*
  * 秘密鍵かな？
  * ioxhJc1lIE2m+WFdBg3ieQb6rk8sSvg3wRv/ImJz2tc=
@@ -58,59 +200,37 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    int i, ret;
-    struct gaicb *reqs[argc - 1];
-    char host[NI_MAXHOST];
-    struct addrinfo *res;
+    char *cmdline;
+    char *cmd;
 
-    if (argc < 2)
+    while ((cmdline = getcmd()) != NULL)
     {
-        fprintf(stderr, "Usage: %s HOST...\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
+        cmd = strtok(cmdline, " ");
 
-    for (i = 0; i < argc - 1; i++)
-    {
-        reqs[i] = malloc(sizeof(*reqs[0]));
-        if (reqs[i] == NULL)
+        if (cmd == NULL)
         {
-            perror("malloc");
-            exit(EXIT_FAILURE);
-        }
-        memset(reqs[i], 0, sizeof(*reqs[0]));
-        reqs[i]->ar_name = argv[i + 1];
-    }
-
-    puts("ma!");
-    ret = getaddrinfo_a(GAI_WAIT, reqs, argc - 1, NULL);
-    if (ret != 0)
-    {
-        fprintf(stderr, "getaddrinfo_a() failed: %s\n", gai_strerror(ret));
-        exit(EXIT_FAILURE);
-    }
-    puts("ma!!");
-
-    for (i = 0; i < argc - 1; i++)
-    {
-        printf("%s: ", reqs[i]->ar_name);
-        ret = gai_error(reqs[i]);
-        if (ret == 0)
-        {
-            res = reqs[i]->ar_result;
-
-            ret = getnameinfo(res->ai_addr, res->ai_addrlen, host,
-                              sizeof(host), NULL, 0, NI_NUMERICHOST);
-            if (ret != 0)
-            {
-                fprintf(stderr, "getnameinfo() failed: %s\n",
-                        gai_strerror(ret));
-                exit(EXIT_FAILURE);
-            }
-            puts(host);
+            list_requests();
         }
         else
         {
-            puts(gai_strerror(ret));
+            switch (cmd[0])
+            {
+            case 'a':
+                add_requests();
+                break;
+            case 'w':
+                wait_requests();
+                break;
+            case 'c':
+                cancel_requests();
+                break;
+            case 'l':
+                list_requests();
+                break;
+            default:
+                fprintf(stderr, "Bad command: %c\n", cmd[0]);
+                break;
+            }
         }
     }
     return 0;
