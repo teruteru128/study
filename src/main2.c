@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <gmp.h>
 #include <inttypes.h>
+#include <java_random.h>
 #include <math.h>
 #include <netdb.h>
 #include <omp.h>
@@ -15,7 +16,10 @@
 #include <openssl/ec.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
+#include <openssl/objects.h>
 #include <openssl/opensslv.h>
+#include <openssl/pem.h>
+#include <openssl/rsa.h>
 #include <openssl/sha.h>
 #include <regex.h>
 #include <stdint.h>
@@ -34,148 +38,6 @@
 #include <openssl/provider.h>
 #include <openssl/types.h>
 #endif
-
-static struct gaicb **reqs = NULL;
-static int nreqs = 0;
-
-static char *getcmd(void)
-{
-    static char buf[256];
-
-    fputs("> ", stdout);
-    fflush(stdout);
-    if (fgets(buf, sizeof(buf), stdin) == NULL)
-        return NULL;
-
-    if (buf[strlen(buf) - 1] == '\n')
-        buf[strlen(buf) - 1] = 0;
-
-    return buf;
-}
-
-/* Add requests for specified hostnames */
-static void add_requests(void)
-{
-    int nreqs_base = nreqs;
-    char *host;
-    int ret;
-
-    while ((host = strtok(NULL, " ")))
-    {
-        nreqs++;
-        reqs = realloc(reqs, nreqs * sizeof(reqs[0]));
-
-        reqs[nreqs - 1] = calloc(1, sizeof(*reqs[0]));
-        reqs[nreqs - 1]->ar_name = strdup(host);
-    }
-
-    /* Queue nreqs_base..nreqs requests. */
-
-    ret = getaddrinfo_a(GAI_NOWAIT, &reqs[nreqs_base], nreqs - nreqs_base,
-                        NULL);
-    if (ret)
-    {
-        fprintf(stderr, "getaddrinfo_a() failed: %s\n", gai_strerror(ret));
-        exit(EXIT_FAILURE);
-    }
-}
-
-/* Wait until at least one of specified requests completes */
-static void wait_requests(void)
-{
-    char *id;
-    int i, ret, n;
-    struct gaicb const **wait_reqs = calloc(nreqs, sizeof(*wait_reqs));
-    /* NULL elements are ignored by gai_suspend(). */
-
-    while ((id = strtok(NULL, " ")) != NULL)
-    {
-        n = atoi(id);
-
-        if (n >= nreqs)
-        {
-            printf("Bad request number: %s\n", id);
-            return;
-        }
-
-        wait_reqs[n] = reqs[n];
-    }
-
-    ret = gai_suspend(wait_reqs, nreqs, NULL);
-    if (ret)
-    {
-        printf("gai_suspend(): %s\n", gai_strerror(ret));
-        return;
-    }
-
-    for (i = 0; i < nreqs; i++)
-    {
-        if (wait_reqs[i] == NULL)
-            continue;
-
-        ret = gai_error(reqs[i]);
-        if (ret == EAI_INPROGRESS)
-            continue;
-
-        printf("[%02d] %s: %s\n", i, reqs[i]->ar_name,
-               ret == 0 ? "Finished" : gai_strerror(ret));
-    }
-}
-
-/* Cancel specified requests */
-static void cancel_requests(void)
-{
-    char *id;
-    int ret, n;
-
-    while ((id = strtok(NULL, " ")) != NULL)
-    {
-        n = atoi(id);
-
-        if (n >= nreqs)
-        {
-            printf("Bad request number: %s\n", id);
-            return;
-        }
-
-        ret = gai_cancel(reqs[n]);
-        printf("[%s] %s: %s\n", id, reqs[atoi(id)]->ar_name,
-               gai_strerror(ret));
-    }
-}
-
-/* List all requests */
-static void list_requests(void)
-{
-    int i, ret;
-    char host[NI_MAXHOST];
-    struct addrinfo *res;
-
-    for (i = 0; i < nreqs; i++)
-    {
-        printf("[%02d] %s: ", i, reqs[i]->ar_name);
-        ret = gai_error(reqs[i]);
-
-        if (!ret)
-        {
-            res = reqs[i]->ar_result;
-
-            ret = getnameinfo(res->ai_addr, res->ai_addrlen, host,
-                              sizeof(host), NULL, 0, NI_NUMERICHOST);
-            if (ret)
-            {
-                fprintf(stderr, "getnameinfo() failed: %s\n",
-                        gai_strerror(ret));
-                exit(EXIT_FAILURE);
-            }
-            puts(host);
-        }
-        else
-        {
-            puts(gai_strerror(ret));
-        }
-    }
-}
 
 /*
  * 秘密鍵かな？
@@ -198,41 +60,34 @@ static void list_requests(void)
  * ↓2回連続getFloatで-1が出るseed 2つ
  * 125352706827826
  * 116229385253865
+ * ↓getDoubleで可能な限り1に近い値が出るseed
+ * 155239116123415
  * preforkする場合ってforkするのはlistenソケットを開く前？開いた後？
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    char *cmdline;
-    char *cmd;
+    int64_t random = 125352706827826L;
+    random = initialScramble(random);
+    printf("%0.7a\n", nextFloat(&random));
+    printf("%0.7a\n", nextFloat(&random));
+    random = 116229385253865L;
+    random = initialScramble(random);
+    printf("%0.7a\n", nextFloat(&random));
+    printf("%0.7a\n", nextFloat(&random));
+    random = 205362725900773L;
+    random = initialScramble(random);
+    printf("%0.17la\n", nextDouble(&random));
 
-    while ((cmdline = getcmd()) != NULL)
+    int64_t b = 0;
+    int64_t c = 0;
+    for (random = 0xfffff0000000L; random < 0x1000000000000L; random++)
     {
-        cmd = strtok(cmdline, " ");
-
-        if (cmd == NULL)
+        b = lcgInverse(random);
+        c = lcgInverse(b);
+        if ((b & 0xffffffc00000L) == 0xffffffc00000L)
         {
-            list_requests();
-        }
-        else
-        {
-            switch (cmd[0])
-            {
-            case 'a':
-                add_requests();
-                break;
-            case 'w':
-                wait_requests();
-                break;
-            case 'c':
-                cancel_requests();
-                break;
-            case 'l':
-                list_requests();
-                break;
-            default:
-                fprintf(stderr, "Bad command: %c\n", cmd[0]);
-                break;
-            }
+            printf("seed: %" PRId64 "L -> 0x%014" PRIx64 "\n",
+                   initialScramble(c), ((b >> (48 - 26)) << 27) + (random >> (48 - 27)));
         }
     }
     return 0;
