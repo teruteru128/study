@@ -120,7 +120,7 @@ int main(const int argc, const char *argv[])
     char service[NI_MAXSERV] = "50001";
 
     unsigned char header[15];
-    //送信するデータの生成(文字列を除いた先頭の部分)
+    // 送信するデータの生成(文字列を除いた先頭の部分)
     *((short *)(header + 0)) = (short)htole16((unsigned short)command);
     *((short *)(header + 2)) = (short)htole16((unsigned short)speed);
     *((short *)(header + 4)) = (short)htole16((unsigned short)tone);
