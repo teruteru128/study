@@ -448,6 +448,9 @@ target_link_libraries(pngpalletssample ${PNG_LIBRARIES})
 add_executable(pngphysedit pngphysedit.c pngreadwrite.c)
 target_link_libraries(pngphysedit ${PNG_LIBRARIES})
 
+add_executable(pngshitimage pngshitimage.c pngreadwrite.c)
+target_link_libraries(pngshitimage ${PNG_LIBRARIES})
+
 add_executable(portscanner portscanner.c)
 
 add_executable(postgresqlsample postgresqlsample.c)
