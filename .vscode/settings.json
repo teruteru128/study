@@ -220,7 +220,8 @@
         "cl_ext.h": "c",
         "cl_gl.h": "c",
         "cl_platform.h": "c",
-        "pngheaders.h": "c"
+        "pngheaders.h": "c",
+        "param_build.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

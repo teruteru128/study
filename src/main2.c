@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/param.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -63,32 +64,20 @@
  * ↓getDoubleで可能な限り1に近い値が出るseed
  * 155239116123415
  * preforkする場合ってforkするのはlistenソケットを開く前？開いた後？
+ * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
+ * 丸数字の1から50までforで出す
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    int64_t random = 125352706827826L;
-    random = initialScramble(random);
-    printf("%0.7a\n", nextFloat(&random));
-    printf("%0.7a\n", nextFloat(&random));
-    random = 116229385253865L;
-    random = initialScramble(random);
-    printf("%0.7a\n", nextFloat(&random));
-    printf("%0.7a\n", nextFloat(&random));
-    random = 205362725900773L;
-    random = initialScramble(random);
-    printf("%0.17la\n", nextDouble(&random));
-
-    int64_t b = 0;
-    int64_t c = 0;
-    for (random = 0xfffff0000000L; random < 0x1000000000000L; random++)
+    //
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    for (uint64_t i = 0; i < 0x100000000L;)
     {
-        b = lcgInverse(random);
-        c = lcgInverse(b);
-        if ((b & 0xffffffc00000L) == 0xffffffc00000L)
-        {
-            printf("seed: %" PRId64 "L -> 0x%014" PRIx64 "\n",
-                   initialScramble(c), ((b >> (48 - 26)) << 27) + (random >> (48 - 27)));
-        }
+        // encode
+        // init ctx
+        // update
+        // final
+        // check
     }
     return 0;
 }
