@@ -8,7 +8,7 @@
 int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
              png_colorp *palettes, int *num_palette, png_byte ***row_pointers)
 {
-    if (inpath == NULL || row_pointers == NULL)
+    if (inpath == NULL)
     {
         return 1;
     }
@@ -42,6 +42,7 @@ int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
      */
     if (setjmp(png_jmpbuf(png_ptr)))
     {
+        fputs("NG\n", stderr);
         /* Free all of the memory associated with the png_ptr and info_ptr.
          */
         png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
@@ -98,15 +99,18 @@ int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
         }
     }
 
-    // dupliacte rows
-    png_byte **original_row_pointers = png_get_rows(png_ptr, info_ptr);
-    *row_pointers = malloc(sizeof(png_byte *) * ihdr->height);
-    size_t rowsize = png_get_rowbytes(png_ptr, info_ptr);
-    printf("rowsize : %zu\n", rowsize);
-    for (size_t y = 0; y < ihdr->height; y++)
+    if (row_pointers != NULL)
     {
-        (*row_pointers)[y] = malloc(rowsize);
-        memcpy((*row_pointers)[y], original_row_pointers[y], rowsize);
+        // dupliacte rows
+        png_byte **original_row_pointers = png_get_rows(png_ptr, info_ptr);
+        *row_pointers = malloc(sizeof(png_byte *) * ihdr->height);
+        size_t rowsize = png_get_rowbytes(png_ptr, info_ptr);
+        printf("rowsize : %zu\n", rowsize);
+        for (size_t y = 0; y < ihdr->height; y++)
+        {
+            (*row_pointers)[y] = malloc(rowsize);
+            memcpy((*row_pointers)[y], original_row_pointers[y], rowsize);
+        }
     }
 
     png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
@@ -151,7 +155,7 @@ int write_png(const char *outpath, struct IHDR *ihdr, struct pHYs *phys,
     png_set_IHDR(png_ptr, info_ptr, ihdr->width, ihdr->height, ihdr->bit_depth,
                  ihdr->color_type, ihdr->interlace_method,
                  ihdr->compression_method, ihdr->filter_method);
-    printf("set IHDR %"PRId32" x %"PRId32"\n", ihdr->width, ihdr->height);
+    printf("set IHDR %" PRId32 " x %" PRId32 "\n", ihdr->width, ihdr->height);
     if (palettes)
     {
         png_set_PLTE(png_ptr, info_ptr, palettes, num_palette);

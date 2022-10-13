@@ -3,6 +3,7 @@
 #define OPENSSL_API_COMPAT 0x30000000L
 #define OPENSSL_NO_DEPRECATED 1
 
+#include "pngheaders.h"
 #include <CL/opencl.h>
 #include <errno.h>
 #include <gmp.h>
@@ -72,28 +73,66 @@
 int hiho(int argc, char **argv, const char **envp)
 {
 
-    FILE *fi = fopen("/mnt/g/iandm/image/pixiv.net/058/58755930_p0.png", "rb");
-    if (fi == NULL)
+    struct IHDR ihdr = { 0 };
+    printf("/mnt/g/iandm/image/pixiv.net/058/58755930_p0.png\n");
+    png_byte **image1 = NULL;
+    int ret = read_png("/mnt/g/iandm/image/pixiv.net/058/58755930_p0.png",
+                       &ihdr, NULL, NULL, 0, &image1);
+    png_byte **image2 = NULL;
+    ret = read_png("/mnt/g/iandm/image/pixiv.net/058/58755930_p2.png", &ihdr,
+                   NULL, NULL, 0, &image2);
+    size_t x = 0;
+    size_t y = 0;
+    png_byte **diff1 = malloc(sizeof(png_byte *) * 1100);
+    png_byte **diff2 = malloc(sizeof(png_byte *) * 1100);
+    size_t offset = 0;
+    for (y = 0; y < 1100; y++)
     {
-        perror("fopen");
-        return 1;
+        diff1[y] = malloc(sizeof(png_byte) * 815 * 4);
+        diff2[y] = malloc(sizeof(png_byte) * 815 * 4);
+        for (x = 0, offset = 0; x < 815; x++, offset += 4)
+        {
+            if (memcmp(image1[y] + offset, image2[y] + offset, 4) == 0)
+            {
+                // memset(diff1[y] + offset, 255, 4);
+                *(diff1[y] + offset + 0) = 255;
+                *(diff1[y] + offset + 1) = 255;
+                *(diff1[y] + offset + 2) = 255;
+                *(diff1[y] + offset + 3) = 0;
+                // memset(diff2[y] + offset, 255, 4);
+                *(diff2[y] + offset + 0) = 255;
+                *(diff2[y] + offset + 1) = 255;
+                *(diff2[y] + offset + 2) = 255;
+                *(diff2[y] + offset + 3) = 0;
+            }
+            else
+            {
+                *(diff1[y] + offset + 0) = *(image1[y] + offset + 0); // R
+                *(diff1[y] + offset + 1) = *(image1[y] + offset + 1); // G
+                *(diff1[y] + offset + 2) = *(image1[y] + offset + 2); // B
+                *(diff1[y] + offset + 3) = *(image1[y] + offset + 3); // A
+                *(diff2[y] + offset + 0) = *(image2[y] + offset + 0);
+                *(diff2[y] + offset + 1) = *(image2[y] + offset + 1);
+                *(diff2[y] + offset + 2) = *(image2[y] + offset + 2);
+                *(diff2[y] + offset + 3) = *(image2[y] + offset + 3);
+            }
+        }
     }
-    struct jpeg_decompress_struct *jpeg
-        = malloc(sizeof(struct jpeg_decompress_struct));
-    struct jpeg_error_mgr *err = malloc(sizeof(struct jpeg_error_mgr));
 
-    jpeg->err = jpeg_std_error(err);
-    jpeg_create_decompress(jpeg);
-    jpeg_stdio_src(jpeg, NULL);
-    jpeg_read_header(jpeg, TRUE);
-    jpeg_start_decompress(jpeg);
-    printf("width = %d, height = %d, ch = %d\n", jpeg->output_width,
-           jpeg->output_height, jpeg->out_color_components);
-    jpeg_finish_decompress(jpeg);
-    jpeg_destroy_decompress(jpeg);
+    write_png("diff8.png", &ihdr, NULL, NULL, 0, diff1);
+    write_png("diff9.png", &ihdr, NULL, NULL, 0, diff2);
 
-    fclose(fi);
-    free(jpeg);
-    free(err);
+    for (y = 0; y < 815; y++)
+    {
+        free(image1[y]);
+        free(image2[y]);
+        free(diff1[y]);
+        free(diff2[y]);
+    }
+    free(image1);
+    free(image2);
+    free(diff1);
+    free(diff2);
+
     return 0;
 }
