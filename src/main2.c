@@ -33,6 +33,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <jpeglib.h> // jpeglibはstdioより下(FILEが依存しているため)
+
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/core_names.h>
 #include <openssl/param_build.h>
@@ -69,15 +71,29 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    //
-    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-    for (uint64_t i = 0; i < 0x100000000L;)
+
+    FILE *fi = fopen("/mnt/g/iandm/image/pixiv.net/058/58755930_p0.png", "rb");
+    if (fi == NULL)
     {
-        // encode
-        // init ctx
-        // update
-        // final
-        // check
+        perror("fopen");
+        return 1;
     }
+    struct jpeg_decompress_struct *jpeg
+        = malloc(sizeof(struct jpeg_decompress_struct));
+    struct jpeg_error_mgr *err = malloc(sizeof(struct jpeg_error_mgr));
+
+    jpeg->err = jpeg_std_error(err);
+    jpeg_create_decompress(jpeg);
+    jpeg_stdio_src(jpeg, NULL);
+    jpeg_read_header(jpeg, TRUE);
+    jpeg_start_decompress(jpeg);
+    printf("width = %d, height = %d, ch = %d\n", jpeg->output_width,
+           jpeg->output_height, jpeg->out_color_components);
+    jpeg_finish_decompress(jpeg);
+    jpeg_destroy_decompress(jpeg);
+
+    fclose(fi);
+    free(jpeg);
+    free(err);
     return 0;
 }

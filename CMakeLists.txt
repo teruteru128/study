@@ -38,6 +38,7 @@ if(Intl_FOUND)
 #        set(LIBINTL_LIBRARIES)
 endif(Intl_FOUND)
 
+find_package(JPEG REQUIRED)
 
 find_package(Gettext)
 if(GETTEXT_FOUND)

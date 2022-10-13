@@ -221,7 +221,8 @@
         "cl_gl.h": "c",
         "cl_platform.h": "c",
         "pngheaders.h": "c",
-        "param_build.h": "c"
+        "param_build.h": "c",
+        "jpeglib.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
