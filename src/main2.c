@@ -23,6 +23,7 @@
 #include <openssl/rsa.h>
 #include <openssl/sha.h>
 #include <regex.h>
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,6 +43,17 @@
 #include <openssl/provider.h>
 #include <openssl/types.h>
 #endif
+
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+
+void func(__sigval_t a)
+{
+    pthread_mutex_lock(&mutex);
+    printf("わぁ %lu\n", pthread_self());
+    pthread_cond_broadcast(&cond);
+    pthread_mutex_unlock(&mutex);
+}
 
 /*
  * 秘密鍵かな？
@@ -69,70 +81,40 @@
  * preforkする場合ってforkするのはlistenソケットを開く前？開いた後？
  * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
  * 丸数字の1から50までforで出す
+ * timer_create+sigeventでタイマーを使ってスレッドを起動する
  */
 int hiho(int argc, char **argv, const char **envp)
 {
+    struct sigevent event = { 0 };
+    memset(&event, 0, sizeof(struct sigevent));
+    event.sigev_notify = SIGEV_THREAD;
+    event.sigev_notify_function = func;
 
-    struct IHDR ihdr = { 0 };
-    printf("/mnt/g/iandm/image/pixiv.net/058/58755930_p0.png\n");
-    png_byte **image1 = NULL;
-    int ret = read_png("/mnt/g/iandm/image/pixiv.net/058/58755930_p0.png",
-                       &ihdr, NULL, NULL, 0, &image1);
-    png_byte **image2 = NULL;
-    ret = read_png("/mnt/g/iandm/image/pixiv.net/058/58755930_p2.png", &ihdr,
-                   NULL, NULL, 0, &image2);
-    size_t x = 0;
-    size_t y = 0;
-    png_byte **diff1 = malloc(sizeof(png_byte *) * 1100);
-    png_byte **diff2 = malloc(sizeof(png_byte *) * 1100);
-    size_t offset = 0;
-    for (y = 0; y < 1100; y++)
+    timer_t timerobj = NULL;
+    if (timer_create(CLOCK_REALTIME, &event, &timerobj) != 0)
     {
-        diff1[y] = malloc(sizeof(png_byte) * 815 * 4);
-        diff2[y] = malloc(sizeof(png_byte) * 815 * 4);
-        for (x = 0, offset = 0; x < 815; x++, offset += 4)
-        {
-            if (memcmp(image1[y] + offset, image2[y] + offset, 4) == 0)
-            {
-                // memset(diff1[y] + offset, 255, 4);
-                *(diff1[y] + offset + 0) = 255;
-                *(diff1[y] + offset + 1) = 255;
-                *(diff1[y] + offset + 2) = 255;
-                *(diff1[y] + offset + 3) = 0;
-                // memset(diff2[y] + offset, 255, 4);
-                *(diff2[y] + offset + 0) = 255;
-                *(diff2[y] + offset + 1) = 255;
-                *(diff2[y] + offset + 2) = 255;
-                *(diff2[y] + offset + 3) = 0;
-            }
-            else
-            {
-                *(diff1[y] + offset + 0) = *(image1[y] + offset + 0); // R
-                *(diff1[y] + offset + 1) = *(image1[y] + offset + 1); // G
-                *(diff1[y] + offset + 2) = *(image1[y] + offset + 2); // B
-                *(diff1[y] + offset + 3) = *(image1[y] + offset + 3); // A
-                *(diff2[y] + offset + 0) = *(image2[y] + offset + 0);
-                *(diff2[y] + offset + 1) = *(image2[y] + offset + 1);
-                *(diff2[y] + offset + 2) = *(image2[y] + offset + 2);
-                *(diff2[y] + offset + 3) = *(image2[y] + offset + 3);
-            }
-        }
+        return 1;
     }
 
-    write_png("diff8.png", &ihdr, NULL, NULL, 0, diff1);
-    write_png("diff9.png", &ihdr, NULL, NULL, 0, diff2);
+    struct itimerspec timerconfig;
+    timerconfig.it_value.tv_sec = 5;
+    timerconfig.it_value.tv_nsec = 0;
+    timerconfig.it_interval.tv_sec = 1;
+    timerconfig.it_interval.tv_nsec = 0;
 
-    for (y = 0; y < 815; y++)
+    if (timer_settime(timerobj, 0, &timerconfig, NULL) != 0)
     {
-        free(image1[y]);
-        free(image2[y]);
-        free(diff1[y]);
-        free(diff2[y]);
+        return 1;
     }
-    free(image1);
-    free(image2);
-    free(diff1);
-    free(diff2);
+    for (size_t i = 0; i < 10; i++)
+    {
+        pthread_mutex_lock(&mutex);
+        printf("待ちます... %lu\n", pthread_self());
+        pthread_cond_wait(&cond, &mutex);
+        pthread_mutex_unlock(&mutex);
+    }
+
+    timer_delete(timerobj);
 
     return 0;
 }

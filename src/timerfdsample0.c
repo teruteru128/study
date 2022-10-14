@@ -27,6 +27,11 @@
  *   timerfdはsleepとかusleep, nanosleepに比べると手間がかかりますねー
  *   そりゃfdだからねえ
  * - pthread_cond_timedwait
+ * - timer_create
+ * clock_getcpuclockid
+ * pthread_getcpuclockid
+ * sigevent
+ * signal
  *
  * データ型とか
  * time_t

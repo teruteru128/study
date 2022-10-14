@@ -17,21 +17,6 @@
 /**
  * @brief eventfd sample.
  *
- * eventfd
- * timerfd
- * signalfd
- *
- * Linuxにおけるウェイト処理
- * - sleep
- * - usleep
- * - nanosleep
- * - select(2) のタイムアウト指定
- * - settimer
- * - timerfd
- *   timerfdはsleepとかusleep, nanosleepに比べると手間がかかりますねー
- *   そりゃfdだからねえ
- * - pthread_cond_timedwait
- *
  * @param argc
  * @param argv
  * @return int
