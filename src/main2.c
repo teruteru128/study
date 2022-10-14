@@ -47,12 +47,10 @@
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
-void func(__sigval_t a)
+void func(union sigval a)
 {
-    pthread_mutex_lock(&mutex);
     printf("わぁ %lu\n", pthread_self());
-    pthread_cond_broadcast(&cond);
-    pthread_mutex_unlock(&mutex);
+    pthread_barrier_wait((pthread_barrier_t *)a.sival_ptr);
 }
 
 /*
@@ -85,10 +83,13 @@ void func(__sigval_t a)
  */
 int hiho(int argc, char **argv, const char **envp)
 {
+    pthread_barrier_t barrier;
+    pthread_barrier_init(&barrier, NULL, 2);
     struct sigevent event = { 0 };
     memset(&event, 0, sizeof(struct sigevent));
     event.sigev_notify = SIGEV_THREAD;
     event.sigev_notify_function = func;
+    event.sigev_value.sival_ptr = &barrier;
 
     timer_t timerobj = NULL;
     if (timer_create(CLOCK_REALTIME, &event, &timerobj) != 0)
@@ -108,13 +109,12 @@ int hiho(int argc, char **argv, const char **envp)
     }
     for (size_t i = 0; i < 10; i++)
     {
-        pthread_mutex_lock(&mutex);
         printf("待ちます... %lu\n", pthread_self());
-        pthread_cond_wait(&cond, &mutex);
-        pthread_mutex_unlock(&mutex);
+        pthread_barrier_wait(&barrier);
     }
 
     timer_delete(timerobj);
+    pthread_barrier_destroy(&barrier);
 
     return 0;
 }
