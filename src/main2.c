@@ -44,10 +44,7 @@
 #include <openssl/types.h>
 #endif
 
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-
-void func(union sigval a)
+static void func(union sigval a)
 {
     printf("わぁ %lu\n", pthread_self());
     pthread_barrier_wait((pthread_barrier_t *)a.sival_ptr);
@@ -91,19 +88,29 @@ int hiho(int argc, char **argv, const char **envp)
     event.sigev_notify_function = func;
     event.sigev_value.sival_ptr = &barrier;
 
-    timer_t timerobj = NULL;
-    if (timer_create(CLOCK_REALTIME, &event, &timerobj) != 0)
+    timer_t timerid = NULL;
+    if (timer_create(CLOCK_REALTIME, &event, &timerid) != 0)
     {
         return 1;
     }
-
+    printf("%p\n", timerid);
+    /*
+    struct tm tm = {0};
+    tm.tm_year = 2022 - 1900;
+    tm.tm_mon = 9;
+    tm.tm_mday = 15;
+    tm.tm_hour = 16;
+    tm.tm_min = 10;
+    tm.tm_sec = 0;
+     */
     struct itimerspec timerconfig;
+    // timerconfig.it_value.tv_sec = mktime(&tm);
     timerconfig.it_value.tv_sec = 5;
     timerconfig.it_value.tv_nsec = 0;
     timerconfig.it_interval.tv_sec = 1;
     timerconfig.it_interval.tv_nsec = 0;
 
-    if (timer_settime(timerobj, 0, &timerconfig, NULL) != 0)
+    if (timer_settime(timerid, 0, &timerconfig, NULL) != 0)
     {
         return 1;
     }
@@ -113,7 +120,7 @@ int hiho(int argc, char **argv, const char **envp)
         pthread_barrier_wait(&barrier);
     }
 
-    timer_delete(timerobj);
+    timer_delete(timerid);
     pthread_barrier_destroy(&barrier);
 
     return 0;
