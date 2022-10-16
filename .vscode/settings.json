@@ -223,7 +223,8 @@
         "pngheaders.h": "c",
         "param_build.h": "c",
         "jpeglib.h": "c",
-        "compare": "c"
+        "compare": "c",
+        "param.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
