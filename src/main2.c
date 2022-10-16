@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdatomic.h>
 #include <sys/param.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -44,10 +45,18 @@
 #include <openssl/types.h>
 #endif
 
+struct p
+{
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+};
+
 static void func(union sigval a)
 {
     printf("わぁ %lu\n", pthread_self());
-    pthread_barrier_wait((pthread_barrier_t *)a.sival_ptr);
+    pthread_mutex_lock(&((struct p *) a.sival_ptr)->mutex);
+    pthread_cond_broadcast(&((struct p *) a.sival_ptr)->cond);
+    pthread_mutex_unlock(&((struct p *) a.sival_ptr)->mutex);
 }
 
 /*
@@ -77,16 +86,18 @@ static void func(union sigval a)
  * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
  * 丸数字の1から50までforで出す
  * timer_create+sigeventでタイマーを使ってスレッドを起動する
+ * decodable random source?
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    pthread_barrier_t barrier;
-    pthread_barrier_init(&barrier, NULL, 2);
+    struct p p;
+    pthread_mutex_init(&p.mutex, NULL);
+    pthread_cond_init(&p.cond, NULL);
     struct sigevent event = { 0 };
     memset(&event, 0, sizeof(struct sigevent));
     event.sigev_notify = SIGEV_THREAD;
     event.sigev_notify_function = func;
-    event.sigev_value.sival_ptr = &barrier;
+    event.sigev_value.sival_ptr = &p;
 
     timer_t timerid = NULL;
     if (timer_create(CLOCK_REALTIME, &event, &timerid) != 0)
@@ -94,22 +105,13 @@ int hiho(int argc, char **argv, const char **envp)
         return 1;
     }
     printf("%p\n", timerid);
-    /*
-    struct tm tm = {0};
-    tm.tm_year = 2022 - 1900;
-    tm.tm_mon = 9;
-    tm.tm_mday = 15;
-    tm.tm_hour = 16;
-    tm.tm_min = 10;
-    tm.tm_sec = 0;
-     */
     struct itimerspec timerconfig;
-    // timerconfig.it_value.tv_sec = mktime(&tm);
     timerconfig.it_value.tv_sec = 5;
     timerconfig.it_value.tv_nsec = 0;
     timerconfig.it_interval.tv_sec = 1;
     timerconfig.it_interval.tv_nsec = 0;
 
+    // TIMER_ABSTIME とかあんまり使う機会ないよなぁとは思いつつ
     if (timer_settime(timerid, 0, &timerconfig, NULL) != 0)
     {
         return 1;
@@ -117,11 +119,14 @@ int hiho(int argc, char **argv, const char **envp)
     for (size_t i = 0; i < 10; i++)
     {
         printf("待ちます... %lu\n", pthread_self());
-        pthread_barrier_wait(&barrier);
+        pthread_mutex_lock(&p.mutex);
+        pthread_cond_wait(&p.cond, &p.mutex);
+        pthread_mutex_unlock(&p.mutex);
     }
 
+    pthread_mutex_destroy(&p.mutex);
+    pthread_cond_destroy(&p.cond);
     timer_delete(timerid);
-    pthread_barrier_destroy(&barrier);
 
     return 0;
 }
