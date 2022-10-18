@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/param.h>
+#include <sys/random.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -79,6 +80,7 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
+#if 0
     if (argc < 3)
     {
         fprintf(stderr, "%s publickeyfile1 publickeyfile2\n", argv[0]);
@@ -182,5 +184,32 @@ finish:
     EVP_MD_CTX_free(ctx1);
     fclose(pub1);
     fclose(pub2);
+#endif
+#if 0
+    // 2038年問題カウントダウン
+    time_t u = 0x80000000L;
+    double diff = 0;
+    double quot = 0;
+    double rem = 0;
+    while (1)
+    {
+        diff = difftime(u, time(NULL));
+        quot = floor(diff / 86400);
+        rem = fmod(diff, 86400);
+        printf("2038年1月19日12時14分8秒まであと%ld日%ld秒\n", (long)quot,
+               (long)rem);
+        sleep(1);
+    }
+#endif
+    // 乱数的な
+    uint64_t a = 0;
+    ssize_t ret = getrandom(&a, 6, 0);
+    if (ret != 6)
+    {
+        perror("getrandom");
+        return 1;
+    }
+    a = le64toh(a);
+    printf("%lf\n", (16 * (a / (double)(1UL<<48))));
     return 0;
 }
