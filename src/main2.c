@@ -24,13 +24,14 @@
 #include <openssl/sha.h>
 #include <regex.h>
 #include <signal.h>
+#include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdatomic.h>
 #include <sys/param.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
@@ -45,19 +46,7 @@
 #include <openssl/types.h>
 #endif
 
-struct p
-{
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;
-};
-
-static void func(union sigval a)
-{
-    printf("わぁ %lu\n", pthread_self());
-    pthread_mutex_lock(&((struct p *) a.sival_ptr)->mutex);
-    pthread_cond_broadcast(&((struct p *) a.sival_ptr)->cond);
-    pthread_mutex_unlock(&((struct p *) a.sival_ptr)->mutex);
-}
+#define LIMIT 16
 
 /*
  * 秘密鍵かな？
@@ -90,43 +79,108 @@ static void func(union sigval a)
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    struct p p;
-    pthread_mutex_init(&p.mutex, NULL);
-    pthread_cond_init(&p.cond, NULL);
-    struct sigevent event = { 0 };
-    memset(&event, 0, sizeof(struct sigevent));
-    event.sigev_notify = SIGEV_THREAD;
-    event.sigev_notify_function = func;
-    event.sigev_value.sival_ptr = &p;
-
-    timer_t timerid = NULL;
-    if (timer_create(CLOCK_REALTIME, &event, &timerid) != 0)
+    if (argc < 3)
     {
+        fprintf(stderr, "%s publickeyfile1 publickeyfile2\n", argv[0]);
+    }
+    size_t count = 0;
+    FILE *pub1 = fopen(argv[1], "rb");
+    FILE *pub2 = fopen(argv[2], "rb");
+    if (pub1 == NULL || pub2 == NULL)
+    {
+        perror("fopen");
+        if (pub1)
+            fclose(pub1);
+        if (pub2)
+            fclose(pub2);
         return 1;
     }
-    printf("%p\n", timerid);
-    struct itimerspec timerconfig;
-    timerconfig.it_value.tv_sec = 5;
-    timerconfig.it_value.tv_nsec = 0;
-    timerconfig.it_interval.tv_sec = 1;
-    timerconfig.it_interval.tv_nsec = 0;
-
-    // TIMER_ABSTIME とかあんまり使う機会ないよなぁとは思いつつ
-    if (timer_settime(timerid, 0, &timerconfig, NULL) != 0)
+    struct stat filestat1;
+    struct stat filestat2;
+    if (fstat(fileno(pub1), &filestat1) != 0
+        || fstat(fileno(pub2), &filestat2) != 0)
     {
+        perror("fstat");
+        fclose(pub1);
+        fclose(pub2);
         return 1;
     }
-    for (size_t i = 0; i < 10; i++)
+    div_t d1 = div(filestat1.st_size, 65);
+    div_t d2 = div(filestat2.st_size, 65);
+    if (d1.rem != 0 || d2.rem != 0)
     {
-        printf("待ちます... %lu\n", pthread_self());
-        pthread_mutex_lock(&p.mutex);
-        pthread_cond_wait(&p.cond, &p.mutex);
-        pthread_mutex_unlock(&p.mutex);
+        fprintf(
+            stderr,
+            "%sもしくは%"
+            "sのどちらかのファイルサイズが公開鍵サイズの倍数ではありません\n",
+            argv[1], argv[2]);
+        fclose(pub1);
+        fclose(pub2);
+        return 1;
     }
+    // 16件ずつローカル変数にコピーするのって面倒じゃない……？
+    unsigned char a[1040];
+    unsigned char b[1040];
+    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
+    OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
+    EVP_MD_CTX *ctx0 = EVP_MD_CTX_new();
+    EVP_MD_CTX *ctx1 = EVP_MD_CTX_new();
+    EVP_MD_CTX *ctx2 = EVP_MD_CTX_new();
+    size_t x;
+    size_t y;
+    size_t i;
+    size_t j;
+    EVP_DigestInit_ex2(ctx1, EVP_sha512(), NULL);
+    unsigned char hash[EVP_MAX_MD_SIZE];
+    EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
+    EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
+    if (ripemd160 == NULL)
+    {
+        unsigned long err = ERR_get_error();
+        fprintf(stderr, "ripemd160 : %s\n", ERR_error_string(err, NULL));
+        return 1;
+    }
+    for (x = 0; x < d2.quot; x += 16)
+    {
+        fread(a, 65, 16, pub1);
+        for (y = 0; y < d1.quot; y += 16)
+        {
+            fread(b, 65, 16, pub2);
+            for (i = 0; i < 1040; i += 65)
+            {
+                EVP_DigestInit_ex2(ctx0, sha512, NULL);
+                EVP_DigestUpdate(ctx0, a + i, 65);
+                for (j = 0; j < 1040; j += 65)
+                {
+                    EVP_MD_CTX_copy(ctx1, ctx0);
+                    EVP_DigestUpdate(ctx1, b + j, 65);
+                    EVP_DigestFinal_ex(ctx1, hash, NULL);
+                    EVP_DigestInit_ex2(ctx2, ripemd160, NULL);
+                    EVP_DigestUpdate(ctx2, hash, 64);
+                    EVP_DigestFinal_ex(ctx2, hash, NULL);
+                    // hash[0] == 0
+                    if (!hash[0])
+                    {
+                        printf("%zu, %zu\n", x + (i / 65), y + (j / 65));
+                        count++;
+                        if (count >= LIMIT)
+                        {
+                            goto finish;
+                        }
+                    }
+                }
+            }
+        }
+    }
+finish:
+    EVP_MD_free(sha512);
+    EVP_MD_free(ripemd160);
+    OSSL_PROVIDER_unload(def);
+    OSSL_PROVIDER_unload(legacy);
 
-    pthread_mutex_destroy(&p.mutex);
-    pthread_cond_destroy(&p.cond);
-    timer_delete(timerid);
-
+    EVP_MD_CTX_free(ctx0);
+    EVP_MD_CTX_free(ctx1);
+    fclose(pub1);
+    fclose(pub2);
     return 0;
 }

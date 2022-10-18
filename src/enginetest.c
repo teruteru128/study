@@ -24,47 +24,58 @@ int main(int argc, char **argv)
     if (legacy == NULL)
     {
         printf("Failed to load Legacy provider\n");
-        return EXIT_FAILURE;
+    }
+    else
+    {
+        printf("legacy provider OK...\n");
     }
     def = OSSL_PROVIDER_load(NULL, "default");
     if (def == NULL)
     {
         printf("Failed to load Default provider\n");
-        OSSL_PROVIDER_unload(legacy);
-        return EXIT_FAILURE;
+    }
+    else
+    {
+        printf("default provider OK...\n");
     }
     fips = OSSL_PROVIDER_load(NULL, "fips");
     if (fips == NULL)
     {
         printf("Failed to load FIPS provider\n");
     }
+    else
+    {
+        printf("fips provider OK...\n");
+    }
     base = OSSL_PROVIDER_load(NULL, "base");
     if (base == NULL)
     {
         printf("Failed to load Base provider\n");
-        OSSL_PROVIDER_unload(legacy);
-        OSSL_PROVIDER_unload(def);
-        OSSL_PROVIDER_unload(fips);
-        return EXIT_FAILURE;
+    }
+    else
+    {
+        printf("base provider OK...\n");
     }
     nul = OSSL_PROVIDER_load(NULL, "null");
     if (def == NULL)
     {
         printf("Failed to load Null provider\n");
-        OSSL_PROVIDER_unload(legacy);
-        OSSL_PROVIDER_unload(def);
-        OSSL_PROVIDER_unload(fips);
-        OSSL_PROVIDER_unload(nul);
-        return EXIT_FAILURE;
+    }
+    else
+    {
+        printf("null provider OK...\n");
     }
     printf("OK!\n");
-    OSSL_PROVIDER_unload(def);
-    OSSL_PROVIDER_unload(legacy);
+    if (def != NULL)
+        OSSL_PROVIDER_unload(def);
+    if (legacy != NULL)
+        OSSL_PROVIDER_unload(legacy);
     if (fips != NULL)
         OSSL_PROVIDER_unload(fips);
-    OSSL_PROVIDER_unload(base);
-    OSSL_PROVIDER_unload(nul);
-    EVP_RAND_fetch(NULL, "", NULL);
+    if (base != NULL)
+        OSSL_PROVIDER_unload(base);
+    if (nul != NULL)
+        OSSL_PROVIDER_unload(nul);
 #else
     /* Load all bundled ENGINEs into memory and make them visible */
     ENGINE_load_builtin_engines();

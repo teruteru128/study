@@ -224,7 +224,8 @@
         "param_build.h": "c",
         "jpeglib.h": "c",
         "compare": "c",
-        "param.h": "c"
+        "param.h": "c",
+        "jconfig.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
