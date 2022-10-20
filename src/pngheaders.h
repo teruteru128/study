@@ -28,10 +28,10 @@ struct pHYs
 __BEGIN_DECLS
 
 int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
-             png_colorp *palettes, int *num_palette, png_byte ***row_pointers);
+             png_color **palettes, int *num_palette, png_byte ***row_pointers);
 
 int write_png(const char *outpath, struct IHDR *ihdr, struct pHYs *phys,
-              png_colorp palettes, int num_palette, png_byte **row_pointers);
+              png_color *palettes, int num_palette, png_byte **row_pointers);
 __END_DECLS
 
 #endif

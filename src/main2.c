@@ -227,6 +227,56 @@ int fu()
     return 0;
 }
 
+int gennoise()
+{
+    struct IHDR ihdr = { 0 };
+    ihdr.width = 1920;
+    ihdr.height = 1080;
+    ihdr.bit_depth = 8;
+    ihdr.color_type = PNG_COLOR_TYPE_RGB;
+    ihdr.interlace_method = PNG_INTERLACE_NONE;
+    ihdr.compression_method = PNG_COMPRESSION_TYPE_DEFAULT;
+    ihdr.filter_method = PNG_NO_FILTERS;
+    png_byte **data = malloc(sizeof(png_byte *) * 1080);
+    ssize_t size = 0;
+    size_t x = 0;
+    const size_t byteswidth = sizeof(png_byte) * 3 * 1920;
+    for (size_t y = 0; y < 1080; y++)
+    {
+        data[y] = malloc(byteswidth);
+        size = getrandom(data[y], byteswidth, 0);
+        for (x = 0; x < byteswidth; x++)
+        {
+            data[y][x] = 255 - (png_byte)(data[y][x] * 0.1875);
+        }
+    }
+
+    write_png("noise1.png", &ihdr, NULL, NULL, 0,
+              data);
+
+    for (size_t y = 0; y < 1080; y++)
+    {
+        free(data[y]);
+    }
+    free(data);
+    return 0;
+}
+
+int roulette(const char **table, const size_t tablesize)
+{
+    uint64_t a = 0;
+    ssize_t s = getrandom(&a, 6, 0);
+    if (s != 6)
+    {
+        perror("getrandom");
+        return 1;
+    }
+    double b = tablesize * (le64toh(a) / (double)(1UL << 48));
+    printf("%lf, %s\n", b, table[(size_t)b]);
+
+    return 0;
+}
+
 /*
  * 秘密鍵かな？
  * ioxhJc1lIE2m+WFdBg3ieQb6rk8sSvg3wRv/ImJz2tc=
@@ -364,7 +414,17 @@ finish:
     fclose(pub2);
 #endif
     // countdown_2038();
-    fu();
+    // fu();
     // random3_();
+    const char *r[] = { "がび君", "左近君", "無人島君" };
+    roulette(r, 3);
+    printf("%p\n", r);
+    printf("%p, %p, %p\n", &r[0], &r[1], &r[2]);
+    printf("%p, %p, %p\n", &r[0][0], &r[1][0], &r[2][0]);
+    char *f = malloc(16);
+    printf("%p\n", f);
+    free(f);
+    f = alloca(16);
+    printf("%p\n", f);
     return 0;
 }
