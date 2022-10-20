@@ -9,6 +9,7 @@
 #include <gmp.h>
 #include <inttypes.h>
 #include <java_random.h>
+#include <limits.h>
 #include <math.h>
 #include <netdb.h>
 #include <omp.h>
@@ -48,6 +49,183 @@
 #endif
 
 #define LIMIT 16
+
+// 2038年問題カウントダウン
+static int countdown_2038()
+{
+    time_t u = 0x80000000L;
+    long diff = 0;
+    ldiv_t quot = { 0 };
+    while (1)
+    {
+        diff = (long)difftime(u, time(NULL));
+        quot = ldiv(diff, 86400L);
+        printf("2038年1月19日12時14分8秒まであと%ld日%ld秒\n", quot.quot,
+               quot.rem);
+        sleep(1);
+    }
+}
+
+// 乱数的な
+static int random_()
+{
+    uint64_t a = 0;
+    ssize_t ret = getrandom(&a, 6, 0);
+    if (ret != 6)
+    {
+        perror("getrandom");
+        return 1;
+    }
+    a = le64toh(a);
+    printf("%lf\n", (16 * (a / (double)(1UL << 48))));
+    printf("%lf\n", 539. / 540);
+    printf("%lf\n", (1 + sqrt(5)) / 3);
+    return 0;
+}
+
+// 乱数的な
+static int random2_()
+{
+    uint64_t a = 0;
+    ssize_t ret = 0;
+    uint64_t min = ULONG_MAX;
+    do
+    {
+        ret = getrandom(&a, 6, 0);
+        if (ret != 6)
+        {
+            perror("getrandom");
+            return 1;
+        }
+        if (a == 0)
+        {
+            min = 0;
+            break;
+        }
+        a = le64toh(a);
+        if (a < min)
+        {
+            min = a;
+            printf("%016" PRIx64 "\n", a);
+        }
+    } while (1);
+    return 0;
+}
+
+// 乱数的な
+static int random3_()
+{
+    unsigned char a[8];
+    ssize_t ret = 0;
+    unsigned char reduction = 0;
+    size_t i = 0;
+    while (1)
+    {
+        ret = getrandom(&a, 8, 0);
+        reduction = a[0] | a[1] | a[2] | a[3] | a[4] | a[5] | a[6] | a[7];
+        if ((reduction & 0x0f) == 0x00 || (reduction & 0xf0) == 0x00)
+        {
+            printf("%02x: ", reduction);
+            for (i = 0; i < 8; i++)
+            {
+                printf("%02x", a[i]);
+            }
+            printf("\n");
+        }
+    }
+    return 0;
+}
+
+static void ma1(uint64_t a)
+{
+    unsigned long base10;
+    unsigned long base16;
+    base10 = (unsigned long)log10(a);
+    base16 = (unsigned long)(log2(a) / 4);
+    printf("%lu - %lu = %lu\n", base10, base16, base10 - base16);
+}
+
+static void ma2(uint64_t a)
+{
+    char buf[22] = "";
+    size_t length1 = 0;
+    size_t length2 = 0;
+    length1 = snprintf(buf, 22, "%lu", a) - 1;
+    length2 = snprintf(buf, 22, "%lx", a) - 1;
+    printf("%lu - %lu = %lu\n", length1, length2, length1 - length2);
+}
+
+/**
+ * @brief
+ * 10進数表記と16進数表記で2桁違うのはいくらかいくらまでなんやっちゅう話や
+ * solve 2 <= log(10, x) - log(16, x) , log(10, x) - log(16, x) < 3
+ * 1000000 <= x < 1048576
+ * @return int
+ */
+int fu()
+{
+    ma1(999999);
+    ma1(1000000);
+    ma1(0xfffff);
+    ma1(0x100000);
+
+    ma1(9999999);
+    ma1(10000000);
+    ma1(0xffffff);
+    ma1(0x1000000);
+
+    ma1(99999999);
+    ma1(100000000);
+    ma1(0xfffffff);
+    ma1(0x10000000);
+
+    ma1(999999999);
+    ma1(1000000000);
+    ma1(0xffffffffUL);
+    ma1(0x100000000UL);
+
+    ma1(9999999999UL);
+    ma1(10000000000UL);
+    ma1(0xfffffffffUL);
+    ma1(0x1000000000UL);
+
+    ma1(99999999999UL);
+    ma1(100000000000UL);
+    // ここまで16進数の桁数に10進数の桁数に差を詰める
+    // log(10, 628288020076) ≒ log(16, 628288020076)
+    printf("!!\n");
+    // ここは10進数の桁数が差を開く
+    ma1(999999999999UL);
+    ma1(1000000000000UL);
+
+    // ここから10進数の桁数が16進数の桁数に差を開く
+    ma1(0xffffffffffUL);
+    ma1(0x10000000000UL);
+    ma1(10000000000000UL);
+    ma1(10000000000000UL);
+
+    ma1(0xfffffffffffUL);
+    ma1(0x100000000000UL);
+    ma1(99999999999999UL);
+    ma1(100000000000000UL);
+
+    ma1(0xffffffffffffUL);
+    ma1(0x1000000000000UL);
+    ma1(999999999999999UL);
+    ma1(1000000000000000UL);
+
+    ma1(0xfffffffffffffUL);
+    ma1(0x10000000000000UL);
+    ma1(9999999999999999UL);
+    ma1(10000000000000000UL);
+
+    ma2(0xffffffffffffffUL);
+    ma2(0x100000000000000UL);
+    ma2(99999999999999999UL);
+    ma2(100000000000000000UL);
+
+    return 0;
+}
 
 /*
  * 秘密鍵かな？
@@ -185,31 +363,8 @@ finish:
     fclose(pub1);
     fclose(pub2);
 #endif
-#if 0
-    // 2038年問題カウントダウン
-    time_t u = 0x80000000L;
-    double diff = 0;
-    double quot = 0;
-    double rem = 0;
-    while (1)
-    {
-        diff = difftime(u, time(NULL));
-        quot = floor(diff / 86400);
-        rem = fmod(diff, 86400);
-        printf("2038年1月19日12時14分8秒まであと%ld日%ld秒\n", (long)quot,
-               (long)rem);
-        sleep(1);
-    }
-#endif
-    // 乱数的な
-    uint64_t a = 0;
-    ssize_t ret = getrandom(&a, 6, 0);
-    if (ret != 6)
-    {
-        perror("getrandom");
-        return 1;
-    }
-    a = le64toh(a);
-    printf("%lf\n", (16 * (a / (double)(1UL<<48))));
+    // countdown_2038();
+    fu();
+    // random3_();
     return 0;
 }
