@@ -261,27 +261,27 @@ int gennoise()
     return 0;
 }
 
-int roulette(const char **table, const size_t tablesize)
+const char *roulette(const char **table, const size_t tablesize)
 {
     uint64_t a = 0;
     ssize_t s = getrandom(&a, 6, 0);
     if (s != 6)
     {
         perror("getrandom");
-        return 1;
+        return NULL;
     }
     double b = tablesize * (le64toh(a) / (double)(1UL << 48));
-    printf("%lf, %s\n", b, table[(size_t)b]);
+    printf("%lf\n", b);
 
-    return 0;
+    return table[(size_t)b];
 }
 
 /**
  * @brief bitmessage鍵セット探索
- * 
- * @param argc 
- * @param argv 
- * @return int 
+ *
+ * @param argc
+ * @param argv
+ * @return int
  */
 int coo_key(int argc, char **argv)
 {
@@ -427,10 +427,11 @@ int hiho(int argc, char **argv, const char **envp)
     // fu();
     // random3_();
     const char *r[] = { "がび君", "左近君", "無人島君" };
-    roulette(r, 3);
+    const char *name = roulette(r, 3);
     printf("%p\n", r);
     printf("%p, %p, %p\n", &r[0], &r[1], &r[2]);
     printf("%p, %p, %p\n", &r[0][0], &r[1][0], &r[2][0]);
+    printf("%1$s, %1$p\n", name);
     char *f = malloc(16);
     printf("%p\n", f);
     free(f);
