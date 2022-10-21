@@ -225,7 +225,9 @@
         "jpeglib.h": "c",
         "compare": "c",
         "param.h": "c",
-        "jconfig.h": "c"
+        "jconfig.h": "c",
+        "roulette.h": "c",
+        "searchaddressfromexistingkeys.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
