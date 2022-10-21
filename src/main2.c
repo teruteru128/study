@@ -53,6 +53,8 @@
 #include <openssl/types.h>
 #endif
 
+#define SECKEY "ioxhJc1lIE2m+WFdBg3ieQb6rk8sSvg3wRv/ImJz2tc="
+
 /*
  * 秘密鍵かな？
  * ioxhJc1lIE2m+WFdBg3ieQb6rk8sSvg3wRv/ImJz2tc=
@@ -84,20 +86,37 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    // searchAddressFromExistingKeys(argc, argv);
-    // countdown2038();
-    // fu();
-    // random3_();
-    const char *r[] = { "がび君", "左近君", "無人島君" };
-    const char *name = roulette(r, 3);
-    printf("%p\n", r);
-    printf("%p, %p, %p\n", &r[0], &r[1], &r[2]);
-    printf("%p, %p, %p\n", &r[0][0], &r[1][0], &r[2][0]);
-    printf("%1$s, %1$p\n", name);
-    char *f = malloc(16);
-    printf("%p\n", f);
-    free(f);
-    f = alloca(16);
-    printf("%p\n", f);
+    BIO *mem = BIO_new_mem_buf(SECKEY, strlen(SECKEY));
+    BIO *base64 = BIO_new(BIO_f_base64());
+    if (base64 == NULL || mem == NULL)
+    {
+        unsigned long err = ERR_get_error();
+        printf("1: %s\n", ERR_error_string(err, NULL));
+        return 1;
+    }
+    // 入力の末尾に改行がない場合はフラグ必須
+    BIO_set_flags(base64, BIO_FLAGS_BASE64_NO_NL);
+    BIO *io = BIO_push(base64, mem);
+    if (io == NULL)
+    {
+        unsigned long err = ERR_get_error();
+        printf("2: %s\n", ERR_error_string(err, NULL));
+        return 1;
+    }
+    unsigned char buf[64] = "";
+    int len = 0;
+    if ((len = BIO_read(io, buf, 64)) <= 0)
+    {
+        unsigned long err = ERR_get_error();
+        printf("3: %s\n", ERR_error_string(err, NULL));
+        BIO_free_all(io);
+        return 1;
+    }
+    for (size_t i = 0; i < len; i++)
+    {
+        printf("%02x", buf[i]);
+    }
+    printf("\n");
+    BIO_free_all(io);
     return 0;
 }

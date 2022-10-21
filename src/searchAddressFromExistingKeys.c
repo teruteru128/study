@@ -5,10 +5,14 @@
 
 #include <openssl/err.h>
 #include <openssl/evp.h>
-#include <openssl/provider.h>
+#include <openssl/opensslv.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/provider.h>
+#endif
 
 #define LIMIT 16
 

@@ -84,38 +84,20 @@ int main(void)
 
     EVP_PKEY *pkey = NULL;
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    OSSL_PARAM_BLD *param_bld = OSSL_PARAM_BLD_new();
-    OSSL_PARAM *params = NULL;
-    if (OSSL_PARAM_BLD_push_utf8_string(param_bld, OSSL_PKEY_PARAM_GROUP_NAME,
-                                        SN_secp256k1, 0)
-        != 1)
-    {
-        fprintf(stderr, "%s\n", ERR_error_string(ERR_get_error(), NULL));
-        return 1;
-    }
-    if (OSSL_PARAM_BLD_push_BN(param_bld, OSSL_PKEY_PARAM_PRIV_KEY, priv) != 1)
-    {
-        fprintf(stderr, "%s\n", ERR_error_string(ERR_get_error(), NULL));
-        return 1;
-    }
     // ec_pointからoctet stringに変換してEVP_PKEYに読み込み
-
     size_t buflen = EC_POINT_point2oct(
         group, pub, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, ctx);
     printf("buflen = %zu\n", buflen);
     unsigned char *buf = malloc(buflen);
     EC_POINT_point2oct(group, pub, POINT_CONVERSION_UNCOMPRESSED, buf, buflen,
                        ctx);
-    OSSL_PARAM_BLD_push_octet_string(param_bld, OSSL_PKEY_PARAM_PUB_KEY, buf,
-                                     buflen);
 
-    params = OSSL_PARAM_BLD_to_param(param_bld);
-    if (params == NULL)
-    {
-        fprintf(stderr, "%s\n", ERR_error_string(ERR_get_error(), NULL));
-        return 1;
-    }
-    // bufのメモリ領域開放はOSSL_PARAM_BLD_to_paramより後
+    const OSSL_PARAM params[4]
+        = { OSSL_PARAM_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME, SN_secp256k1,
+                                   0),
+            OSSL_PARAM_BN(OSSL_PKEY_PARAM_PRIV_KEY, priv, 0),
+            OSSL_PARAM_octet_string(OSSL_PKEY_PARAM_PUB_KEY, buf,
+                                     buflen), OSSL_PARAM_END };
     memset(buf, 0, buflen);
     free(buf);
     EVP_PKEY_CTX *pkeyctx = EVP_PKEY_CTX_new_from_name(NULL, "EC", NULL);
@@ -130,8 +112,6 @@ int main(void)
         return 1;
     }
     EVP_PKEY_CTX_free(pkeyctx);
-    OSSL_PARAM_free(params);
-    OSSL_PARAM_BLD_free(param_bld);
 #else
     pkey = EVP_PKEY_new();
     EC_KEY *key = EC_KEY_new_by_curve_name(NID_secp256k1);
