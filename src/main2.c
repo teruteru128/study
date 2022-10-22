@@ -118,5 +118,46 @@ int hiho(int argc, char **argv, const char **envp)
     }
     printf("\n");
     BIO_free_all(io);
+
+    png_color c1 = { 0 };
+    c1.red = 249;
+    c1.green = 0;
+    c1.blue = 149;
+    png_color c2 = { 0 };
+    c2.red = 255;
+    c2.green = 147;
+    c2.blue = 236;
+    struct IHDR ihdr = { 0 };
+    ihdr.width = 1920;
+    ihdr.height = 1080;
+    ihdr.bit_depth = 8;
+    ihdr.color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+    ihdr.interlace_method = PNG_INTERLACE_NONE;
+    ihdr.compression_method = PNG_COMPRESSION_TYPE_DEFAULT;
+    ihdr.filter_method = PNG_NO_FILTERS;
+    const double h = hypot(1920, 1080);
+    png_byte **data = malloc(sizeof(png_byte *) * 1080);
+    ssize_t len2 = 0;
+    for (size_t y = 0; y < 1080; y++)
+    {
+        data[y] = malloc(sizeof(png_byte) * 1920 * 4);
+        for (size_t x = 0; x < 7680; x += 4)
+        {
+            data[y][x + 0] = (png_byte)((255. * (1080 - y) + 249 * y) / 1080);
+            data[y][x + 1] = (png_byte)((147. * (1080 - y) + 0 * y) / 1080);
+            data[y][x + 2] = (png_byte)((236. * (1080 - y) + 149 * y) / 1080);
+            data[y][x + 3] = (png_byte)((255. * (h - hypot(1080 - y, x/4))) / h);
+        }
+    }
+    write_png("/mnt/c/Users/terut/OneDrive/Pictures/projects/study/gradation/"
+              "gradation12.png",
+              &ihdr, NULL, NULL, 0, data);
+error:
+    for (size_t y = 0; y < 1080; y++)
+    {
+        free(data[y]);
+    }
+    free(data);
+
     return 0;
 }
