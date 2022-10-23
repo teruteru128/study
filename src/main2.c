@@ -10,6 +10,7 @@
 #include "roulette.h"
 #include "searchAddressFromExistingKeys.h"
 #include <CL/opencl.h>
+#include <bm.h>
 #include <errno.h>
 #include <gmp.h>
 #include <inttypes.h>
@@ -55,6 +56,8 @@
 
 #define SECKEY "ioxhJc1lIE2m+WFdBg3ieQb6rk8sSvg3wRv/ImJz2tc="
 
+#define LOCAL_CACHE_NUM 16
+
 /**
  * @brief
  * 秘密鍵かな？
@@ -92,37 +95,112 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    BIO *mem = BIO_new_mem_buf(SECKEY, strlen(SECKEY));
-    BIO *base64 = BIO_new(BIO_f_base64());
-    if (base64 == NULL || mem == NULL)
+    FILE *publicKeyFile = fopen(
+        "/home/teruteru128/git/study/keys/public/publicKeys0.bin", "rb");
+    FILE *privateKeyFile = fopen(
+        "/home/teruteru128/git/study/keys/private/privateKeys0.bin", "rb");
+    if (publicKeyFile == NULL || privateKeyFile == NULL)
     {
-        unsigned long err = ERR_get_error();
-        printf("1: %s\n", ERR_error_string(err, NULL));
+        if (publicKeyFile != NULL)
+        {
+            fclose(publicKeyFile);
+        }
+        if (privateKeyFile != NULL)
+        {
+            fclose(privateKeyFile);
+        }
         return 1;
     }
-    // 入力の末尾に改行がない場合はフラグ必須
-    BIO_set_flags(base64, BIO_FLAGS_BASE64_NO_NL);
-    BIO *io = BIO_push(base64, mem);
-    if (io == NULL)
+    unsigned char *publicKeyGlobal = malloc(1090519040L);
+    unsigned char *privateKeyGlobal = malloc(536870912L);
+    size_t pubnum = fread(publicKeyGlobal, 65, 16777216, publicKeyFile);
+    size_t prinum = fread(privateKeyGlobal, 32, 16777216, privateKeyFile);
+    fclose(publicKeyFile);
+    fclose(privateKeyFile);
+    if (pubnum != 16777216 || prinum != 16777216)
     {
-        unsigned long err = ERR_get_error();
-        printf("2: %s\n", ERR_error_string(err, NULL));
+        perror("fread");
         return 1;
     }
-    unsigned char buf[64] = "";
-    int len = 0;
-    if ((len = BIO_read(io, buf, 64)) <= 0)
+    size_t sigglobalindex = 0;
+    size_t sigglobaloffset = 0;
+    size_t sigindex = 0;
+    size_t sigindexmax = 0;
+    size_t sigoffset = 0;
+    size_t encglobalindex = 0;
+    size_t encglobaloffset = 0;
+    size_t encindex = 0;
+    size_t encindexmax = 0;
+    size_t encoffset = 0;
+    EVP_MD_CTX *shactx1 = EVP_MD_CTX_new();
+    EVP_MD_CTX *shactx2 = EVP_MD_CTX_new();
+    EVP_MD_CTX *ripectx = EVP_MD_CTX_new();
+    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
+    OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
+    EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
+    EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
+    unsigned char sigbuf[LOCAL_CACHE_NUM * 65];
+    unsigned char encbuf[LOCAL_CACHE_NUM * 65];
+    unsigned char hash[EVP_MAX_MD_SIZE];
+    size_t count = 0;
+    char *address = NULL;
+    char *sigwif = NULL;
+    char *encwif = NULL;
+    EVP_DigestInit_ex2(shactx2, sha512, NULL);
+    if (ripemd160 == NULL)
     {
-        unsigned long err = ERR_get_error();
-        printf("3: %s\n", ERR_error_string(err, NULL));
-        BIO_free_all(io);
+        fprintf(stderr, "ripemd160 is not found\n");
         return 1;
     }
-    for (size_t i = 0; i < len; i++)
+    for (sigglobalindex = 0, sigglobaloffset = 0; sigglobalindex < 16;
+         sigglobalindex += LOCAL_CACHE_NUM, sigglobaloffset += LOCAL_CACHE_NUM * 65)
     {
-        printf("%02x", buf[i]);
+        memcpy(sigbuf, publicKeyGlobal + sigglobaloffset, LOCAL_CACHE_NUM * 65);
+        for (encglobalindex = 0, encglobaloffset = 0;
+             encglobalindex < 1024;
+             encglobalindex += LOCAL_CACHE_NUM, encglobaloffset += LOCAL_CACHE_NUM * 65)
+        {
+            memcpy(encbuf, publicKeyGlobal + encglobaloffset, LOCAL_CACHE_NUM * 65);
+            for (sigindex = 0, sigoffset = 0; sigindex < LOCAL_CACHE_NUM;
+                 sigindex++, sigoffset += 65)
+            {
+                EVP_DigestInit_ex2(shactx1, sha512, NULL);
+                EVP_DigestUpdate(shactx1, sigbuf + sigoffset, 65);
+                for (encindex = 0, encoffset = 0; encindex < LOCAL_CACHE_NUM;
+                     encindex++, encoffset += 65)
+                {
+                    EVP_MD_CTX_copy_ex(shactx2, shactx1);
+                    EVP_DigestUpdate(shactx2, encbuf + encoffset, 65);
+                    EVP_DigestFinal(shactx2, hash, NULL);
+                    EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
+                    EVP_DigestUpdate(ripectx, hash, 64);
+                    EVP_DigestFinal(ripectx, hash, NULL);
+                    if (hash[0] == 0)
+                    {
+                        address = encodeV4Address(hash, 20);
+                        sigwif = encodeWIF((
+                            PrivateKey *)(privateKeyGlobal
+                                          + (sigglobalindex + sigindex) * 32));
+                        encwif = encodeWIF((
+                            PrivateKey *)(privateKeyGlobal
+                                          + (encglobalindex + encindex) * 32));
+                        printf("%s,%s,%s\n", address, sigwif, encwif);
+                        free(address);
+                        free(sigwif);
+                        free(encwif);
+                        count++;
+                    }
+                }
+            }
+        }
     }
-    printf("\n");
-    BIO_free_all(io);
+finish:
+    EVP_MD_free(sha512);
+    EVP_MD_free(ripemd160);
+    OSSL_PROVIDER_unload(def);
+    OSSL_PROVIDER_unload(legacy);
+
+    free(publicKeyGlobal);
+    free(privateKeyGlobal);
     return 0;
 }
