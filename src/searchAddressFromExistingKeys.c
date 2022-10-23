@@ -87,12 +87,21 @@ int searchAddressFromExistingKeys(int argc, char **argv)
         fprintf(stderr, "ripemd160 : %s\n", ERR_error_string(err, NULL));
         return 1;
     }
+    size_t c;
     for (x = 0; x < d2.quot; x += 16)
     {
-        fread(a, 65, 16, pub1);
+        c = fread(a, 65, 16, pub1);
+        if (c != 16)
+        {
+            goto finish;
+        }
         for (y = 0; y < d1.quot; y += 16)
         {
-            fread(b, 65, 16, pub2);
+            c = fread(b, 65, 16, pub2);
+            if (c != 16)
+            {
+                goto finish;
+            }
             for (i = 0; i < 1040; i += 65)
             {
                 EVP_DigestInit_ex2(ctx0, sha512, NULL);

@@ -152,15 +152,20 @@ int hiho(int argc, char **argv, const char **envp)
         fprintf(stderr, "ripemd160 is not found\n");
         return 1;
     }
-    for (sigglobalindex = 0, sigglobaloffset = 0; sigglobalindex < 16;
-         sigglobalindex += LOCAL_CACHE_NUM, sigglobaloffset += LOCAL_CACHE_NUM * 65)
+    for (sigglobalindex = LOCAL_CACHE_NUM * 3,
+        sigglobaloffset = LOCAL_CACHE_NUM * 65 * 3;
+         sigglobalindex < LOCAL_CACHE_NUM * 4;
+         sigglobalindex += LOCAL_CACHE_NUM,
+        sigglobaloffset += LOCAL_CACHE_NUM * 65)
     {
-        memcpy(sigbuf, publicKeyGlobal + sigglobaloffset, LOCAL_CACHE_NUM * 65);
+        memcpy(sigbuf, publicKeyGlobal + sigglobaloffset,
+               LOCAL_CACHE_NUM * 65);
         for (encglobalindex = 0, encglobaloffset = 0;
-             encglobalindex < 1024;
-             encglobalindex += LOCAL_CACHE_NUM, encglobaloffset += LOCAL_CACHE_NUM * 65)
+             encglobalindex < 16777216; encglobalindex += LOCAL_CACHE_NUM,
+            encglobaloffset += LOCAL_CACHE_NUM * 65)
         {
-            memcpy(encbuf, publicKeyGlobal + encglobaloffset, LOCAL_CACHE_NUM * 65);
+            memcpy(encbuf, publicKeyGlobal + encglobaloffset,
+                   LOCAL_CACHE_NUM * 65);
             for (sigindex = 0, sigoffset = 0; sigindex < LOCAL_CACHE_NUM;
                  sigindex++, sigoffset += 65)
             {
@@ -171,19 +176,17 @@ int hiho(int argc, char **argv, const char **envp)
                 {
                     EVP_MD_CTX_copy_ex(shactx2, shactx1);
                     EVP_DigestUpdate(shactx2, encbuf + encoffset, 65);
-                    EVP_DigestFinal(shactx2, hash, NULL);
+                    EVP_DigestFinal_ex(shactx2, hash, NULL);
                     EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
                     EVP_DigestUpdate(ripectx, hash, 64);
-                    EVP_DigestFinal(ripectx, hash, NULL);
+                    EVP_DigestFinal_ex(ripectx, hash, NULL);
                     if (hash[0] == 0)
                     {
                         address = encodeV4Address(hash, 20);
-                        sigwif = encodeWIF((
-                            PrivateKey *)(privateKeyGlobal
-                                          + (sigglobalindex + sigindex) * 32));
-                        encwif = encodeWIF((
-                            PrivateKey *)(privateKeyGlobal
-                                          + (encglobalindex + encindex) * 32));
+                        sigwif = encodeWIF((PrivateKey *)privateKeyGlobal
+                                           + sigglobalindex + sigindex);
+                        encwif = encodeWIF((PrivateKey *)privateKeyGlobal
+                                           + encglobalindex + encindex);
                         printf("%s,%s,%s\n", address, sigwif, encwif);
                         free(address);
                         free(sigwif);
