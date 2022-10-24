@@ -95,46 +95,48 @@
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    FILE *publicKeyFile = fopen(
-        "/home/teruteru128/git/study/keys/public/publicKeys0.bin", "rb");
-    FILE *privateKeyFile = fopen(
-        "/home/teruteru128/git/study/keys/private/privateKeys0.bin", "rb");
-    if (publicKeyFile == NULL || privateKeyFile == NULL)
-    {
-        if (publicKeyFile != NULL)
-        {
-            fclose(publicKeyFile);
-        }
-        if (privateKeyFile != NULL)
-        {
-            fclose(privateKeyFile);
-        }
-        return 1;
-    }
     unsigned char *publicKeyGlobal = malloc(1090519040L);
     unsigned char *privateKeyGlobal = malloc(536870912L);
-    size_t pubnum = fread(publicKeyGlobal, 65, 16777216, publicKeyFile);
-    size_t prinum = fread(privateKeyGlobal, 32, 16777216, privateKeyFile);
-    fclose(publicKeyFile);
-    fclose(privateKeyFile);
-    if (pubnum != 16777216 || prinum != 16777216)
     {
-        perror("fread");
-        return 1;
+        FILE *publicKeyFile = fopen(
+            "/home/teruteru128/git/study/keys/public/publicKeys0.bin", "rb");
+        FILE *privateKeyFile = fopen(
+            "/home/teruteru128/git/study/keys/private/privateKeys0.bin", "rb");
+        if (publicKeyFile == NULL || privateKeyFile == NULL)
+        {
+            if (publicKeyFile != NULL)
+            {
+                fclose(publicKeyFile);
+            }
+            if (privateKeyFile != NULL)
+            {
+                fclose(privateKeyFile);
+            }
+            return 1;
+        }
+        size_t pubnum = fread(publicKeyGlobal, 65, 16777216, publicKeyFile);
+        size_t prinum = fread(privateKeyGlobal, 32, 16777216, privateKeyFile);
+        fclose(publicKeyFile);
+        fclose(privateKeyFile);
+        if (pubnum != 16777216 || prinum != 16777216)
+        {
+            perror("fread");
+            free(publicKeyGlobal);
+            free(privateKeyGlobal);
+            return 1;
+        }
     }
     size_t sigglobalindex = 0;
     size_t sigglobaloffset = 0;
     size_t sigindex = 0;
-    size_t sigindexmax = 0;
     size_t sigoffset = 0;
     size_t encglobalindex = 0;
     size_t encglobaloffset = 0;
     size_t encindex = 0;
-    size_t encindexmax = 0;
     size_t encoffset = 0;
-    EVP_MD_CTX *shactx1 = EVP_MD_CTX_new();
-    EVP_MD_CTX *shactx2 = EVP_MD_CTX_new();
-    EVP_MD_CTX *ripectx = EVP_MD_CTX_new();
+    EVP_MD_CTX *shactx1 = NULL;
+    EVP_MD_CTX *shactx2 = NULL;
+    EVP_MD_CTX *ripectx = NULL;
     OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
     OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
     EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
@@ -142,60 +144,72 @@ int hiho(int argc, char **argv, const char **envp)
     unsigned char sigbuf[LOCAL_CACHE_NUM * 65];
     unsigned char encbuf[LOCAL_CACHE_NUM * 65];
     unsigned char hash[EVP_MAX_MD_SIZE];
-    size_t count = 0;
     char *address = NULL;
     char *sigwif = NULL;
     char *encwif = NULL;
-    EVP_DigestInit_ex2(shactx2, sha512, NULL);
     if (ripemd160 == NULL)
     {
         fprintf(stderr, "ripemd160 is not found\n");
         return 1;
     }
-    for (sigglobalindex = LOCAL_CACHE_NUM * 3,
-        sigglobaloffset = LOCAL_CACHE_NUM * 65 * 3;
-         sigglobalindex < 16777216; sigglobalindex += LOCAL_CACHE_NUM,
-        sigglobaloffset += LOCAL_CACHE_NUM * 65)
+#pragma omp parallel private(sigglobaloffset, sigindex, sigoffset,            \
+                             encglobalindex, encglobaloffset, encindex,       \
+                             encoffset, shactx1, shactx2, ripectx, sigbuf,    \
+                             encbuf, hash, address, sigwif, encwif)
     {
-        memcpy(sigbuf, publicKeyGlobal + sigglobaloffset,
-               LOCAL_CACHE_NUM * 65);
-        for (encglobalindex = 0, encglobaloffset = 0;
-             encglobalindex < 16777216; encglobalindex += LOCAL_CACHE_NUM,
-            encglobaloffset += LOCAL_CACHE_NUM * 65)
+        shactx1 = EVP_MD_CTX_new();
+        shactx2 = EVP_MD_CTX_new();
+        ripectx = EVP_MD_CTX_new();
+        EVP_DigestInit_ex2(shactx2, sha512, NULL);
+#pragma omp for
+        for (sigglobalindex = LOCAL_CACHE_NUM * 3; sigglobalindex < 16777216;
+             sigglobalindex += LOCAL_CACHE_NUM)
         {
-            memcpy(encbuf, publicKeyGlobal + encglobaloffset,
+            // sigglobaloffset = sigglobalindex * 65;
+            sigglobaloffset = (sigglobalindex << 6) + sigglobalindex;
+            memcpy(sigbuf, publicKeyGlobal + sigglobaloffset,
                    LOCAL_CACHE_NUM * 65);
-            for (sigindex = 0, sigoffset = 0; sigindex < LOCAL_CACHE_NUM;
-                 sigindex++, sigoffset += 65)
+            for (encglobalindex = 0, encglobaloffset = 0;
+                 encglobalindex < 16777216; encglobalindex += LOCAL_CACHE_NUM,
+                encglobaloffset += LOCAL_CACHE_NUM * 65)
             {
-                EVP_DigestInit_ex2(shactx1, sha512, NULL);
-                EVP_DigestUpdate(shactx1, sigbuf + sigoffset, 65);
-                for (encindex = 0, encoffset = 0; encindex < LOCAL_CACHE_NUM;
-                     encindex++, encoffset += 65)
+                memcpy(encbuf, publicKeyGlobal + encglobaloffset,
+                       LOCAL_CACHE_NUM * 65);
+                for (sigindex = 0, sigoffset = 0; sigindex < LOCAL_CACHE_NUM;
+                     sigindex++, sigoffset += 65)
                 {
-                    EVP_MD_CTX_copy_ex(shactx2, shactx1);
-                    EVP_DigestUpdate(shactx2, encbuf + encoffset, 65);
-                    EVP_DigestFinal_ex(shactx2, hash, NULL);
-                    EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
-                    EVP_DigestUpdate(ripectx, hash, 64);
-                    EVP_DigestFinal_ex(ripectx, hash, NULL);
-                    if ((*(unsigned long *)hash) & 0xffffffffffff0000UL)
+                    EVP_DigestInit_ex2(shactx1, sha512, NULL);
+                    EVP_DigestUpdate(shactx1, sigbuf + sigoffset, 65);
+                    for (encindex = 0, encoffset = 0;
+                         encindex < LOCAL_CACHE_NUM;
+                         encindex++, encoffset += 65)
                     {
-                        continue;
+                        EVP_MD_CTX_copy_ex(shactx2, shactx1);
+                        EVP_DigestUpdate(shactx2, encbuf + encoffset, 65);
+                        EVP_DigestFinal_ex(shactx2, hash, NULL);
+                        EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
+                        EVP_DigestUpdate(ripectx, hash, 64);
+                        EVP_DigestFinal_ex(ripectx, hash, NULL);
+                        if ((*(unsigned long *)hash) & 0x0000ffffffffffffUL)
+                        {
+                            continue;
+                        }
+                        address = encodeV4Address(hash, 20);
+                        sigwif = encodeWIF((PrivateKey *)privateKeyGlobal
+                                           + sigglobalindex + sigindex);
+                        encwif = encodeWIF((PrivateKey *)privateKeyGlobal
+                                           + encglobalindex + encindex);
+                        printf("%s,%s,%s\n", address, sigwif, encwif);
+                        free(address);
+                        free(sigwif);
+                        free(encwif);
                     }
-                    address = encodeV4Address(hash, 20);
-                    sigwif = encodeWIF((PrivateKey *)privateKeyGlobal
-                                       + sigglobalindex + sigindex);
-                    encwif = encodeWIF((PrivateKey *)privateKeyGlobal
-                                       + encglobalindex + encindex);
-                    printf("%s,%s,%s\n", address, sigwif, encwif);
-                    free(address);
-                    free(sigwif);
-                    free(encwif);
-                    count++;
                 }
             }
         }
+        EVP_MD_CTX_free(shactx1);
+        EVP_MD_CTX_free(shactx2);
+        EVP_MD_CTX_free(ripectx);
     }
 finish:
     EVP_MD_free(sha512);
