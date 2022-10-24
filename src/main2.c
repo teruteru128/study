@@ -154,8 +154,7 @@ int hiho(int argc, char **argv, const char **envp)
     }
     for (sigglobalindex = LOCAL_CACHE_NUM * 3,
         sigglobaloffset = LOCAL_CACHE_NUM * 65 * 3;
-         sigglobalindex < LOCAL_CACHE_NUM * 4;
-         sigglobalindex += LOCAL_CACHE_NUM,
+         sigglobalindex < 16777216; sigglobalindex += LOCAL_CACHE_NUM,
         sigglobaloffset += LOCAL_CACHE_NUM * 65)
     {
         memcpy(sigbuf, publicKeyGlobal + sigglobaloffset,
@@ -180,19 +179,20 @@ int hiho(int argc, char **argv, const char **envp)
                     EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
                     EVP_DigestUpdate(ripectx, hash, 64);
                     EVP_DigestFinal_ex(ripectx, hash, NULL);
-                    if (hash[0] == 0)
+                    if ((*(unsigned long *)hash) & 0xffffffffffff0000UL)
                     {
-                        address = encodeV4Address(hash, 20);
-                        sigwif = encodeWIF((PrivateKey *)privateKeyGlobal
-                                           + sigglobalindex + sigindex);
-                        encwif = encodeWIF((PrivateKey *)privateKeyGlobal
-                                           + encglobalindex + encindex);
-                        printf("%s,%s,%s\n", address, sigwif, encwif);
-                        free(address);
-                        free(sigwif);
-                        free(encwif);
-                        count++;
+                        continue;
                     }
+                    address = encodeV4Address(hash, 20);
+                    sigwif = encodeWIF((PrivateKey *)privateKeyGlobal
+                                       + sigglobalindex + sigindex);
+                    encwif = encodeWIF((PrivateKey *)privateKeyGlobal
+                                       + encglobalindex + encindex);
+                    printf("%s,%s,%s\n", address, sigwif, encwif);
+                    free(address);
+                    free(sigwif);
+                    free(encwif);
+                    count++;
                 }
             }
         }
