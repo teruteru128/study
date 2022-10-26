@@ -127,11 +127,9 @@ int hiho(int argc, char **argv, const char **envp)
         }
     }
     size_t sigglobalindex = 0;
-    size_t sigglobaloffset = 0;
     size_t sigindex = 0;
     size_t sigoffset = 0;
     size_t encglobalindex = 0;
-    size_t encglobaloffset = 0;
     size_t encindex = 0;
     size_t encoffset = 0;
     EVP_MD_CTX *shactx1 = NULL;
@@ -152,8 +150,8 @@ int hiho(int argc, char **argv, const char **envp)
         fprintf(stderr, "ripemd160 is not found\n");
         return 1;
     }
-#pragma omp parallel private(sigglobaloffset, sigindex, sigoffset,            \
-                             encglobalindex, encglobaloffset, encindex,       \
+    size_t count = 0;
+#pragma omp parallel private(sigindex, sigoffset, encglobalindex, encindex,   \
                              encoffset, shactx1, shactx2, ripectx, sigbuf,    \
                              encbuf, hash, address, sigwif, encwif)
     {
@@ -162,18 +160,18 @@ int hiho(int argc, char **argv, const char **envp)
         ripectx = EVP_MD_CTX_new();
         EVP_DigestInit_ex2(shactx2, sha512, NULL);
 #pragma omp for
-        for (sigglobalindex = LOCAL_CACHE_NUM * 3; sigglobalindex < 16777216;
+        for (sigglobalindex = LOCAL_CACHE_NUM * 0; sigglobalindex < 1048576;
              sigglobalindex += LOCAL_CACHE_NUM)
         {
-            // sigglobaloffset = sigglobalindex * 65;
-            sigglobaloffset = (sigglobalindex << 6) + sigglobalindex;
-            memcpy(sigbuf, publicKeyGlobal + sigglobaloffset,
+            memcpy(sigbuf,
+                   publicKeyGlobal + (sigglobalindex << 6) + sigglobalindex,
                    LOCAL_CACHE_NUM * 65);
-            for (encglobalindex = 0, encglobaloffset = 0;
-                 encglobalindex < 16777216; encglobalindex += LOCAL_CACHE_NUM,
-                encglobaloffset += LOCAL_CACHE_NUM * 65)
+            for (encglobalindex = 0; encglobalindex < 16777216;
+                 encglobalindex += LOCAL_CACHE_NUM)
             {
-                memcpy(encbuf, publicKeyGlobal + encglobaloffset,
+                memcpy(encbuf,
+                       publicKeyGlobal + (encglobalindex << 6)
+                           + encglobalindex,
                        LOCAL_CACHE_NUM * 65);
                 for (sigindex = 0, sigoffset = 0; sigindex < LOCAL_CACHE_NUM;
                      sigindex++, sigoffset += 65)
@@ -199,12 +197,21 @@ int hiho(int argc, char **argv, const char **envp)
                                            + sigglobalindex + sigindex);
                         encwif = encodeWIF((PrivateKey *)privateKeyGlobal
                                            + encglobalindex + encindex);
-                        printf("%s,%s,%s\n", address, sigwif, encwif);
+#pragma omp critical
+                        {
+                            printf("%s,%s,%s\n", address, sigwif, encwif);
+                        }
                         free(address);
                         free(sigwif);
                         free(encwif);
                     }
                 }
+            }
+#pragma omp critical
+            {
+                count += LOCAL_CACHE_NUM;
+                fprintf(stderr, "%zu,%zu(%lf%%)\n", sigglobalindex, count,
+                        ((double)count / 1048576) * 100);
             }
         }
         EVP_MD_CTX_free(shactx1);
