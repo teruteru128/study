@@ -127,9 +127,11 @@ int hiho(int argc, char **argv, const char **envp)
         }
     }
     size_t sigglobalindex = 0;
+    size_t sigglobalindexmax = 0;
     size_t sigindex = 0;
     size_t sigoffset = 0;
     size_t encglobalindex = 0;
+    size_t encglobalindexmax = 0;
     size_t encindex = 0;
     size_t encoffset = 0;
     EVP_MD_CTX *shactx1 = NULL;
@@ -151,68 +153,76 @@ int hiho(int argc, char **argv, const char **envp)
         return 1;
     }
     size_t count = 0;
-#pragma omp parallel private(sigindex, sigoffset, encglobalindex, encindex,   \
-                             encoffset, shactx1, shactx2, ripectx, sigbuf,    \
-                             encbuf, hash, address, sigwif, encwif)
+    /*
+    #pragma omp parallel private(sigindex, sigoffset, encglobalindex, encindex,
+                                 encoffset, shactx1, shactx2, ripectx, sigbuf,
+    encbuf, hash, address, sigwif, encwif)
+    */
     {
         shactx1 = EVP_MD_CTX_new();
         shactx2 = EVP_MD_CTX_new();
         ripectx = EVP_MD_CTX_new();
         EVP_DigestInit_ex2(shactx2, sha512, NULL);
-#pragma omp for
-        for (sigglobalindex = LOCAL_CACHE_NUM * 0; sigglobalindex < 1048576;
-             sigglobalindex += LOCAL_CACHE_NUM)
+        //#pragma omp for
+        while (1)
         {
-            memcpy(sigbuf,
-                   publicKeyGlobal + (sigglobalindex << 6) + sigglobalindex,
-                   LOCAL_CACHE_NUM * 65);
-            for (encglobalindex = 0; encglobalindex < 16777216;
-                 encglobalindex += LOCAL_CACHE_NUM)
+            sigglobalindex = 0;
+            if (getrandom(&sigglobalindex, 2, 0) != 2)
             {
-                memcpy(encbuf,
-                       publicKeyGlobal + (encglobalindex << 6)
-                           + encglobalindex,
+                break;
+            }
+            sigglobalindex = (le64toh(sigglobalindex) >> 2) << 10;
+            sigglobalindexmax = sigglobalindex + 1024;
+            fprintf(stderr, "%zu->%zu\n", sigglobalindex, sigglobalindexmax);
+            for (; sigglobalindex < sigglobalindexmax;
+                 sigglobalindex += LOCAL_CACHE_NUM)
+            {
+                memcpy(sigbuf,
+                       publicKeyGlobal + (sigglobalindex << 6)
+                           + sigglobalindex,
                        LOCAL_CACHE_NUM * 65);
-                for (sigindex = 0, sigoffset = 0; sigindex < LOCAL_CACHE_NUM;
-                     sigindex++, sigoffset += 65)
+                for (encglobalindex = 0; encglobalindex < 16777216;
+                     encglobalindex += LOCAL_CACHE_NUM)
                 {
-                    EVP_DigestInit_ex2(shactx1, sha512, NULL);
-                    EVP_DigestUpdate(shactx1, sigbuf + sigoffset, 65);
-                    for (encindex = 0, encoffset = 0;
-                         encindex < LOCAL_CACHE_NUM;
-                         encindex++, encoffset += 65)
+                    memcpy(encbuf,
+                           publicKeyGlobal + (encglobalindex << 6)
+                               + encglobalindex,
+                           LOCAL_CACHE_NUM * 65);
+                    for (sigindex = 0, sigoffset = 0;
+                         sigindex < LOCAL_CACHE_NUM;
+                         sigindex++, sigoffset += 65)
                     {
-                        EVP_MD_CTX_copy_ex(shactx2, shactx1);
-                        EVP_DigestUpdate(shactx2, encbuf + encoffset, 65);
-                        EVP_DigestFinal_ex(shactx2, hash, NULL);
-                        EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
-                        EVP_DigestUpdate(ripectx, hash, 64);
-                        EVP_DigestFinal_ex(ripectx, hash, NULL);
-                        if ((*(unsigned long *)hash) & 0x0000ffffffffffffUL)
+                        EVP_DigestInit_ex2(shactx1, sha512, NULL);
+                        EVP_DigestUpdate(shactx1, sigbuf + sigoffset, 65);
+                        for (encindex = 0, encoffset = 0;
+                             encindex < LOCAL_CACHE_NUM;
+                             encindex++, encoffset += 65)
                         {
-                            continue;
-                        }
-                        address = encodeV4Address(hash, 20);
-                        sigwif = encodeWIF((PrivateKey *)privateKeyGlobal
-                                           + sigglobalindex + sigindex);
-                        encwif = encodeWIF((PrivateKey *)privateKeyGlobal
-                                           + encglobalindex + encindex);
-#pragma omp critical
-                        {
+                            EVP_MD_CTX_copy_ex(shactx2, shactx1);
+                            EVP_DigestUpdate(shactx2, encbuf + encoffset, 65);
+                            EVP_DigestFinal_ex(shactx2, hash, NULL);
+                            EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
+                            EVP_DigestUpdate(ripectx, hash, 64);
+                            EVP_DigestFinal_ex(ripectx, hash, NULL);
+                            if ((*(unsigned long *)hash)
+                                & 0x0000ffffffffffffUL)
+                            {
+                                continue;
+                            }
+                            address = encodeV4Address(hash, 20);
+                            sigwif = encodeWIF((PrivateKey *)privateKeyGlobal
+                                               + sigglobalindex + sigindex);
+                            encwif = encodeWIF((PrivateKey *)privateKeyGlobal
+                                               + encglobalindex + encindex);
                             printf("%s,%s,%s\n", address, sigwif, encwif);
+                            free(address);
+                            free(sigwif);
+                            free(encwif);
                         }
-                        free(address);
-                        free(sigwif);
-                        free(encwif);
                     }
                 }
             }
-#pragma omp critical
-            {
-                count += LOCAL_CACHE_NUM;
-                fprintf(stderr, "%zu,%zu(%lf%%)\n", sigglobalindex, count,
-                        ((double)count / 1048576) * 100);
-            }
+            fprintf(stderr, "%zu->%zu done\n", sigglobalindexmax - 1024, sigglobalindexmax);
         }
         EVP_MD_CTX_free(shactx1);
         EVP_MD_CTX_free(shactx2);
