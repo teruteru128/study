@@ -58,42 +58,7 @@
 
 #define LOCAL_CACHE_NUM 16
 
-/**
- * @brief
- * 秘密鍵かな？
- * ioxhJc1lIE2m+WFdBg3ieQb6rk8sSvg3wRv/ImJz2tc=
- * cm2E2vmE0Nd8aVP/4Ph2S1R6C5bkC1H7CiUBzbcDG3U=
- * BixgbLYk35GP+XHYdK/DgSWIUXyCTwCwEtY4h/G22dw=
- * BH4RDmdo0Yq0Ftiw0lm9ej5BmpZ35kEw2kaWZlZ0Do8=
- * lMhxDh6RPpWOsnJMeS12pTJ/j7EPn+ugpdbNQCGbiwc=
- * 9hZn+KDlwjgrbyFpaX5ibuaO4QfaFbIL79NUrwJlcRQ=
- * T+tDF4I700WFkFhGieYxWgQKPO/MDcntDYzMrqQSZjzwV2DzaI1OM/CsJWE30WBqMI1SxbEQHufR1A76I7ayWN==
- * nySkaCQxGErccmiqLznSQduXgFICpjnl2bo7n3FAhQMlku79plIeL85/etpN865GAnlUpErSppEYHvn4couGh3==
- * ns2bQQ4zlnfcCTSAxEH3gDDYHcBswKw92jQeEgm+9tse74XdX+LNwgfw7OsMUjOGtLMb7R/kXNRXYv1AHi71iV==
- * NxhJ5JwWhUtUccCfJNtVqzdpCMGOaAtknmcEKLyglZFNXE66EiFi9wPFekwekx3ln8m9v5wnfv7V8jSrpZ/SHQ==
- * +3n5qDbtpicXBy+Yyol/TJkg2IoQ01vZ/U2SvgpP+Fdm4DrIYngY7X0ZS53rc/KKIHT//jVqNwNBz1sGFyYUDg==
- * cLtHGFI7X/Xl6Ly03DczMzl2bsHJmI2BMQKKCckUek5vTIiltDPfT3PxdT6zxW1LzwVqJIsQEkxxPNTswgpSFg==
- * pMQBNF+F12AXT3T0mQq7S0l1VcCr/Dw2Q54zeuHH0/1ExLgbhHEsmAHf3WR9nK/Ku1Mc/eU3vaAO78yplJB76A==
- * QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQQ==
- * D8BH6DLNJekZ5jiiIVSnyS5ziE9XJSRG5bA9OdiFdjee6HTxHxFQXyEQdhfN+E69RKToLYXGDxK2X9v9eEcbUxdSp9tbptXegxkNQgIxg97BAq9gtmxPm4Ebngl/Q/I4
- * cLJlMSoCYBgR0d/bg7zG1B77BBWy7f1KLiJG5b8mPmlD8dAJKCZSEFRdWLuxSyRjgFFeiMm4+l+2SNIhL/SBma7ABhg232DeJkbUcZJKqBfAI9taPQ5Y9bwIXrcjxqMx
- * ↓2回連続getFloatで-1が出るseed 2つ
- * 125352706827826
- * 116229385253865
- * ↓getDoubleで可能な限り1に近い値が出るseed
- * 155239116123415
- * preforkする場合ってforkするのはlistenソケットを開く前？開いた後？
- * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
- * 丸数字の1から50までforで出す
- * timer_create+sigeventでタイマーを使ってスレッドを起動する
- * decodable random source?
- *
- * @param argc
- * @param argv
- * @param envp
- * @return int
- */
-int hiho(int argc, char **argv, const char **envp)
+int deepdarkfantasy()
 {
     unsigned char *publicKeyGlobal = malloc(1090519040L);
     unsigned char *privateKeyGlobal = malloc(536870912L);
@@ -137,8 +102,6 @@ int hiho(int argc, char **argv, const char **envp)
     EVP_MD_CTX *shactx1 = NULL;
     EVP_MD_CTX *shactx2 = NULL;
     EVP_MD_CTX *ripectx = NULL;
-    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
-    OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
     EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
     EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
     unsigned char sigbuf[LOCAL_CACHE_NUM * 65];
@@ -153,27 +116,29 @@ int hiho(int argc, char **argv, const char **envp)
         return 1;
     }
     size_t count = 0;
-    /*
-    #pragma omp parallel private(sigindex, sigoffset, encglobalindex, encindex,
-                                 encoffset, shactx1, shactx2, ripectx, sigbuf,
-    encbuf, hash, address, sigwif, encwif)
-    */
+#pragma omp parallel private(sigglobalindex, sigglobalindexmax, sigindex,     \
+                             sigoffset, encglobalindex, encglobalindexmax,    \
+                             encindex, encoffset, shactx1, shactx2, ripectx,  \
+                             sigbuf, encbuf, hash, address, sigwif, encwif)
     {
         shactx1 = EVP_MD_CTX_new();
         shactx2 = EVP_MD_CTX_new();
         ripectx = EVP_MD_CTX_new();
         EVP_DigestInit_ex2(shactx2, sha512, NULL);
-        //#pragma omp for
         while (1)
         {
+            // 0で埋めないと高位bitにデータが残ったままになる
             sigglobalindex = 0;
             if (getrandom(&sigglobalindex, 2, 0) != 2)
             {
                 break;
             }
+            // [0, 65536) -> [0, 16384) -> [0, 16777216)(unit 1024)
             sigglobalindex = (le64toh(sigglobalindex) >> 2) << 10;
             sigglobalindexmax = sigglobalindex + 1024;
-            fprintf(stderr, "%zu->%zu\n", sigglobalindex, sigglobalindexmax);
+#pragma omp critical
+            fprintf(stderr, "%zu->%zu (%ld)\n", sigglobalindex,
+                    sigglobalindexmax, time(NULL));
             for (; sigglobalindex < sigglobalindexmax;
                  sigglobalindex += LOCAL_CACHE_NUM)
             {
@@ -204,6 +169,7 @@ int hiho(int argc, char **argv, const char **envp)
                             EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
                             EVP_DigestUpdate(ripectx, hash, 64);
                             EVP_DigestFinal_ex(ripectx, hash, NULL);
+                            // htobe64(*(unsigned long *)hash) == 0xffffffffffff0000UL
                             if ((*(unsigned long *)hash)
                                 & 0x0000ffffffffffffUL)
                             {
@@ -214,6 +180,7 @@ int hiho(int argc, char **argv, const char **envp)
                                                + sigglobalindex + sigindex);
                             encwif = encodeWIF((PrivateKey *)privateKeyGlobal
                                                + encglobalindex + encindex);
+#pragma omp critical
                             printf("%s,%s,%s\n", address, sigwif, encwif);
                             free(address);
                             free(sigwif);
@@ -222,7 +189,9 @@ int hiho(int argc, char **argv, const char **envp)
                     }
                 }
             }
-            fprintf(stderr, "%zu->%zu done\n", sigglobalindexmax - 1024, sigglobalindexmax);
+#pragma omp critical
+            fprintf(stderr, "%zu->%zu done (%ld)\n", sigglobalindexmax - 1024,
+                    sigglobalindexmax, time(NULL));
         }
         EVP_MD_CTX_free(shactx1);
         EVP_MD_CTX_free(shactx2);
@@ -231,10 +200,53 @@ int hiho(int argc, char **argv, const char **envp)
 finish:
     EVP_MD_free(sha512);
     EVP_MD_free(ripemd160);
-    OSSL_PROVIDER_unload(def);
-    OSSL_PROVIDER_unload(legacy);
 
     free(publicKeyGlobal);
     free(privateKeyGlobal);
+    return 0;
+}
+
+/**
+ * @brief
+ * 秘密鍵かな？
+ * ioxhJc1lIE2m+WFdBg3ieQb6rk8sSvg3wRv/ImJz2tc=
+ * cm2E2vmE0Nd8aVP/4Ph2S1R6C5bkC1H7CiUBzbcDG3U=
+ * BixgbLYk35GP+XHYdK/DgSWIUXyCTwCwEtY4h/G22dw=
+ * BH4RDmdo0Yq0Ftiw0lm9ej5BmpZ35kEw2kaWZlZ0Do8=
+ * lMhxDh6RPpWOsnJMeS12pTJ/j7EPn+ugpdbNQCGbiwc=
+ * 9hZn+KDlwjgrbyFpaX5ibuaO4QfaFbIL79NUrwJlcRQ=
+ * T+tDF4I700WFkFhGieYxWgQKPO/MDcntDYzMrqQSZjzwV2DzaI1OM/CsJWE30WBqMI1SxbEQHufR1A76I7ayWN==
+ * nySkaCQxGErccmiqLznSQduXgFICpjnl2bo7n3FAhQMlku79plIeL85/etpN865GAnlUpErSppEYHvn4couGh3==
+ * ns2bQQ4zlnfcCTSAxEH3gDDYHcBswKw92jQeEgm+9tse74XdX+LNwgfw7OsMUjOGtLMb7R/kXNRXYv1AHi71iV==
+ * NxhJ5JwWhUtUccCfJNtVqzdpCMGOaAtknmcEKLyglZFNXE66EiFi9wPFekwekx3ln8m9v5wnfv7V8jSrpZ/SHQ==
+ * +3n5qDbtpicXBy+Yyol/TJkg2IoQ01vZ/U2SvgpP+Fdm4DrIYngY7X0ZS53rc/KKIHT//jVqNwNBz1sGFyYUDg==
+ * cLtHGFI7X/Xl6Ly03DczMzl2bsHJmI2BMQKKCckUek5vTIiltDPfT3PxdT6zxW1LzwVqJIsQEkxxPNTswgpSFg==
+ * pMQBNF+F12AXT3T0mQq7S0l1VcCr/Dw2Q54zeuHH0/1ExLgbhHEsmAHf3WR9nK/Ku1Mc/eU3vaAO78yplJB76A==
+ * QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQQ==
+ * D8BH6DLNJekZ5jiiIVSnyS5ziE9XJSRG5bA9OdiFdjee6HTxHxFQXyEQdhfN+E69RKToLYXGDxK2X9v9eEcbUxdSp9tbptXegxkNQgIxg97BAq9gtmxPm4Ebngl/Q/I4
+ * cLJlMSoCYBgR0d/bg7zG1B77BBWy7f1KLiJG5b8mPmlD8dAJKCZSEFRdWLuxSyRjgFFeiMm4+l+2SNIhL/SBma7ABhg232DeJkbUcZJKqBfAI9taPQ5Y9bwIXrcjxqMx
+ * ↓2回連続getFloatで-1が出るseed 2つ
+ * 125352706827826
+ * 116229385253865
+ * ↓getDoubleで可能な限り1に近い値が出るseed
+ * 155239116123415
+ * preforkする場合ってforkするのはlistenソケットを開く前？開いた後？
+ * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
+ * 丸数字の1から50までforで出す
+ * timer_create+sigeventでタイマーを使ってスレッドを起動する
+ * decodable random source?
+ *
+ * @param argc
+ * @param argv
+ * @param envp
+ * @return int
+ */
+int hiho(int argc, char **argv, const char **envp)
+{
+    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
+    OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
+    deepdarkfantasy();
+    OSSL_PROVIDER_unload(def);
+    OSSL_PROVIDER_unload(legacy);
     return 0;
 }
