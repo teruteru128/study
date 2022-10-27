@@ -12,6 +12,7 @@
 #include <CL/opencl.h>
 #include <bm.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <gmp.h>
 #include <inttypes.h>
 #include <java_random.h>
@@ -36,6 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>
 #include <sys/param.h>
 #include <sys/random.h>
 #include <sys/socket.h>
@@ -61,36 +63,55 @@
 int deepdarkfantasy()
 {
     unsigned char *publicKeyGlobal = malloc(1090519040L);
-    unsigned char *privateKeyGlobal = malloc(536870912L);
+    unsigned char *privateKeyGlobal = NULL;
     {
+        // public keyは頻繁に使うのでメモリに読み込んでおく
         FILE *publicKeyFile = fopen(
             "/home/teruteru128/git/study/keys/public/publicKeys0.bin", "rb");
-        FILE *privateKeyFile = fopen(
-            "/home/teruteru128/git/study/keys/private/privateKeys0.bin", "rb");
-        if (publicKeyFile == NULL || privateKeyFile == NULL)
+        if (publicKeyFile == NULL)
         {
             if (publicKeyFile != NULL)
             {
                 fclose(publicKeyFile);
             }
-            if (privateKeyFile != NULL)
-            {
-                fclose(privateKeyFile);
-            }
             return 1;
         }
         size_t pubnum = fread(publicKeyGlobal, 65, 16777216, publicKeyFile);
-        size_t prinum = fread(privateKeyGlobal, 32, 16777216, privateKeyFile);
         fclose(publicKeyFile);
-        fclose(privateKeyFile);
-        if (pubnum != 16777216 || prinum != 16777216)
+        if (pubnum != 16777216)
         {
             perror("fread");
             free(publicKeyGlobal);
-            free(privateKeyGlobal);
             return 1;
         }
     }
+    {
+        size_t page_size = sysconf(_SC_PAGESIZE);
+        // マッピングサイズはページングサイズ単位で切り上げ
+        size_t map_size
+            = ((536870912UL + page_size - 1) / page_size) * page_size;
+        int privateKeyFD
+            = open("/home/teruteru128/git/study/keys/private/privateKeys0.bin",
+                   O_RDONLY);
+        if (privateKeyFD < 0)
+        {
+            perror("open");
+            return 1;
+        }
+        // private keyはめったに使わないのでmmapで済ます
+        privateKeyGlobal
+            = mmap(NULL, map_size, PROT_READ, MAP_SHARED, privateKeyFD, 0);
+        if (privateKeyGlobal == MAP_FAILED)
+        {
+            perror("mmap");
+            close(privateKeyFD);
+            free(publicKeyGlobal);
+            return 1;
+        }
+        // ファイルディスクリプターは使わないので閉じておく
+        close(privateKeyFD);
+    }
+
     size_t sigglobalindex = 0;
     size_t sigglobalindexmax = 0;
     size_t sigindex = 0;
@@ -169,7 +190,10 @@ int deepdarkfantasy()
                             EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
                             EVP_DigestUpdate(ripectx, hash, 64);
                             EVP_DigestFinal_ex(ripectx, hash, NULL);
-                            // htobe64(*(unsigned long *)hash) == 0xffffffffffff0000UL
+                            // GPUで計算するときはハッシュだけGPUで計算して
+                            // チェックとフォーマットはCPUでやったほうがいいのかなあ？
+                            // htobe64(*(unsigned long *)hash) ==
+                            // 0xffffffffffff0000UL
                             if ((*(unsigned long *)hash)
                                 & 0x0000ffffffffffffUL)
                             {
@@ -202,7 +226,7 @@ finish:
     EVP_MD_free(ripemd160);
 
     free(publicKeyGlobal);
-    free(privateKeyGlobal);
+    munmap(privateKeyGlobal, 536870912UL);
     return 0;
 }
 
