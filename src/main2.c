@@ -154,9 +154,12 @@ int deepdarkfantasy()
             {
                 break;
             }
-            // [0, 65536) -> [0, 16384) -> [0, 16777216)(unit 1024)
-            sigglobalindex = (le64toh(sigglobalindex) >> 2) << 10;
-            sigglobalindexmax = sigglobalindex + 1024;
+            // 24bitから下7bit切り捨て->24bit乱数から7bit切って7bit底上げ
+            // 24bitから下8bit切り捨て->16bit乱数から8bit底上げ
+            // 24bitから下10bit切り捨て->16bit乱数から2bit切って10bit底上げ
+            // [0, 65536) -> [0, 16384) -> [0, 16777216)(unit 256)
+            sigglobalindex = le64toh(sigglobalindex) << 8;
+            sigglobalindexmax = sigglobalindex + 256;
 #pragma omp critical
             fprintf(stderr, "%zu->%zu (%ld)\n", sigglobalindex,
                     sigglobalindexmax, time(NULL));
@@ -214,7 +217,7 @@ int deepdarkfantasy()
                 }
             }
 #pragma omp critical
-            fprintf(stderr, "%zu->%zu done (%ld)\n", sigglobalindexmax - 1024,
+            fprintf(stderr, "%zu->%zu done (%ld)\n", sigglobalindexmax - 256,
                     sigglobalindexmax, time(NULL));
         }
         EVP_MD_CTX_free(shactx1);
