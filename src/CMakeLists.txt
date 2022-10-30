@@ -373,6 +373,8 @@ target_include_directories(mineseed PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/inclu
 
 add_executable(mkk mkk.c)
 
+add_executable(multiprosessmutexsample multiprosessmutexsample.c)
+
 add_executable(mysqlaccesssample mysqlaccesssample.c)
 target_link_libraries(mysqlaccesssample mysqlclient)
 

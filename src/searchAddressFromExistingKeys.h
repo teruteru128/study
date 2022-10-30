@@ -3,5 +3,6 @@
 #define SEARCH_ADDRESS_FROM_EXISTING_KEYS_H
 
 int searchAddressFromExistingKeys(int argc, char **argv);
+int searchAddressFromExistingKeys2();
 
 #endif
