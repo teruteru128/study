@@ -9,6 +9,7 @@
 int main(int argc, char const *argv[])
 {
     size_t pagesize = sysconf(_SC_PAGESIZE);
+    // pagesize単位で切り上げ, 切り上げ部分はマクロ化してもいいかも
     size_t mapping_size
         = ((sizeof(pthread_mutex_t) + pagesize - 1) / pagesize) * pagesize;
     // プロセスをまたいだmutexとかはmmap必須なんですかね？
