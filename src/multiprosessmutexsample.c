@@ -30,6 +30,7 @@ int main(int argc, char const *argv[])
     }
     pthread_mutex_init(mutex, &mutexattr);
     // mutexのinitが終わったらattrは破棄してしまってもいいのだろうか？
+    // "linuxの実装では"なにもしないので破棄してもしなくても変わらない
     pthread_mutexattr_destroy(&mutexattr);
 
     pid_t p = fork();
@@ -51,12 +52,14 @@ int main(int argc, char const *argv[])
     else
     {
         // 親プロセス
-        printf("ロック待ち...\n");
+        printf("親プロセスが子プロセスを先に行かせる...\n");
         sleep(1);
         int status = 0;
+        printf("親プロセスがロックを試みる\n");
         pthread_mutex_lock(mutex);
         printf("親プロセス\n");
         pthread_mutex_unlock(mutex);
+        printf("親プロセスロック終わり\n");
         wait(&status);
         printf("%d\n", status);
     }
