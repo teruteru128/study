@@ -20,7 +20,17 @@ int main(int argc, char const *argv[])
         perror("mmap");
         return 1;
     }
-    pthread_mutex_init(mutex, NULL);
+    // pthreadをマルチプロセス下で使うには設定をする必要がある
+    pthread_mutexattr_t mutexattr = { 0 };
+    pthread_mutexattr_init(&mutexattr);
+    if (pthread_mutexattr_setpshared(&mutexattr, PTHREAD_PROCESS_SHARED) != 0)
+    {
+        perror("pthread_mutexattr_setpshared");
+        return 1;
+    }
+    pthread_mutex_init(mutex, &mutexattr);
+    // mutexのinitが終わったらattrは破棄してしまってもいいのだろうか？
+    pthread_mutexattr_destroy(&mutexattr);
 
     pid_t p = fork();
     if (p == -1)
@@ -44,17 +54,15 @@ int main(int argc, char const *argv[])
         printf("ロック待ち...\n");
         sleep(1);
         int status = 0;
-        // ここでwaitすると通る
-        // wait(&status);
         pthread_mutex_lock(mutex);
         printf("親プロセス\n");
         pthread_mutex_unlock(mutex);
-        // ここでwaitするとデッドロックする
         wait(&status);
         printf("%d\n", status);
     }
 
     pthread_mutex_destroy(mutex);
+    // pthread_mutexattr_destroy(&mutexattr);
 
     munmap(mutex, mapping_size);
     return 0;
