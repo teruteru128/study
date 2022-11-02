@@ -150,7 +150,7 @@ finish:
 
 #define LOCAL_CACHE_NUM 16
 
-int deepdarkfantasy()
+static int deepdarkfantasy()
 {
     unsigned char *publicKeyGlobal = malloc(1090519040UL);
     unsigned char *privateKeyGlobal = NULL;
@@ -329,6 +329,20 @@ int searchAddressFromExistingKeys2()
     OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
     OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
     deepdarkfantasy();
+    OSSL_PROVIDER_unload(def);
+    OSSL_PROVIDER_unload(legacy);
+    return 0;
+}
+
+static int dappunda() {
+    // sign側のMD_CTXを複数にしてみる
+}
+
+int searchAddressFromExistingKeys3()
+{
+    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
+    OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
+    dappunda();
     OSSL_PROVIDER_unload(def);
     OSSL_PROVIDER_unload(legacy);
     return 0;
