@@ -227,7 +227,13 @@
         "param.h": "c",
         "jconfig.h": "c",
         "roulette.h": "c",
-        "searchaddressfromexistingkeys.h": "c"
+        "searchaddressfromexistingkeys.h": "c",
+        "countdown2038.h": "c",
+        "a.out.h": "c",
+        "randomsample.h": "c",
+        "pngsample_gennoise.h": "c",
+        "mman.h": "c",
+        "countdown.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
