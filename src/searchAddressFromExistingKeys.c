@@ -171,18 +171,19 @@ static int loadKey1(unsigned char *publicKey, const char *path, size_t size,
         free(publicKey);
         return 1;
     }
+    return 0;
 }
 
 static int loadPrivateKey1(unsigned char *publicKey, const char *path)
 {
     // public keyは頻繁に使うのでメモリに読み込んでおく
-    loadKey1(publicKey, path, 32, 16777216);
+    return loadKey1(publicKey, path, 32, 16777216);
 }
 
 static int loadPublicKey1(unsigned char *publicKey, const char *path)
 {
     // public keyは頻繁に使うのでメモリに読み込んでおく
-    loadKey1(publicKey, path, 65, 16777216);
+    return loadKey1(publicKey, path, 65, 16777216);
 }
 
 static int deepdarkfantasy()
@@ -355,23 +356,31 @@ int searchAddressFromExistingKeys2()
     return 0;
 }
 
-static int dappunda()
+static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
 {
     unsigned char *publicKeyGlobal = malloc(16777216UL * 65 * 2);
-    loadPublicKey1(publicKeyGlobal,
-                   "/home/teruteru128/git/study/keys/public/publicKeys0.bin");
-    loadPublicKey1(publicKeyGlobal + 16777216UL * 65,
-                   "/home/teruteru128/git/study/keys/public/publicKeys1.bin");
+    if (loadPublicKey1(
+            publicKeyGlobal,
+            "/home/teruteru128/git/study/keys/public/publicKeys0.bin")
+        || loadPublicKey1(
+            publicKeyGlobal + 16777216UL * 65,
+            "/home/teruteru128/git/study/keys/public/publicKeys1.bin"))
+    {
+        perror("publickey");
+        return 1;
+    }
     unsigned char *privateKeyGlobal = malloc(16777216UL * 32 * 2);
-    loadPublicKey1(
-        privateKeyGlobal,
-        "/home/teruteru128/git/study/keys/private/privateKeys0.bin");
-    loadPublicKey1(
-        privateKeyGlobal + 16777216UL * 32,
-        "/home/teruteru128/git/study/keys/private/privateKeys1.bin");
+    if (loadPrivateKey1(
+            privateKeyGlobal,
+            "/home/teruteru128/git/study/keys/private/privateKeys0.bin")
+        || loadPrivateKey1(
+            privateKeyGlobal + 16777216UL * 32,
+            "/home/teruteru128/git/study/keys/private/privateKeys1.bin"))
+    {
+        perror("privatekey");
+        return 1;
+    }
     // sign側のMD_CTXを複数にしてみる
-    EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
-    EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
 #pragma omp parallel default(none)                                            \
     shared(publicKeyGlobal, privateKeyGlobal, sha512, ripemd160)
     {
@@ -379,7 +388,7 @@ static int dappunda()
         char *address = NULL;
         char *sigwif = NULL;
         char *encwif = NULL;
-        EVP_MD_CTX **shactx1 = malloc(sizeof(EVP_MD_CTX *) * 16);
+        EVP_MD_CTX *shactx1[16] = { NULL };
         for (size_t i = 0; i < 16; i++)
         {
             shactx1[i] = EVP_MD_CTX_new();
@@ -392,7 +401,10 @@ static int dappunda()
         size_t encglobalindex = 0;
         EVP_DigestInit_ex2(shactx2, sha512, NULL);
         size_t encoffset = 0;
-        for (size_t sigglobalindex = 0; sigglobalindex < 16777216;
+        // 128 を 8スレ-> 10分
+        // 1536-256=1280 を 8スレ-> 100分
+#pragma omp for
+        for (size_t sigglobalindex = 1536; sigglobalindex < 21504;
              sigglobalindex += 16)
         {
             for (sigindex = 0; sigindex < 16; sigindex++)
@@ -411,10 +423,10 @@ static int dappunda()
                        publicKeyGlobal + (encglobalindex << 6)
                            + encglobalindex,
                        2080);
-                for (sigindex = 0; sigindex < 16; sigindex++)
+                for (encindex = 0, encoffset = 0; encindex < 32;
+                     encindex++, encoffset += 65)
                 {
-                    for (encindex = 0, encoffset = 0; encindex < 32;
-                         encindex++, encoffset += 65)
+                    for (sigindex = 0; sigindex < 16; sigindex++)
                     {
                         EVP_MD_CTX_copy_ex(shactx2, shactx1[sigindex]);
                         EVP_DigestUpdate(shactx2, encbuf + encoffset, 65);
@@ -448,19 +460,21 @@ static int dappunda()
         {
             EVP_MD_CTX_free(shactx1[i]);
         }
-        free(shactx1);
         EVP_MD_CTX_free(shactx2);
         EVP_MD_CTX_free(ripectx);
     }
-    EVP_MD_free((EVP_MD *)sha512);
-    EVP_MD_free((EVP_MD *)ripemd160);
+    return 0;
 }
 
 int searchAddressFromExistingKeys3()
 {
     OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
     OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
-    dappunda();
+    EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
+    EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
+    dappunda(sha512, ripemd160);
+    EVP_MD_free(sha512);
+    EVP_MD_free(ripemd160);
     OSSL_PROVIDER_unload(def);
     OSSL_PROVIDER_unload(legacy);
     return 0;
