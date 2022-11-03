@@ -150,30 +150,51 @@ finish:
 
 #define LOCAL_CACHE_NUM 16
 
+static int loadKey1(unsigned char *publicKey, const char *path, size_t size,
+                    size_t num)
+{
+    // public keyは頻繁に使うのでメモリに読み込んでおく
+    FILE *publicKeyFile = fopen(path, "rb");
+    if (publicKeyFile == NULL)
+    {
+        if (publicKeyFile != NULL)
+        {
+            fclose(publicKeyFile);
+        }
+        return 1;
+    }
+    size_t pubnum = fread(publicKey, size, num, publicKeyFile);
+    fclose(publicKeyFile);
+    if (pubnum != num)
+    {
+        perror("fread");
+        free(publicKey);
+        return 1;
+    }
+}
+
+static int loadPrivateKey1(unsigned char *publicKey, const char *path)
+{
+    // public keyは頻繁に使うのでメモリに読み込んでおく
+    loadKey1(publicKey, path, 32, 16777216);
+}
+
+static int loadPublicKey1(unsigned char *publicKey, const char *path)
+{
+    // public keyは頻繁に使うのでメモリに読み込んでおく
+    loadKey1(publicKey, path, 65, 16777216);
+}
+
 static int deepdarkfantasy()
 {
     unsigned char *publicKeyGlobal = malloc(1090519040UL);
     unsigned char *privateKeyGlobal = NULL;
+    if (loadPublicKey1(
+            publicKeyGlobal,
+            "/home/teruteru128/git/study/keys/public/publicKeys0.bin"))
     {
-        // public keyは頻繁に使うのでメモリに読み込んでおく
-        FILE *publicKeyFile = fopen(
-            "/home/teruteru128/git/study/keys/public/publicKeys0.bin", "rb");
-        if (publicKeyFile == NULL)
-        {
-            if (publicKeyFile != NULL)
-            {
-                fclose(publicKeyFile);
-            }
-            return 1;
-        }
-        size_t pubnum = fread(publicKeyGlobal, 65, 16777216, publicKeyFile);
-        fclose(publicKeyFile);
-        if (pubnum != 16777216)
-        {
-            perror("fread");
-            free(publicKeyGlobal);
-            return 1;
-        }
+        free(publicKeyGlobal);
+        return 1;
     }
     {
         size_t page_size = sysconf(_SC_PAGESIZE);
@@ -334,8 +355,105 @@ int searchAddressFromExistingKeys2()
     return 0;
 }
 
-static int dappunda() {
+static int dappunda()
+{
+    unsigned char *publicKeyGlobal = malloc(16777216UL * 65 * 2);
+    loadPublicKey1(publicKeyGlobal,
+                   "/home/teruteru128/git/study/keys/public/publicKeys0.bin");
+    loadPublicKey1(publicKeyGlobal + 16777216UL * 65,
+                   "/home/teruteru128/git/study/keys/public/publicKeys1.bin");
+    unsigned char *privateKeyGlobal = malloc(16777216UL * 32 * 2);
+    loadPublicKey1(
+        privateKeyGlobal,
+        "/home/teruteru128/git/study/keys/private/privateKeys0.bin");
+    loadPublicKey1(
+        privateKeyGlobal + 16777216UL * 32,
+        "/home/teruteru128/git/study/keys/private/privateKeys1.bin");
     // sign側のMD_CTXを複数にしてみる
+    EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
+    EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
+#pragma omp parallel default(none)                                            \
+    shared(publicKeyGlobal, privateKeyGlobal, sha512, ripemd160)
+    {
+        unsigned char hash[EVP_MAX_MD_SIZE];
+        char *address = NULL;
+        char *sigwif = NULL;
+        char *encwif = NULL;
+        EVP_MD_CTX **shactx1 = malloc(sizeof(EVP_MD_CTX *) * 16);
+        for (size_t i = 0; i < 16; i++)
+        {
+            shactx1[i] = EVP_MD_CTX_new();
+        }
+        EVP_MD_CTX *shactx2 = EVP_MD_CTX_new();
+        EVP_MD_CTX *ripectx = EVP_MD_CTX_new();
+        unsigned char encbuf[2080];
+        size_t sigindex = 0;
+        size_t encindex = 0;
+        size_t encglobalindex = 0;
+        EVP_DigestInit_ex2(shactx2, sha512, NULL);
+        size_t encoffset = 0;
+        for (size_t sigglobalindex = 0; sigglobalindex < 16777216;
+             sigglobalindex += 16)
+        {
+            for (sigindex = 0; sigindex < 16; sigindex++)
+            {
+                EVP_DigestInit_ex2(shactx1[sigindex], sha512, NULL);
+                EVP_DigestUpdate(shactx1[sigindex],
+                                 publicKeyGlobal + (sigglobalindex << 6)
+                                     + sigglobalindex + (sigindex << 6)
+                                     + sigindex,
+                                 65);
+            }
+            for (encglobalindex = 0; encglobalindex < 33554432UL;
+                 encglobalindex += 32)
+            {
+                memcpy(encbuf,
+                       publicKeyGlobal + (encglobalindex << 6)
+                           + encglobalindex,
+                       2080);
+                for (sigindex = 0; sigindex < 16; sigindex++)
+                {
+                    for (encindex = 0, encoffset = 0; encindex < 32;
+                         encindex++, encoffset += 65)
+                    {
+                        EVP_MD_CTX_copy_ex(shactx2, shactx1[sigindex]);
+                        EVP_DigestUpdate(shactx2, encbuf + encoffset, 65);
+                        EVP_DigestFinal_ex(shactx2, hash, NULL);
+                        EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
+                        EVP_DigestUpdate(ripectx, hash, 64);
+                        EVP_DigestFinal_ex(ripectx, hash, NULL);
+                        // GPUで計算するときはハッシュだけGPUで計算して
+                        // チェックとフォーマットはCPUでやったほうがいいのかなあ？
+                        // htobe64(*(unsigned long *)hash) ==
+                        // 0xffffffffffff0000UL
+                        if ((*(unsigned long *)hash) & 0x0000ffffffffffffUL)
+                        {
+                            continue;
+                        }
+                        address = encodeV4Address(hash, 20);
+                        sigwif = encodeWIF((PrivateKey *)privateKeyGlobal
+                                           + sigglobalindex + sigindex);
+                        encwif = encodeWIF((PrivateKey *)privateKeyGlobal
+                                           + encglobalindex + encindex);
+#pragma omp critical
+                        printf("%s,%s,%s\n", address, sigwif, encwif);
+                        free(address);
+                        free(sigwif);
+                        free(encwif);
+                    }
+                }
+            }
+        }
+        for (size_t i = 0; i < 16; i++)
+        {
+            EVP_MD_CTX_free(shactx1[i]);
+        }
+        free(shactx1);
+        EVP_MD_CTX_free(shactx2);
+        EVP_MD_CTX_free(ripectx);
+    }
+    EVP_MD_free((EVP_MD *)sha512);
+    EVP_MD_free((EVP_MD *)ripemd160);
 }
 
 int searchAddressFromExistingKeys3()

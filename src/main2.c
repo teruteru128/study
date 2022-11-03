@@ -196,5 +196,52 @@ char *clonekey(int index)
  */
 int hiho(int argc, char **argv, const char **envp)
 {
+    struct tm tm = { 0 };
+    tm.tm_year = 0;
+    tm.tm_mon = 0;
+    tm.tm_mday = 1;
+    tm.tm_hour = 0;
+    tm.tm_min = 0;
+    tm.tm_sec = 0;
+    for (size_t i = 0; i < 6 && i + 1 < argc; i++)
+    {
+        switch (i)
+        {
+        case 0:
+            tm.tm_year = strtol(argv[i + 1], NULL, 10) - 1900;
+            break;
+        case 1:
+            tm.tm_mon = strtol(argv[i + 1], NULL, 10) - 1;
+            break;
+        case 2:
+            tm.tm_mday = MIN(MAX(strtol(argv[i + 1], NULL, 10), 1), 31);
+            break;
+        case 3:
+            tm.tm_hour = strtol(argv[i + 1], NULL, 10);
+            break;
+        case 4:
+            tm.tm_min = strtol(argv[i + 1], NULL, 10);
+            break;
+        case 5:
+            tm.tm_sec = strtol(argv[i + 1], NULL, 10);
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    time_t a = mktime(&tm);
+    time_t now = 0;
+    double diff = 0;
+    while ((diff = difftime(a, now = time(NULL))) > 0)
+    {
+        localtime_r(&now, &tm);
+        printf("%04d/%02d/%02d %02d:%02d:%02d(%ld)\n", tm.tm_year + 1900,
+               tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec,
+               (long)diff);
+        sleep(1);
+    }
+    fputs("どーん！\n", stdout);
     return 0;
 }
