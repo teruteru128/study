@@ -147,7 +147,7 @@ target_link_libraries(bouyomiTalk study)
 add_executable(calc calc.c)
 target_link_libraries(calc gmp)
 
-add_executable(centos_rip centos_rip.c centos_rip-driver.c)
+add_executable(centos_rip centos_rip.c centos_rip-driver.c countdown.c)
 
 add_executable(checkprimes checkprimes.c)
 
@@ -348,7 +348,7 @@ add_executable(logging-sample logging-sample.c)
 
 add_executable(loop-bench loop-bench.c)
 
-add_executable(main countdown2038.c finddiffinnumofdigits.c main.cpp main2.c pngreadwrite.c pngsample_gennoise.c pngsample_gradation.c roulette.c searchAddressFromExistingKeys.c randomsample.c)
+add_executable(main countdown2038.c countdown.c finddiffinnumofdigits.c main.cpp main2.c pngreadwrite.c pngsample_gennoise.c pngsample_gradation.c roulette.c searchAddressFromExistingKeys.c randomsample.c)
 target_compile_definitions(main PRIVATE CL_TARGET_OPENCL_VERSION=220)
 target_include_directories(main PRIVATE ${PNG_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/libstudy/include $<$<BOOL:${OpenCL_FOUND}>:${OpenCL_INCLUDE_DIRS}>)
 target_link_libraries(main study m xmlrpc xmlrpc_client ${OPENSSL_CRYPTO_LIBRARIES} $<$<BOOL:${PNG_FOUND}>:${PNG_LIBRARIES}> gmp $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_LIBRARIES}> $<$<BOOL:${OpenCL_FOUND}>:${OpenCL_LIBRARIES}> $<$<BOOL:${JPEG_FOUND}>:${JPEG_LIBRARIES}>)
@@ -645,8 +645,8 @@ add_executable(widecharsample widecharsample.c)
 
 add_executable(wordconv wordconv.c)
 
-add_executable(yakusokunohi yakusokunohi.c)
+add_executable(yakusokunohi yakusokunohi.c countdown.c)
 
-add_executable(yakusokunohi2 yakusokunohi2.c)
+add_executable(yakusokunohi2 yakusokunohi2.c countdown.c)
 
 add_executable(yattaze yattaze.c)

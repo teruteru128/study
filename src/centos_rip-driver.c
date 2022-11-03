@@ -1,7 +1,6 @@
 
+#include "countdown.h"
 #include <locale.h>
-
-int rip(void);
 
 int main(void)
 {
