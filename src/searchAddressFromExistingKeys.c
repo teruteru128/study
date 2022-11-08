@@ -415,6 +415,11 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         EVP_DigestInit_ex2(shactx2, sha512, NULL);
         size_t encoffset = 0;
         size_t sigglobalindex = 0;
+        if (getrandom(&sigglobalindex, 3, 0) != 3)
+        {
+            goto fail;
+        }
+        sigglobalindex = (le64toh(sigglobalindex) >> 2) << 4;
         // 128 を 8スレ-> 10分
         // 1536-256=1280 を 8スレ-> 100分
         /*
@@ -429,14 +434,8 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
          * 768 8スレ 60分
          * 1536 16スレ 60分
          */
-        while (1)
+        for (;; sigglobalindex += 16)
         {
-            sigglobalindex = 0;
-            if (getrandom(&sigglobalindex, 3, 0) != 3)
-            {
-                goto fail;
-            }
-            sigglobalindex = (le64toh(sigglobalindex) >> 2) << 4;
             for (sigindex = 0; sigindex < 16; sigindex++)
             {
                 EVP_DigestInit_ex2(shactx1[sigindex], sha512, NULL);
