@@ -9,6 +9,7 @@
 #include "pngsample_gennoise.h"
 #include "randomsample.h"
 #include "roulette.h"
+#include "timeutil.h"
 #include "searchAddressFromExistingKeys.h"
 #include <CL/opencl.h>
 #include <bm.h>

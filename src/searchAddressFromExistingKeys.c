@@ -5,6 +5,7 @@
 
 #include <bm.h>
 #include <fcntl.h>
+#include <omp.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
@@ -358,24 +359,36 @@ int searchAddressFromExistingKeys2()
 
 static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
 {
-    unsigned char *publicKeyGlobal = malloc(16777216UL * 65 * 2);
+    unsigned char *publicKeyGlobal = malloc(16777216UL * 65 * 4);
     if (loadPublicKey1(
             publicKeyGlobal,
             "/home/teruteru128/git/study/keys/public/publicKeys0.bin")
         || loadPublicKey1(
             publicKeyGlobal + 16777216UL * 65,
-            "/home/teruteru128/git/study/keys/public/publicKeys1.bin"))
+            "/home/teruteru128/git/study/keys/public/publicKeys1.bin")
+        || loadPublicKey1(
+            publicKeyGlobal + 16777216UL * 65 * 2,
+            "/home/teruteru128/git/study/keys/public/publicKeys2.bin")
+        || loadPublicKey1(
+            publicKeyGlobal + 16777216UL * 65 * 3,
+            "/home/teruteru128/git/study/keys/public/publicKeys3.bin"))
     {
         perror("publickey");
         return 1;
     }
-    unsigned char *privateKeyGlobal = malloc(16777216UL * 32 * 2);
+    unsigned char *privateKeyGlobal = malloc(16777216UL * 32 * 4);
     if (loadPrivateKey1(
             privateKeyGlobal,
             "/home/teruteru128/git/study/keys/private/privateKeys0.bin")
         || loadPrivateKey1(
             privateKeyGlobal + 16777216UL * 32,
-            "/home/teruteru128/git/study/keys/private/privateKeys1.bin"))
+            "/home/teruteru128/git/study/keys/private/privateKeys1.bin")
+        || loadPrivateKey1(
+            privateKeyGlobal + 16777216UL * 32 * 2,
+            "/home/teruteru128/git/study/keys/private/privateKeys2.bin")
+        || loadPrivateKey1(
+            privateKeyGlobal + 16777216UL * 32 * 3,
+            "/home/teruteru128/git/study/keys/private/privateKeys3.bin"))
     {
         perror("privatekey");
         return 1;
@@ -401,12 +414,29 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         size_t encglobalindex = 0;
         EVP_DigestInit_ex2(shactx2, sha512, NULL);
         size_t encoffset = 0;
+        size_t sigglobalindex = 0;
         // 128 を 8スレ-> 10分
         // 1536-256=1280 を 8スレ-> 100分
-#pragma omp for
-        for (size_t sigglobalindex = 1536; sigglobalindex < 21504;
-             sigglobalindex += 16)
+        /*
+         * 128 8スレ 10分
+         * 16 1スレ 10分
+         * 60 1スレ 60分
+         * 960 16スレ 60分
+         * 12480 16スレ 13時間
+         * 19968 16スレ 20時間48分
+         * --
+         * 1280 8スレ 100分
+         * 768 8スレ 60分
+         * 1536 16スレ 60分
+         */
+        while (1)
         {
+            sigglobalindex = 0;
+            if (getrandom(&sigglobalindex, 3, 0) != 3)
+            {
+                goto fail;
+            }
+            sigglobalindex = (le64toh(sigglobalindex) >> 2) << 4;
             for (sigindex = 0; sigindex < 16; sigindex++)
             {
                 EVP_DigestInit_ex2(shactx1[sigindex], sha512, NULL);
@@ -416,7 +446,7 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
                                      + sigindex,
                                  65);
             }
-            for (encglobalindex = 0; encglobalindex < 33554432UL;
+            for (encglobalindex = 0; encglobalindex < 67108864UL;
                  encglobalindex += 32)
             {
                 memcpy(encbuf,
@@ -455,7 +485,9 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
                     }
                 }
             }
+#pragma omp barrier
         }
+    fail:
         for (size_t i = 0; i < 16; i++)
         {
             EVP_MD_CTX_free(shactx1[i]);
