@@ -357,6 +357,9 @@ int searchAddressFromExistingKeys2()
     return 0;
 }
 
+#define CTX_CACHE_SIZE 32
+#define ENC_CACHE_SIZE 32
+
 static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
 {
     unsigned char *publicKeyGlobal = malloc(16777216UL * 65 * 4);
@@ -401,14 +404,14 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         char *address = NULL;
         char *sigwif = NULL;
         char *encwif = NULL;
-        EVP_MD_CTX *shactx1[16] = { NULL };
-        for (size_t i = 0; i < 16; i++)
+        EVP_MD_CTX *shactx1[CTX_CACHE_SIZE] = { NULL };
+        for (size_t i = 0; i < CTX_CACHE_SIZE; i++)
         {
             shactx1[i] = EVP_MD_CTX_new();
         }
         EVP_MD_CTX *shactx2 = EVP_MD_CTX_new();
         EVP_MD_CTX *ripectx = EVP_MD_CTX_new();
-        unsigned char encbuf[2080];
+        unsigned char encbuf[ENC_CACHE_SIZE * PUBLIC_KEY_LENGTH];
         size_t sigindex = 0;
         size_t encindex = 0;
         size_t encglobalindex = 0;
@@ -419,7 +422,7 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         {
             goto fail;
         }
-        sigglobalindex = (le64toh(sigglobalindex) >> 2) << 4;
+        sigglobalindex = (le64toh(sigglobalindex) >> 3) << 5;
         // 128 を 8スレ-> 10分
         // 1536-256=1280 を 8スレ-> 100分
         /*
@@ -434,31 +437,31 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
          * 768 8スレ 60分
          * 1536 16スレ 60分
          */
-        for (;; sigglobalindex += 16)
+        for (;; sigglobalindex += CTX_CACHE_SIZE)
         {
-            for (sigindex = 0; sigindex < 16; sigindex++)
+            for (sigindex = 0; sigindex < CTX_CACHE_SIZE; sigindex++)
             {
                 EVP_DigestInit_ex2(shactx1[sigindex], sha512, NULL);
                 EVP_DigestUpdate(shactx1[sigindex],
                                  publicKeyGlobal + (sigglobalindex << 6)
                                      + sigglobalindex + (sigindex << 6)
                                      + sigindex,
-                                 65);
+                                 PUBLIC_KEY_LENGTH);
             }
             for (encglobalindex = 0; encglobalindex < 67108864UL;
-                 encglobalindex += 32)
+                 encglobalindex += ENC_CACHE_SIZE)
             {
                 memcpy(encbuf,
                        publicKeyGlobal + (encglobalindex << 6)
                            + encglobalindex,
-                       2080);
-                for (encindex = 0, encoffset = 0; encindex < 32;
-                     encindex++, encoffset += 65)
+                       ENC_CACHE_SIZE * PUBLIC_KEY_LENGTH);
+                for (encindex = 0, encoffset = 0; encindex < ENC_CACHE_SIZE;
+                     encindex++, encoffset += PUBLIC_KEY_LENGTH)
                 {
-                    for (sigindex = 0; sigindex < 16; sigindex++)
+                    for (sigindex = 0; sigindex < CTX_CACHE_SIZE; sigindex++)
                     {
                         EVP_MD_CTX_copy_ex(shactx2, shactx1[sigindex]);
-                        EVP_DigestUpdate(shactx2, encbuf + encoffset, 65);
+                        EVP_DigestUpdate(shactx2, encbuf + encoffset, PUBLIC_KEY_LENGTH);
                         EVP_DigestFinal_ex(shactx2, hash, NULL);
                         EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
                         EVP_DigestUpdate(ripectx, hash, 64);
@@ -487,7 +490,7 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
 #pragma omp barrier
         }
     fail:
-        for (size_t i = 0; i < 16; i++)
+        for (size_t i = 0; i < CTX_CACHE_SIZE; i++)
         {
             EVP_MD_CTX_free(shactx1[i]);
         }
