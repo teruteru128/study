@@ -3,6 +3,7 @@
 #define OPENSSL_API_COMPAT 0x30000000L
 #define OPENSSL_NO_DEPRECATED 1
 
+#include "timeutil.h"
 #include <bm.h>
 #include <fcntl.h>
 #include <omp.h>
@@ -357,8 +358,9 @@ int searchAddressFromExistingKeys2()
     return 0;
 }
 
-#define CTX_CACHE_SIZE 32
-#define ENC_CACHE_SIZE 32
+#define CTX_CACHE_SIZE 16
+#define ENC_CACHE_SIZE 16
+#define ENC_NUM 67108864UL
 
 static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
 {
@@ -398,7 +400,7 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
     }
     // sign側のMD_CTXを複数にしてみる
 #pragma omp parallel default(none)                                            \
-    shared(publicKeyGlobal, privateKeyGlobal, sha512, ripemd160)
+    shared(publicKeyGlobal, privateKeyGlobal, sha512, ripemd160, stderr)
     {
         unsigned char hash[EVP_MAX_MD_SIZE];
         char *address = NULL;
@@ -411,18 +413,22 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         }
         EVP_MD_CTX *shactx2 = EVP_MD_CTX_new();
         EVP_MD_CTX *ripectx = EVP_MD_CTX_new();
+        EVP_DigestInit_ex2(shactx2, sha512, NULL);
+        EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
         unsigned char encbuf[ENC_CACHE_SIZE * PUBLIC_KEY_LENGTH];
         size_t sigindex = 0;
         size_t encindex = 0;
         size_t encglobalindex = 0;
-        EVP_DigestInit_ex2(shactx2, sha512, NULL);
         size_t encoffset = 0;
         size_t sigglobalindex = 0;
+        struct timespec startspec;
+        struct timespec finishspec;
+        struct timespec diffspec;
         if (getrandom(&sigglobalindex, 3, 0) != 3)
         {
             goto fail;
         }
-        sigglobalindex = (le64toh(sigglobalindex) >> 3) << 5;
+        sigglobalindex = (le64toh(sigglobalindex) >> 2) << 4;
         // 128 を 8スレ-> 10分
         // 1536-256=1280 を 8スレ-> 100分
         /*
@@ -436,24 +442,24 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
          * 1280 8スレ 100分
          * 768 8スレ 60分
          * 1536 16スレ 60分
+         * --
+         * 16スレッドで回すより8スレで回したほうが1スレッドあたりの速度が早いのね……
          */
-        for (;; sigglobalindex += CTX_CACHE_SIZE)
+        for (; sigglobalindex < ENC_NUM; sigglobalindex += CTX_CACHE_SIZE)
         {
+            clock_gettime(CLOCK_MONOTONIC, &startspec);
             for (sigindex = 0; sigindex < CTX_CACHE_SIZE; sigindex++)
             {
                 EVP_DigestInit_ex2(shactx1[sigindex], sha512, NULL);
                 EVP_DigestUpdate(shactx1[sigindex],
-                                 publicKeyGlobal + (sigglobalindex << 6)
-                                     + sigglobalindex + (sigindex << 6)
+                                 (PublicKey *)publicKeyGlobal + sigglobalindex
                                      + sigindex,
                                  PUBLIC_KEY_LENGTH);
             }
-            for (encglobalindex = 0; encglobalindex < 67108864UL;
+            for (encglobalindex = 0; encglobalindex < ENC_NUM;
                  encglobalindex += ENC_CACHE_SIZE)
             {
-                memcpy(encbuf,
-                       publicKeyGlobal + (encglobalindex << 6)
-                           + encglobalindex,
+                memcpy(encbuf, (PublicKey *)publicKeyGlobal + encglobalindex,
                        ENC_CACHE_SIZE * PUBLIC_KEY_LENGTH);
                 for (encindex = 0, encoffset = 0; encindex < ENC_CACHE_SIZE;
                      encindex++, encoffset += PUBLIC_KEY_LENGTH)
@@ -461,8 +467,11 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
                     for (sigindex = 0; sigindex < CTX_CACHE_SIZE; sigindex++)
                     {
                         EVP_MD_CTX_copy_ex(shactx2, shactx1[sigindex]);
-                        EVP_DigestUpdate(shactx2, encbuf + encoffset, PUBLIC_KEY_LENGTH);
+                        EVP_DigestUpdate(shactx2, encbuf + encoffset,
+                                         PUBLIC_KEY_LENGTH);
                         EVP_DigestFinal_ex(shactx2, hash, NULL);
+                        // init_ex2とcopy_exってどっちが早いんやろうな？
+                        // 全部コピーするからcopy_exのほうが遅いのかもしれん
                         EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
                         EVP_DigestUpdate(ripectx, hash, 64);
                         EVP_DigestFinal_ex(ripectx, hash, NULL);
@@ -487,6 +496,12 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
                     }
                 }
             }
+            clock_gettime(CLOCK_MONOTONIC, &finishspec);
+            difftimespec(&diffspec, &finishspec, &startspec);
+#pragma omp critical
+            fprintf(stderr, "%lf addresses/seconds\n",
+                    ((double)CTX_CACHE_SIZE * ENC_NUM * 1000000000UL)
+                        / (diffspec.tv_sec * 1000000000UL + diffspec.tv_nsec));
 #pragma omp barrier
         }
     fail:

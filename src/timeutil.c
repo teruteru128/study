@@ -7,13 +7,14 @@
 
 /**
  * @brief result = time1 - time0
- * 
- * @param result 
- * @param time1 
- * @param time0 
- * @return struct timespec* 
+ *
+ * @param result
+ * @param time1
+ * @param time0
+ * @return struct timespec*
  */
-struct timespec *difftimespec(struct timespec *result, struct timespec *time1, struct timespec *time0)
+struct timespec *difftimespec(struct timespec *result, struct timespec *time1,
+                              struct timespec *time0)
 {
     if ((time1->tv_nsec - time0->tv_nsec) < 0)
     {
@@ -25,5 +26,15 @@ struct timespec *difftimespec(struct timespec *result, struct timespec *time1, s
         result->tv_sec = time1->tv_sec - time0->tv_sec;
         result->tv_nsec = time1->tv_nsec - time0->tv_nsec;
     }
+    // FIXME: どっちのほうがmore betterなんだろうね？
+    /*
+    result->tv_sec = time1->tv_sec - time0->tv_sec;
+    result->tv_nsec = time1->tv_nsec - time0->tv_nsec;
+    if (result->tv_nsec < 0)
+    {
+        result->tv_sec--;
+        result->tv_nsec += 1000000000;
+    }
+    */
     return result;
 }
