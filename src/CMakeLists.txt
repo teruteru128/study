@@ -103,6 +103,11 @@ target_link_libraries(bmkeysearch14 ${OPENSSL_CRYPTO_LIBRARIES} ${CMAKE_THREAD_L
 target_include_directories(bmkeysearch14 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_options(bmkeysearch14 PUBLIC $<$<BOOL:${OpenACC_C_FOUND}>:${OpenACC_C_FLAGS}>)
 
+add_executable(bmkeysearch15 bmkeysearch15.c timeutil.c)
+target_link_libraries(bmkeysearch15 ${OPENSSL_CRYPTO_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} study $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_LIBRARIES}>)
+target_include_directories(bmkeysearch15 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
+target_compile_options(bmkeysearch15 PUBLIC $<$<BOOL:${OpenACC_C_FOUND}>:${OpenACC_C_FLAGS}> $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+
 add_executable(bmmultisendsample bmmultisendsample.c)
 target_link_libraries(bmmultisendsample study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util ${OPENSSL_CRYPTO_LIBRARIES})
 target_include_directories(bmmultisendsample PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)

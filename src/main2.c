@@ -239,5 +239,5 @@ int countdownb(int argc, char **argv)
  */
 int hiho(int argc, char **argv, const char **envp)
 {
-    return searchAddressFromExistingKeys3();
+    return 0;
 }
