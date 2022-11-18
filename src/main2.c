@@ -1,5 +1,6 @@
 
 #define _GNU_SOURCE 1
+#define _DEFAULT_SOURCE 1
 #define OPENSSL_API_COMPAT 0x30000000L
 #define OPENSSL_NO_DEPRECATED 1
 
@@ -13,11 +14,13 @@
 #include "timeutil.h"
 #include <CL/opencl.h>
 #include <bm.h>
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <gmp.h>
 #include <inttypes.h>
 #include <java_random.h>
+#include <jsonrpc-glib.h>
 #include <limits.h>
 #include <math.h>
 #include <netdb.h>
@@ -45,6 +48,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/sysmacros.h>
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
@@ -239,5 +243,35 @@ int countdownb(int argc, char **argv)
  */
 int hiho(int argc, char **argv, const char **envp)
 {
+    if (argc < 2)
+    {
+        return 1;
+    }
+    printf("%s\n", argv[1]);
+    struct stat buf;
+    int fd = open(argv[1], O_RDONLY);
+    if (fd < 0)
+    {
+        return 1;
+    }
+    fstat(fd, &buf);
+    close(fd);
+    printf("ID of device containing file: %lu\n", buf.st_dev);
+    printf("Inode number: %lu\n", buf.st_ino);
+    printf("File type and mode: %03o\n", buf.st_mode);
+    printf("Number of hard links: %lu\n", buf.st_nlink);
+    printf("User ID of owner: %u\n", buf.st_uid);
+    printf("Group ID of owner: %u\n", buf.st_gid);
+    printf("Device ID (if special file): %lu(major: %u, minor: %u)\n",
+           buf.st_rdev, major(buf.st_rdev), minor(buf.st_rdev));
+    printf("Total size, in bytes: %ld\n", buf.st_size);
+    printf("Block size for filesystem I/O : %ld\n", buf.st_size);
+    printf("Number of 512B blocks allocated: %ld\n", buf.st_size);
+    printf("Time of last access: %ld.%09ld\n", buf.st_atim.tv_sec,
+           buf.st_atim.tv_nsec);
+    printf("Time of last modificatio: %ld.%09ld\n", buf.st_mtim.tv_sec,
+           buf.st_mtim.tv_nsec);
+    printf("Time of last status change: %ld.%09ld\n", buf.st_ctim.tv_sec,
+           buf.st_ctim.tv_nsec);
     return 0;
 }

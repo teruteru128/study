@@ -10,6 +10,8 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
+#include <signal.h>
+#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -65,6 +67,16 @@ static int loadPublicKey1(unsigned char *publicKey, const char *path)
     return loadKey1(publicKey, path, 65, 16777216);
 }
 
+static volatile sig_atomic_t running = 1;
+
+static void handler(int sig, siginfo_t *info, void *ctx)
+{
+    running = 0;
+    (void)sig;
+    (void)info;
+    (void)ctx;
+}
+
 static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
 {
     unsigned char *publicKeyGlobal = malloc(16777216UL * 65 * 4);
@@ -102,8 +114,8 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         return 1;
     }
     // sign側のMD_CTXを複数にしてみる
-#pragma omp parallel default(none)                                            \
-    shared(publicKeyGlobal, privateKeyGlobal, sha512, ripemd160, stderr)
+#pragma omp parallel default(none) shared(publicKeyGlobal, privateKeyGlobal,  \
+                                          sha512, ripemd160, stderr, running)
     {
         unsigned char hash[EVP_MAX_MD_SIZE];
         char *address = NULL;
@@ -148,7 +160,8 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
          * --
          * 16スレッドで回すより8スレで回したほうが1スレッドあたりの速度が早いのね……
          */
-        for (; sigglobalindex < ENC_NUM; sigglobalindex += CTX_CACHE_SIZE)
+        for (; running && sigglobalindex < ENC_NUM;
+             sigglobalindex += CTX_CACHE_SIZE)
         {
             clock_gettime(CLOCK_MONOTONIC, &startspec);
             for (sigindex = 0; sigindex < CTX_CACHE_SIZE; sigindex++)
@@ -180,7 +193,7 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
                         EVP_DigestFinal_ex(ripectx, hash, NULL);
                         // GPUで計算するときはハッシュだけGPUで計算して
                         // チェックとフォーマットはCPUでやったほうがいいのかなあ？
-                        // htobe64(*(unsigned long *)hash) ==
+                        // htobe64(*(unsigned long *)hash) &
                         // 0xffffffffffff0000UL
                         if ((*(unsigned long *)hash) & 0x0000ffffffffffffUL)
                         {
@@ -218,18 +231,53 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
     return 0;
 }
 
+#if 0
+// アドレスripe比較用(qsort_r 向け)コンパレータ
+int compar(const void *a, const void *b, void *arg)
+{
+    unsigned long d = *(unsigned long *)a - *(unsigned long *)b;
+    if (d < 0)
+    {
+        return 1;
+    }
+    else if (d == 0)
+    {
+        return memcmp(a, b, 20);
+    }
+    else
+    {
+        return -1;
+    }
+}
+#endif
+
 int searchAddressFromExistingKeys3()
 {
     OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
     OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
     EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
     EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
-    dappunda(sha512, ripemd160);
+    struct sigaction action = { 0 };
+    struct sigaction oact = { 0 };
+    action.sa_flags = SA_SIGINFO;
+    action.sa_sigaction = handler;
+    int ret = EXIT_SUCCESS;
+    if (sigaction(SIGINT, &action, &oact) != 0)
+    {
+        perror("sigaction(SIGINT)");
+        ret = EXIT_FAILURE;
+    }
+    else
+    {
+        fprintf(stderr, "%p\n", action.sa_sigaction);
+        fprintf(stderr, "%p\n", action.sa_handler);
+        dappunda(sha512, ripemd160);
+    }
     EVP_MD_free(sha512);
     EVP_MD_free(ripemd160);
     OSSL_PROVIDER_unload(def);
     OSSL_PROVIDER_unload(legacy);
-    return 0;
+    return ret;
 }
 
 int main(int argc, char const *argv[])

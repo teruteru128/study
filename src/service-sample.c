@@ -101,6 +101,7 @@ int main(int argc, char *argv[])
 {
 
     struct sigaction action = { 0 };
+    action.sa_flags = SA_SIGINFO;
     action.sa_sigaction = handler;
     if (sigaction(SIGINT, &action, NULL) != 0)
     {

@@ -30,6 +30,7 @@ int timerfdsample4(void)
 {
     char *lo = setlocale(LC_ALL, "");
     struct sigaction action = { 0 };
+    action.sa_flags = SA_SIGINFO;
     action.sa_sigaction = handler;
     if (sigaction(SIGINT, &action, NULL) != 0)
     {

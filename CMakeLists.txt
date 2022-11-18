@@ -78,6 +78,11 @@ find_package(PNG REQUIRED)
 if(PNG_FOUND)
 endif(PNG_FOUND)
 
+find_package(PkgConfig REQUIRED)
+if(PKG_CONFIG_FOUND)
+    pkg_check_modules(JSONRPC_GLIB1 REQUIRED jsonrpc-glib-1.0)
+endif()
+
 # see https://cliutils.gitlab.io/modern-cmake/chapters/packages/CUDA.html
 check_language(CUDA)
 if(CMAKE_CUDA_COMPILER)

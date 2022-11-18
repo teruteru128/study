@@ -51,6 +51,7 @@ static int set_signal_handler(void)
 {
     struct sigaction act = { 0 };
     struct sigaction oldact = { 0 };
+    act.sa_flags = SA_SIGINFO;
     act.sa_sigaction = sigint_action;
     int ret = sigaction(SIGINT, &act, &oldact);
     if (ret != 0)

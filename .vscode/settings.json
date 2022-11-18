@@ -233,7 +233,12 @@
         "randomsample.h": "c",
         "pngsample_gennoise.h": "c",
         "mman.h": "c",
-        "countdown.h": "c"
+        "countdown.h": "c",
+        "jsonrpc-client.h": "c",
+        "gio.h": "c",
+        "jsonrpc-version-macros.h": "c",
+        "jsonrpc-glib.h": "c",
+        "span": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
