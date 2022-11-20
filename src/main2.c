@@ -47,8 +47,8 @@
 #include <sys/random.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <sys/sysmacros.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
@@ -241,37 +241,42 @@ int countdownb(int argc, char **argv)
  * @param envp
  * @return int
  */
-int hiho(int argc, char **argv, const char **envp)
+int hiho(int argc, char **argv, const char *const *envp)
 {
-    if (argc < 2)
+    // curl --proxy socks5h://localhost:9050 -I
+    // http://jpchv3cnhonxxtzxiami4jojfnq3xvhccob5x3rchrmftrpbjjlh77qd.onion/tor/154/l5
+    pid_t pid = 0;
+    int status;
+    int ret = 0;
+    while (1)
     {
-        return 1;
+        if ((pid = fork()) < 0)
+        {
+            perror("fork");
+            return 1;
+        }
+        else if (pid == 0)
+        {
+            char *const cmd[]
+                = { "/bin/curl",
+                    "--proxy",
+                    "socks5h://localhost:9050",
+                    "-I",
+                    "http://jpchv3cnhonxxtzxiami4jojfnq3xvhccob5x3rchrmftrpbjjlh77qd.onion/tor/154/l5",
+                    NULL };
+            execve(cmd[0], cmd, (char *const *)envp);
+            perror("execve");
+            exit(127);
+        }
+        else
+        {
+            if ((ret = wait(&status)) < 0)
+            {
+                perror("wait");
+                exit(4);
+            }
+        }
+        sleep(300);
     }
-    printf("%s\n", argv[1]);
-    struct stat buf;
-    int fd = open(argv[1], O_RDONLY);
-    if (fd < 0)
-    {
-        return 1;
-    }
-    fstat(fd, &buf);
-    close(fd);
-    printf("ID of device containing file: %lu\n", buf.st_dev);
-    printf("Inode number: %lu\n", buf.st_ino);
-    printf("File type and mode: %03o\n", buf.st_mode);
-    printf("Number of hard links: %lu\n", buf.st_nlink);
-    printf("User ID of owner: %u\n", buf.st_uid);
-    printf("Group ID of owner: %u\n", buf.st_gid);
-    printf("Device ID (if special file): %lu(major: %u, minor: %u)\n",
-           buf.st_rdev, major(buf.st_rdev), minor(buf.st_rdev));
-    printf("Total size, in bytes: %ld\n", buf.st_size);
-    printf("Block size for filesystem I/O : %ld\n", buf.st_size);
-    printf("Number of 512B blocks allocated: %ld\n", buf.st_size);
-    printf("Time of last access: %ld.%09ld\n", buf.st_atim.tv_sec,
-           buf.st_atim.tv_nsec);
-    printf("Time of last modificatio: %ld.%09ld\n", buf.st_mtim.tv_sec,
-           buf.st_mtim.tv_nsec);
-    printf("Time of last status change: %ld.%09ld\n", buf.st_ctim.tv_sec,
-           buf.st_ctim.tv_nsec);
     return 0;
 }

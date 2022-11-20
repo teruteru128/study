@@ -114,8 +114,9 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         return 1;
     }
     // sign側のMD_CTXを複数にしてみる
-#pragma omp parallel default(none) shared(publicKeyGlobal, privateKeyGlobal,  \
-                                          sha512, ripemd160, stderr, running)
+#pragma omp parallel default(none)                                            \
+    shared(publicKeyGlobal, privateKeyGlobal, sha512, ripemd160, stderr,      \
+           stdout, running)
     {
         unsigned char hash[EVP_MAX_MD_SIZE];
         char *address = NULL;
@@ -205,7 +206,11 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
                         encwif = encodeWIF((PrivateKey *)privateKeyGlobal
                                            + encglobalindex + encindex);
 #pragma omp critical
-                        printf("%s,%s,%s\n", address, sigwif, encwif);
+                        {
+                            fprintf(stdout, "%s,%s,%s\n", address, sigwif,
+                                    encwif);
+                            fflush(stdout);
+                        }
                         free(address);
                         free(sigwif);
                         free(encwif);
@@ -253,6 +258,7 @@ int compar(const void *a, const void *b, void *arg)
 
 int searchAddressFromExistingKeys3()
 {
+    fprintf(stderr, "my pid is %d\n", getpid());
     OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
     OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
     EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
@@ -269,8 +275,6 @@ int searchAddressFromExistingKeys3()
     }
     else
     {
-        fprintf(stderr, "%p\n", action.sa_sigaction);
-        fprintf(stderr, "%p\n", action.sa_handler);
         dappunda(sha512, ripemd160);
     }
     EVP_MD_free(sha512);
