@@ -243,40 +243,19 @@ int countdownb(int argc, char **argv)
  */
 int hiho(int argc, char **argv, const char *const *envp)
 {
-    // curl --proxy socks5h://localhost:9050 -I
-    // http://jpchv3cnhonxxtzxiami4jojfnq3xvhccob5x3rchrmftrpbjjlh77qd.onion/tor/154/l5
-    pid_t pid = 0;
-    int status;
-    int ret = 0;
-    while (1)
+    struct tm t = { 0 };
+    t.tm_mon = 10;
+    t.tm_mday = 20;
+    for (size_t i = 2022; i < 2038; i++)
     {
-        if ((pid = fork()) < 0)
+        t.tm_year = i - 1900;
+        mktime(&t);
+        if (t.tm_wday == 1)
         {
-            perror("fork");
-            return 1;
+            printf("%d/%d/%d is monday!\n", t.tm_year + 1900, t.tm_mon + 1,
+                   t.tm_mday);
         }
-        else if (pid == 0)
-        {
-            char *const cmd[]
-                = { "/bin/curl",
-                    "--proxy",
-                    "socks5h://localhost:9050",
-                    "-I",
-                    "http://jpchv3cnhonxxtzxiami4jojfnq3xvhccob5x3rchrmftrpbjjlh77qd.onion/tor/154/l5",
-                    NULL };
-            execve(cmd[0], cmd, (char *const *)envp);
-            perror("execve");
-            exit(127);
-        }
-        else
-        {
-            if ((ret = wait(&status)) < 0)
-            {
-                perror("wait");
-                exit(4);
-            }
-        }
-        sleep(300);
     }
+
     return 0;
 }
