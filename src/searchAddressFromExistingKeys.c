@@ -86,10 +86,16 @@ int searchAddressFromExistingKeys(int argc, char **argv)
     size_t y;
     size_t i;
     size_t j;
-    EVP_DigestInit_ex2(ctx1, EVP_sha512(), NULL);
-    unsigned char hash[EVP_MAX_MD_SIZE];
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
     EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
+    EVP_DigestInit_ex2(ctx1, sha512, NULL);
+#else
+    const EVP_MD *sha512 = EVP_sha512();
+    EVP_DigestInit_ex(ctx1, sha512, NULL);
+    const EVP_MD *ripemd160 = EVP_ripemd160();
+#endif
+    unsigned char hash[EVP_MAX_MD_SIZE];
     if (ripemd160 == NULL)
     {
         unsigned long err = ERR_get_error();
@@ -113,14 +119,22 @@ int searchAddressFromExistingKeys(int argc, char **argv)
             }
             for (i = 0; i < 1040; i += 65)
             {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
                 EVP_DigestInit_ex2(ctx0, sha512, NULL);
+#else
+                EVP_DigestInit_ex(ctx0, sha512, NULL);
+#endif
                 EVP_DigestUpdate(ctx0, a + i, 65);
                 for (j = 0; j < 1040; j += 65)
                 {
                     EVP_MD_CTX_copy(ctx1, ctx0);
                     EVP_DigestUpdate(ctx1, b + j, 65);
                     EVP_DigestFinal_ex(ctx1, hash, NULL);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
                     EVP_DigestInit_ex2(ctx2, ripemd160, NULL);
+#else
+                    EVP_DigestInit_ex(ctx2, ripemd160, NULL);
+#endif
                     EVP_DigestUpdate(ctx2, hash, 64);
                     EVP_DigestFinal_ex(ctx2, hash, NULL);
                     // hash[0] == 0
@@ -138,10 +152,12 @@ int searchAddressFromExistingKeys(int argc, char **argv)
         }
     }
 finish:
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD_free(sha512);
     EVP_MD_free(ripemd160);
     OSSL_PROVIDER_unload(def);
     OSSL_PROVIDER_unload(legacy);
+#endif
 
     EVP_MD_CTX_free(ctx0);
     EVP_MD_CTX_free(ctx1);
@@ -237,8 +253,10 @@ static int deepdarkfantasy()
     EVP_MD_CTX *shactx1 = NULL;
     EVP_MD_CTX *shactx2 = NULL;
     EVP_MD_CTX *ripectx = NULL;
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
     EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
+#endif
     unsigned char sigbuf[LOCAL_CACHE_NUM * 65];
     unsigned char encbuf[LOCAL_CACHE_NUM * 65];
     unsigned char hash[EVP_MAX_MD_SIZE];
@@ -259,7 +277,11 @@ static int deepdarkfantasy()
         shactx1 = EVP_MD_CTX_new();
         shactx2 = EVP_MD_CTX_new();
         ripectx = EVP_MD_CTX_new();
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
         EVP_DigestInit_ex2(shactx2, sha512, NULL);
+#else
+        EVP_DigestInit_ex(shactx2, sha512, NULL);
+#endif
         while (1)
         {
             // 0で埋めないと高位bitにデータが残ったままになる
@@ -295,7 +317,11 @@ static int deepdarkfantasy()
                          sigindex < LOCAL_CACHE_NUM;
                          sigindex++, sigoffset += 65)
                     {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
                         EVP_DigestInit_ex2(shactx1, sha512, NULL);
+#else
+                        EVP_DigestInit_ex(shactx1, sha512, NULL);
+#endif
                         EVP_DigestUpdate(shactx1, sigbuf + sigoffset, 65);
                         for (encindex = 0, encoffset = 0;
                              encindex < LOCAL_CACHE_NUM;
@@ -304,7 +330,11 @@ static int deepdarkfantasy()
                             EVP_MD_CTX_copy_ex(shactx2, shactx1);
                             EVP_DigestUpdate(shactx2, encbuf + encoffset, 65);
                             EVP_DigestFinal_ex(shactx2, hash, NULL);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
                             EVP_DigestInit_ex2(ripectx, ripemd160, NULL);
+#else
+                            EVP_DigestInit_ex(ripectx, ripemd160, NULL);
+#endif
                             EVP_DigestUpdate(ripectx, hash, 64);
                             EVP_DigestFinal_ex(ripectx, hash, NULL);
                             // GPUで計算するときはハッシュだけGPUで計算して
@@ -340,8 +370,10 @@ static int deepdarkfantasy()
         EVP_MD_CTX_free(ripectx);
     }
 finish:
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD_free(sha512);
     EVP_MD_free(ripemd160);
+#endif
 
     free(publicKeyGlobal);
     munmap(privateKeyGlobal, 536870912UL);
@@ -350,10 +382,14 @@ finish:
 
 int searchAddressFromExistingKeys2()
 {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
     OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
+#endif
     deepdarkfantasy();
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     OSSL_PROVIDER_unload(def);
     OSSL_PROVIDER_unload(legacy);
+#endif
     return 0;
 }
