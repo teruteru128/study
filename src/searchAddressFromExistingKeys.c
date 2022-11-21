@@ -256,6 +256,14 @@ static int deepdarkfantasy()
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
     EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
+    if (ripemd160 == NULL)
+    {
+        fprintf(stderr, "ripemd160 is not found\n");
+        return 1;
+    }
+#else
+    const EVP_MD *sha512 = EVP_sha512();
+    const EVP_MD *ripemd160 = EVP_ripemd160();
 #endif
     unsigned char sigbuf[LOCAL_CACHE_NUM * 65];
     unsigned char encbuf[LOCAL_CACHE_NUM * 65];
@@ -263,11 +271,6 @@ static int deepdarkfantasy()
     char *address = NULL;
     char *sigwif = NULL;
     char *encwif = NULL;
-    if (ripemd160 == NULL)
-    {
-        fprintf(stderr, "ripemd160 is not found\n");
-        return 1;
-    }
     size_t count = 0;
 #pragma omp parallel private(sigglobalindex, sigglobalindexmax, sigindex,     \
                              sigoffset, encglobalindex, encglobalindexmax,    \
