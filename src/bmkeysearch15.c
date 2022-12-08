@@ -10,6 +10,7 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
+#include <regex.h>
 #include <signal.h>
 #include <stdatomic.h>
 #include <stdio.h>
@@ -57,7 +58,6 @@ static int loadKey1(unsigned char *publicKey, const char *path, size_t size,
 
 static int loadPrivateKey1(unsigned char *publicKey, const char *path)
 {
-    // public keyは頻繁に使うのでメモリに読み込んでおく
     return loadKey1(publicKey, path, 32, 16777216);
 }
 
@@ -113,10 +113,18 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         perror("privatekey");
         return 1;
     }
+    regex_t reg = { 0 };
+    int ret
+        = regcomp(&reg, ".*jpchv3.*", REG_EXTENDED | REG_ICASE | REG_NOSUB);
+    if (ret != 0)
+    {
+        perror("regcomp");
+        return EXIT_FAILURE;
+    }
     // sign側のMD_CTXを複数にしてみる
 #pragma omp parallel default(none)                                            \
     shared(publicKeyGlobal, privateKeyGlobal, sha512, ripemd160, stderr,      \
-           stdout, running)
+           stdout, running, reg)
     {
         unsigned char hash[EVP_MAX_MD_SIZE];
         char *address = NULL;
@@ -153,17 +161,8 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         // 128 を 8スレ-> 10分
         // 1536-256=1280 を 8スレ-> 100分
         /*
-         * 128 8スレ 10分
-         * 16 1スレ 10分
-         * 60 1スレ 60分
-         * 960 16スレ 60分
-         * 12480 16スレ 13時間
-         * 19968 16スレ 20時間48分
-         * --
-         * 1280 8スレ 100分
-         * 768 8スレ 60分
-         * 1536 16スレ 60分
-         * --
+         *  8スレッド: 864901.441618 addresses/seconds
+         * 16スレッド: 701640.168877 addresses/seconds
          * 16スレッドで回すより8スレで回したほうが1スレッドあたりの速度が早いのね……
          */
         for (; running && sigglobalindex < ENC_NUM;
@@ -182,6 +181,7 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
                                      + sigindex,
                                  PUBLIC_KEY_LENGTH);
             }
+            // ここでparallel forを切ってもいいのかもしれない
             for (encglobalindex = 0; encglobalindex < ENC_NUM;
                  encglobalindex += ENC_CACHE_SIZE)
             {
@@ -207,13 +207,33 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
                         EVP_DigestFinal_ex(ripectx, hash, NULL);
                         // GPUで計算するときはハッシュだけGPUで計算して
                         // チェックとフォーマットはCPUでやったほうがいいのかなあ？
-                        // htobe64(*(unsigned long *)hash) &
-                        // 0xffffffffffff0000UL
-                        if ((*(unsigned long *)hash) & 0x0000ffffffffffffUL)
+                        if (*hash)
                         {
                             continue;
                         }
                         address = encodeV4Address(hash, 20);
+                        if (regexec(&reg, address, 0, NULL, 0) == 0)
+                        {
+                            sigwif = encodeWIF((PrivateKey *)privateKeyGlobal
+                                               + sigglobalindex + sigindex);
+                            encwif = encodeWIF((PrivateKey *)privateKeyGlobal
+                                               + encglobalindex + encindex);
+#pragma omp critical
+                            {
+                                fprintf(stdout, "%s,%s,%s\n", address, sigwif,
+                                        encwif);
+                                fflush(stdout);
+                            }
+                            free(sigwif);
+                            free(encwif);
+                        }
+                        // htobe64(*(unsigned long *)hash) &
+                        // 0xffffffffffff0000UL
+                        if ((*(unsigned long *)hash) & 0x0000ffffffffffffUL)
+                        {
+                            free(address);
+                            continue;
+                        }
                         sigwif = encodeWIF((PrivateKey *)privateKeyGlobal
                                            + sigglobalindex + sigindex);
                         encwif = encodeWIF((PrivateKey *)privateKeyGlobal
@@ -232,6 +252,7 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
             }
             clock_gettime(CLOCK_MONOTONIC, &finishspec);
             difftimespec(&diffspec, &finishspec, &startspec);
+            // FIXME maybe overflow
 #pragma omp critical
             fprintf(stderr, "%lf addresses/seconds\n",
                     ((double)CTX_CACHE_SIZE * ENC_NUM * 1000000000UL)
@@ -246,6 +267,7 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         EVP_MD_CTX_free(shactx2);
         EVP_MD_CTX_free(ripectx);
     }
+    regfree(&reg);
     return 0;
 }
 

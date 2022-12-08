@@ -243,19 +243,6 @@ int countdownb(int argc, char **argv)
  */
 int hiho(int argc, char **argv, const char *const *envp)
 {
-    struct tm t = { 0 };
-    t.tm_mon = 10;
-    t.tm_mday = 20;
-    for (size_t i = 2022; i < 2038; i++)
-    {
-        t.tm_year = i - 1900;
-        mktime(&t);
-        if (t.tm_wday == 1)
-        {
-            printf("%d/%d/%d is monday!\n", t.tm_year + 1900, t.tm_mon + 1,
-                   t.tm_mday);
-        }
-    }
-
+    printf("%lf\n", sin(M_PI * 39 / 180));
     return 0;
 }

@@ -20,8 +20,8 @@ int gengradation(int argc, char *argv[])
     c2.green = 147;
     c2.blue = 236;
     struct IHDR ihdr = { 0 };
-    ihdr.width = 1920 * 4;
-    ihdr.height = 1080 * 4;
+    ihdr.width = 512;
+    ihdr.height = 512;
     ihdr.bit_depth = 8;
     ihdr.color_type = PNG_COLOR_TYPE_RGB;
     ihdr.interlace_method = PNG_INTERLACE_NONE;
