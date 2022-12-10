@@ -15,6 +15,7 @@
 #include <CL/opencl.h>
 #include <bm.h>
 #include <ctype.h>
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <gmp.h>
@@ -205,6 +206,11 @@ int countdownb(int argc, char **argv)
     return 0;
 }
 
+static int filter(const struct dirent *ent)
+{
+    return strcmp(ent->d_name, ".git") != 0;
+}
+
 /**
  * @brief
  * 秘密鍵かな？
@@ -243,6 +249,21 @@ int countdownb(int argc, char **argv)
  */
 int hiho(int argc, char **argv, const char *const *envp)
 {
-    printf("%lf\n", sin(M_PI * 39 / 180));
+    struct dirent **namelist = NULL;
+    int entnum
+        = scandir("/home/teruteru128/git/study", &namelist, filter, versionsort);
+    if (entnum == -1)
+    {
+        return EXIT_FAILURE;
+    }
+    printf("%d\n", entnum);
+    printf("--\n");
+    for (size_t i = 0; i < entnum; i++)
+    {
+        printf("%s\n", namelist[i]->d_name);
+        free(namelist[i]);
+        namelist[i] = NULL;
+    }
+    free(namelist);
     return 0;
 }
