@@ -113,18 +113,10 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         perror("privatekey");
         return 1;
     }
-    regex_t reg = { 0 };
-    int ret
-        = regcomp(&reg, ".*jpchv3.*", REG_EXTENDED | REG_ICASE | REG_NOSUB);
-    if (ret != 0)
-    {
-        perror("regcomp");
-        return EXIT_FAILURE;
-    }
     // sign側のMD_CTXを複数にしてみる
 #pragma omp parallel default(none)                                            \
     shared(publicKeyGlobal, privateKeyGlobal, sha512, ripemd160, stderr,      \
-           stdout, running, reg)
+           stdout, running)
     {
         unsigned char hash[EVP_MAX_MD_SIZE];
         char *address = NULL;
@@ -207,33 +199,13 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
                         EVP_DigestFinal_ex(ripectx, hash, NULL);
                         // GPUで計算するときはハッシュだけGPUで計算して
                         // チェックとフォーマットはCPUでやったほうがいいのかなあ？
-                        if (*hash)
-                        {
-                            continue;
-                        }
-                        address = encodeV4Address(hash, 20);
-                        if (regexec(&reg, address, 0, NULL, 0) == 0)
-                        {
-                            sigwif = encodeWIF((PrivateKey *)privateKeyGlobal
-                                               + sigglobalindex + sigindex);
-                            encwif = encodeWIF((PrivateKey *)privateKeyGlobal
-                                               + encglobalindex + encindex);
-#pragma omp critical
-                            {
-                                fprintf(stdout, "%s,%s,%s\n", address, sigwif,
-                                        encwif);
-                                fflush(stdout);
-                            }
-                            free(sigwif);
-                            free(encwif);
-                        }
                         // htobe64(*(unsigned long *)hash) &
                         // 0xffffffffffff0000UL
                         if ((*(unsigned long *)hash) & 0x0000ffffffffffffUL)
                         {
-                            free(address);
                             continue;
                         }
+                        address = encodeV4Address(hash, 20);
                         sigwif = encodeWIF((PrivateKey *)privateKeyGlobal
                                            + sigglobalindex + sigindex);
                         encwif = encodeWIF((PrivateKey *)privateKeyGlobal
@@ -267,7 +239,6 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         EVP_MD_CTX_free(shactx2);
         EVP_MD_CTX_free(ripectx);
     }
-    regfree(&reg);
     return 0;
 }
 
