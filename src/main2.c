@@ -258,9 +258,10 @@ int hiho(int argc, char **argv, const char *const *envp)
     }
     printf("%d\n", entnum);
     printf("--\n");
+    printf("%p\n", namelist);
     for (size_t i = 0; i < entnum; i++)
     {
-        printf("%s\n", namelist[i]->d_name);
+        printf("%p, %s\n", namelist[i], namelist[i]->d_name);
         free(namelist[i]);
         namelist[i] = NULL;
     }
