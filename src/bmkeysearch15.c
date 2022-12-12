@@ -142,9 +142,9 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         size_t encglobalindex = 0;
         size_t encoffset = 0;
         size_t sigglobalindex = 0;
-        struct timespec startspec;
-        struct timespec finishspec;
-        struct timespec diffspec;
+        double startwtime;
+        double finishwtime;
+        double diffwtime;
         if (getrandom(&sigglobalindex, 3, 0) != 3)
         {
             goto fail;
@@ -160,7 +160,7 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         for (; running && sigglobalindex < ENC_NUM;
              sigglobalindex += CTX_CACHE_SIZE)
         {
-            clock_gettime(CLOCK_MONOTONIC, &startspec);
+            startwtime = omp_get_wtime();
             for (sigindex = 0; sigindex < CTX_CACHE_SIZE; sigindex++)
             {
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
@@ -222,13 +222,11 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
                     }
                 }
             }
-            clock_gettime(CLOCK_MONOTONIC, &finishspec);
-            difftimespec(&diffspec, &finishspec, &startspec);
-            // FIXME maybe overflow
+            finishwtime = omp_get_wtime();
+            diffwtime = finishwtime - startwtime;
 #pragma omp critical
             fprintf(stderr, "%lf addresses/seconds\n",
-                    ((double)CTX_CACHE_SIZE * ENC_NUM * 1000000000UL)
-                        / (diffspec.tv_sec * 1000000000UL + diffspec.tv_nsec));
+                    ((double)CTX_CACHE_SIZE * ENC_NUM) / diffwtime);
 #pragma omp barrier
         }
     fail:
