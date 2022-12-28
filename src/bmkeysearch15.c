@@ -199,9 +199,9 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
                         EVP_DigestFinal_ex(ripectx, hash, NULL);
                         // GPUで計算するときはハッシュだけGPUで計算して
                         // チェックとフォーマットはCPUでやったほうがいいのかなあ？
-                        // htobe64(*(unsigned long *)hash) &
+                        // be64toh(*(unsigned long *)hash) &
                         // 0xffffffffffff0000UL
-                        if ((*(unsigned long *)hash) & 0x0000ffffffffffffUL)
+                        if ((*(unsigned long *)hash) & 0x000000ffffffffffUL)
                         {
                             continue;
                         }
@@ -225,7 +225,7 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
             finishwtime = omp_get_wtime();
             diffwtime = finishwtime - startwtime;
 #pragma omp critical
-            fprintf(stderr, "%lf addresses/seconds\n",
+            fprintf(stderr, "%lf seconds, %lf addresses/seconds\n", diffwtime,
                     ((double)CTX_CACHE_SIZE * ENC_NUM) / diffwtime);
 #pragma omp barrier
         }
