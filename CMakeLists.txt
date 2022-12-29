@@ -52,6 +52,11 @@ if(OPENSSL_FOUND)
 #    include_directories(${OPENSSL_INCLUDE_DIR})
 endif(OPENSSL_FOUND)
 
+find_package(GnuTLS REQUIRED)
+if(GNUTLS_FOUND)
+#    include_directories(${GNUTLS_INCLUDE_DIR})
+endif(GNUTLS_FOUND)
+
 find_package(PostgreSQL REQUIRED)
 if(PostgreSQL_FOUND)
 #    include_directories(${PostgreSQL_INCLUDE_DIRS})
