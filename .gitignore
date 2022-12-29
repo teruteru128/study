@@ -198,3 +198,5 @@ keys.txt
 *.sql
 imaginaryaddress.txt
 keys/
+config/
+!config/CMakeLists.txt
