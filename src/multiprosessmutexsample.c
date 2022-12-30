@@ -10,8 +10,8 @@ int main(int argc, char const *argv[])
 {
     size_t pagesize = sysconf(_SC_PAGESIZE);
     // pagesize単位で切り上げ, 切り上げ部分はマクロ化してもいいかも
-    size_t mapping_size
-        = ((sizeof(pthread_mutex_t) + pagesize - 1) / pagesize) * pagesize;
+    // size_t mapping_size = ((sizeof(pthread_mutex_t) + pagesize - 1) / pagesize) * pagesize;
+    size_t mapping_size = sizeof(pthread_mutex_t);
     // プロセスをまたいだmutexとかはmmap必須なんですかね？
     pthread_mutex_t *mutex = mmap(NULL, mapping_size, PROT_READ | PROT_WRITE,
                                   MAP_ANONYMOUS | MAP_SHARED, -1, 0);
@@ -31,6 +31,7 @@ int main(int argc, char const *argv[])
     pthread_mutex_init(mutex, &mutexattr);
     // mutexのinitが終わったらattrは破棄してしまってもいいのだろうか？
     // "linuxの実装では"なにもしないので破棄してもしなくても変わらない
+    // mutexからattrを参照してるかもしれないのが怖いんだよなぁ……
     pthread_mutexattr_destroy(&mutexattr);
 
     pid_t p = fork();

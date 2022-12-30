@@ -84,25 +84,41 @@
  */
 int hiho(int argc, char **argv, const char *const *envp)
 {
-    size_t j = 0;
-    for (size_t i = 0;; i++)
+    pid_t pid = fork();
+    if (pid < 0)
     {
-        j = (i + 1) * 3;
-        if ((j - (i * 10 + 9) * log10(2)) < ((i * 10 + 10) * log10(2) - j))
-        {
-            printf("%ld\n", i * 10 + 9);
-            break;
-        }
+        perror("fork");
+        exit(255);
     }
-    for (size_t i = 0;; i++)
+    else if (pid == 0)
     {
-        j = (i + 1) * 3;
-        if (j < (i * 10 + 9) * log10(2))
-        {
-            printf("%ld\n", i * 10 + 9);
-            break;
-        }
+        sleep(1);
+        printf("うんちー！\n");
+        return 12;
+    }
+    // 親プロセス
+    printf("parent process start\n");
+
+    int status;
+    pid_t r = waitpid(pid, &status,
+                      0); // 子プロセスのプロセスIDを指定して、終了を待つ
+    if (r < 0)
+    {
+        perror("waitpid");
+        exit(-1);
+    }
+    printf("%04x\n", status);
+    if (WIFEXITED(status))
+    {
+        // 子プロセスが正常終了の場合
+        int exit_code = WEXITSTATUS(status); // 子プロセスの終了コード
+        printf("child exit-code=%d\n", exit_code);
+    }
+    else
+    {
+        printf("child status=%04x\n", status);
     }
 
+    printf("parent process end\n");
     return 0;
 }

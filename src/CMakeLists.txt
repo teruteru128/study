@@ -211,6 +211,10 @@ add_executable(dayofweeksearcher dayofweeksearcher.c)
 add_executable(deadlocksample deadlocksample.c)
 target_link_libraries(deadlocksample ${CMAKE_THREAD_LIBS_INIT})
 
+add_executable(deterministicaddressgenerator deterministicaddressgenerator.c)
+target_link_libraries(deterministicaddressgenerator study)
+target_include_directories(deterministicaddressgenerator PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
+
 add_executable(dice dice.c)
 
 add_executable(dicetohex dicetohex.c)
