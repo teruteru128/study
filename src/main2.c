@@ -36,6 +36,7 @@
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include <openssl/sha.h>
+#include <printaddrinfo.h>
 #include <regex.h>
 #include <signal.h>
 #include <stdatomic.h>
@@ -84,41 +85,63 @@
  */
 int hiho(int argc, char **argv, const char *const *envp)
 {
-    pid_t pid = fork();
-    if (pid < 0)
+    char inputpath[PATH_MAX];
+    char outputpath[PATH_MAX];
+    EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
+    unsigned char rawpubkey[65];
+    FILE *outputf = NULL;
+    int inputfd = -1;
+    unsigned char *prikey = NULL;
+    unsigned char *pubkey = mmap(NULL, 1090519040, PROT_READ | PROT_WRITE,
+                                 MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    for (size_t i = 9; i < 256; i++)
     {
-        perror("fork");
-        exit(255);
+        snprintf(inputpath, PATH_MAX, "/mnt/d/keys/private/privateKeys%zu.bin",
+                 i);
+        snprintf(outputpath, PATH_MAX, "/mnt/d/keys/public/publicKeys%zu.bin",
+                 i);
+        inputfd = open(inputpath, O_RDONLY);
+        outputf = fopen(outputpath, "w");
+        if (inputfd < 0 || outputf == NULL)
+        {
+            perror("open");
+            break;
+        }
+        prikey = mmap(NULL, 536870912, PROT_READ, MAP_PRIVATE, inputfd, 0);
+        close(inputfd);
+        if (prikey == (void *)-1 || pubkey == (void *)-1)
+        {
+            perror("mmap");
+            break;
+        }
+#pragma omp parallel default(none) shared(secp256k1, prikey, pubkey)
+        {
+            BN_CTX *ctx = BN_CTX_new();
+            BN_CTX_start(ctx);
+            BIGNUM *prikeybn = BN_CTX_get(ctx);
+            EC_POINT *pubkeyp = EC_POINT_new(secp256k1);
+#pragma omp for
+            for (size_t j = 0; j < 16777216; j++)
+            {
+                BN_bin2bn(prikey + (j << 5), 32, prikeybn);
+                EC_POINT_mul(secp256k1, pubkeyp, prikeybn, NULL, NULL, ctx);
+                EC_POINT_point2oct(secp256k1, pubkeyp,
+                                   POINT_CONVERSION_UNCOMPRESSED,
+                                   pubkey + ((j << 6) + j), 65, ctx);
+            }
+            BN_CTX_end(ctx);
+            BN_CTX_free(ctx);
+            EC_POINT_free(pubkeyp);
+        }
+        fwrite(pubkey, 65, 16777216, outputf);
+        munmap(prikey, 536870912);
+        fclose(outputf);
+        printf("%zu終わり\n", i);
+        memset(inputpath, 0, PATH_MAX);
+        memset(outputpath, 0, PATH_MAX);
     }
-    else if (pid == 0)
-    {
-        sleep(1);
-        printf("うんちー！\n");
-        return 12;
-    }
-    // 親プロセス
-    printf("parent process start\n");
+    munmap(pubkey, 1090519040);
+    EC_GROUP_free(secp256k1);
 
-    int status;
-    pid_t r = waitpid(pid, &status,
-                      0); // 子プロセスのプロセスIDを指定して、終了を待つ
-    if (r < 0)
-    {
-        perror("waitpid");
-        exit(-1);
-    }
-    printf("%04x\n", status);
-    if (WIFEXITED(status))
-    {
-        // 子プロセスが正常終了の場合
-        int exit_code = WEXITSTATUS(status); // 子プロセスの終了コード
-        printf("child exit-code=%d\n", exit_code);
-    }
-    else
-    {
-        printf("child status=%04x\n", status);
-    }
-
-    printf("parent process end\n");
     return 0;
 }
