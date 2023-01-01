@@ -28,15 +28,14 @@ int main(int argc, char const *argv[])
     unsigned char *prikey = NULL;
     unsigned char *pubkey = mmap(NULL, 1090519040, PROT_READ | PROT_WRITE,
                                  MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-    for (size_t i = 37; i < 256; i++)
+    for (size_t i = 8; i < 256; i++)
     {
         snprintf(inputpath, PATH_MAX, "/mnt/d/keys/private/privateKeys%zu.bin",
                  i);
         snprintf(outputpath, PATH_MAX, "/mnt/d/keys/public/publicKeys%zu.bin",
                  i);
         inputfd = open(inputpath, O_RDONLY);
-        outputf = fopen(outputpath, "w");
-        if (inputfd < 0 || outputf == NULL)
+        if (inputfd < 0)
         {
             perror("open");
             break;
@@ -66,6 +65,12 @@ int main(int argc, char const *argv[])
             BN_CTX_end(ctx);
             BN_CTX_free(ctx);
             EC_POINT_free(pubkeyp);
+        }
+        outputf = fopen(outputpath, "w");
+        if (outputf == NULL)
+        {
+            perror("fopen");
+            break;
         }
         fwrite(pubkey, 65, 16777216, outputf);
         munmap(prikey, 536870912);
