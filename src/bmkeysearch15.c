@@ -212,8 +212,11 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
                                            + encglobalindex + encindex);
 #pragma omp critical
                         {
-                            fprintf(stdout, "%s,%s,%s,%ld\n", address, sigwif,
-                                    encwif, time(NULL));
+                            fprintf(
+                                stdout, "%s,%s,%s,%d,%ld\n", address, sigwif,
+                                encwif,
+                                __builtin_clzl(be64toh(*(unsigned long *)hash)),
+                                time(NULL));
                             fflush(stdout);
                         }
                         free(address);

@@ -330,6 +330,10 @@ target_link_libraries(json-c_test json-c)
 
 add_executable(kana kana.c)
 
+add_executable(keyconvert keyconvert.c)
+target_link_libraries(keyconvert ${OPENSSL_CRYPTO_LIBRARIES} study $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_LIBRARIES}>)
+target_compile_options(keyconvert PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+
 add_executable(keypairgenerator keypairgenerator.c)
 target_link_libraries(keypairgenerator ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_CRYPTO_LIBRARIES} uuid)
 target_include_directories(keypairgenerator PRIVATE ${OPENSSL_INCLUDE_DIR})
