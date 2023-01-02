@@ -362,10 +362,42 @@ add_executable(logging-sample logging-sample.c)
 
 add_executable(loop-bench loop-bench.c)
 
-add_executable(main countdown2038.c countdown.c timeutil.c finddiffinnumofdigits.c main.cpp main2.c pngreadwrite.c pngsample_gennoise.c pngsample_gradation.c roulette.c searchAddressFromExistingKeys.c randomsample.c)
+add_executable(main
+                countdown2038.c
+                countdown.c
+                timeutil.c
+                finddiffinnumofdigits.c
+                main.cpp
+                main2.c
+                pngreadwrite.c
+                pngsample_gennoise.c
+                pngsample_gradation.c
+                roulette.c
+                searchAddressFromExistingKeys.c
+                randomsample.c
+              )
 target_compile_definitions(main PRIVATE CL_TARGET_OPENCL_VERSION=220)
-target_include_directories(main PRIVATE ${PNG_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/libstudy/include $<$<BOOL:${OpenCL_FOUND}>:${OpenCL_INCLUDE_DIRS}> $<$<BOOL:${JSONRPC_GLIB1_FOUND}>:${JSONRPC_GLIB1_INCLUDE_DIRS}> ${CURL_INCLUDE_DIRS})
-target_link_libraries(main study m xmlrpc xmlrpc_client ${OPENSSL_CRYPTO_LIBRARIES} $<$<BOOL:${PNG_FOUND}>:${PNG_LIBRARIES}> gmp $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_LIBRARIES}> $<$<BOOL:${OpenCL_FOUND}>:${OpenCL_LIBRARIES}> $<$<BOOL:${JPEG_FOUND}>:${JPEG_LIBRARIES}> $<$<BOOL:${JSONRPC_GLIB1_FOUND}>:${JSONRPC_GLIB1_LIBRARIES}> ${CURL_LIBRARIES})
+target_include_directories(main PRIVATE
+                            ${PNG_INCLUDE_DIRS}
+                            ${PROJECT_SOURCE_DIR}/libstudy/include
+                            $<$<BOOL:${OpenCL_FOUND}>:${OpenCL_INCLUDE_DIRS}>
+                            $<$<BOOL:${JSONRPC_GLIB1_FOUND}>:${JSONRPC_GLIB1_INCLUDE_DIRS}>
+                            $<$<BOOL:${CURL_FOUND}>:${CURL_INCLUDE_DIRS}>
+                          )
+target_link_libraries(main
+                        study
+                        m
+                        xmlrpc
+                        xmlrpc_client
+                        ${OPENSSL_CRYPTO_LIBRARIES}
+                        $<$<BOOL:${PNG_FOUND}>:${PNG_LIBRARIES}>
+                        gmp
+                        $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_LIBRARIES}>
+                        $<$<BOOL:${OpenCL_FOUND}>:${OpenCL_LIBRARIES}>
+                        $<$<BOOL:${JPEG_FOUND}>:${JPEG_LIBRARIES}>
+                        $<$<BOOL:${JSONRPC_GLIB1_FOUND}>:${JSONRPC_GLIB1_LIBRARIES}>
+                        $<$<BOOL:${CURL_FOUND}>:${CURL_LIBRARIES}>
+                     )
 target_compile_options(main PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 
 add_executable(mappingsample mappingsample.c)
