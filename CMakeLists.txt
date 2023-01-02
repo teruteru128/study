@@ -1,7 +1,7 @@
 # https://qiita.com/shohirose/items/45fb49c6b429e8b204ac
 # https://qiita.com/shohirose/items/637f4b712893764a7ec1
 # https://qiita.com/shohirose/items/d2b9c595a37b27ece607
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.7.0)
 project(study VERSION 1.0.5 LANGUAGES C CXX)
 
 include(CheckLanguage)
@@ -175,7 +175,7 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.19")
 include(CheckSourceCompiles)
 check_source_compiles(C "int main(){__builtin_clzl(1);return 0;}" HAVE___BUILTIN_CLZL)
 else()
-message("やってないぜ。")
+message(WARNING "やってないぜ。")
 endif()
 
 #include_directories(${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/libstudy/include ${CMAKE_CURRENT_SOURCE_DIR})

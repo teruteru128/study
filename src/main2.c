@@ -15,6 +15,7 @@
 #include <CL/opencl.h>
 #include <bm.h>
 #include <ctype.h>
+#include <curl/curl.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -85,5 +86,35 @@
  */
 int hiho(int argc, char **argv, const char *const *envp)
 {
+    CURLcode ret;
+    curl_global_init(CURL_GLOBAL_SSL);
+    CURL *hnd = curl_easy_init();
+    if (hnd)
+    {
+        curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
+        curl_easy_setopt(
+            hnd, CURLOPT_URL,
+            "http://"
+            "5b7lrclibipnhlrh6gubuvn5yojfmtchthvi2onxaqtc34vje53tldid"
+            ".onion/black2/");
+        curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
+        curl_easy_setopt(hnd, CURLOPT_NOBODY, 1L);
+        curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "HEAD");
+        curl_easy_setopt(hnd, CURLOPT_PROXY, "socks5h://localhost:9050");
+        curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/7.68.0");
+        curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
+        curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION,
+                         (long)CURL_HTTP_VERSION_2TLS);
+        curl_easy_setopt(hnd, CURLOPT_SSH_KNOWNHOSTS,
+                         "/home/teruteru128/.ssh/known_hosts");
+        curl_easy_setopt(hnd, CURLOPT_FILETIME, 1L);
+        curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
+        curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
+        ret = curl_easy_perform(hnd);
+        curl_easy_cleanup(hnd);
+        hnd = NULL;
+    }
+    curl_global_cleanup();
+
     return 0;
 }
