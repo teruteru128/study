@@ -46,11 +46,19 @@ int main(int argc, char const *argv[])
         deriviedPrivateKey(encryptPrivateKey, argv[1], encryptionKeyNonce);
         getPublicKey(&signing, (PrivateKey *)signingPrivateKey);
         getPublicKey(&encrypt, (PrivateKey *)encryptPrivateKey);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
         EVP_DigestInit_ex2(ctx, sha512, NULL);
+#else
+        EVP_DigestInit_ex(ctx, sha512, NULL);
+#endif
         EVP_DigestUpdate(ctx, signing, 65);
         EVP_DigestUpdate(ctx, encrypt, 65);
         EVP_DigestFinal_ex(ctx, hash, NULL);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
         EVP_DigestInit_ex2(ctx, ripemd160, NULL);
+#else
+        EVP_DigestInit_ex(ctx, ripemd160, NULL);
+#endif
         EVP_DigestUpdate(ctx, hash, 64);
         EVP_DigestFinal_ex(ctx, hash, NULL);
         if (hash[0] == 0)
