@@ -212,11 +212,11 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
                                            + encglobalindex + encindex);
 #pragma omp critical
                         {
-                            fprintf(
-                                stdout, "%s,%s,%s,%d,%ld\n", address, sigwif,
-                                encwif,
-                                __builtin_clzl(be64toh(*(unsigned long *)hash)),
-                                time(NULL));
+                            fprintf(stdout, "%s,%s,%s,%d,%ld\n", address,
+                                    sigwif, encwif,
+                                    __builtin_clzl(
+                                        be64toh(*(unsigned long *)hash)),
+                                    time(NULL));
                             fflush(stdout);
                         }
                         free(address);
@@ -228,9 +228,11 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
             finishwtime = omp_get_wtime();
             diffwtime = finishwtime - startwtime;
 #pragma omp critical
-            fprintf(stderr, "%lf seconds, %lf addresses/seconds\n", diffwtime,
-                    ((double)CTX_CACHE_SIZE * ENC_NUM) / diffwtime);
-#pragma omp barrier
+            {
+                fprintf(stderr, "%lf seconds, %lf addresses/seconds\n",
+                        diffwtime,
+                        ((double)CTX_CACHE_SIZE * ENC_NUM) / diffwtime);
+            }
         }
     fail:
         for (size_t i = 0; i < CTX_CACHE_SIZE; i++)

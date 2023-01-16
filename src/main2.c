@@ -17,6 +17,7 @@
 #include <ctype.h>
 #include <curl/curl.h>
 #include <dirent.h>
+#include <endian.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <gmp.h>
@@ -65,6 +66,11 @@
 #include <openssl/types.h>
 #endif
 
+#define IN                                                                    \
+    "MEwDAgcAAgEgAiEA7Vo1+"                                                   \
+    "Orf2xuuu6hTPAPldSfrUZZ7WYAzpRcO5DoYFLoCIF1JKVBctOGvMOy495O/"             \
+    "BWFuFEYH4i1f6vU0b9+a64RD"
+
 /**
  * @brief
  * ↓2回連続getFloatで-1が出るseed 2つ
@@ -86,35 +92,83 @@
  */
 int hiho(int argc, char **argv, const char *const *envp)
 {
-    CURLcode ret;
-    curl_global_init(CURL_GLOBAL_SSL);
-    CURL *hnd = curl_easy_init();
-    if (hnd)
+    const EVP_MD *sha1 = EVP_sha1();
+    EVP_MD_CTX *ctx[5];
+
+    EVP_MD_CTX *ctx0 = EVP_MD_CTX_new();
+    EVP_MD_CTX *ctx1 = EVP_MD_CTX_new();
+    EVP_MD_CTX *ctx2 = EVP_MD_CTX_new();
+    EVP_MD_CTX *ctx3 = EVP_MD_CTX_new();
+    EVP_MD_CTX *ctx4 = EVP_MD_CTX_new();
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    EVP_DigestInit_ex2(ctx0, sha1, NULL);
+    EVP_DigestInit_ex2(ctx1, sha1, NULL);
+    EVP_DigestInit_ex2(ctx2, sha1, NULL);
+    EVP_DigestInit_ex2(ctx3, sha1, NULL);
+    EVP_DigestInit_ex2(ctx4, sha1, NULL);
+#else
+    EVP_DigestInit_ex(ctx0, sha1, NULL);
+    EVP_DigestInit_ex(ctx1, sha1, NULL);
+    EVP_DigestInit_ex(ctx2, sha1, NULL);
+    EVP_DigestInit_ex(ctx3, sha1, NULL);
+    EVP_DigestInit_ex(ctx4, sha1, NULL);
+#endif
+    EVP_DigestUpdate(ctx0, IN, strlen(IN));
+    char buf[5] = "";
+    unsigned char hash[20];
+    size_t len = 0;
+    size_t j = 0;
+    size_t k = 0;
+    size_t l = 0;
+    size_t m = 0;
+    double start = 0;
+    double finish = 0;
+    for (size_t i = 16; i < 17; i++)
     {
-        curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
-        curl_easy_setopt(
-            hnd, CURLOPT_URL,
-            "http://"
-            "5b7lrclibipnhlrh6gubuvn5yojfmtchthvi2onxaqtc34vje53tldid"
-            ".onion/black2/");
-        curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
-        curl_easy_setopt(hnd, CURLOPT_NOBODY, 1L);
-        curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "HEAD");
-        curl_easy_setopt(hnd, CURLOPT_PROXY, "socks5h://localhost:9050");
-        curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/7.68.0");
-        curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
-        curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION,
-                         (long)CURL_HTTP_VERSION_2TLS);
-        curl_easy_setopt(hnd, CURLOPT_SSH_KNOWNHOSTS,
-                         "/home/teruteru128/.ssh/known_hosts");
-        curl_easy_setopt(hnd, CURLOPT_FILETIME, 1L);
-        curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
-        curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
-        ret = curl_easy_perform(hnd);
-        curl_easy_cleanup(hnd);
-        hnd = NULL;
+        EVP_MD_CTX_copy_ex(ctx1, ctx0);
+        len = snprintf(buf, 5, "%zu", i);
+        EVP_DigestUpdate(ctx1, buf, len);
+        for (j = 0; j < 10000; j++)
+        {
+            start = omp_get_wtime();
+            EVP_MD_CTX_copy_ex(ctx2, ctx1);
+            len = snprintf(buf, 5, "%04zu", j);
+            EVP_DigestUpdate(ctx2, buf, len);
+            for (k = 0; k < 10000; k++)
+            {
+                EVP_MD_CTX_copy_ex(ctx3, ctx2);
+                len = snprintf(buf, 5, "%04zu", k);
+                EVP_DigestUpdate(ctx3, buf, len);
+                for (l = 0; l < 10000; l++)
+                {
+                    EVP_MD_CTX_copy_ex(ctx4, ctx3);
+                    len = snprintf(buf, 5, "%04zu", l);
+                    EVP_DigestUpdate(ctx4, buf, len);
+                    EVP_DigestFinal_ex(ctx4, hash, NULL);
+#if BYTE_ORDER == LITTLE_ENDIAN
+                    if (*(unsigned long *)hash & 0x00001fffffffffffUL)
+#elif BYTE_ORDER == BIG_ENDIAN
+                    if (*(unsigned long *)hash & 0xffffffffff1f0000UL)
+#else
+#error "unknown endian!"
+#endif
+                    {
+                        continue;
+                    }
+                    printf("%zu%04zu%04zu%04zu, %d\n", i, j, k, l,
+                           __builtin_ctzl(le64toh(*(unsigned long *)hash)));
+                }
+            }
+            finish = omp_get_wtime();
+            fprintf(stderr, "%zu%04zu00000000-%zu%04zu00000000 done(%lf)\n", i,
+                    j, i, j + 1, finish - start);
+        }
     }
-    curl_global_cleanup();
+    EVP_MD_CTX_free(ctx0);
+    EVP_MD_CTX_free(ctx1);
+    EVP_MD_CTX_free(ctx2);
+    EVP_MD_CTX_free(ctx3);
+    EVP_MD_CTX_free(ctx4);
 
     return 0;
 }

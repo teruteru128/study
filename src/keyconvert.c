@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
     unsigned char *prikey = NULL;
     unsigned char *pubkey = mmap(NULL, 1090519040, PROT_READ | PROT_WRITE,
                                  MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-    for (size_t i = 8; i < 256; i++)
+    for (size_t i = 170; i < 256; i++)
     {
         snprintf(inputpath, PATH_MAX, "/mnt/d/keys/private/privateKeys%zu.bin",
                  i);
