@@ -121,10 +121,15 @@ int hiho(int argc, char **argv, const char *const *envp)
     size_t k = 0;
     size_t l = 0;
     size_t m = 0;
+    double global_start = omp_get_wtime();
+    double global_finish = 0;
+    double subtotal_start = 0;
+    double subtotal_finish = 0;
     double start = 0;
     double finish = 0;
     for (size_t i = 16; i < 17; i++)
     {
+        subtotal_start = omp_get_wtime();
         EVP_MD_CTX_copy_ex(ctx1, ctx0);
         len = snprintf(buf, 5, "%zu", i);
         EVP_DigestUpdate(ctx1, buf, len);
@@ -160,10 +165,16 @@ int hiho(int argc, char **argv, const char *const *envp)
                 }
             }
             finish = omp_get_wtime();
-            fprintf(stderr, "%zu%04zu00000000-%zu%04zu00000000 done(%lf)\n", i,
-                    j, i, j + 1, finish - start);
+            fprintf(stderr, ">> %zu-%zu done(%lf)\n",
+                    (i * 10000UL + j) * 100000000UL,
+                    (i * 10000UL + j + 1) * 100000000UL, finish - start);
         }
+        subtotal_finish = omp_get_wtime();
+        fprintf(stderr, "> %zu-%zu done(%lf)\n", i * 1000000000000UL,
+                (i + 1) * 1000000000000UL, subtotal_finish - subtotal_start);
     }
+    global_finish = omp_get_wtime();
+    fprintf(stderr, "done(%lf)\n", global_finish - global_start);
     EVP_MD_CTX_free(ctx0);
     EVP_MD_CTX_free(ctx1);
     EVP_MD_CTX_free(ctx2);

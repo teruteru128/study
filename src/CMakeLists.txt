@@ -601,6 +601,9 @@ add_executable(shanfrowatcher shanfrowatcher.c)
 target_link_libraries(shanfrowatcher ${CURL_LIBRARIES})
 target_include_directories(shanfrowatcher PRIVATE ${CURL_INCLUDE_DIRS})
 
+add_executable(showpngstatus showpngstatus.c pngreadwrite.c)
+target_link_libraries(showpngstatus PRIVATE ${PNG_LIBRARIES})
+
 add_executable(signalsample signalsample.c)
 target_link_libraries(signalsample ${CMAKE_THREAD_LIBS_INIT})
 

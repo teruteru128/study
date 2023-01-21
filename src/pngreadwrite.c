@@ -57,18 +57,10 @@ int read_png(const char *inpath, struct IHDR *ihdr, struct pHYs *phys,
 
     if (ihdr)
     {
-        if (png_get_IHDR(png_ptr, info_ptr, &ihdr->width, &ihdr->height,
+        if (!png_get_IHDR(png_ptr, info_ptr, &ihdr->width, &ihdr->height,
                          &ihdr->bit_depth, &ihdr->color_type,
                          &ihdr->interlace_method, &ihdr->compression_method,
                          &ihdr->filter_method))
-        {
-            printf("image header: %" PRId32 " x %" PRId32 " ", ihdr->width,
-                   ihdr->height);
-            printf("%d %d %d %d %d\n", ihdr->bit_depth, ihdr->color_type,
-                   ihdr->interlace_method, ihdr->compression_method,
-                   ihdr->filter_method);
-        }
-        else
         {
             printf("png_get_IHDR failed\n");
         }
