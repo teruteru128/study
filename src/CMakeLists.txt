@@ -491,6 +491,9 @@ target_include_directories(pkeyencsample PRIVATE ${OPENSSL_INCLUDE_DIR})
 add_executable(pngconcat pngconcat.c pngreadwrite.c)
 target_link_libraries(pngconcat ${PNG_LIBRARIES})
 
+add_executable(pngdiff pngdiff.c pngreadwrite.c)
+target_link_libraries(pngdiff ${PNG_LIBRARIES})
+
 add_executable(pngpalletssample pngpalletssample.c pngreadwrite.c)
 target_link_libraries(pngpalletssample ${PNG_LIBRARIES})
 
