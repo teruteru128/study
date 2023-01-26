@@ -95,18 +95,18 @@ int hiho(int argc, char **argv, const char *const *envp)
     struct timespec spec;
     struct timespec sleeprequest;
     sleeprequest.tv_sec = 0;
-    sleeprequest.tv_nsec = 625000000;
+    sleeprequest.tv_nsec = 312500000;
     long c = 1234567890L;
+    long d = 1234567890L;
+    long tmp = 0;
     while (1)
     {
         clock_gettime(CLOCK_REALTIME, &spec);
-        printf("%09ld\n", c);
-        c = (c % 10) * 1000000000 + (c / 10);
+        printf("%010ld%010ld\n", c, d);
+        tmp = d % 10;
+        d = (c % 10) * 1000000000 + (d / 10);
+        c = tmp * 1000000000 + c / 10;
         nanosleep(&sleeprequest, NULL);
-        if (sleeprequest.tv_sec < 1024)
-        {
-            sleeprequest.tv_sec <<= 1;
-        }
     }
 
     return 0;
