@@ -657,6 +657,10 @@ target_include_directories(teamspeakcalc PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJEC
 target_compile_options(teamspeakcalc PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 target_compile_definitions(teamspeakcalc PRIVATE $<$<BOOL:${GETTEXT_FOUND}>:ENABLE_NLS>)
 
+add_executable(teamspeakcalc2 teamspeakcalc2.c)
+target_link_libraries(teamspeakcalc2 PRIVATE ${OPENSSL_CRYPTO_LIBRARIES} $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_LIBRARIES}>)
+target_include_directories(teamspeakcalc2 PRIVATE ${OPENSSL_INCLUDE_DIR})
+
 add_executable(threadAttr threadAttr.c)
 target_link_libraries(threadAttr ${CMAKE_THREAD_LIBS_INIT})
 
