@@ -92,16 +92,19 @@
  */
 int hiho(int argc, char **argv, const char *const *envp)
 {
+    unsigned char key[64] = { 0 };
     struct timespec spec;
-    struct timespec sleeprequest;
-    sleeprequest.tv_sec = 1 << 10;
-    sleeprequest.tv_nsec = 0;
-    while (1)
+    struct timespec t[2];
+    for (size_t i = 0; i < 64; i++)
     {
         clock_gettime(CLOCK_REALTIME, &spec);
-        printf("ブッチッパ！%ld.%09ld\n", spec.tv_sec, spec.tv_nsec);
-        nanosleep(&sleeprequest, NULL);
+        key[i] = spec.tv_nsec & 0xff;
     }
+    for (size_t i = 0; i < 64; i++)
+    {
+        printf("%02x", key[i]);
+    }
+    printf("\n");
 
     return 0;
 }
