@@ -58,17 +58,8 @@ static void handler(int sig, siginfo_t *info, void *ctx)
  * */
 int main(int argc, char *argv[])
 {
-    if (argc < 2)
-    {
-        fputs("アドレスファイルを指定してください\n", stderr);
-        return 1;
-    }
-    const char *addressfilepath = argv[1];
     setlocale(LC_ALL, "");
-    const size_t length = (argc >= 3) ? (strtoul(argv[2], NULL, 10)) : 12000;
-    const size_t addressoffset
-        = (argc >= 4) ? (strtoul(argv[3], NULL, 10)) : 0;
-    const size_t sendlimit = addressoffset + length;
+    const size_t sendlimit = 1000;
 
 #ifdef _DEBUG
     printf("%s\n", msgfilepath);
@@ -136,14 +127,14 @@ int main(int argc, char *argv[])
     die_if_fault_occurred(env);
 
     // message params
-    char fromaddress[ADDRBUFSIZE] = ADDRESS_bitmessage;
-    char *subject = "";
-    const char message[BUFSIZ] = "";
+    char fromaddress[ADDRBUFSIZE] = "BM-2D9ni5ptvgV9kDdFuioUnMbu6hujKrLagb";
+    char *subject = "Kg==";
+    const char message[BUFSIZ] = "SGkh";
     int encodingType = 2;
     // 3600から2419200まで
     // 物量作戦を採用するならメッセージ本体を小さく、TTLを短く
     // 2419200 = 60*60*24*28
-    int ttl = 2419200;
+    int ttl = 345600;
 
     struct sigaction action = { 0 };
     action.sa_flags = SA_SIGINFO;
@@ -163,73 +154,38 @@ int main(int argc, char *argv[])
     xmlrpc_value *subjectv = xmlrpc_string_new(env, subject);
     die_if_fault_occurred(env);
     xmlrpc_value *messagev = xmlrpc_string_new(env, message);
-    die_if_fault_occurred(env);
     xmlrpc_value *encodingTypev = xmlrpc_int_new(env, encodingType);
     die_if_fault_occurred(env);
     xmlrpc_value *TTLv = xmlrpc_int_new(env, ttl);
     die_if_fault_occurred(env);
     fprintf(stderr, "initialized\n");
-    FILE *toaddrfile = fopen(addressfilepath, "r");
-    if (toaddrfile == NULL)
-    {
-        err(EXIT_FAILURE, "fopen");
-    }
 
-    char toaddress[ADDRBUFSIZE] = "";
+    char toaddress[ADDRBUFSIZE] = "BM-2cVPhC8Bdrx2ZemLw98oGUsgjDAfwsigyc";
     xmlrpc_value *toaddressv = NULL;
-    char *ackdata = NULL;
     struct timespec current_time = { 0 };
     struct tm machine_tm = { 0 };
     char datetime[BUFSIZ] = "";
     size_t count = 0;
-    fprintf(stderr, "seeking...\n");
-    for (size_t i = 0; i < addressoffset; i++, count++)
+    /* 文字列をxmlrpc文字列オブジェクトに変換する */
+    toaddressv = xmlrpc_string_new(env, toaddress);
+    die_if_fault_occurred(env);
+    for (; count < sendlimit; count++)
     {
-        if (fgets(toaddress, ADDRBUFSIZE, toaddrfile) == NULL)
-        {
-            return 1;
-        }
-    }
-    fprintf(stderr, "done, and start\n");
-    // toaddressってセミコロンつなぎにできないのか？
-    for (; count < sendlimit
-           && fgets(toaddress, ADDRBUFSIZE, toaddrfile) != NULL && running;
-         count++)
-    {
-        /* remove crlf */
-        char *crlf = strpbrk(toaddress, "\r\n");
-        if (crlf != NULL)
-        {
-            *crlf = '\0';
-        }
-        /* 文字列をxmlrpc文字列オブジェクトに変換する */
-        toaddressv = xmlrpc_string_new(env, toaddress);
-        die_if_fault_occurred(env);
-
-        bmapi_sendMessage(env, clientP, serverP, toaddressv,
-                                    fromaddressv, subjectv, messagev,
-                                    encodingTypev, TTLv, &ackdata);
-        free(ackdata);
+        bmapi_sendMessage(env, clientP, serverP, toaddressv, fromaddressv,
+                          subjectv, messagev, encodingTypev, TTLv, NULL);
 
         clock_gettime(CLOCK_REALTIME, &current_time);
         localtime_r(&current_time.tv_sec, &machine_tm);
         strftime(datetime, BUFSIZ, "%EC%Ey%B%d日 %X", &machine_tm);
-        printf("(%zu)%-38s: %s.%09ld\n", count, toaddress, datetime,
-               current_time.tv_nsec);
+        printf("%zu: %s.%09ld\n", count, datetime, current_time.tv_nsec);
+    }
 
-        /* Dispose of our result value. ゴミ掃除 */
-        xmlrpc_DECREF(toaddressv);
-        sleep(25);
-    }
-    if (ferror(toaddrfile))
-    {
-        perror("ferror(toaddrfile)");
-    }
+    /* Dispose of our result value. ゴミ掃除 */
+    xmlrpc_DECREF(toaddressv);
     if (running != 1)
     {
         fprintf(stdout, "%zu件\n", count);
     }
-    fclose(toaddrfile);
     xmlrpc_DECREF(fromaddressv);
     xmlrpc_DECREF(subjectv);
     xmlrpc_DECREF(messagev);

@@ -627,6 +627,9 @@ target_compile_definitions(sntpc PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALED
 add_executable(splitsample splitsample.c splitsample-driver.c)
 target_include_directories(splitsample PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
+add_executable(spuriouswakeupsample spuriouswakeupsample.c)
+target_link_libraries(spuriouswakeupsample PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+
 add_executable(ssh-keyconvert ssh-keyconvert.c)
 target_link_libraries(ssh-keyconvert ${OPENSSL_CRYPTO_LIBRARIES})
 target_include_directories(ssh-keyconvert PRIVATE ${OPENSSL_INCLUDE_DIR})

@@ -71,6 +71,41 @@
     "Orf2xuuu6hTPAPldSfrUZZ7WYAzpRcO5DoYFLoCIF1JKVBctOGvMOy495O/"             \
     "BWFuFEYH4i1f6vU0b9+a64RD"
 
+int gettimebaserandom(unsigned char *a, size_t b)
+{
+    if (a == NULL || b == 0)
+    {
+        return 1;
+    }
+    struct timespec spec;
+    for (size_t i = 0; i < b; i++)
+    {
+        clock_gettime(CLOCK_REALTIME, &spec);
+        a[i] = spec.tv_nsec & 0xff;
+    }
+    return 0;
+}
+
+static volatile int running = 1;
+static pthread_barrier_t barrier;
+
+static void *func(void *arg)
+{
+    if (arg == NULL)
+    {
+        return NULL;
+    }
+    size_t *count = (size_t *)arg;
+    pthread_barrier_wait(&barrier);
+    register size_t d = 0;
+    while (running)
+    {
+        d++;
+    }
+    *count = d;
+    return arg;
+}
+
 /**
  * @brief
  * ↓2回連続getFloatで-1が出るseed 2つ
@@ -92,19 +127,18 @@
  */
 int hiho(int argc, char **argv, const char *const *envp)
 {
-    unsigned char key[64] = { 0 };
+    size_t count = 0;
+    pthread_t thread = 0;
+    pthread_barrier_init(&barrier, NULL, 2);
     struct timespec spec;
-    struct timespec t[2];
-    for (size_t i = 0; i < 64; i++)
-    {
-        clock_gettime(CLOCK_REALTIME, &spec);
-        key[i] = spec.tv_nsec & 0xff;
-    }
-    for (size_t i = 0; i < 64; i++)
-    {
-        printf("%02x", key[i]);
-    }
-    printf("\n");
-
+    spec.tv_sec = 1;
+    spec.tv_nsec = 0;
+    pthread_create(&thread, NULL, func, &count);
+    pthread_barrier_wait(&barrier);
+    nanosleep(&spec, NULL);
+    running = 0;
+    pthread_join(thread, NULL);
+    pthread_barrier_destroy(&barrier);
+    printf("%zu\n", count);
     return 0;
 }
