@@ -93,16 +93,18 @@ struct color
  */
 int hiho(int argc, char **argv, const char *const *envp)
 {
-    unsigned char color[3] = { 0 };
-    getrandom(&color, 3, 0);
-    printf("%u\n", color[0]);
-    printf("%u\n", color[1]);
-    printf("%u\n", color[2]);
-    struct color color2 = { 0 };
-    getrandom(&color2, sizeof(struct color), 0);
-    printf("%02x%02x%02x\n", color2.red, color2.green, color2.blue);
-    printf("%u\n", color2.red);
-    printf("%u\n", color2.green);
-    printf("%u\n", color2.blue);
+    register volatile size_t count = 0;
+    struct timespec start = { 0 };
+    struct timespec finish = { 0 };
+    clock_gettime(CLOCK_MONOTONIC_COARSE, &start);
+    for (; count < 4000000000L; count++)
+    {
+    }
+    clock_gettime(CLOCK_MONOTONIC_COARSE, &finish);
+    struct timespec diff;
+    difftimespec(&diff, &finish, &start);
+    printf("%ld.%09ld\n", start.tv_sec, start.tv_sec);
+    printf("%ld.%09ld\n", finish.tv_sec, finish.tv_sec);
+    printf("%ld.%09ld\n", diff.tv_sec, diff.tv_sec);
     return 0;
 }
