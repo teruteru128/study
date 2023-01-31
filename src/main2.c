@@ -140,5 +140,39 @@ int hiho(int argc, char **argv, const char *const *envp)
     pthread_join(thread, NULL);
     pthread_barrier_destroy(&barrier);
     printf("%zu\n", count);
+
+    GError *error = NULL;
+    gboolean ret = FALSE;
+
+    g_autoptr(GSocketClient) sclient = g_socket_client_new();
+    g_autoptr(GSocketConnection) connection = g_socket_client_connect_to_host(
+        sclient, "192.168.12.8:8442", 0, NULL, &error);
+    if (connection == NULL || error != NULL)
+    {
+        g_warning("g_socket_client_connect_to_host: %s", error->message);
+        g_error_free(error);
+    }
+    GVariantBuilder *builder = g_variant_builder_new(G_VARIANT_TYPE_ARRAY);
+    g_variant_builder_add(builder, "i", 111);
+    g_variant_builder_add(builder, "i", 222);
+    g_autoptr(GVariant) array = g_variant_builder_end(builder);
+    g_autoptr(GVariant) return_value = NULL;
+    g_autoptr(JsonrpcClient) client
+        = jsonrpc_client_new(G_IO_STREAM(connection));
+    ret = jsonrpc_client_call(client, "add", array, NULL, &return_value,
+                              &error);
+    if (return_value == NULL || ret != TRUE)
+    {
+        g_warning("jsonrpc_client_call: %s", error->message);
+        g_error_free(error);
+        return 1;
+    }
+    ret = jsonrpc_client_close(client, NULL, &error);
+    if (!ret)
+    {
+        g_warning("jsonrpc_client_close: %s", error->message);
+        g_error_free(error);
+        return 1;
+    }
     return 0;
 }
