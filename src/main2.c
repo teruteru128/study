@@ -66,12 +66,21 @@
 #include <openssl/types.h>
 #endif
 
-struct color
+static volatile int running = 1;
+static pthread_barrier_t barrier;
+
+static void *func(void *arg)
 {
-    unsigned char red;
-    unsigned char green;
-    unsigned char blue;
-};
+    register uint_fast64_t d = 0;
+    int rec = pthread_barrier_wait(&barrier);
+    while (running)
+    {
+        d++;
+    }
+    printf("func: %d\n", rec);
+    return (void *)d;
+}
+
 /**
  * @brief
  * ↓2回連続getFloatで-1が出るseed 2つ
@@ -93,18 +102,26 @@ struct color
  */
 int hiho(int argc, char **argv, const char *const *envp)
 {
-    register volatile size_t count = 0;
-    struct timespec start = { 0 };
-    struct timespec finish = { 0 };
-    clock_gettime(CLOCK_MONOTONIC_COARSE, &start);
-    for (; count < 4000000000L; count++)
+    void *count = 0;
+    pthread_t thread[15] = { 0 };
+    pthread_barrier_init(&barrier, NULL, 16);
+    struct timespec spec;
+    spec.tv_sec = 1;
+    spec.tv_nsec = 0;
+    for (size_t i = 0; i < 15; i++)
     {
+        pthread_create(thread + i, NULL, func, NULL);
     }
-    clock_gettime(CLOCK_MONOTONIC_COARSE, &finish);
-    struct timespec diff;
-    difftimespec(&diff, &finish, &start);
-    printf("%ld.%09ld\n", start.tv_sec, start.tv_sec);
-    printf("%ld.%09ld\n", finish.tv_sec, finish.tv_sec);
-    printf("%ld.%09ld\n", diff.tv_sec, diff.tv_sec);
+    int rec = pthread_barrier_wait(&barrier);
+    nanosleep(&spec, NULL);
+    running = 0;
+    for (size_t i = 0; i < 15; i++)
+    {
+        pthread_join(thread[i], &count);
+        printf("%zu\n", (size_t)count);
+    }
+    printf("hiho: %d\n", rec);
+    pthread_barrier_destroy(&barrier);
+    printf("%zu\n", (size_t)count);
     return 0;
 }
