@@ -72,12 +72,11 @@ static pthread_barrier_t barrier;
 static void *func(void *arg)
 {
     register uint_fast64_t d = 0;
-    int rec = pthread_barrier_wait(&barrier);
+    pthread_barrier_wait(&barrier);
     while (running)
     {
         d++;
     }
-    printf("func: %d\n", rec);
     return (void *)d;
 }
 
@@ -103,25 +102,17 @@ static void *func(void *arg)
 int hiho(int argc, char **argv, const char *const *envp)
 {
     void *count = 0;
-    pthread_t thread[15] = { 0 };
-    pthread_barrier_init(&barrier, NULL, 16);
+    pthread_t thread = 0;
+    pthread_barrier_init(&barrier, NULL, 2);
     struct timespec spec;
     spec.tv_sec = 1;
     spec.tv_nsec = 0;
-    for (size_t i = 0; i < 15; i++)
-    {
-        pthread_create(thread + i, NULL, func, NULL);
-    }
-    int rec = pthread_barrier_wait(&barrier);
+    pthread_create(&thread, NULL, func, NULL);
+    pthread_barrier_wait(&barrier);
     nanosleep(&spec, NULL);
     running = 0;
-    for (size_t i = 0; i < 15; i++)
-    {
-        pthread_join(thread[i], &count);
-        printf("%zu\n", (size_t)count);
-    }
-    printf("hiho: %d\n", rec);
-    pthread_barrier_destroy(&barrier);
+    pthread_join(thread, &count);
     printf("%zu\n", (size_t)count);
+    pthread_barrier_destroy(&barrier);
     return 0;
 }
