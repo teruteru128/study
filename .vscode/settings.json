@@ -238,7 +238,8 @@
         "gio.h": "c",
         "jsonrpc-version-macros.h": "c",
         "jsonrpc-glib.h": "c",
-        "span": "c"
+        "span": "c",
+        "liburing.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

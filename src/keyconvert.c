@@ -34,7 +34,7 @@ int main(int argc, char const *argv[])
                  i);
         snprintf(outputpath, PATH_MAX, "/mnt/d/keys/public/publicKeys%zu.bin",
                  i);
-        inputfd = open(inputpath, O_RDONLY);
+        inputfd = open(inputpath, O_RDONLY | O_CLOEXEC);
         if (inputfd < 0)
         {
             perror("open");

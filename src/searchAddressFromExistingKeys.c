@@ -222,7 +222,7 @@ static int deepdarkfantasy()
             = ((536870912UL + page_size - 1) / page_size) * page_size;
         int privateKeyFD
             = open("/home/teruteru128/git/study/keys/private/privateKeys0.bin",
-                   O_RDONLY);
+                   O_RDONLY | O_CLOEXEC);
         if (privateKeyFD < 0)
         {
             perror("open");

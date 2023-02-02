@@ -24,6 +24,7 @@
 #include <inttypes.h>
 #include <java_random.h>
 #include <jsonrpc-glib.h>
+#include <liburing.h>
 #include <limits.h>
 #include <math.h>
 #include <netdb.h>
@@ -46,6 +47,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/param.h>
 #include <sys/random.h>
@@ -65,6 +67,31 @@
 #include <openssl/provider.h>
 #include <openssl/types.h>
 #endif
+
+/*
+* Returns the size of the file whose open file descriptor is passed in.
+* Properly handles regular file and block devices as well. Pretty.
+* @see https://github.com/shuveb/io_uring-by-example/blob/58d05c1137d672337cf671e03e73bf7cc1b96342/03_cat_liburing/main.c#L22
+* */
+off_t get_file_size(int fd) {
+    struct stat st;
+
+    if(fstat(fd, &st) < 0) {
+        perror("fstat");
+        return -1;
+    }
+    if (S_ISBLK(st.st_mode)) {
+        unsigned long long bytes;
+        if (ioctl(fd, BLKGETSIZE64, &bytes) != 0) {
+            perror("ioctl");
+            return -1;
+        }
+        return bytes;
+    } else if (S_ISREG(st.st_mode))
+        return st.st_size;
+
+    return -1;
+}
 
 static volatile int running = 1;
 static pthread_barrier_t barrier;
@@ -105,7 +132,7 @@ int hiho(int argc, char **argv, const char *const *envp)
     pthread_t thread = 0;
     pthread_barrier_init(&barrier, NULL, 2);
     struct timespec spec;
-    spec.tv_sec = 1;
+    spec.tv_sec = 60;
     spec.tv_nsec = 0;
     pthread_create(&thread, NULL, func, NULL);
     pthread_barrier_wait(&barrier);
@@ -113,6 +140,7 @@ int hiho(int argc, char **argv, const char *const *envp)
     running = 0;
     pthread_join(thread, &count);
     printf("%zu\n", (size_t)count);
+    printf("%lf\n", (size_t)count / 60.);
     pthread_barrier_destroy(&barrier);
     return 0;
 }
