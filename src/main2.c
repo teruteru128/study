@@ -48,6 +48,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/epoll.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/param.h>
@@ -68,6 +69,12 @@
 #include <openssl/provider.h>
 #include <openssl/types.h>
 #endif
+
+void f(union sigval sigval)
+{
+    printf("%lu\n", pthread_self());
+    return;
+}
 
 /**
  * @brief
@@ -90,27 +97,20 @@
  */
 int hiho(int argc, char **argv, char *const *envp)
 {
-    if (argc < 2)
+    printf("%lu\n", pthread_self());
+    void *ti = NULL;
+    struct sigevent se;
+    se.sigev_notify = SIGEV_THREAD;
+    se.sigev_notify_function = f;
+    if (timer_create(CLOCK_BOOTTIME, &se, &ti) != 0)
     {
+        perror("timer_create");
         return 1;
     }
-    char path[PATH_MAX];
-    if (realpath(argv[0], path) == NULL)
-    {
-        perror("realpath");
-        return 1;
-    }
-    uint64_t count = strtoul(argv[1], NULL, 10);
-    if (count == 100)
-    {
-        return 0;
-    }
-    char countstr[22];
-    snprintf(countstr, 22, "%lu", count + 1);
-    char *a[3] = { NULL };
-    a[0] = path;
-    a[1] = countstr;
-    execve(path, a, envp);
-    perror("execve");
-    return 1;
+    struct itimerspec s = { 0 };
+    s.it_value.tv_sec = 1;
+    timer_settime(ti, 0, &s, NULL);
+    sleep(5);
+    timer_delete(ti);
+    return 0;
 }

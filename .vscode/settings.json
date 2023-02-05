@@ -239,7 +239,8 @@
         "jsonrpc-version-macros.h": "c",
         "jsonrpc-glib.h": "c",
         "span": "c",
-        "liburing.h": "c"
+        "liburing.h": "c",
+        "epoll.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
