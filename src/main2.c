@@ -91,13 +91,59 @@
  */
 int hiho(int argc, char **argv, char *const *envp)
 {
-    int d = 0;
-    if (getrandom(&d, 3, 0) < 0)
+    char rpath[PATH_MAX] = "";
+    char wpath[PATH_MAX] = "";
+    int rdfd = -1;
+    int wrfd = -1;
+    unsigned char *rdmap = NULL;
+    unsigned char *wrmap = mmap(NULL, 16777216 * 64, PROT_READ | PROT_WRITE,
+                                MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (wrmap == MAP_FAILED)
     {
+        perror("mmap write");
         return 1;
     }
-    printf("%08x\n", d);
-    double e = (d * 72) / 16777216. + 180;
-    printf("%lf\n", e);
+    ssize_t d = 0;
+    for (size_t i = 0; i < 256; i++)
+    {
+        snprintf(rpath, PATH_MAX, "/mnt/d/keys/public/publicKeys%zu.bin", i);
+        rdfd = open(rpath, O_RDONLY);
+        if (rdfd < 0)
+        {
+            perror("open read");
+            return 1;
+        }
+        rdmap = mmap(NULL, 16777216 * 65, PROT_READ, MAP_SHARED, rdfd, 0);
+        if (rdmap == MAP_FAILED)
+        {
+            perror("mmap read");
+            return 1;
+        }
+        close(rdfd);
+        snprintf(wpath, PATH_MAX,
+                 "/mnt/d/keys/public/trimmed/publicKeys%zu.bin", i);
+        wrfd = open(wpath, O_WRONLY | O_CREAT, 0700);
+        if (wrfd < 0)
+        {
+            perror("open write");
+            return 1;
+        }
+        for (size_t j = 0; j < 16777216; j++)
+        {
+            memcpy(wrmap + 64 * i, rdmap + 65 * i + 1, 64);
+        }
+        munmap(rdmap, 1677716 * 65);
+        if (write(wrfd, wrmap, 16777216UL * 64) < 0)
+        {
+            perror("write");
+        }
+        if (close(wrfd) == -1)
+        {
+            perror("close");
+        }
+        printf("%s done.\n", rpath);
+    }
+    munmap(wrmap, 16777216 * 64);
+
     return 0;
 }

@@ -240,7 +240,8 @@
         "jsonrpc-glib.h": "c",
         "span": "c",
         "liburing.h": "c",
-        "epoll.h": "c"
+        "epoll.h": "c",
+        "fcntl2.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
