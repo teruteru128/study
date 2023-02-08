@@ -70,12 +70,6 @@
 #include <openssl/types.h>
 #endif
 
-void f(union sigval sigval)
-{
-    printf("%lu\n", pthread_self());
-    return;
-}
-
 /**
  * @brief
  * ↓2回連続getFloatで-1が出るseed 2つ
@@ -97,20 +91,13 @@ void f(union sigval sigval)
  */
 int hiho(int argc, char **argv, char *const *envp)
 {
-    printf("%lu\n", pthread_self());
-    void *ti = NULL;
-    struct sigevent se;
-    se.sigev_notify = SIGEV_THREAD;
-    se.sigev_notify_function = f;
-    if (timer_create(CLOCK_BOOTTIME, &se, &ti) != 0)
+    int d = 0;
+    if (getrandom(&d, 3, 0) < 0)
     {
-        perror("timer_create");
         return 1;
     }
-    struct itimerspec s = { 0 };
-    s.it_value.tv_sec = 1;
-    timer_settime(ti, 0, &s, NULL);
-    sleep(5);
-    timer_delete(ti);
+    printf("%08x\n", d);
+    double e = (d * 72) / 16777216. + 180;
+    printf("%lf\n", e);
     return 0;
 }
