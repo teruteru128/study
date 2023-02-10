@@ -70,28 +70,10 @@
 #include <openssl/types.h>
 #endif
 
-/**
- * @brief
- * ↓2回連続getFloatで-1が出るseed 2つ
- * 125352706827826
- * 116229385253865
- * ↓getDoubleで可能な限り1に近い値が出るseed
- * 155239116123415
- * preforkする場合ってforkするのはlistenソケットを開く前？開いた後？
- * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
- * 丸数字の1から50までforで出す
- * timer_create+sigeventでタイマーを使って呼ばれたスレッドから新しくスレッドを起動する
- *
- * decodable random source?
- *
- * @param argc
- * @param argv
- * @param envp
- * @return int
- */
-int hiho(int argc, char **argv, char *const *envp)
+/* 秘密鍵を公開鍵に変換する */
+int func1()
 {
-#if 0
+    char rpath[PATH_MAX] = "";
     char wpath[PATH_MAX] = "";
     int prikeyfd = -1;
     int pubkeyfd = -1;
@@ -122,7 +104,7 @@ int hiho(int argc, char **argv, char *const *envp)
     }
     ssize_t d = 0;
     size_t j = 0;
-    for (size_t i = 8; i < 256; i++)
+    for (size_t i = 46; i < 256; i++)
     {
         // open private key file
         snprintf(rpath, PATH_MAX, "/mnt/d/keys/private/privateKeys%zu.bin", i);
@@ -195,33 +177,80 @@ int hiho(int argc, char **argv, char *const *envp)
             perror("close");
         }
         printf("%s done.\n", rpath);
+        munmap(prikeymap, 16777216 * 32);
     }
     munmap(pubkeymap, 16777216 * 65);
     munmap(trimmedpubkeymap, 16777216 * 64);
     EC_GROUP_free(secp256k1);
-#else
-    if (argc < 2)
+    return 0;
+}
+
+/* null scanner */
+int func2(int argc, char **argv)
+{
+    if (argc < 1)
     {
         return 1;
     }
-    size_t a = 0x01ffffff;
-    size_t b = 536870912;
-    size_t needs = b - a;
     char rpath[PATH_MAX] = "";
-    strncpy(rpath, argv[1], PATH_MAX);
+    strncpy(rpath, argv[0], PATH_MAX);
     int fd = open(rpath, O_RDONLY);
     unsigned char *m
         = mmap(NULL, 16777216UL * 32, PROT_READ, MAP_PRIVATE, fd, 0);
     close(fd);
-    unsigned char mam[32];
-    memset(mam, 0, 32);
-    size_t l = argc >= 3 ? strtoul(argv[2], NULL, 0): 32;
+    const size_t l = argc >= 2 ? strtol(argv[1], NULL, 10) : 32;
+    unsigned char mam[l];
+    memset(mam, 0, l);
     unsigned char *m2 = memmem(m, 16777216UL * 32, mam, l);
     if (m2 != NULL)
     {
         printf("0x%016lx, %ld\n", m2 - m, m2 - m);
     }
     munmap(m, 16777216 * 32);
-#endif
+    return 0;
+}
+
+void printhelp(char *argv0) { fprintf(stderr, "%s code option\n", argv0); }
+
+/**
+ * @brief
+ * ↓2回連続getFloatで-1が出るseed 2つ
+ * 125352706827826
+ * 116229385253865
+ * ↓getDoubleで可能な限り1に近い値が出るseed
+ * 155239116123415
+ * preforkする場合ってforkするのはlistenソケットを開く前？開いた後？
+ * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
+ * 丸数字の1から50までforで出す
+ * timer_create+sigeventでタイマーを使って呼ばれたスレッドから新しくスレッドを起動する
+ *
+ * decodable random source?
+ *
+ * @param argc
+ * @param argv
+ * @param envp
+ * @return int
+ */
+int hiho(int argc, char **argv, char *const *envp)
+{
+    int code = -1;
+    if (argc >= 2)
+    {
+        code = strtol(argv[1], NULL, 0);
+    }
+    switch (code)
+    {
+    case 1:
+        func1();
+        break;
+
+    case 2:
+        func2(argc - 1, argv + 2);
+        break;
+
+    default:
+        printhelp(argv[0]);
+        break;
+    }
     return 0;
 }
