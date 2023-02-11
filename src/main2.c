@@ -104,7 +104,7 @@ int func1()
     }
     ssize_t d = 0;
     size_t j = 0;
-    for (size_t i = 46; i < 256; i++)
+    for (size_t i = 8; i < 256; i++)
     {
         // open private key file
         snprintf(rpath, PATH_MAX, "/mnt/d/keys/private/privateKeys%zu.bin", i);
@@ -122,6 +122,7 @@ int func1()
             perror("mmap read");
             return 1;
         }
+        close(prikeyfd);
 #pragma omp parallel default(none)                                            \
     shared(prikeymap, secp256k1, trimmedpubkeymap,                            \
            pubkeymap) private(ctx, j, prikeybn, pubkeyp)
