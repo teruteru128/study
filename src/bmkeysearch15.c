@@ -64,7 +64,7 @@ static int loadPrivateKey1(unsigned char *publicKey, const char *path)
 static int loadPublicKey1(unsigned char *publicKey, const char *path)
 {
     // public keyは頻繁に使うのでメモリに読み込んでおく
-    return loadKey1(publicKey, path, 65, 16777216);
+    return loadKey1(publicKey, path, 64, 16777216);
 }
 
 static volatile sig_atomic_t running = 1;
@@ -79,36 +79,36 @@ static void handler(int sig, siginfo_t *info, void *ctx)
 
 static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
 {
-    unsigned char *publicKeyGlobal = malloc(16777216UL * 65 * 4);
-    if (loadPublicKey1(
-            publicKeyGlobal,
-            "/home/teruteru128/git/study/keys/public/publicKeys0.bin")
-        || loadPublicKey1(
-            publicKeyGlobal + 16777216UL * 65,
-            "/home/teruteru128/git/study/keys/public/publicKeys1.bin")
-        || loadPublicKey1(
-            publicKeyGlobal + 16777216UL * 65 * 2,
-            "/home/teruteru128/git/study/keys/public/publicKeys2.bin")
-        || loadPublicKey1(
-            publicKeyGlobal + 16777216UL * 65 * 3,
-            "/home/teruteru128/git/study/keys/public/publicKeys3.bin"))
+    unsigned char *publicKeyGlobal = NULL;
+    int en = 0;
+    if ((en = posix_memalign((void **)&publicKeyGlobal, sysconf(_SC_PAGESIZE),
+                             16777216UL * 64 * 4))
+        != 0)
+    {
+        fprintf(stderr, "posix_memalign: %s\n", strerror(en));
+        return 1;
+    }
+    if (loadPublicKey1(publicKeyGlobal,
+                       "/mnt/d/keys/public/trimmed/publicKeys0.bin")
+        || loadPublicKey1(publicKeyGlobal + 16777216UL * 64,
+                          "/mnt/d/keys/public/trimmed/publicKeys1.bin")
+        || loadPublicKey1(publicKeyGlobal + 16777216UL * 64 * 2,
+                          "/mnt/d/keys/public/trimmed/publicKeys2.bin")
+        || loadPublicKey1(publicKeyGlobal + 16777216UL * 64 * 3,
+                          "/mnt/d/keys/public/trimmed/publicKeys3.bin"))
     {
         perror("publickey");
         return 1;
     }
     unsigned char *privateKeyGlobal = malloc(16777216UL * 32 * 4);
-    if (loadPrivateKey1(
-            privateKeyGlobal,
-            "/home/teruteru128/git/study/keys/private/privateKeys0.bin")
-        || loadPrivateKey1(
-            privateKeyGlobal + 16777216UL * 32,
-            "/home/teruteru128/git/study/keys/private/privateKeys1.bin")
-        || loadPrivateKey1(
-            privateKeyGlobal + 16777216UL * 32 * 2,
-            "/home/teruteru128/git/study/keys/private/privateKeys2.bin")
-        || loadPrivateKey1(
-            privateKeyGlobal + 16777216UL * 32 * 3,
-            "/home/teruteru128/git/study/keys/private/privateKeys3.bin"))
+    if (loadPrivateKey1(privateKeyGlobal,
+                        "/mnt/d/keys/private/privateKeys0.bin")
+        || loadPrivateKey1(privateKeyGlobal + 16777216UL * 32,
+                           "/mnt/d/keys/private/privateKeys1.bin")
+        || loadPrivateKey1(privateKeyGlobal + 16777216UL * 32 * 2,
+                           "/mnt/d/keys/private/privateKeys2.bin")
+        || loadPrivateKey1(privateKeyGlobal + 16777216UL * 32 * 3,
+                           "/mnt/d/keys/private/privateKeys3.bin"))
     {
         perror("privatekey");
         return 1;
@@ -122,6 +122,7 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         char *address = NULL;
         char *sigwif = NULL;
         char *encwif = NULL;
+        const unsigned char prefix = 4;
         EVP_MD_CTX *shactx1[CTX_CACHE_SIZE] = { NULL };
         for (size_t i = 0; i < CTX_CACHE_SIZE; i++)
         {
@@ -136,7 +137,7 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         EVP_DigestInit_ex(shactx2, sha512, NULL);
         EVP_DigestInit_ex(ripectx, ripemd160, NULL);
 #endif
-        unsigned char encbuf[ENC_CACHE_SIZE * PUBLIC_KEY_LENGTH];
+        unsigned char encbuf[ENC_CACHE_SIZE * 64];
         size_t sigindex = 0;
         size_t encindex = 0;
         size_t encglobalindex = 0;
@@ -168,25 +169,25 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
 #else
                 EVP_DigestInit_ex(shactx1[sigindex], sha512, NULL);
 #endif
-                EVP_DigestUpdate(shactx1[sigindex],
-                                 (PublicKey *)publicKeyGlobal + sigglobalindex
-                                     + sigindex,
-                                 PUBLIC_KEY_LENGTH);
+                EVP_DigestUpdate(shactx1[sigindex], &prefix, 1);
+                EVP_DigestUpdate(
+                    shactx1[sigindex],
+                    publicKeyGlobal + ((sigglobalindex + sigindex) << 6), 64);
+                EVP_DigestUpdate(shactx1[sigindex], &prefix, 1);
             }
             // ここでparallel forを切ってもいいのかもしれない
             for (encglobalindex = 0; encglobalindex < ENC_NUM;
                  encglobalindex += ENC_CACHE_SIZE)
             {
-                memcpy(encbuf, (PublicKey *)publicKeyGlobal + encglobalindex,
-                       ENC_CACHE_SIZE * PUBLIC_KEY_LENGTH);
+                memcpy(encbuf, publicKeyGlobal + (encglobalindex << 6),
+                       ENC_CACHE_SIZE * 64);
                 for (encindex = 0, encoffset = 0; encindex < ENC_CACHE_SIZE;
-                     encindex++, encoffset += PUBLIC_KEY_LENGTH)
+                     encindex++, encoffset += 64)
                 {
                     for (sigindex = 0; sigindex < CTX_CACHE_SIZE; sigindex++)
                     {
                         EVP_MD_CTX_copy_ex(shactx2, shactx1[sigindex]);
-                        EVP_DigestUpdate(shactx2, encbuf + encoffset,
-                                         PUBLIC_KEY_LENGTH);
+                        EVP_DigestUpdate(shactx2, encbuf + encoffset, 64);
                         EVP_DigestFinal_ex(shactx2, hash, NULL);
                         // init_ex2とcopy_exってどっちが早いんやろうな？
                         // 全部コピーするからcopy_exのほうが遅いのかもしれん
