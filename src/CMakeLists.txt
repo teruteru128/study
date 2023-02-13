@@ -43,7 +43,7 @@ add_executable(bmkeygen bmkeygen.c)
 target_link_libraries(bmkeygen ${OPENSSL_CRYPTO_LIBRARIES})
 target_include_directories(bmkeygen PRIVATE ${OPENSSL_INCLUDE_DIR})
 
-add_executable(bmkeysearch bmkeysearch.c queue.c)
+add_executable(bmkeysearch bmkeysearch.c queue.c bmkeyload.c)
 target_link_libraries(bmkeysearch study xmlrpc xmlrpc_client ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_CRYPTO_LIBRARIES})
 target_include_directories(bmkeysearch PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_definitions(bmkeysearch PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")

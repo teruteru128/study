@@ -61,7 +61,7 @@ static int loadPrivateKey1(unsigned char *publicKey, const char *path)
     return loadKey1(publicKey, path, 32, 16777216);
 }
 
-static int loadPublicKey1(unsigned char *publicKey, const char *path)
+static int loadPublicKey(unsigned char *publicKey, const char *path)
 {
     // public keyは頻繁に使うのでメモリに読み込んでおく
     return loadKey1(publicKey, path, 64, 16777216);
@@ -88,13 +88,13 @@ static int dappunda(const EVP_MD *sha512, const EVP_MD *ripemd160)
         fprintf(stderr, "posix_memalign: %s\n", strerror(en));
         return 1;
     }
-    if (loadPublicKey1(publicKeyGlobal,
+    if (loadPublicKey(publicKeyGlobal,
                        "/mnt/d/keys/public/trimmed/publicKeys0.bin")
-        || loadPublicKey1(publicKeyGlobal + 16777216UL * 64,
+        || loadPublicKey(publicKeyGlobal + 16777216UL * 64,
                           "/mnt/d/keys/public/trimmed/publicKeys1.bin")
-        || loadPublicKey1(publicKeyGlobal + 16777216UL * 64 * 2,
+        || loadPublicKey(publicKeyGlobal + 16777216UL * 64 * 2,
                           "/mnt/d/keys/public/trimmed/publicKeys2.bin")
-        || loadPublicKey1(publicKeyGlobal + 16777216UL * 64 * 3,
+        || loadPublicKey(publicKeyGlobal + 16777216UL * 64 * 3,
                           "/mnt/d/keys/public/trimmed/publicKeys3.bin"))
     {
         perror("publickey");

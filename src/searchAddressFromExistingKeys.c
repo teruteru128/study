@@ -198,7 +198,7 @@ static int loadPrivateKey1(unsigned char *publicKey, const char *path)
     return loadKey1(publicKey, path, 32, 16777216);
 }
 
-static int loadPublicKey1(unsigned char *publicKey, const char *path)
+static int loadPublicKey(unsigned char *publicKey, const char *path)
 {
     // public keyは頻繁に使うのでメモリに読み込んでおく
     return loadKey1(publicKey, path, 65, 16777216);
@@ -208,7 +208,7 @@ static int deepdarkfantasy()
 {
     unsigned char *publicKeyGlobal = malloc(1090519040UL);
     unsigned char *privateKeyGlobal = NULL;
-    if (loadPublicKey1(
+    if (loadPublicKey(
             publicKeyGlobal,
             "/home/teruteru128/git/study/keys/public/publicKeys0.bin"))
     {

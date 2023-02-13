@@ -24,6 +24,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "bmkeyload.h"
 
 #define KEY_CACHE_SIZE 67108864UL
 #define J_CACHE_SIZE 126
@@ -179,23 +180,6 @@ void *consume(void *arg)
     }
     EVP_MD_CTX_free(mdctx);
     return NULL;
-}
-
-int loadPublicKey(PublicKey *area, const char *path)
-{
-    FILE *fin = fopen(path, "rb");
-    if (fin == NULL)
-    {
-        return 1;
-    }
-    size_t l = fread(area, PUBLIC_KEY_LENGTH, KEY_CACHE_SIZE, fin);
-    if (l != KEY_CACHE_SIZE)
-    {
-        perror("fread");
-        return 1;
-    }
-    fclose(fin);
-    return 0;
 }
 
 /**
