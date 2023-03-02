@@ -73,6 +73,13 @@ static volatile sig_atomic_t re = 1;
 
 void handler(int h, siginfo_t *a, void *v) { re ^= 1; }
 
+struct ServerConfig
+{
+    int socket;
+};
+
+static struct ServerConfig config = { 0 };
+
 /**
  * @brief
  * ↓2回連続getFloatで-1が出るseed 2つ
@@ -108,19 +115,35 @@ int hiho(int argc, char **argv, char *const *envp)
         perror("sigaction");
         return 1;
     }
-
+    struct timespec req, rem;
+    req.tv_sec = 60;
+    req.tv_nsec = 0;
+    int t = 0;
+    char errbuf[512];
+    char *r = NULL;
     while (re)
     {
         errno = 0;
         if (getaddrinfo("www.pixiv.net", "http", &hints, &res))
         {
-            perror("getaddrinfo");
+            fprintf(stderr, "getaddrinfo: %s(%ld)\n",
+                    strerror_r(errno, errbuf, 512), time(NULL));
         }
         else
         {
             freeaddrinfo(res);
         }
-        sleep(60);
+        fputs("sleeping...\n", stderr);
+        t = nanosleep(&req, &rem);
+        if (t != 0)
+        {
+            fprintf(stderr, "t is %d(%ld.%09ld), re is %d\n", t, rem.tv_sec,
+                    rem.tv_nsec, re);
+        }
+    }
+    if (re == 0)
+    {
+        fprintf(stderr, "re is 0\n");
     }
 
     return 0;
