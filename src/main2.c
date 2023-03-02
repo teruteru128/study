@@ -25,7 +25,6 @@
 #include <inttypes.h>
 #include <java_random.h>
 #include <jsonrpc-glib.h>
-#include <liburing.h>
 #include <limits.h>
 #include <math.h>
 #include <netdb.h>
