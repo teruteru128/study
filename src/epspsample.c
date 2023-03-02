@@ -14,7 +14,7 @@ void printregerror(int r, const regex_t *reg)
     {
         size_t errbuf_size = regerror(r, reg, NULL, 0);
         char *errbuf = malloc(errbuf_size);
-        regerror(r, &reg, errbuf, errbuf_size);
+        regerror(r, reg, errbuf, errbuf_size);
         fprintf(stderr, "%s\n", errbuf);
         free(errbuf);
         return EXIT_FAILURE;

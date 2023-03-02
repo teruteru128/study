@@ -45,10 +45,12 @@ int main(int argc, char const *argv[])
     size_t keyfilesize = st.st_size;
     const unsigned char prefix = 0x04;
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
     errchk(def, OSSL_PROVIDER_load);
     OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
     errchk(legacy, OSSL_PROVIDER_load);
+#endif
     const EVP_MD *sha512 = EVP_sha512();
     errchk(sha512, EVP_sha512);
     const EVP_MD *ripemd160 = EVP_ripemd160();
@@ -60,8 +62,13 @@ int main(int argc, char const *argv[])
     EVP_MD_CTX *ripemd160ctx = EVP_MD_CTX_new();
     errchk(ripemd160ctx, EVP_MD_CTX_new);
     unsigned char hash[EVP_MAX_MD_SIZE];
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     errchk(EVP_DigestInit_ex2(sha512ctx1, sha512, NULL), EVP_DigestInit_ex2);
     errchk(EVP_DigestInit_ex2(sha512ctx2, sha512, NULL), EVP_DigestInit_ex2);
+#else
+    errchk(EVP_DigestInit_ex(sha512ctx1, sha512, NULL), EVP_DigestInit_ex);
+    errchk(EVP_DigestInit_ex(sha512ctx2, sha512, NULL), EVP_DigestInit_ex);
+#endif
     for (size_t u = 0; u < keyfilesize; u += BUFSIZ)
     {
         fseek(f1, u, SEEK_SET);
@@ -82,8 +89,13 @@ int main(int argc, char const *argv[])
             }
             for (size_t i = 0; i < BUFSIZ; i += 64)
             {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
                 errchk(EVP_DigestInit_ex2(sha512ctx1, sha512, NULL),
                        EVP_DigestInit_ex2);
+#else
+                errchk(EVP_DigestInit_ex(sha512ctx1, sha512, NULL),
+                       EVP_DigestInit_ex);
+#endif
                 errchk(EVP_DigestUpdate(sha512ctx1, &prefix, 1),
                        EVP_DigestUpdate);
                 errchk(EVP_DigestUpdate(sha512ctx1, keybuf1 + i, 64),
@@ -99,8 +111,13 @@ int main(int argc, char const *argv[])
                     unsigned int s = 0;
                     errchk(EVP_DigestFinal_ex(sha512ctx2, hash, &s),
                            EVP_DigestFinal_ex);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
                     errchk(EVP_DigestInit_ex2(ripemd160ctx, ripemd160, NULL),
                            EVP_DigestInit_ex2);
+#else
+                    errchk(EVP_DigestInit_ex(ripemd160ctx, ripemd160, NULL),
+                           EVP_DigestInit_ex);
+#endif
                     errchk(EVP_DigestUpdate(ripemd160ctx, hash, s),
                            EVP_DigestUpdate);
                     errchk(EVP_DigestFinal_ex(ripemd160ctx, hash, &s),
@@ -128,8 +145,10 @@ int main(int argc, char const *argv[])
     EVP_MD_CTX_free(sha512ctx1);
     EVP_MD_CTX_free(sha512ctx2);
     EVP_MD_CTX_free(ripemd160ctx);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     OSSL_PROVIDER_unload(def);
     OSSL_PROVIDER_unload(legacy);
+#endif
 
     return 0;
 }
