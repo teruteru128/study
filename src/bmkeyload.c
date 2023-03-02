@@ -26,8 +26,8 @@ static int loadKey1(unsigned char *publicKey, const char *path, size_t size,
     return 0;
 }
 
-static int loadPublicKey(PublicKey *publicKey, const char *path)
+int loadPublicKey(PublicKey *publicKey, const char *path)
 {
     // public keyは頻繁に使うのでメモリに読み込んでおく
-    return loadKey1(publicKey, path, 65, 16777216);
+    return loadKey1((unsigned char *)publicKey, path, 65, 16777216);
 }
