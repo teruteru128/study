@@ -182,12 +182,6 @@ void *consume(void *arg)
     return NULL;
 }
 
-static int loadPublicKey(unsigned char *publicKey, const char *path)
-{
-    // public keyは頻繁に使うのでメモリに読み込んでおく
-    return loadKey1(publicKey, path, 64, 16777216);
-}
-
 /**
  * TODO: リファクタリング
  * TODO: 鍵キャッシュサーバー
