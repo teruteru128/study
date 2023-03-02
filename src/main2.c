@@ -124,7 +124,7 @@ int hiho(int argc, char **argv, char *const *envp)
     while (re)
     {
         errno = 0;
-        if (getaddrinfo("www.pixiv.net", "http", &hints, &res))
+        if (getaddrinfo("www.pixiv.net", "https", &hints, &res))
         {
             fprintf(stderr, "getaddrinfo: %s(%ld)\n",
                     strerror_r(errno, errbuf, 512), time(NULL));
@@ -133,7 +133,6 @@ int hiho(int argc, char **argv, char *const *envp)
         {
             freeaddrinfo(res);
         }
-        fputs("sleeping...\n", stderr);
         t = nanosleep(&req, &rem);
         if (t != 0)
         {
