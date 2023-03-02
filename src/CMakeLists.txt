@@ -109,6 +109,10 @@ target_include_directories(bmkeysearch15 PRIVATE ${OPENSSL_INCLUDE_DIR} $<$<BOOL
 target_compile_options(bmkeysearch15 PRIVATE $<$<BOOL:${OpenACC_C_FOUND}>:${OpenACC_C_FLAGS}> $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 target_compile_definitions(bmkeysearch15 PRIVATE $<$<BOOL:${GNUTLS_FOUND}>:${GNUTLS_DEFINITIONS}>)
 
+add_executable(bmkeysearch16 bmkeysearch16.c)
+target_link_libraries(bmkeysearch16 ${OPENSSL_CRYPTO_LIBRARIES})
+target_include_directories(bmkeysearch16 PRIVATE ${OPENSSL_INCLUDE_DIR})
+
 add_executable(bmmultisendsample bmmultisendsample.c)
 target_link_libraries(bmmultisendsample study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util ${OPENSSL_CRYPTO_LIBRARIES})
 target_include_directories(bmmultisendsample PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
@@ -397,6 +401,7 @@ target_link_libraries(main
                         $<$<BOOL:${JPEG_FOUND}>:${JPEG_LIBRARIES}>
                         $<$<BOOL:${JSONRPC_GLIB1_FOUND}>:${JSONRPC_GLIB1_LIBRARIES}>
                         $<$<BOOL:${CURL_FOUND}>:${CURL_LIBRARIES}>
+                        uring
                      )
 target_compile_options(main PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 

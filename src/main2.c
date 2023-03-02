@@ -70,6 +70,10 @@
 #include <openssl/types.h>
 #endif
 
+static volatile sig_atomic_t re = 1;
+
+void handler(int h, siginfo_t *a, void *v) { re ^= 1; }
+
 /**
  * @brief
  * ↓2回連続getFloatで-1が出るseed 2つ
@@ -91,33 +95,34 @@
  */
 int hiho(int argc, char **argv, char *const *envp)
 {
-    OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
-    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
-    const EVP_MD *sha512 = EVP_sha512();
-    const EVP_MD *ripemd160 = EVP_ripemd160();
-    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-    unsigned char buf[4096];
+    struct addrinfo hints = { 0 };
+    struct addrinfo *res = NULL;
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
 
-    EVP_DigestInit_ex2(ctx, sha512, NULL);
-    size_t len = 0;
-    while ((len = fread(buf, 1, 4096, stdin)) > 0)
+    struct sigaction action = { 0 };
+    action.sa_sigaction = handler;
+    action.sa_flags = SA_SIGINFO;
+    if (sigaction(SIGINT, &action, NULL) < 0)
     {
-        EVP_DigestUpdate(ctx, buf, len);
+        perror("sigaction");
+        return 1;
     }
-    unsigned char hash[EVP_MAX_MD_SIZE];
-    EVP_DigestFinal_ex(ctx, hash, NULL);
-    EVP_DigestInit_ex2(ctx, ripemd160, NULL);
-    EVP_DigestUpdate(ctx, hash, 64);
-    EVP_DigestFinal_ex(ctx, hash, NULL);
 
-    for (size_t i = 0; i < 20; i++)
+    while (re)
     {
-        printf("%02x", hash[i]);
+        errno = 0;
+        if (getaddrinfo("www.pixiv.net", "http", &hints, &res))
+        {
+            perror("getaddrinfo");
+        }
+        else
+        {
+            freeaddrinfo(res);
+        }
+        sleep(60);
     }
-    printf("\n");
 
-    EVP_MD_CTX_free(ctx);
-    OSSL_PROVIDER_unload(def);
-    OSSL_PROVIDER_unload(legacy);
     return 0;
 }
