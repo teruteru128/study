@@ -80,41 +80,13 @@ struct ServerConfig
 
 static struct ServerConfig config = { 0 };
 
-/**
- * @brief
- * ↓2回連続getFloatで-1が出るseed 2つ
- * 125352706827826
- * 116229385253865
- * ↓getDoubleで可能な限り1に近い値が出るseed
- * 155239116123415
- * preforkする場合ってforkするのはlistenソケットを開く前？開いた後？
- * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
- * 丸数字の1から50までforで出す
- * timer_create+sigeventでタイマーを使って呼ばれたスレッドから新しくスレッドを起動する
- *
- * decodable random source?
- *
- * @param argc
- * @param argv
- * @param envp
- * @return int
- */
-int hiho(int argc, char **argv, char *const *envp)
+void *func(void *arg)
 {
     struct addrinfo hints = { 0 };
     struct addrinfo *res = NULL;
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
-
-    struct sigaction action = { 0 };
-    action.sa_sigaction = handler;
-    action.sa_flags = SA_SIGINFO;
-    if (sigaction(SIGINT, &action, NULL) < 0)
-    {
-        perror("sigaction");
-        return 1;
-    }
     struct timespec req, rem;
     req.tv_sec = 60;
     req.tv_nsec = 0;
@@ -143,6 +115,53 @@ int hiho(int argc, char **argv, char *const *envp)
     if (re == 0)
     {
         fprintf(stderr, "re is 0\n");
+    }
+    return NULL;
+}
+
+/**
+ * @brief
+ * ↓2回連続getFloatで-1が出るseed 2つ
+ * 125352706827826
+ * 116229385253865
+ * ↓getDoubleで可能な限り1に近い値が出るseed
+ * 155239116123415
+ * preforkする場合ってforkするのはlistenソケットを開く前？開いた後？
+ * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
+ * 丸数字の1から50までforで出す
+ * timer_create+sigeventでタイマーを使って呼ばれたスレッドから新しくスレッドを起動する
+ *
+ * decodable random source?
+ *
+ * @param argc
+ * @param argv
+ * @param envp
+ * @return int
+ */
+int hiho(int argc, char **argv, char *const *envp)
+{
+    struct sigaction action = { 0 };
+    action.sa_sigaction = handler;
+    action.sa_flags = SA_SIGINFO;
+    if (sigaction(SIGINT, &action, NULL) < 0)
+    {
+        perror("sigaction");
+        return 1;
+    }
+
+    pthread_t thread = 0;
+    int r = pthread_create(&thread, NULL, func, NULL);
+    if (r != 0)
+    {
+        return 1;
+    }
+    fputs("chottomattene...\n", stderr);
+    pthread_join(thread, NULL);
+
+    int e = epoll_create1(0);
+    if (e < 0)
+    {
+        perror("epoll_create");
     }
 
     return 0;
