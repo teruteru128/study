@@ -5,6 +5,6 @@
 
 #include <bitmessage_type.h>
 
-extern int loadPublicKey(PublicKey *area, const char *path);
+extern int loadPublicKey(unsigned char *area, const char *path);
 
 #endif
