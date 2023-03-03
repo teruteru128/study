@@ -82,42 +82,25 @@ static struct ServerConfig config = { 0 };
 
 void *func(void *arg)
 {
-    struct addrinfo hints = { 0 };
-    struct addrinfo *res = NULL;
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
-    struct timespec req, rem;
-    req.tv_sec = 60;
-    req.tv_nsec = 0;
-    int t = 0;
-    char errbuf[512];
-    char *r = NULL;
-    while (re)
+    int r = 0;
+    size_t *count = (size_t *)arg;
+    ssize_t si = 0;
+    do
     {
-        errno = 0;
-        if (getaddrinfo("www.pixiv.net", "https", &hints, &res))
+        si = getrandom(&r, 3, 0);
+        if (si != 3)
         {
-            fprintf(stderr, "getaddrinfo: %s(%ld)\n",
-                    strerror_r(errno, errbuf, 512), time(NULL));
+            perror("getrandom");
+            return NULL;
         }
-        else
-        {
-            freeaddrinfo(res);
-        }
-        t = nanosleep(&req, &rem);
-        if (t != 0)
-        {
-            fprintf(stderr, "t is %d(%ld.%09ld), re is %d\n", t, rem.tv_sec,
-                    rem.tv_nsec, re);
-        }
-    }
-    if (re == 0)
-    {
-        fprintf(stderr, "re is 0\n");
-    }
+        r = le32toh(r);
+        (*count)++;
+    } while (r);
+
     return NULL;
 }
+
+#define THREADS 256
 
 /**
  * @brief
@@ -140,29 +123,29 @@ void *func(void *arg)
  */
 int hiho(int argc, char **argv, char *const *envp)
 {
-    struct sigaction action = { 0 };
-    action.sa_sigaction = handler;
-    action.sa_flags = SA_SIGINFO;
-    if (sigaction(SIGINT, &action, NULL) < 0)
+    pthread_t thread[THREADS] = { 0 };
+    size_t counts[THREADS] = { 0 };
+    int r = 0;
+    for (size_t i = 0; i < THREADS; i++)
     {
-        perror("sigaction");
-        return 1;
+        r = pthread_create(&thread[i], NULL, func, &counts[i]);
+        if (r != 0)
+        {
+            return 1;
+        }
     }
-
-    pthread_t thread = 0;
-    int r = pthread_create(&thread, NULL, func, NULL);
-    if (r != 0)
+    for (size_t i = 0; i < THREADS; i++)
     {
-        return 1;
+        pthread_join(thread[i], NULL);
+        printf("%zu\n", counts[i]);
     }
-    fputs("chottomattene...\n", stderr);
-    pthread_join(thread, NULL);
-
+    /*
     int e = epoll_create1(0);
     if (e < 0)
     {
         perror("epoll_create");
     }
+    */
 
     return 0;
 }
