@@ -394,6 +394,7 @@ target_link_libraries(main
                         xmlrpc
                         xmlrpc_client
                         ${OPENSSL_CRYPTO_LIBRARIES}
+                        ${OPENSSL_SSL_LIBRARIES}
                         $<$<BOOL:${PNG_FOUND}>:${PNG_LIBRARIES}>
                         gmp
                         $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_LIBRARIES}>

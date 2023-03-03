@@ -39,6 +39,7 @@
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include <openssl/sha.h>
+#include <openssl/ssl.h>
 #include <printaddrinfo.h>
 #include <regex.h>
 #include <signal.h>
@@ -82,21 +83,25 @@ static struct ServerConfig config = { 0 };
 
 void *func(void *arg)
 {
-    int r = 0;
-    size_t *count = (size_t *)arg;
-    ssize_t si = 0;
-    do
-    {
-        si = getrandom(&r, 3, 0);
-        if (si != 3)
-        {
-            perror("getrandom");
-            return NULL;
-        }
-        r = le32toh(r);
-        (*count)++;
-    } while (r);
-
+    OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS, NULL);
+    OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CRYPTO_STRINGS
+                            | OPENSSL_INIT_ADD_ALL_CIPHERS
+                            | OPENSSL_INIT_ADD_ALL_DIGESTS,
+                        NULL);
+    SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
+    SSL *ssl = SSL_new(ctx);
+    // SSL_set_fd(ssl, 0);
+    SSL_connect(ssl);
+    char hello[] = "Hello, SSL!";
+    char buff[BUFSIZ] = "";
+    SSL_write(ssl, hello, strlen(hello));
+    SSL_read(ssl, buff, sizeof(buff));
+    printf("recived message is \"%s\"\n", buff);
+    // close ssl
+    SSL_shutdown(ssl);
+    SSL_free(ssl);
+    SSL_CTX_free(ctx);
+    // close connecting socket
     return NULL;
 }
 
@@ -124,11 +129,10 @@ void *func(void *arg)
 int hiho(int argc, char **argv, char *const *envp)
 {
     pthread_t thread[THREADS] = { 0 };
-    size_t counts[THREADS] = { 0 };
     int r = 0;
     for (size_t i = 0; i < THREADS; i++)
     {
-        r = pthread_create(&thread[i], NULL, func, &counts[i]);
+        r = pthread_create(&thread[i], NULL, func, NULL);
         if (r != 0)
         {
             return 1;
@@ -137,15 +141,14 @@ int hiho(int argc, char **argv, char *const *envp)
     for (size_t i = 0; i < THREADS; i++)
     {
         pthread_join(thread[i], NULL);
-        printf("%zu\n", counts[i]);
     }
-    /*
+
     int e = epoll_create1(0);
     if (e < 0)
     {
         perror("epoll_create");
     }
-    */
+    epoll_ctl(e, EPOLL_CTL_ADD, 0, NULL);
 
     return 0;
 }
