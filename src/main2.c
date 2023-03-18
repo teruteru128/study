@@ -70,42 +70,15 @@
 #include <openssl/types.h>
 #endif
 
-static volatile sig_atomic_t re = 1;
+#define errchk(v, f)                                                          \
+    if (!v)                                                                   \
+    {                                                                         \
+        unsigned long err = ERR_get_error();                                  \
+        fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL));           \
+        return EXIT_FAILURE;                                                  \
+    }
 
-void handler(int h, siginfo_t *a, void *v) { re ^= 1; }
-
-struct ServerConfig
-{
-    int socket;
-};
-
-static struct ServerConfig config = { 0 };
-
-void *func(void *arg)
-{
-    OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS, NULL);
-    OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CRYPTO_STRINGS
-                            | OPENSSL_INIT_ADD_ALL_CIPHERS
-                            | OPENSSL_INIT_ADD_ALL_DIGESTS,
-                        NULL);
-    SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
-    SSL *ssl = SSL_new(ctx);
-    // SSL_set_fd(ssl, 0);
-    SSL_connect(ssl);
-    char hello[] = "Hello, SSL!";
-    char buff[BUFSIZ] = "";
-    SSL_write(ssl, hello, strlen(hello));
-    SSL_read(ssl, buff, sizeof(buff));
-    printf("recived message is \"%s\"\n", buff);
-    // close ssl
-    SSL_shutdown(ssl);
-    SSL_free(ssl);
-    SSL_CTX_free(ctx);
-    // close connecting socket
-    return NULL;
-}
-
-#define THREADS 256
+#define PREFIX_LENGTH 56
 
 /**
  * @brief
@@ -128,27 +101,57 @@ void *func(void *arg)
  */
 int hiho(int argc, char **argv, char *const *envp)
 {
-    pthread_t thread[THREADS] = { 0 };
-    int r = 0;
-    for (size_t i = 0; i < THREADS; i++)
+    unsigned char prefix[PREFIX_LENGTH];
+    if (getrandom(prefix, PREFIX_LENGTH, 0) != PREFIX_LENGTH)
     {
-        r = pthread_create(&thread[i], NULL, func, NULL);
-        if (r != 0)
+        return 1;
+    }
+    EVP_MD_CTX *ctx1 = EVP_MD_CTX_new();
+    if (ctx1 == NULL)
+    {
+        return 1;
+    }
+    const EVP_MD *sha512 = EVP_sha512();
+    if (sha512 == NULL)
+    {
+        return 1;
+    }
+    errchk(EVP_DigestInit_ex2(ctx1, sha512, NULL), EVP_DigestInit_ex2);
+    errchk(EVP_DigestUpdate(ctx1, prefix, PREFIX_LENGTH), EVP_DigestUpdate);
+    volatile atomic_int r = 1;
+#pragma omp parrel default(none) shared(ctx1, prefix, sha512, r)
+    {
+        EVP_MD_CTX *ctx2 = EVP_MD_CTX_new();
+        if (ctx2 == NULL)
         {
             return 1;
         }
+        errchk(EVP_DigestInit_ex2(ctx2, sha512, NULL), EVP_DigestInit_ex2);
+        unsigned long suffix = 0;
+        unsigned char hash[EVP_MAX_MD_SIZE];
+#pragma omp for
+        for(unsigned long counter = 0; counter < 0xFFFFFFFFFFFFFFFFUL; counter++)
+        {
+            suffix = htobe64(counter);
+            EVP_MD_CTX_copy_ex(ctx2, ctx1);
+            EVP_DigestUpdate(ctx2, &suffix, 8);
+            EVP_DigestFinal_ex(ctx2, hash, NULL);
+            if ((*((unsigned long *)hash)) & 0x00000000ffffffUL)
+            {
+                continue;
+            }
+#pragma omp critical
+            {
+                for (size_t i = 0; i < 64; i++)
+                    printf("%02x", hash[i]);
+                printf(":");
+                for (size_t i = 0; i < PREFIX_LENGTH; i++)
+                    printf("%02x", prefix[i]);
+                printf("%016lx", counter);
+                printf("\n");
+            }
+        }
     }
-    for (size_t i = 0; i < THREADS; i++)
-    {
-        pthread_join(thread[i], NULL);
-    }
-
-    int e = epoll_create1(0);
-    if (e < 0)
-    {
-        perror("epoll_create");
-    }
-    epoll_ctl(e, EPOLL_CTL_ADD, 0, NULL);
-
+    EVP_MD_CTX_free(ctx1);
     return 0;
 }
