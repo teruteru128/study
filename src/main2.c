@@ -70,15 +70,51 @@
 #include <openssl/types.h>
 #endif
 
-#define errchk(v, f)                                                          \
-    if (!v)                                                                   \
-    {                                                                         \
-        unsigned long err = ERR_get_error();                                  \
-        fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL));           \
-        return EXIT_FAILURE;                                                  \
-    }
+/**
+ * @brief open listened socket
+ * オプションとかは仮引数で
+ *
+ * @return int listened socket
+ */
+static int openlistensocket()
+{
+    struct addrinfo hints = { 0 };
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    struct addrinfo *res = NULL;
+    getaddrinfo(NULL, "8080", &hints, &res);
+    int s = -1;
+    for (struct addrinfo *ptr = res; ptr != NULL; ptr = ptr->ai_next)
+    {
+        printaddrinfo(ptr);
+        s = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+        if (s < 0)
+        {
+            s = -1;
+            continue;
+        }
 
-#define PREFIX_LENGTH 56
+        if (bind(s, ptr->ai_addr, ptr->ai_addrlen) != 0)
+        {
+            close(s);
+            s = -1;
+            continue;
+        }
+
+        if (listen(s, 16) != 0)
+        {
+            close(s);
+            s = -1;
+            continue;
+        }
+    }
+    freeaddrinfo(res);
+    return s;
+}
+
+static void *ewaitthread(void *arg) { return NULL; }
+static void *downloadingthread(void *arg) { return NULL; }
+static void *processdatathread(void *arg) {}
 
 /**
  * @brief
@@ -91,6 +127,11 @@
  * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
  * 丸数字の1から50までforで出す
  * timer_create+sigeventでタイマーを使って呼ばれたスレッドから新しくスレッドを起動する
+ * TODO: CでSSLエンジンを使う
+ * TODO: CでLibSSLなSSLエンジンを使う
+ * TODO: javaでも直接SSLEngineを使ってみる
+ * TODO: SocketChannel + SSLEngine + Selector
+ * TODO: bitmessageをCで実装する、bitmessaged + bmctl の形式が良い
  *
  * decodable random source?
  *
@@ -99,59 +140,22 @@
  * @param envp
  * @return int
  */
-int hiho(int argc, char **argv, char *const *envp)
+int entrypoint(int argc, char **argv, char *const *envp)
 {
-    unsigned char prefix[PREFIX_LENGTH];
-    if (getrandom(prefix, PREFIX_LENGTH, 0) != PREFIX_LENGTH)
-    {
-        return 1;
-    }
-    EVP_MD_CTX *ctx1 = EVP_MD_CTX_new();
-    if (ctx1 == NULL)
-    {
-        return 1;
-    }
-    const EVP_MD *sha512 = EVP_sha512();
-    if (sha512 == NULL)
-    {
-        return 1;
-    }
-    errchk(EVP_DigestInit_ex2(ctx1, sha512, NULL), EVP_DigestInit_ex2);
-    errchk(EVP_DigestUpdate(ctx1, prefix, PREFIX_LENGTH), EVP_DigestUpdate);
-    volatile atomic_int r = 1;
-#pragma omp parrel default(none) shared(ctx1, prefix, sha512, r)
-    {
-        EVP_MD_CTX *ctx2 = EVP_MD_CTX_new();
-        if (ctx2 == NULL)
-        {
-            return 1;
+    int listensock = openlistensocket();
+    printf("listen: %d\n", listensock);
+    close(listensock);
+    // create epoll fd
+    // register listen socket to epoll fd
+    // launch accept/signal receive thread
+    /*
+        if(listensocket == socket){
+            register to epoll fd
+        }else{
+            send (push?/forward?) downloading thread
         }
-        errchk(EVP_DigestInit_ex2(ctx2, sha512, NULL), EVP_DigestInit_ex2);
-        unsigned long suffix = 0;
-        unsigned char hash[EVP_MAX_MD_SIZE];
-#pragma omp for
-        for(unsigned long counter = 0; counter < 0xFFFFFFFFFFFFFFFFUL; counter++)
-        {
-            suffix = htobe64(counter);
-            EVP_MD_CTX_copy_ex(ctx2, ctx1);
-            EVP_DigestUpdate(ctx2, &suffix, 8);
-            EVP_DigestFinal_ex(ctx2, hash, NULL);
-            if ((*((unsigned long *)hash)) & 0x00000000ffffffUL)
-            {
-                continue;
-            }
-#pragma omp critical
-            {
-                for (size_t i = 0; i < 64; i++)
-                    printf("%02x", hash[i]);
-                printf(":");
-                for (size_t i = 0; i < PREFIX_LENGTH; i++)
-                    printf("%02x", prefix[i]);
-                printf("%016lx", counter);
-                printf("\n");
-            }
-        }
-    }
-    EVP_MD_CTX_free(ctx1);
+     */
+    // launch downloading thread
+    // launch processing data thread
     return 0;
 }
