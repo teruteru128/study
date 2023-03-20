@@ -8,7 +8,7 @@
     "12-34-56:12時34分頃,3,1,4,紀伊半島沖,ごく浅く,3.2,1,N12.3,E45.6," \
     "仙台管区気象台:-奈良県,+2,*下北山村,+1,*十津川村,*奈良川上村\r\n"
 
-void printregerror(int r, const regex_t *reg)
+int printregerror(int r, const regex_t *reg)
 {
     if (r != 0)
     {
@@ -19,6 +19,7 @@ void printregerror(int r, const regex_t *reg)
         free(errbuf);
         return EXIT_FAILURE;
     }
+    return EXIT_SUCCESS;
 }
 
 int epsptest(void)
