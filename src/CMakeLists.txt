@@ -379,6 +379,7 @@ add_executable(main
                 roulette.c
                 searchAddressFromExistingKeys.c
                 randomsample.c
+                queue.c
               )
 target_compile_definitions(main PRIVATE CL_TARGET_OPENCL_VERSION=220)
 target_include_directories(main PRIVATE
