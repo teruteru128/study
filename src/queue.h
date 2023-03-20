@@ -19,16 +19,17 @@ struct queue
     pthread_cond_t notEmpty;
     pthread_mutex_t putLock;
     pthread_cond_t notFull;
+    void (*destructor)(void *);
 };
 
 #define QUEUE_INITIALIZER2(MAX)                                               \
     {                                                                         \
-        NULL, NULL, MAX, 0, PTHREAD_RWLOCK_INITIALIZER,                        \
+        NULL, NULL, MAX, 0, PTHREAD_RWLOCK_INITIALIZER,                       \
             PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER,              \
-            PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER               \
+            PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER, NULL         \
     }
 
-#define QUEUE_INITIALIZER QUEUE_INITIALIZER2(INT_MAX)
+#define QUEUE_INITIALIZER QUEUE_INITIALIZER2(ULONG_MAX)
 #define QUEUE_DECLARE(name) struct queue name
 #define QUEUE_DEFINE(name) QUEUE_DECLARE(name) = QUEUE_INITIALIZER
 #define QUEUE_DEFINE2(name, MAX) QUEUE_DECLARE(name) = QUEUE_INITIALIZER2(MAX)

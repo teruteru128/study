@@ -81,13 +81,18 @@ void put(struct queue *queue, void *e)
     {
         return;
     }
+
     struct node *node = calloc(1, sizeof(struct node));
     node->item = e;
+
     pthread_mutex_lock(&queue->putLock);
+
     enqueue(queue, node);
+
     pthread_rwlock_wrlock(&queue->sizeLock);
     size_t c = queue->size++;
     pthread_rwlock_unlock(&queue->sizeLock);
+
     if ((c + 1) < queue->capacity)
         pthread_cond_signal(&queue->notFull);
     pthread_mutex_unlock(&queue->putLock);
@@ -102,7 +107,9 @@ void *take(struct queue *queue)
         return NULL;
     }
     size_t c = (size_t)-1;
+
     pthread_mutex_lock(&queue->takeLock);
+
     pthread_rwlock_rdlock(&queue->sizeLock);
     while (queue->size == 0)
     {
@@ -114,9 +121,10 @@ void *take(struct queue *queue)
 
     void *item = dequeue(queue);
     pthread_rwlock_wrlock(&queue->sizeLock);
-    c = queue->size--;
+    queue->size--;
+    c = queue->size;
     pthread_rwlock_unlock(&queue->sizeLock);
-    if (c > 1)
+    if (c >= 1)
     {
         pthread_cond_signal(&queue->notEmpty);
     }
@@ -166,20 +174,36 @@ struct queue *queue_new(const size_t capacity)
     pthread_cond_init(&queue->notEmpty, NULL);
     pthread_mutex_init(&queue->putLock, NULL);
     pthread_cond_init(&queue->notFull, NULL);
+    queue->destructor = NULL;
     return queue;
 }
 
 static void nodes_destory(struct queue *queue)
 {
+    struct node *ptr = queue->head;
+    while (ptr != NULL)
+    {
+        struct node *current = ptr;
+        if (queue->destructor)
+            queue->destructor(current->item);
+        current->item = NULL;
+        ptr = current->next;
+        ptr->prev = NULL;
+        current->next = NULL;
+        free(current);
+    }
+    queue->head = NULL;
+    queue->tail = NULL;
+}
 
+void set_destructor(struct queue *queue, void (*dest)(void *))
+{
+    queue->destructor = dest;
 }
 
 void queue_free(struct queue *queue)
 {
     nodes_destory(queue);
-    free(queue->head);
-    queue->head = NULL;
-    queue->tail = NULL;
     queue->capacity = 0;
     queue->size = 0;
     pthread_rwlock_destroy(&queue->sizeLock);

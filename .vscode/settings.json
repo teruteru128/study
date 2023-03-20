@@ -242,7 +242,8 @@
         "liburing.h": "c",
         "epoll.h": "c",
         "fcntl2.h": "c",
-        "ssl.h": "c"
+        "ssl.h": "c",
+        "numbers": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
