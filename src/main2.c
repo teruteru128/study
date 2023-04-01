@@ -235,6 +235,7 @@ static void *processdatathread(void *arg) { return NULL; }
  * TODO: javaでも直接SSLEngineを使ってみる
  * TODO: SocketChannel + SSLEngine + Selector
  * TODO: bitmessageをCで実装する、bitmessaged + bmctl の形式が良い
+ * TODO: 新しいアドレスと鍵を動的にロードできないの、なんとかなりません？
  *
  * decodable random source?
  *
@@ -259,7 +260,7 @@ int entrypoint(int argc, char **argv, char *const *envp)
     }
 
     // register listen socket to epoll fd
-    // この epoll_event の構造体って中で保持してんのかねぇ？それともコピー？
+    // この epoll_event の構造体って中でポインタを保持してんのかねぇ？それともコピー？
     struct epoll_event event = { 0 };
     event.events = EPOLLIN;
     event.data.ptr = &info;
