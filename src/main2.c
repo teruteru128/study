@@ -98,29 +98,30 @@
  */
 int entrypoint(int argc, char **argv, char *const *envp)
 {
-    mpz_t num;
-    mpz_init_set_ui(num, 1);
-    regex_t pattern;
-    int code = 0;
-    if ((code = regcomp(&pattern, "9319318931",
-                        REG_EXTENDED | REG_NOSUB | REG_NEWLINE))
-        != 0)
+    if (argc < 2)
     {
-        size_t size = regerror(code, &pattern, NULL, 0);
-        char *errmsg = calloc(size, 1);
-        regerror(code, &pattern, errmsg, size);
-        fprintf(stderr, "error: %s\n", errmsg);
-        free(errmsg);
         return 1;
     }
+    const char *filter = argv[1];
+
+    size_t filterlength = strlen(filter);
+    for (size_t i = 0; i < filterlength; i++)
+    {
+        if (!isdigit(filter[i]))
+        {
+            return 1;
+        }
+    }
+
+    mpz_t num;
+    mpz_init_set_ui(num, 1);
 
     char *str = NULL;
 
-    for (int i = 0; ; i++)
+    for (int i = 0;; i++, mpz_mul_2exp(num, num, 1))
     {
-        mpz_mul_2exp(num, num, 1);
         str = mpz_get_str(NULL, 10, num);
-        if ((code = regexec(&pattern, str, 0, NULL, 0)) == 0)
+        if (strstr(str, filter) != NULL)
         {
             printf("%d, %lu\n", i, strlen(str));
             printf("%s\n", str);
@@ -131,6 +132,5 @@ int entrypoint(int argc, char **argv, char *const *envp)
     }
 
     mpz_clear(num);
-    regfree(&pattern);
     return 0;
 }
