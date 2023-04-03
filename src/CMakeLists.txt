@@ -597,6 +597,8 @@ add_executable(seq seq.c)
 
 add_executable(server server.c)
 
+add_executable(serversample serversample.c queue.c)
+
 add_executable(service-sample service-sample.c serverconfig.c)
 target_compile_definitions(service-sample PUBLIC _GNU_SOURCE)
 target_link_libraries(service-sample ${CMAKE_THREAD_LIBS_INIT} study)
