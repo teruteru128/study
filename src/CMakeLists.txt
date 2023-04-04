@@ -598,6 +598,7 @@ add_executable(seq seq.c)
 add_executable(server server.c)
 
 add_executable(serversample serversample.c queue.c)
+target_link_libraries(serversample study)
 
 add_executable(service-sample service-sample.c serverconfig.c)
 target_compile_definitions(service-sample PUBLIC _GNU_SOURCE)

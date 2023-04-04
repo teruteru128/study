@@ -102,6 +102,42 @@ int entrypoint(int argc, char **argv, char *const *envp)
     {
         return 1;
     }
+    if (strcmp(argv[1], "search") == 0)
+    {
+        char inputpath[PATH_MAX];
+        int fd = -1;
+        unsigned char *key = malloc(1090519040UL);
+        unsigned char *current = NULL;
+        for (size_t i = 0; i < 256; i++)
+        {
+            snprintf(inputpath, PATH_MAX,
+                     "/mnt/d/keys/public/publicKeys%zu.bin", i);
+            fd = open(inputpath, O_RDONLY);
+            if (fd < 0)
+            {
+                continue;
+            }
+            read(fd, key, 1090519040UL);
+            close(fd);
+            for (size_t j = 0; j < 1090519040UL; j += 65)
+            {
+                current = key + j;
+                if (current[1] == 0 && current[33] == 0
+                    && ((current[2] == 0 && (current[34] & 0xf8) == 0)
+                        || ((current[2] & 0xf8) == 0 && current[34] == 0)))
+                {
+                    printf("%zu, %zu: ", i, j / 65);
+                    for (size_t k = 0; k < 65; k++)
+                    {
+                        printf("%02x", current[k]);
+                    }
+                    printf("\n");
+                }
+            }
+            fprintf(stderr, "%s done.\n", inputpath);
+        }
+        return 0;
+    }
     const char *filter = argv[1];
 
     size_t filterlength = strlen(filter);

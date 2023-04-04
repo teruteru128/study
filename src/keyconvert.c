@@ -1,6 +1,7 @@
 
 #define OPENSSL_API_COMPAT 0x30000000L
 #define OPENSSL_NO_DEPRECATED 1
+#define _GNU_SOURCE 1
 
 #include <fcntl.h>
 #include <limits.h>
