@@ -27,6 +27,7 @@
 #include <java_random.h>
 #include <jsonrpc-glib.h>
 #include <limits.h>
+#include <locale.h>
 #include <math.h>
 #include <netdb.h>
 #include <omp.h>
@@ -98,75 +99,31 @@
  */
 int entrypoint(int argc, char **argv, char *const *envp)
 {
-    if (argc < 2)
+    // iconvはwchar_tにも変換できる
+    setlocale(LC_ALL, "");
+    iconv_t i = iconv_open("WCHAR_T", "UTF-8");
+    if (i == (iconv_t)-1)
     {
+        perror("iconv_open");
         return 1;
     }
-    if (strcmp(argv[1], "search") == 0)
+    char *in = "うんちー！ｳｧｧ!!ｵﾚﾓｲｯﾁｬｳｩｩｩ!!!ｳｳｳｳｳｳｳｳｳｩｩｩｩｩｩｩｩｳｳｳｳｳｳｳｳ!"
+               "ｲｨｨｲｨｨｨｲｲｲｨｲｲｲｲｲｲｲｲｲｲｲｲ!!"
+               "ぷももえんぐえげぎおんもえちょっちょっちゃっさっ！";
+    char *work = in;
+    size_t insize = strlen(in);
+    printf("%zu\n", insize);
+    wchar_t out[1024] = L"";
+    wchar_t *tmp = out;
+    size_t outsize = 1024;
+    printf("before: %ls\n", out);
+    iconv(i, &work, &insize, (char **)&tmp, &outsize);
+    printf("after: %ls, %zu, %zu\n", out, insize, outsize);
+    iconv_close(i);
+    for (size_t i = 0; out[i] != 0; i++)
     {
-        char inputpath[PATH_MAX];
-        int fd = -1;
-        unsigned char *key = malloc(1090519040UL);
-        unsigned char *current = NULL;
-        for (size_t i = 0; i < 256; i++)
-        {
-            snprintf(inputpath, PATH_MAX,
-                     "/mnt/d/keys/public/publicKeys%zu.bin", i);
-            fd = open(inputpath, O_RDONLY);
-            if (fd < 0)
-            {
-                continue;
-            }
-            read(fd, key, 1090519040UL);
-            close(fd);
-            for (size_t j = 0; j < 1090519040UL; j += 65)
-            {
-                current = key + j;
-                if (current[1] == 0 && current[33] == 0
-                    && ((current[2] == 0 && (current[34] & 0xf8) == 0)
-                        || ((current[2] & 0xf8) == 0 && current[34] == 0)))
-                {
-                    printf("%zu, %zu: ", i, j / 65);
-                    for (size_t k = 0; k < 65; k++)
-                    {
-                        printf("%02x", current[k]);
-                    }
-                    printf("\n");
-                }
-            }
-            fprintf(stderr, "%s done.\n", inputpath);
-        }
-        return 0;
+        printf("%08x", out[i]);
     }
-    const char *filter = argv[1];
-
-    size_t filterlength = strlen(filter);
-    for (size_t i = 0; i < filterlength; i++)
-    {
-        if (!isdigit(filter[i]))
-        {
-            return 1;
-        }
-    }
-
-    mpz_t num;
-    mpz_init_set_ui(num, 1);
-
-    char *str = NULL;
-
-    for (int i = 0;; i++, mpz_mul_2exp(num, num, 1))
-    {
-        str = mpz_get_str(NULL, 10, num);
-        if (strstr(str, filter) != NULL)
-        {
-            printf("%d, %lu\n", i, strlen(str));
-            printf("%s\n", str);
-            free(str);
-            break;
-        }
-        free(str);
-    }
-
-    mpz_clear(num);
+    printf("\n");
     return 0;
 }
