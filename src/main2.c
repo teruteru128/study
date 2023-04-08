@@ -63,6 +63,7 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
+#include <uuid/uuid.h>
 
 #include <jpeglib.h> // jpeglibはstdioより下(FILEが依存しているため)
 
@@ -142,36 +143,47 @@ double complex zeta(double complex s)
  */
 int entrypoint(int argc, char **argv, char *const *envp)
 {
-    // iconvはwchar_tにも変換できる
-    char *curretlocale = setlocale(LC_ALL, "");
-    printf("currentlocale: %s\n", curretlocale);
-    iconv_t i = iconv_open("WCHAR_T", "UTF-8");
-    if (i == (iconv_t)-1)
+    size_t size = 67108864UL * sizeof(uint64_t);
+    size_t num = size / sizeof(uint64_t);
+    uint64_t *longs = malloc(size);
+
+    size_t requied = size;
+    size_t offset = 0;
+    ssize_t loaded = 0;
+
+    while (requied > 0)
     {
-        perror("iconv_open");
+        loaded
+            = getrandom(longs + offset, requied, GRND_NONBLOCK | GRND_RANDOM);
+        printf("loaded: %zd\n", loaded);
+        if (loaded == -1)
+        {
+            perror("getrandom");
+            return 1;
+        }
+        requied -= loaded;
+        offset += loaded;
+    }
+
+    num = htobe64(num);
+    for (size_t i = 0; i < num; i++)
+    {
+        longs[i] = htobe64(longs[i]);
+    }
+
+    char filename[FILENAME_MAX] = "";
+    time_t now = time(NULL);
+    snprintf(filename, FILENAME_MAX, "randomlongs-%ld.bin", now);
+    fprintf(stderr, "filename: %s\n", filename);
+    FILE *out = fopen(filename, "wb");
+    if (out == NULL)
+    {
         return 1;
     }
-    char *in = "うんちー！ｳｧｧ!!ｵﾚﾓｲｯﾁｬｳｩｩｩ!!!ｳｳｳｳｳｳｳｳｳｩｩｩｩｩｩｩｩｳｳｳｳｳｳｳｳ!"
-               "ｲｨｨｲｨｨｨｲｲｲｨｲｲｲｲｲｲｲｲｲｲｲｲ!!"
-               "ぷももえんぐえげぎおんもえちょっちょっちゃっさっ！";
-    char *work = in;
-    size_t insize = strlen(in);
-    printf("%zu\n", insize);
-    wchar_t out[1024] = L"";
-    wchar_t *tmp = out;
-    size_t outsize = 1024;
-    printf("before: %ls\n", out);
-    iconv(i, &work, &insize, (char **)&tmp, &outsize);
-    printf("after: %ls, %zu, %zu, %zd\n", out, insize, outsize, tmp - out);
-    iconv_close(i);
-    double complex s = 0;
-    double complex z = 0;
-    for (double i = 0; i < 100; i += 0.03125)
-    {
-        s = CMPLX(0.5, i);
-        z = zeta(s);
-        printf("%lf%+lfi,%lf%+lfi\n", creal(s), cimag(s), creal(z), cimag(z));
-    }
+
+    fwrite(&num, sizeof(uint64_t), 1, out);
+    fwrite(longs, sizeof(uint64_t), num, out);
+    fclose(out);
 
     return 0;
 }

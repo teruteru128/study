@@ -404,6 +404,7 @@ target_link_libraries(main
                         $<$<BOOL:${JPEG_FOUND}>:${JPEG_LIBRARIES}>
                         $<$<BOOL:${JSONRPC_GLIB1_FOUND}>:${JSONRPC_GLIB1_LIBRARIES}>
                         $<$<BOOL:${CURL_FOUND}>:${CURL_LIBRARIES}>
+                        uuid
                      )
 target_compile_options(main PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 
