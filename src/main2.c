@@ -44,6 +44,7 @@
 #include <openssl/rsa.h>
 #include <openssl/sha.h>
 #include <openssl/ssl.h>
+#include <png.h>
 #include <printaddrinfo.h>
 #include <regex.h>
 #include <signal.h>
@@ -115,6 +116,10 @@ double complex zeta(double complex s)
 
     return outer_sum;
 }
+#define WIDTH 1920
+#define HEIGHT 1080
+
+static size_t wordIndex(size_t bitIndex) { return bitIndex >> 3; }
 
 /**
  * @brief
@@ -143,47 +148,76 @@ double complex zeta(double complex s)
  */
 int entrypoint(int argc, char **argv, char *const *envp)
 {
-    size_t size = 67108864UL * sizeof(uint64_t);
-    size_t num = size / sizeof(uint64_t);
-    uint64_t *longs = malloc(size);
-
-    size_t requied = size;
-    size_t offset = 0;
-    ssize_t loaded = 0;
-
-    while (requied > 0)
+    struct IHDR ihdr = { 0 };
+    ihdr.width = WIDTH;
+    ihdr.height = HEIGHT;
+    ihdr.bit_depth = 8;
+    ihdr.color_type = PNG_COLOR_TYPE_RGB;
+    ihdr.interlace_method = PNG_INTERLACE_NONE;
+    ihdr.compression_method = PNG_COMPRESSION_TYPE_DEFAULT;
+    ihdr.filter_method = PNG_NO_FILTERS;
+    png_byte **data = malloc(sizeof(png_byte *) * HEIGHT);
+    size_t x = 0;
+    size_t y = 0;
+    size_t width_length = (sizeof(png_byte) * WIDTH) * 3;
+    for (y = 0; y < HEIGHT; y++)
     {
-        loaded
-            = getrandom(longs + offset, requied, GRND_NONBLOCK | GRND_RANDOM);
-        printf("loaded: %zd\n", loaded);
-        if (loaded == -1)
+        data[y] = malloc(width_length);
+        for (x = 0; x < width_length; x++)
+        {
+            data[y][x] = 0xff;
+        }
+    }
+    size_t seed = 0;
+    ssize_t len = getrandom(&seed, 6, 0);
+    if (len < 6)
+    {
+        perror("getrandom");
+        return 1;
+    }
+    seed = le64toh(seed);
+    seed = initialScramble(seed);
+    size_t numberOfVerticalLines = nextIntWithBounds(&seed, WIDTH / 4);
+    size_t index = 0;
+    size_t word = 0;
+    png_color color;
+    for (size_t i = 0; i < numberOfVerticalLines; i++)
+    {
+        x = nextIntWithBounds(&seed, WIDTH);
+        len = getrandom(&color, sizeof(png_color), 0);
+        if (len < sizeof(png_color))
         {
             perror("getrandom");
             return 1;
         }
-        requied -= loaded;
-        offset += loaded;
+        for (y = 0; y < HEIGHT; y++)
+        {
+            data[y][x * 3 + 0] = color.red;
+            data[y][x * 3 + 1] = color.green;
+            data[y][x * 3 + 2] = color.blue;
+        }
     }
-
-    num = htobe64(num);
-    for (size_t i = 0; i < num; i++)
+    size_t numberOfHorizontalLines = nextIntWithBounds(&seed, HEIGHT / 4);
+    for (size_t i = 0; i < numberOfHorizontalLines; i++)
     {
-        longs[i] = htobe64(longs[i]);
+        y = nextIntWithBounds(&seed, HEIGHT);
+        len = getrandom(&color, sizeof(png_color), 0);
+        if (len < sizeof(png_color))
+        {
+            perror("getrandom");
+            return 1;
+        }
+        for (x = 0; x < width_length; x++)
+        {
+            data[y][x * 3 + 0] = color.red;
+            data[y][x * 3 + 1] = color.green;
+            data[y][x * 3 + 2] = color.blue;
+        }
     }
-
-    char filename[FILENAME_MAX] = "";
-    time_t now = time(NULL);
-    snprintf(filename, FILENAME_MAX, "randomlongs-%ld.bin", now);
-    fprintf(stderr, "filename: %s\n", filename);
-    FILE *out = fopen(filename, "wb");
-    if (out == NULL)
-    {
-        return 1;
-    }
-
-    fwrite(&num, sizeof(uint64_t), 1, out);
-    fwrite(longs, sizeof(uint64_t), num, out);
-    fclose(out);
+    time_t cur = time(NULL);
+    char f[FILENAME_MAX] = "";
+    snprintf(f, FILENAME_MAX, "matrics-%ld.png", cur);
+    write_png(f, &ihdr, NULL, NULL, 0, data);
 
     return 0;
 }
