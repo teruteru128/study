@@ -163,10 +163,6 @@ int entrypoint(int argc, char **argv, char *const *envp)
     for (y = 0; y < HEIGHT; y++)
     {
         data[y] = malloc(width_length);
-        for (x = 0; x < width_length; x++)
-        {
-            data[y][x] = 0xff;
-        }
     }
     size_t seed = 0;
     ssize_t len = getrandom(&seed, 6, 0);
@@ -181,9 +177,8 @@ int entrypoint(int argc, char **argv, char *const *envp)
     size_t index = 0;
     size_t word = 0;
     png_color color;
-    for (size_t i = 0; i < numberOfVerticalLines; i++)
+    for (x = 0; x < WIDTH; x++)
     {
-        x = nextIntWithBounds(&seed, WIDTH);
         len = getrandom(&color, sizeof(png_color), 0);
         if (len < sizeof(png_color))
         {
@@ -191,23 +186,6 @@ int entrypoint(int argc, char **argv, char *const *envp)
             return 1;
         }
         for (y = 0; y < HEIGHT; y++)
-        {
-            data[y][x * 3 + 0] = color.red;
-            data[y][x * 3 + 1] = color.green;
-            data[y][x * 3 + 2] = color.blue;
-        }
-    }
-    size_t numberOfHorizontalLines = nextIntWithBounds(&seed, HEIGHT / 4);
-    for (size_t i = 0; i < numberOfHorizontalLines; i++)
-    {
-        y = nextIntWithBounds(&seed, HEIGHT);
-        len = getrandom(&color, sizeof(png_color), 0);
-        if (len < sizeof(png_color))
-        {
-            perror("getrandom");
-            return 1;
-        }
-        for (x = 0; x < width_length; x++)
         {
             data[y][x * 3 + 0] = color.red;
             data[y][x * 3 + 1] = color.green;
