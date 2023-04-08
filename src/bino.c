@@ -2,34 +2,16 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include "biom.h"
 #include <inttypes.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/param.h>
+#include <pthread.h>
 
 #define X 25
-
-// TODO オーバーフロー対策
-uint64_t binomial(uint64_t n, uint64_t k)
-{
-    // 分母
-    uint64_t denominator = 1;
-    // 分子
-    uint64_t numerator = 1;
-    k = MIN(k, n - k);
-    size_t i, j, l = n - k + 1;
-    for (j = n; j >= l; j--)
-    {
-        numerator *= j;
-    }
-    for (i = k; i >= 1; i--)
-    {
-        denominator *= i;
-    }
-    return numerator / denominator;
-}
 
 /**
  * binomial coefficient

@@ -32,7 +32,7 @@ target_link_libraries(barrier_test PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(bcasttest bcasttest.c)
 
-add_executable(bino bino.c)
+add_executable(bino bino.c biom.c)
 
 add_executable(bm bm.c)
 target_link_libraries(bm study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util ${OPENSSL_CRYPTO_LIBRARIES})
@@ -380,6 +380,7 @@ add_executable(main
                 searchAddressFromExistingKeys.c
                 randomsample.c
                 queue.c
+                biom.c
               )
 target_compile_definitions(main PRIVATE CL_TARGET_OPENCL_VERSION=220)
 target_include_directories(main PRIVATE
