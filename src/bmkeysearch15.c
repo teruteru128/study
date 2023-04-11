@@ -272,12 +272,11 @@ int searchAddressFromExistingKeys3()
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
     OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
-    EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
-    EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
-#else
+    //EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
+    //EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
+#endif
     const EVP_MD *sha512 = EVP_sha512();
     const EVP_MD *ripemd160 = EVP_ripemd160();
-#endif
     struct sigaction action = { 0 };
     struct sigaction oact = { 0 };
     action.sa_flags = SA_SIGINFO;
@@ -293,8 +292,6 @@ int searchAddressFromExistingKeys3()
         dappunda(sha512, ripemd160);
     }
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    EVP_MD_free(sha512);
-    EVP_MD_free(ripemd160);
     OSSL_PROVIDER_unload(def);
     OSSL_PROVIDER_unload(legacy);
 #endif
