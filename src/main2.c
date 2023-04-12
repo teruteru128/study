@@ -75,63 +75,8 @@
 #include <openssl/types.h>
 #endif
 
-/**
- * @brief
- * ↓2回連続getFloatで-1が出るseed 2つ
- * 125352706827826
- * 116229385253865
- * ↓getDoubleで可能な限り1に近い値が出るseed
- * 155239116123415
- * preforkする場合ってforkするのはlistenソケットを開く前？開いた後？
- * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
- * 丸数字の1から50までforで出す
- * timer_create+sigeventでタイマーを使って呼ばれたスレッドから新しくスレッドを起動する
- * TODO: CでSSLエンジンを使う
- * TODO: CでLibSSLなSSLエンジンを使う
- * TODO: javaでも直接SSLEngineを使ってみる
- * TODO: SocketChannel + SSLEngine + Selector
- * TODO: bitmessageをCで実装する、bitmessaged + bmctl の形式が良い
- * TODO: 新しいアドレスと鍵を動的にロードできないの、なんとかなりません？
- *
- * decodable random source?
- *
- * @param argc
- * @param argv
- * @param envp
- * @return int
- */
-int entrypoint(int argc, char **argv, char *const *envp)
+void *task(void *)
 {
-    if (argc < 2)
-    {
-        return 1;
-    }
-    /*
-    uint64_t current = 0;
-    uint64_t min = UINT64_MAX;
-    struct timespec spec = { 0 };
-    spec.tv_sec = 0;
-    spec.tv_nsec = 800000000UL;
-    do
-    {
-        getrandom(&current, sizeof(uint64_t), 0);
-        if (current < min)
-        {
-            printf("%zu->%zu\n", min, current);
-            min = current;
-        }
-        if (current != 0)
-        {
-            nanosleep(&spec, NULL);
-        }
-    } while (current != 0);
-    */
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
-    OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
-    // EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
-    // EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
-#endif
     uuid_t uuid;
     char passphrase[UUID_STR_LEN] = "";
     long signingKeyNonce = 0;
@@ -182,8 +127,6 @@ int entrypoint(int argc, char **argv, char *const *envp)
         do
         {
             // TODO 公開鍵導出を並列化(parallel+sections)
-            EVP_MD_CTX_copy_ex(sha512ctx1, sha512ctx0);
-            EVP_MD_CTX_copy_ex(sha512ctx2, sha512ctx0);
 
             if (counter < 253)
             {
@@ -209,6 +152,7 @@ int entrypoint(int argc, char **argv, char *const *envp)
                 nonce_length = 9;
             }
 
+            EVP_MD_CTX_copy_ex(sha512ctx1, sha512ctx0);
             EVP_DigestUpdate(sha512ctx1, nonce, nonce_length);
             EVP_DigestFinal_ex(sha512ctx1, potentialPrivSigningKey, NULL);
 
@@ -237,6 +181,7 @@ int entrypoint(int argc, char **argv, char *const *envp)
                 nonce_length = 9;
             }
 
+            EVP_MD_CTX_copy_ex(sha512ctx2, sha512ctx0);
             EVP_DigestUpdate(sha512ctx2, nonce, nonce_length);
             EVP_DigestFinal_ex(sha512ctx2, potentialPrivEncryptionKey, NULL);
 
@@ -272,19 +217,95 @@ int entrypoint(int argc, char **argv, char *const *envp)
             EVP_DigestFinal(ripemd160ctx, hash, NULL);
 
             // check
-            tmp = be64toh(*(unsigned long *)hash);
-            nice = tmp == 0UL ? 64 : __builtin_clzl(tmp);
+            // tmp = be64toh(*(unsigned long *)hash);
+            tmp = *(unsigned long *)hash;
+            // nice = (tmp == 0UL) ? 64 : __builtin_clzl(tmp);
             counter++;
-        } while (nice < 8);
-    } while (nice < 24);
-    printf("%s, nice = %d\n", passphrase, nice);
+        } while (tmp & 0x00000000000000ffUL);
+    } while (tmp & 0x00000000ffffffffUL);
+    tmp = be64toh(*(unsigned long *)hash);
+    nice = (tmp == 0UL) ? 64 : __builtin_clzl(tmp);
+    printf("%s, nice = %2d\n", passphrase, nice);
     EVP_MD_CTX_free(sha512ctx0);
     EVP_MD_CTX_free(sha512ctx1);
     EVP_MD_CTX_free(sha512ctx2);
     EVP_MD_CTX_free(ripemd160ctx);
+    return NULL;
+}
+
+/**
+ * @brief
+ * ↓2回連続getFloatで-1が出るseed 2つ
+ * 125352706827826
+ * 116229385253865
+ * ↓getDoubleで可能な限り1に近い値が出るseed
+ * 155239116123415
+ * preforkする場合ってforkするのはlistenソケットを開く前？開いた後？
+ * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
+ * 丸数字の1から50までforで出す
+ * timer_create+sigeventでタイマーを使って呼ばれたスレッドから新しくスレッドを起動する
+ * TODO: CでSSLエンジンを使う
+ * TODO: CでLibSSLなSSLエンジンを使う
+ * TODO: javaでも直接SSLEngineを使ってみる
+ * TODO: SocketChannel + SSLEngine + Selector
+ * TODO: bitmessageをCで実装する、bitmessaged + bmctl の形式が良い
+ * TODO: 新しいアドレスと鍵を動的にロードできないの、なんとかなりません？
+ *
+ * decodable random source?
+ *
+ * @param argc
+ * @param argv
+ * @param envp
+ * @return int
+ */
+int entrypoint(int argc, char **argv, char *const *envp)
+{
+    if (argc < 2)
+    {
+        return 1;
+    }
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
+    OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
+    // EVP_MD *sha512 = EVP_MD_fetch(NULL, "sha512", NULL);
+    // EVP_MD *ripemd160 = EVP_MD_fetch(NULL, "ripemd160", NULL);
+#endif
+
+    const size_t threadsnum = strtoul(argv[1], NULL, 10) / 2;
+    pid_t pid = 0;
+    if ((pid = fork()) < 0)
+    {
+        perror("fork");
+        return 1;
+    }
+    pthread_t threads[threadsnum];
+    int ret = 0;
+    for (size_t i = 0; i < threadsnum; i++)
+    {
+        ret = pthread_create(threads + i, NULL, task, NULL);
+        if (ret != 0)
+        {
+            perror("ret");
+            return 1;
+        }
+    }
+
+    for (size_t i = 0; i < threadsnum; i++)
+    {
+        pthread_join(threads[i], NULL);
+    }
+
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     OSSL_PROVIDER_unload(def);
     OSSL_PROVIDER_unload(legacy);
 #endif
+    if (pid == 0)
+    {
+        _exit(0);
+    }
+    else
+    {
+        wait(NULL);
+    }
     return 0;
 }
