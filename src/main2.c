@@ -151,6 +151,8 @@ int entrypoint(int argc, char **argv, char *const *envp)
                 // terminate txt
                 line[i] = 0;
 
+                // ここでコンテキストと行データをセットにして別スレッドへ転送
+
                 // truncate
                 size_t newBufferCapacity = capacity - i - 2;
                 memmove(buffer, buffer + i + 2, newBufferCapacity);
