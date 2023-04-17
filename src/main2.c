@@ -108,7 +108,24 @@ int entrypoint(int argc, char **argv, char *const *envp)
     {
         return 1;
     }
-
+    size_t count = (argc > 1) ? strtoul(argv[1], NULL, 10) : 1;
+    uint64_t a = 0;
+    double b;
+    const double min = log(0.06);
+    const double max = log(4.5);
+    const double range = max - min;
+    double c;
+    double d;
+    for (size_t i = 0; i < count; i++)
+    {
+        a = 0;
+        getrandom(&a, 7, 0);
+        b = (double)(a >> 4) / (1UL << 52);
+        c = fma(range, b, min);
+        d = exp(c);
+        printf("%" PRIu64 ", %lf, %lf, %lf\n", a, b, c, d);
+    }
+/* 
     size_t capacity = 0;
     // null終端されていない文字列データ
     char *buffer = NULL;
@@ -166,5 +183,6 @@ int entrypoint(int argc, char **argv, char *const *envp)
             }
         }
     }
+    */
     return 0;
 }
