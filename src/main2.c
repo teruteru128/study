@@ -108,26 +108,7 @@ int entrypoint(int argc, char **argv, char *const *envp)
     {
         return 1;
     }
-    size_t count = (argc > 1) ? strtoul(argv[1], NULL, 10) : 1;
-    uint64_t a = 0;
-    double b;
-    const double min = log(0.06);
-    const double max = log(4.5);
-    const double range = max - min;
-    double c;
-    double d;
-    for (size_t i = 0; i < count; i++)
-    {
-        a = 0;
-        getrandom(&a, 7, 0);
-        b = (double)(a >> 4) / (1UL << 52);
-        c = fma(range, b, min);
-        d = exp(c);
-        printf("%" PRIu64 ", %lf, %lf, %lf\n", a, b, c, d);
-    }
-/* 
-    size_t capacity = 0;
-    // null終端されていない文字列データ
+    size_t length = 0;
     char *buffer = NULL;
     char *tmp = NULL;
     char inbuf[BUFSIZ];
@@ -145,44 +126,43 @@ int entrypoint(int argc, char **argv, char *const *envp)
         {
             return 1;
         }
-        capacity += r;
-        tmp = realloc(buffer, capacity);
+        length += r;
+        tmp = realloc(buffer, length + 1);
         if (tmp == NULL)
         {
             perror("realloc");
             exit(1);
         }
         buffer = tmp;
-        memcpy(buffer + (capacity - r), inbuf, r);
-        ssize_t start = capacity - r - 1;
+        memcpy(buffer + (length - r), inbuf, r);
+        buffer[length] = 0;
+        ssize_t start = length - r - 1;
         if (start < 0)
         {
             start = 0;
         }
-        for (ssize_t i = start; i < capacity; i++)
+        if ((tmp = strstr(buffer + start, "\r\n")) != NULL)
         {
-            if (buffer[i] == 0x0d && buffer[i + 1] == 0x0a)
+            size_t i = tmp - buffer;
+            char *line = malloc(i + 1);
+            memcpy(line, buffer, i);
+            line[i] = 0;
+
+            // ここでコンテキストと行データをセットにして別スレッドへ転送
+
+            // truncate
+            // 結局newBufferLengthもlengthもnullバイト分の長さを含んでないのよね
+            size_t newBufferLength = length - i - 2;
+            memmove(buffer, buffer + i + 2, newBufferLength);
+            buffer[newBufferLength] = 0;
+            char *newBuffer = realloc(buffer, newBufferLength + 1);
+            if (newBuffer == NULL)
             {
-                char *line = malloc(i + 1);
-                memcpy(line, buffer, i);
-                // terminate txt
-                line[i] = 0;
-
-                // ここでコンテキストと行データをセットにして別スレッドへ転送
-
-                // truncate
-                size_t newBufferCapacity = capacity - i - 2;
-                memmove(buffer, buffer + i + 2, newBufferCapacity);
-                char *newBuffer = realloc(buffer, newBufferCapacity);
-                if (newBuffer == NULL)
-                {
-                    perror("realloc(truncate)");
-                    exit(1);
-                }
-                buffer = newBuffer;
+                perror("realloc(truncate)");
+                exit(1);
             }
+            buffer = newBuffer;
         }
     }
-    */
     return 0;
 }
