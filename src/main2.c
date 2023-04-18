@@ -75,6 +75,8 @@
 #include <openssl/types.h>
 #endif
 
+#define NUM 360
+
 /**
  * @brief
  * ↓2回連続getFloatで-1が出るseed 2つ
@@ -184,5 +186,6 @@ int entrypoint(int argc, char **argv, char *const *envp)
             buffer = newBuffer;
         }
     }
+#endif
     return 0;
 }
