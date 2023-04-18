@@ -93,8 +93,7 @@
  * TODO javaでも直接SSLEngineを使ってみる
  * TODO SocketChannel + SSLEngine + Selector
  * TODO bitmessageをCで実装する、bitmessaged + bmctl の形式が良い
- * TODO
- * PyBitmessageは新しいアドレスと鍵を動的にロードできないの、なんとかなりません？
+ * TODO PyBitmessageは新しいアドレスと鍵を動的にロードできないの、なんとかなりません？
  * TODO EPSPで１行の最大長さがわからないのなんとかなりませんか？
  *
  * decodable random source?
