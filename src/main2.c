@@ -108,6 +108,26 @@ int entrypoint(int argc, char **argv, char *const *envp)
     {
         return 1;
     }
+#if 0
+    uint64_t a = 0;
+    getrandom(&a, 7, 0);
+    double b = M_PI_2 * (double)((1UL << 52) - (a >> 4)) / (1UL << 52);
+    printf("%lf, %lf\n", b, tan(b));
+    for (size_t i = 0; i < NUM; i++)
+    {
+        b = M_PI_2 * ((double)i / NUM);
+        printf("%lf, %lf\n", b, tan(b));
+    }
+#endif
+#if 0
+    time_t c = time(NULL);
+    while(time(NULL) - c < 10)
+    {
+        printf("うんち！\n");
+        sleep(1);
+    }
+#endif
+#if 0
     size_t length = 0;
     char *buffer = NULL;
     char *tmp = NULL;
