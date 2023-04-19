@@ -114,8 +114,6 @@ int entrypoint(int argc, char **argv, char *const *envp)
     uint64_t a = 0;
     uint64_t catch = 0;
     size_t count = 0;
-    int c = 0;
-    size_t shift = 0;
     for (size_t i = 0; i < 100; i++)
     {
         if (count < 52)
@@ -125,16 +123,13 @@ int entrypoint(int argc, char **argv, char *const *envp)
             catch = (catch << 12) | (a & 0x0fff);
             count += 12;
             a = a >> 12;
-            c = 0;
         }
         else
         {
-            shift = count - 52;
-            a = (catch & (0xfffffffffffffUL << shift)) >> shift;
+            a = (catch >> (count - 52)) & 0xfffffffffffffUL;
             count -= 52;
-            c = 1;
         }
-        printf("%d %lf\n", c, (double) a / (1UL << 52));
+        printf("%lf\n", (double) a / (1UL << 52));
     }
 #endif
 #if 0
