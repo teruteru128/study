@@ -112,6 +112,7 @@ int entrypoint(int argc, char **argv, char *const *envp)
     }
 #if 1
     uint64_t a = 0;
+    // catchとcountを構造体にまとめて引数にしたら使わなかった乱数を保存しておけるね
     uint64_t catch = 0;
     size_t count = 0;
     for (size_t i = 0; i < 100; i++)
