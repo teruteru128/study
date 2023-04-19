@@ -110,26 +110,28 @@ int entrypoint(int argc, char **argv, char *const *envp)
     {
         return 1;
     }
-#if 0
+#if 1
     uint64_t a = 0;
     uint64_t catch = 0;
     size_t count = 0;
     int c = 0;
-    for (size_t i = 0; i < 20; i++)
+    size_t shift = 0;
+    for (size_t i = 0; i < 100; i++)
     {
         if (count < 52)
         {
             a = 0;
-            getrandom(&a, 7, 0);
-            catch = (catch << 4) | (a & 0x0f);
-            count += 4;
-            a = a >> 4;
+            getrandom(&a, 8, 0);
+            catch = (catch << 12) | (a & 0x0fff);
+            count += 12;
+            a = a >> 12;
             c = 0;
         }
         else
         {
-            a = catch & 0xfffffffffffffUL;
-            count = 0;
+            shift = count - 52;
+            a = (catch & (0xfffffffffffffUL << shift)) >> shift;
+            count -= 52;
             c = 1;
         }
         printf("%d %lf\n", c, (double) a / (1UL << 52));
