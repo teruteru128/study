@@ -93,7 +93,8 @@
  * TODO javaでも直接SSLEngineを使ってみる
  * TODO SocketChannel + SSLEngine + Selector
  * TODO bitmessageをCで実装する、bitmessaged + bmctl の形式が良い
- * TODO PyBitmessageは新しいアドレスと鍵を動的にロードできないの、なんとかなりません？
+ * TODO
+ * PyBitmessageは新しいアドレスと鍵を動的にロードできないの、なんとかなりません？
  * TODO EPSPで１行の最大長さがわからないのなんとかなりませんか？
  *
  * decodable random source?
@@ -108,6 +109,29 @@ int entrypoint(int argc, char **argv, char *const *envp)
     if (argc < 2)
     {
         return 1;
+    }
+    uint64_t a = 0;
+    uint64_t catch = 0;
+    size_t count = 0;
+    int c = 0;
+    for (size_t i = 0; i < 20; i++)
+    {
+        if (count < 52)
+        {
+            a = 0;
+            getrandom(&a, 7, 0);
+            catch = (catch << 4) | (a & 0x0f);
+            count += 4;
+            a = a >> 4;
+            c = 0;
+        }
+        else
+        {
+            a = catch & 0xfffffffffffffUL;
+            count = 0;
+            c = 1;
+        }
+        printf("%d %lf\n", c, (double) a / (1UL << 52));
     }
 #if 0
     uint64_t a = 0;
