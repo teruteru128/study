@@ -110,6 +110,7 @@ int entrypoint(int argc, char **argv, char *const *envp)
     {
         return 1;
     }
+#if 0
     uint64_t a = 0;
     uint64_t catch = 0;
     size_t count = 0;
@@ -133,6 +134,7 @@ int entrypoint(int argc, char **argv, char *const *envp)
         }
         printf("%d %lf\n", c, (double) a / (1UL << 52));
     }
+#endif
 #if 0
     uint64_t a = 0;
     getrandom(&a, 7, 0);
