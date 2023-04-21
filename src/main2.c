@@ -115,22 +115,55 @@ int entrypoint(int argc, char **argv, char *const *envp)
     // catchとcountを構造体にまとめて引数にしたら使わなかった乱数を保存しておけるね
     uint64_t catch = 0;
     size_t count = 0;
+    // double
     for (size_t i = 0; i < 100; i++)
     {
         if (count < 52)
         {
             a = 0;
-            getrandom(&a, 8, 0);
-            catch = (catch << 12) | (a & 0x0fff);
-            count += 12;
-            a = a >> 12;
+            getrandom(&a, 7, 0);
+            catch = (catch << 4) | (a & 0x0f);
+            count += 4;
+            a >>= 4;
         }
         else
         {
             a = (catch >> (count - 52)) & 0xfffffffffffffUL;
             count -= 52;
         }
-        printf("%lf\n", (double) a / (1UL << 52));
+        printf("%lf\n", (double)a / (1UL << 52));
+    }
+    // int
+    if (count < 32)
+    {
+        a = 0;
+        getrandom(&a, 4, 0);
+#if 0
+        catch = (catch << 32) | (a & 0xffffffffUL);
+        count += 32;
+        a >>= 32;
+#endif
+    }
+    else
+    {
+        a = (catch >> (count - 32)) & 0xffffffffUL;
+        count -= 32;
+    }
+    // float
+    if (count < 24)
+    {
+        a = 0;
+        getrandom(&a, 3, 0);
+#if 0
+        catch = (catch << 40) | (a & 0xffffffffffUL);
+        count += 40;
+        a >>= 40;
+#endif
+    }
+    else
+    {
+        a = (catch >> (count - 24)) & 0xffffffUL;
+        count -= 24;
     }
 #endif
 #if 0
