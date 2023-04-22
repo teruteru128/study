@@ -110,138 +110,113 @@ int entrypoint(int argc, char **argv, char *const *envp)
     {
         return 1;
     }
-#if 1
-    uint64_t a = 0;
-    // catchとcountを構造体にまとめて引数にしたら使わなかった乱数を保存しておけるね
-    uint64_t catch = 0;
-    size_t count = 0;
-    // double
-    for (size_t i = 0; i < 100; i++)
+    size_t y;
+    size_t yy;
+    size_t yyy;
+    size_t x;
+    size_t xx;
+    size_t xxx;
+    unsigned char *key = malloc(65 * (1UL << 24));
+    FILE *fd = fopen("/mnt/d/keys/public/publicKeys0.bin", "rb");
+    if (fd == NULL)
     {
-        if (count < 52)
-        {
-            a = 0;
-            getrandom(&a, 7, 0);
-            catch = (catch << 4) | (a & 0x0f);
-            count += 4;
-            a >>= 4;
-        }
-        else
-        {
-            a = (catch >> (count - 52)) & 0xfffffffffffffUL;
-            count -= 52;
-        }
-        printf("%lf\n", (double)a / (1UL << 52));
-    }
-    // int
-    if (count < 32)
-    {
-        a = 0;
-        getrandom(&a, 4, 0);
-#if 0
-        catch = (catch << 32) | (a & 0xffffffffUL);
-        count += 32;
-        a >>= 32;
-#endif
-    }
-    else
-    {
-        a = (catch >> (count - 32)) & 0xffffffffUL;
-        count -= 32;
-    }
-    // float
-    if (count < 24)
-    {
-        a = 0;
-        getrandom(&a, 3, 0);
-#if 0
-        catch = (catch << 40) | (a & 0xffffffffffUL);
-        count += 40;
-        a >>= 40;
-#endif
-    }
-    else
-    {
-        a = (catch >> (count - 24)) & 0xffffffUL;
-        count -= 24;
-    }
-#endif
-#if 0
-    uint64_t a = 0;
-    getrandom(&a, 7, 0);
-    double b = M_PI_2 * (double)((1UL << 52) - (a >> 4)) / (1UL << 52);
-    printf("%lf, %lf\n", b, tan(b));
-    for (size_t i = 0; i < NUM; i++)
-    {
-        b = M_PI_2 * ((double)i / NUM);
-        printf("%lf, %lf\n", b, tan(b));
-    }
-#endif
-#if 0
-    time_t c = time(NULL);
-    while(time(NULL) - c < 10)
-    {
-        printf("うんち！\n");
-        sleep(1);
-    }
-#endif
-#if 0
-    size_t length = 0;
-    char *buffer = NULL;
-    char *tmp = NULL;
-    char inbuf[BUFSIZ];
-    int fd = open(argv[1], O_RDONLY);
-    if (fd < 0)
-    {
-        perror("open");
+        perror("fopen");
         return 1;
     }
-    ssize_t r = 0;
-    while (1)
+    size_t num = fread(key, 65, 1 << 24, fd);
+    if (num < 16777216)
     {
-        r = read(fd, inbuf, BUFSIZ);
-        if (r < 0)
+        perror("fread");
+        fclose(fd);
+        return 1;
+    }
+    fclose(fd);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
+    OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
+#endif
+    const EVP_MD *sha512 = EVP_sha512();
+    const EVP_MD *ripemd160 = EVP_ripemd160();
+    for (y = 0; y < 256; y++)
+    {
+        for (x = 0; x < 256; x++)
         {
-            return 1;
-        }
-        length += r;
-        tmp = realloc(buffer, length + 1);
-        if (tmp == NULL)
-        {
-            perror("realloc");
-            exit(1);
-        }
-        buffer = tmp;
-        memcpy(buffer + (length - r), inbuf, r);
-        buffer[length] = 0;
-        ssize_t start = length - r - 1;
-        if (start < 0)
-        {
-            start = 0;
-        }
-        if ((tmp = strstr(buffer + start, "\r\n")) != NULL)
-        {
-            size_t i = tmp - buffer;
-            char *line = malloc(i + 1);
-            memcpy(line, buffer, i);
-            line[i] = 0;
-
-            // ここでコンテキストと行データをセットにして別スレッドへ転送
-
-            // truncate
-            // 結局newBufferLengthもlengthもnullバイト分の長さを含んでないのよね
-            size_t newBufferLength = length - i - 2;
-            memmove(buffer, buffer + i + 2, newBufferLength);
-            buffer[newBufferLength] = 0;
-            char *newBuffer = realloc(buffer, newBufferLength + 1);
-            if (newBuffer == NULL)
+#pragma omp parallel default(none) private(xx, yy, xxx, yyy)                  \
+    shared(sha512, ripemd160, x, y, key)
             {
-                perror("realloc(truncate)");
-                exit(1);
+                EVP_MD_CTX *sha512ctx1 = EVP_MD_CTX_new();
+                EVP_MD_CTX *sha512ctx2 = EVP_MD_CTX_new();
+                EVP_MD_CTX *ripemd160ctx1 = EVP_MD_CTX_new();
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+                EVP_DigestInit_ex2(sha512ctx2, sha512, NULL);
+#else
+                EVP_DigestInit_ex(sha512ctx2, sha512, NULL);
+#endif
+                unsigned char hash[EVP_MAX_MD_SIZE];
+                uint64_t leading64 = 0;
+                size_t offset_x = 0;
+                size_t offset_y = 0;
+#pragma omp for
+                for (yy = 0; yy < 256; yy++)
+                {
+                    for (xx = 0; xx < 256; xx++)
+                    {
+                        offset_y = (y << 16) + (yy << 8);
+                        for (yyy = 0; yyy < 256; yyy++, offset_y++)
+                        {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+                            EVP_DigestInit_ex2(sha512ctx1, sha512, NULL);
+#else
+                            EVP_DigestInit_ex(sha512ctx1, sha512, NULL);
+#endif
+                            EVP_DigestUpdate(sha512ctx1,
+                                             key + (offset_y << 6) + offset_y,
+                                             65);
+                            offset_x = (x << 16) + (xx << 8);
+                            for (xxx = 0; xxx < 256; xxx++, offset_x++)
+                            {
+                                EVP_MD_CTX_copy_ex(sha512ctx2, sha512ctx1);
+                                EVP_DigestUpdate(
+                                    sha512ctx1,
+                                    key + (offset_x << 6) + offset_x, 65);
+                                EVP_DigestFinal_ex(sha512ctx2, hash, NULL);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+                                EVP_DigestInit_ex2(ripemd160ctx1, ripemd160,
+                                                   NULL);
+#else
+                                EVP_DigestInit_ex(ripemd160ctx1, ripemd160,
+                                                  NULL);
+#endif
+                                EVP_DigestUpdate(ripemd160ctx1, hash, 64);
+                                EVP_DigestFinal_ex(ripemd160ctx1, hash, NULL);
+                                leading64 = htobe64(*(unsigned long *)hash);
+                                if (leading64 & 0xffffffffff000000UL)
+                                {
+                                    continue;
+                                }
+#pragma omp critical
+                                {
+                                    size_t count
+                                        = (leading64 == 0)
+                                              ? 64
+                                              : __builtin_clzl(leading64);
+                                    printf("%zu: %zu, %zu\n", count, offset_y,
+                                           offset_x);
+                                }
+                            }
+                        }
+                    }
+                }
+                EVP_MD_CTX_free(sha512ctx1);
+                EVP_MD_CTX_free(sha512ctx2);
+                EVP_MD_CTX_free(ripemd160ctx1);
             }
-            buffer = newBuffer;
+            fprintf(stderr, "%zu/65536 done\n", x + 1);
         }
     }
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    OSSL_PROVIDER_unload(def);
+    OSSL_PROVIDER_unload(legacy);
 #endif
     return 0;
 }

@@ -1,8 +1,11 @@
 
+#include <fcntl.h>
 #include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #define SRC                                                                        \
     "551 5 ABCDEFG:2005/03/27 "                                                    \
     "12-34-56:12時34分頃,3,1,4,紀伊半島沖,ごく浅く,3.2,1,N12.3,E45.6," \
@@ -72,4 +75,64 @@ int epsptest(void)
     }
     regfree(&reg);
     return EXIT_SUCCESS;
+}
+
+void readsample(void)
+{
+    size_t length = 0;
+    char *buffer = NULL;
+    char *tmp = NULL;
+    char inbuf[BUFSIZ];
+    int fd = open("", O_RDONLY);
+    if (fd < 0)
+    {
+        perror("open");
+        return 1;
+    }
+    ssize_t r = 0;
+    while (1)
+    {
+        r = read(fd, inbuf, BUFSIZ);
+        if (r < 0)
+        {
+            return 1;
+        }
+        length += r;
+        tmp = realloc(buffer, length + 1);
+        if (tmp == NULL)
+        {
+            perror("realloc");
+            exit(1);
+        }
+        buffer = tmp;
+        memcpy(buffer + (length - r), inbuf, r);
+        buffer[length] = 0;
+        ssize_t start = length - r - 1;
+        if (start < 0)
+        {
+            start = 0;
+        }
+        if ((tmp = strstr(buffer + start, "\r\n")) != NULL)
+        {
+            size_t i = tmp - buffer;
+            char *line = malloc(i + 1);
+            memcpy(line, buffer, i);
+            line[i] = 0;
+
+            // ここでコンテキストと行データをセットにして別スレッドへ転送
+
+            // truncate
+            // 結局newBufferLengthもlengthもnullバイト分の長さを含んでないのよね
+            size_t newBufferLength = length - i - 2;
+            memmove(buffer, buffer + i + 2, newBufferLength);
+            buffer[newBufferLength] = 0;
+            char *newBuffer = realloc(buffer, newBufferLength + 1);
+            if (newBuffer == NULL)
+            {
+                perror("realloc(truncate)");
+                exit(1);
+            }
+            buffer = newBuffer;
+        }
+    }
 }
