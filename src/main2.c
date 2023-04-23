@@ -133,11 +133,10 @@ int entrypoint(int argc, char **argv, char *const *envp)
 #endif
     const EVP_MD *sha512 = EVP_sha512();
     const EVP_MD *ripemd160 = EVP_ripemd160();
-    time_t start = 0;
+    EVP_MD_CTX *sha512ctx1 = EVP_MD_CTX_new();
 #pragma omp parallel default(none)                                            \
-    shared(sha512, ripemd160, key, stdout, stderr, startoffset)
+    shared(sha512, ripemd160, key, stdout, stderr, startoffset, sha512ctx1)
     {
-        EVP_MD_CTX *sha512ctx1 = EVP_MD_CTX_new();
         EVP_MD_CTX *sha512ctx2 = EVP_MD_CTX_new();
         EVP_MD_CTX *ripemd160ctx1 = EVP_MD_CTX_new();
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
@@ -149,12 +148,15 @@ int entrypoint(int argc, char **argv, char *const *envp)
         uint64_t leading64 = 0;
         for (size_t x = startoffset; x < 1090519040UL; x += 65)
         {
+#pragma omp single
+            {
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
-            EVP_DigestInit_ex2(sha512ctx1, sha512, NULL);
+                EVP_DigestInit_ex2(sha512ctx1, sha512, NULL);
 #else
-            EVP_DigestInit_ex(sha512ctx1, sha512, NULL);
+                EVP_DigestInit_ex(sha512ctx1, sha512, NULL);
 #endif
-            EVP_DigestUpdate(sha512ctx1, key + x, 65);
+                EVP_DigestUpdate(sha512ctx1, key + x, 65);
+            }
 #pragma omp for
             for (size_t y = 0; y < 1090519040UL; y += 65)
             {
@@ -187,10 +189,10 @@ int entrypoint(int argc, char **argv, char *const *envp)
 #pragma omp master
             fprintf(stderr, "%lu\n", x >> 6);
         }
-        EVP_MD_CTX_free(sha512ctx1);
         EVP_MD_CTX_free(sha512ctx2);
         EVP_MD_CTX_free(ripemd160ctx1);
     }
+    EVP_MD_CTX_free(sha512ctx1);
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     OSSL_PROVIDER_unload(def);
     OSSL_PROVIDER_unload(legacy);
