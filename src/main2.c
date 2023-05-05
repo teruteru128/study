@@ -130,52 +130,74 @@ int load(unsigned char *key, size_t index)
  */
 int entrypoint(int argc, char **argv, char *const *envp)
 {
-    if (argc < 2)
-    {
-        return 1;
-    }
-    uint64_t number = 0;
+    EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
+    BN_CTX *ctx = BN_CTX_new();
+    BN_CTX_start(ctx);
+    BIGNUM *prikeybn = BN_CTX_get(ctx);
+    EC_POINT *pubkeyp = EC_POINT_new(secp256k1);
+    unsigned char *prikeybuf = malloc(32 * 256);
+    unsigned char *pubkeybuf = malloc(65 * 256);
+    unsigned char pubkeywork[65];
+    FILE *prikeyf = NULL;
+    FILE *pubkeyf = NULL;
+    char path[PATH_MAX] = "";
+    size_t j = 0;
+    size_t k = 0;
+    int success = 1;
+    time_t start = 0;
     size_t a = 0;
-    uint64_t x = 0;
-    uint64_t y = 0;
-    unsigned char sigkey[65];
-    unsigned char enckey[65];
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
-    OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
-#endif
-    const EVP_MD *sha512 = EVP_sha512();
-    const EVP_MD *ripemd160 = EVP_ripemd160();
-    EVP_MD_CTX *md = EVP_MD_CTX_new();
-    unsigned char hash[EVP_MAX_MD_SIZE];
-    do
+    if (argc >= 2)
     {
-        a = getrandom(&number, 8, 0);
-        x = (number >> 32) & 0xffffffffUL;
-        y = (number >> 0) & 0xffffffffUL;
-        load(sigkey, x);
-        load(enckey, y);
-        EVP_DigestInit_ex2(md, sha512, NULL);
-        EVP_DigestUpdate(md, sigkey, 65);
-        EVP_DigestUpdate(md, enckey, 65);
-        EVP_DigestFinal_ex(md, hash, NULL);
-        EVP_DigestInit_ex2(md, ripemd160, NULL);
-        EVP_DigestUpdate(md, hash, 64);
-        EVP_DigestFinal_ex(md, hash, NULL);
-        if (hash[0] == 0)
+        a = strtoul(argv[1], NULL, 10);
+    }
+    // 6まで終わり
+    for (size_t i = a; i < 256; i++)
+    {
+        start = time(NULL);
+        success = 1;
+        snprintf(path, PATH_MAX, "/mnt/d/keys/private/privateKeys%zu.bin", i);
+        prikeyf = fopen(path, "rb");
+        snprintf(path, PATH_MAX, "/mnt/d/keys/public/publicKeys%zu.bin", i);
+        pubkeyf = fopen(path, "rb");
+        if (prikeyf == NULL || prikeyf == NULL)
         {
-            for (size_t i = 0; i < 20; i++)
-            {
-                printf("%02x", hash[i]);
-            }
-            printf("\n");
-            printf("%" PRIu64 ", %" PRIu64 ", %" PRIu64 "\n", number, x, y);
+            perror("fopen");
+            return 1;
         }
-    } while (hash[0] != 0);
-    EVP_MD_CTX_free(md);
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    OSSL_PROVIDER_unload(def);
-    OSSL_PROVIDER_unload(legacy);
-#endif
+        for (j = 0; j < 65536; j++)
+        {
+            fread(prikeybuf, 32, 256, prikeyf);
+            fread(pubkeybuf, 65, 256, pubkeyf);
+            for (k = 0; k < 256; k++)
+            {
+                BN_bin2bn(prikeybuf + k * 32, 32, prikeybn);
+                EC_POINT_mul(secp256k1, pubkeyp, prikeybn, NULL, NULL, ctx);
+                EC_POINT_point2oct(secp256k1, pubkeyp,
+                                   POINT_CONVERSION_UNCOMPRESSED, pubkeywork,
+                                   65, ctx);
+                if (memcmp(pubkeybuf + 65 * k, pubkeywork, 65) != 0)
+                {
+                    fprintf(stderr, "error!: %zu, %zu\n", i, j * 16 + k);
+                }
+            }
+        }
+        fclose(prikeyf);
+        fclose(pubkeyf);
+        if (success)
+        {
+            fprintf(stderr, "success!: %zu(%lf)\n", i,
+                    difftime(time(NULL), start));
+        }
+        else
+        {
+            fprintf(stderr, "error!: %zu(%lf)\n", i,
+                    difftime(time(NULL), start));
+        }
+    }
+    BN_CTX_end(ctx);
+    BN_CTX_free(ctx);
+    EC_GROUP_free(secp256k1);
+    free(prikeybuf);
+    free(pubkeybuf);
     return 0;
 }
