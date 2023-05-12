@@ -75,30 +75,32 @@
 #include <openssl/types.h>
 #endif
 
-#define NUM 360
-
-/**
- * @brief
- *
- * @param key
- * @param index
- * @return int onerror: 0, onsuccess: 1
- */
-int load(unsigned char *key, size_t index)
+struct tmp
 {
-    size_t filenumber = (index >> 24) & 0xffUL;
-    size_t fileoffset = ((index >> 0) & 0xffffffUL) * 65;
-    char in[PATH_MAX] = "";
-    snprintf(in, PATH_MAX, "/mnt/d/keys/public/publicKeys%zu.bin", filenumber);
-    FILE *fin = fopen(in, "rb");
-    if (fin == NULL)
+    unsigned long tmp;
+    size_t size;
+};
+
+double getdouble(struct tmp *tmp)
+{
+    double out = 0;
+    if (tmp->size >= 52)
     {
-        return 0;
+        out = (double)(((tmp->tmp) >> (52 - tmp->size)) & 0xfffffffffffffUL)
+              / (1UL << 52);
+        tmp->size -= 52;
+        return out;
     }
-    fseek(fin, SEEK_SET, fileoffset);
-    size_t num = fread(key, 65, 1, fin);
-    fclose(fin);
-    return num == 1;
+    unsigned long work = 0;
+    if (getrandom(&work, 7, 0) != 7)
+    {
+        return 1;
+    }
+    work = le64toh(work);
+    tmp->tmp = (tmp->tmp << 4) | ((work >> 52) & 0xf);
+    tmp->size += 4;
+    out = (double)(work & 0xfffffffffffffUL) / (1UL << 52);
+    return out;
 }
 
 /**
@@ -130,74 +132,22 @@ int load(unsigned char *key, size_t index)
  */
 int entrypoint(int argc, char **argv, char *const *envp)
 {
-    EC_GROUP *secp256k1 = EC_GROUP_new_by_curve_name(NID_secp256k1);
-    BN_CTX *ctx = BN_CTX_new();
-    BN_CTX_start(ctx);
-    BIGNUM *prikeybn = BN_CTX_get(ctx);
-    EC_POINT *pubkeyp = EC_POINT_new(secp256k1);
-    unsigned char *prikeybuf = malloc(32 * 256);
-    unsigned char *pubkeybuf = malloc(65 * 256);
-    unsigned char pubkeywork[65];
-    FILE *prikeyf = NULL;
-    FILE *pubkeyf = NULL;
-    char path[PATH_MAX] = "";
-    size_t j = 0;
-    size_t k = 0;
-    int success = 1;
-    time_t start = 0;
-    size_t a = 0;
-    if (argc >= 2)
+    double complex point = 0 + 0 * I;
+    double coefficient = 0;
+    double radian = 0;
+    struct tmp tmp = { 0 };
+    double c = 0;
+    double s = 0;
+    for (size_t i = 0; i < 100; i++)
     {
-        a = strtoul(argv[1], NULL, 10);
+        coefficient = getdouble(&tmp);
+        radian = (2 * coefficient - 1) * M_PI;
+        c = cos(radian);
+        s = sin(radian);
+        point += CMPLX(c, s);
+        printf("%lf, %+lf pi, %+lf, %+lf, %+lf pi, %lf\n", coefficient,
+               2 * coefficient - 1, creal(point), cimag(point), carg(point) / M_PI,
+               cabs(point));
     }
-    // 6まで終わり
-    for (size_t i = a; i < 256; i++)
-    {
-        start = time(NULL);
-        success = 1;
-        snprintf(path, PATH_MAX, "/mnt/d/keys/private/privateKeys%zu.bin", i);
-        prikeyf = fopen(path, "rb");
-        snprintf(path, PATH_MAX, "/mnt/d/keys/public/publicKeys%zu.bin", i);
-        pubkeyf = fopen(path, "rb");
-        if (prikeyf == NULL || prikeyf == NULL)
-        {
-            perror("fopen");
-            return 1;
-        }
-        for (j = 0; j < 65536; j++)
-        {
-            fread(prikeybuf, 32, 256, prikeyf);
-            fread(pubkeybuf, 65, 256, pubkeyf);
-            for (k = 0; k < 256; k++)
-            {
-                BN_bin2bn(prikeybuf + k * 32, 32, prikeybn);
-                EC_POINT_mul(secp256k1, pubkeyp, prikeybn, NULL, NULL, ctx);
-                EC_POINT_point2oct(secp256k1, pubkeyp,
-                                   POINT_CONVERSION_UNCOMPRESSED, pubkeywork,
-                                   65, ctx);
-                if (memcmp(pubkeybuf + 65 * k, pubkeywork, 65) != 0)
-                {
-                    fprintf(stderr, "error!: %zu, %zu\n", i, j * 16 + k);
-                }
-            }
-        }
-        fclose(prikeyf);
-        fclose(pubkeyf);
-        if (success)
-        {
-            fprintf(stderr, "success!: %zu(%lf)\n", i,
-                    difftime(time(NULL), start));
-        }
-        else
-        {
-            fprintf(stderr, "error!: %zu(%lf)\n", i,
-                    difftime(time(NULL), start));
-        }
-    }
-    BN_CTX_end(ctx);
-    BN_CTX_free(ctx);
-    EC_GROUP_free(secp256k1);
-    free(prikeybuf);
-    free(pubkeybuf);
     return 0;
 }

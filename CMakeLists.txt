@@ -77,7 +77,7 @@ if(OpenACC_CXX_FOUND)
 endif()
 
 find_package(OpenCL)
-find_package(OpenGL)
+#find_package(OpenGL)
 
 find_package(PNG REQUIRED)
 if(PNG_FOUND)
