@@ -110,7 +110,7 @@ int bulknew(EVP_MD_CTX **ctx, size_t num)
     }
     return 1;
 }
-int bulkinit_ex(EVP_MD_CTX **ctx, size_t num, EVP_MD *type)
+int bulkinit_ex(EVP_MD_CTX **ctx, size_t num, const EVP_MD *type)
 {
     for (size_t i = 0; i < num; i++)
     {
@@ -138,6 +138,15 @@ int bulkencupdate(EVP_MD_CTX **ctx, size_t num, const void *d, size_t siz)
     }
     return 1;
 }
+int bulkripeupdate(EVP_MD_CTX **ctx, size_t num, const void *d, size_t siz,
+                   size_t stepsiz)
+{
+    for (size_t i = 0; i < num; i++)
+    {
+        EVP_DigestUpdate(ctx[i], d + stepsiz * i, siz);
+    }
+    return 1;
+}
 // mdに書き込む仕様をどうしよう…… EVP_MAX_MD_SIZE な unsgined char[]を num
 // 個要求するか 1個だけ要求するか
 int bulkfinal_ex(EVP_MD_CTX **ctx, size_t num, unsigned char *md)
@@ -155,6 +164,26 @@ int bulkctxcopy(EVP_MD_CTX **out, size_t num, EVP_MD_CTX **in)
         EVP_MD_CTX_copy_ex(out[i], in[i]);
     }
     return 1;
+}
+int bulkfree(EVP_MD_CTX **ctx, size_t num)
+{
+    for (size_t i = 0; i < num; i++)
+    {
+        EVP_MD_CTX_free(ctx[i]);
+    }
+    return 1;
+}
+
+int bulkcheck(unsigned char *hash, size_t num, unsigned char *key,
+              size_t yoffset, size_t x)
+{
+    for (size_t i = 0; i < num; i++)
+    {
+        if (*(uint64_t *)(hash + EVP_MAX_MD_SIZE * i) & 0x0000ffffffffffffUL == 0)
+        {
+            printf("%zu, %zu\n", yoffset + 65 * i, x);
+        }
+    }
 }
 
 /**
@@ -186,22 +215,73 @@ int bulkctxcopy(EVP_MD_CTX **out, size_t num, EVP_MD_CTX **in)
  */
 int entrypoint(int argc, char **argv, char *const *envp)
 {
-    double complex point = 0 + 0 * I;
-    double coefficient = 0;
-    double radian = 0;
-    struct tmp tmp = { 0 };
-    double c = 0;
-    double s = 0;
-    for (size_t i = 0; i < 100; i++)
+    // これでbmkeysearch15を8スレで回すより遅いってマジ？
+    if (argc < 2)
     {
-        coefficient = getdouble(&tmp);
-        radian = (2 * coefficient - 1) * M_PI;
-        c = cos(radian);
-        s = sin(radian);
-        point += CMPLX(c, s);
-        printf("%lf, %+lf pi, %+lf, %+lf, %+lf pi, %lf\n", coefficient,
-               2 * coefficient - 1, creal(point), cimag(point),
-               carg(point) / M_PI, cabs(point));
+        return 1;
     }
+    unsigned char *key = malloc(16777216UL * 65);
+    {
+        FILE *fin = fopen(argv[1], "rb");
+        if (fin == NULL)
+        {
+            perror("fopen");
+            return 1;
+        }
+        size_t num = fread(key, 65, 16777216, fin);
+        if (num < 16777216)
+        {
+            perror("fread");
+            fclose(fin);
+            return 1;
+        }
+        fclose(fin);
+    }
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
+    OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
+#endif
+    const EVP_MD *sha512 = EVP_sha512();
+    const EVP_MD *ripemd160 = EVP_ripemd160();
+    EVP_MD_CTX *first[16];
+    EVP_MD_CTX *second[16];
+    EVP_MD_CTX *ripectx[16];
+    unsigned char hash[EVP_MAX_MD_SIZE * 16];
+    bulknew(first, 16);
+    bulknew(second, 16);
+    bulknew(ripectx, 16);
+    bulkinit_ex(second, 16, sha512);
+    time_t gstart = time(NULL);
+    time_t start = 0;
+    size_t y = 0;
+    getrandom(&y, 3, 0);
+    y = (le64toh(y) & 0xfffff0UL) * 65;
+    for (; y < 1090519040UL; y += 1040)
+    // for (size_t y = 0; y < 2080; y += 1040)
+    {
+        start = time(NULL);
+        bulkinit_ex(first, 16, sha512);
+        bulksignupdate(first, 16, key + y, 65);
+        for (size_t x = 0; x < 1090519040UL; x += 65)
+        {
+            bulkctxcopy(second, 16, first);
+            bulkencupdate(second, 16, key + x, 65);
+            bulkfinal_ex(second, 16, hash);
+            bulkinit_ex(ripectx, 16, ripemd160);
+            bulksignupdate(ripectx, 16, hash, 64);
+            bulkfinal_ex(ripectx, 16, hash);
+            bulkcheck(hash, 16, key, y, x);
+        }
+        fprintf(stderr, "%lu: %lfseconds\n", y/65, difftime(time(NULL), start));
+    }
+    fprintf(stderr, "global: %lfseconds\n", difftime(time(NULL), gstart));
+    bulkfree(first, 16);
+    bulkfree(second, 16);
+    bulkfree(ripectx, 16);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    OSSL_PROVIDER_unload(def);
+    OSSL_PROVIDER_unload(legacy);
+#endif
+    free(key);
     return 0;
 }
