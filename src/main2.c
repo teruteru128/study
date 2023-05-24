@@ -102,6 +102,60 @@ double getdouble(struct tmp *tmp)
     out = (double)(work & 0xfffffffffffffUL) / (1UL << 52);
     return out;
 }
+int bulknew(EVP_MD_CTX **ctx, size_t num)
+{
+    for (size_t i = 0; i < num; i++)
+    {
+        ctx[i] = EVP_MD_CTX_new();
+    }
+    return 1;
+}
+int bulkinit_ex(EVP_MD_CTX **ctx, size_t num, EVP_MD *type)
+{
+    for (size_t i = 0; i < num; i++)
+    {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+        EVP_DigestInit_ex2(ctx[i], type, NULL);
+#else
+        EVP_DigestInit_ex(ctx[i], type, NULL);
+#endif
+    }
+    return 1;
+}
+int bulksignupdate(EVP_MD_CTX **ctx, size_t num, const void *d, size_t siz)
+{
+    for (size_t i = 0; i < num; i++)
+    {
+        EVP_DigestUpdate(ctx[i], d + siz * i, siz);
+    }
+    return 1;
+}
+int bulkencupdate(EVP_MD_CTX **ctx, size_t num, const void *d, size_t siz)
+{
+    for (size_t i = 0; i < num; i++)
+    {
+        EVP_DigestUpdate(ctx[i], d, siz);
+    }
+    return 1;
+}
+// mdに書き込む仕様をどうしよう…… EVP_MAX_MD_SIZE な unsgined char[]を num
+// 個要求するか 1個だけ要求するか
+int bulkfinal_ex(EVP_MD_CTX **ctx, size_t num, unsigned char *md)
+{
+    for (size_t i = 0; i < num; i++)
+    {
+        EVP_DigestFinal_ex(ctx[i], md + EVP_MAX_MD_SIZE * i, NULL);
+    }
+    return 1;
+}
+int bulkctxcopy(EVP_MD_CTX **out, size_t num, EVP_MD_CTX **in)
+{
+    for (size_t i = 0; i < num; i++)
+    {
+        EVP_MD_CTX_copy_ex(out[i], in[i]);
+    }
+    return 1;
+}
 
 /**
  * @brief
@@ -146,8 +200,8 @@ int entrypoint(int argc, char **argv, char *const *envp)
         s = sin(radian);
         point += CMPLX(c, s);
         printf("%lf, %+lf pi, %+lf, %+lf, %+lf pi, %lf\n", coefficient,
-               2 * coefficient - 1, creal(point), cimag(point), carg(point) / M_PI,
-               cabs(point));
+               2 * coefficient - 1, creal(point), cimag(point),
+               carg(point) / M_PI, cabs(point));
     }
     return 0;
 }
