@@ -272,7 +272,7 @@ int entrypoint(int argc, char **argv, char *const *envp)
             bulkfinal_ex(ripectx, 16, hash);
             bulkcheck(hash, 16, key, y, x);
         }
-        fprintf(stderr, "%lu: %lfseconds\n", y/65, difftime(time(NULL), start));
+        fprintf(stderr, "%lu: %lfseconds\n", y, difftime(time(NULL), start));
     }
     fprintf(stderr, "global: %lfseconds\n", difftime(time(NULL), gstart));
     bulkfree(first, 16);
