@@ -381,6 +381,7 @@ add_executable(main
                 randomsample.c
                 queue.c
                 biom.c
+                rmd160.c
               )
 target_compile_definitions(main PRIVATE CL_TARGET_OPENCL_VERSION=220)
 target_include_directories(main PRIVATE
@@ -407,6 +408,9 @@ target_link_libraries(main
                         uuid
                      )
 target_compile_options(main PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+
+add_executable(mandelbrot mandelbrot.c pngreadwrite.c)
+target_link_libraries(mandelbrot m $<$<BOOL:${PNG_FOUND}>:${PNG_LIBRARIES}>)
 
 add_executable(mappingsample mappingsample.c)
 target_link_libraries(mappingsample m)

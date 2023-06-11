@@ -179,13 +179,15 @@ int bulkcheck(unsigned char *hash, size_t num, unsigned char *key,
 {
     for (size_t i = 0; i < num; i++)
     {
-        if (*(uint64_t *)(hash + EVP_MAX_MD_SIZE * i) & 0x0000ffffffffffffUL == 0)
+        if (*(uint64_t *)(hash + EVP_MAX_MD_SIZE * i)
+            & 0x0000ffffffffffffUL == 0)
         {
             printf("%zu, %zu\n", yoffset + 65 * i, x);
         }
     }
 }
 
+// https://homes.esat.kuleuven.be/~bosselae/ripemd160.html
 /**
  * @brief
  * ↓2回連続getFloatで-1が出るseed 2つ
@@ -197,11 +199,7 @@ int bulkcheck(unsigned char *hash, size_t num, unsigned char *key,
  * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
  * 丸数字の1から50までforで出す
  * timer_create+sigeventでタイマーを使って呼ばれたスレッドから新しくスレッドを起動する
- * TODO CでSSLエンジンを使う
- * TODO CでLibSSLなSSLエンジンを使う
- * TODO javaでも直接SSLEngineを使ってみる
- * TODO SocketChannel + SSLEngine + Selector
- * TODO bitmessageをCで実装する、bitmessaged + bmctl の形式が良い
+ * TODO bitmessageをCで実装する、bitmessaged + bmctl の形式が良い？
  * TODO
  * PyBitmessageは新しいアドレスと鍵を動的にロードできないの、なんとかなりません？
  * TODO EPSPで１行の最大長さがわからないのなんとかなりませんか？
@@ -215,73 +213,5 @@ int bulkcheck(unsigned char *hash, size_t num, unsigned char *key,
  */
 int entrypoint(int argc, char **argv, char *const *envp)
 {
-    // これでbmkeysearch15を8スレで回すより遅いってマジ？
-    if (argc < 2)
-    {
-        return 1;
-    }
-    unsigned char *key = malloc(16777216UL * 65);
-    {
-        FILE *fin = fopen(argv[1], "rb");
-        if (fin == NULL)
-        {
-            perror("fopen");
-            return 1;
-        }
-        size_t num = fread(key, 65, 16777216, fin);
-        if (num < 16777216)
-        {
-            perror("fread");
-            fclose(fin);
-            return 1;
-        }
-        fclose(fin);
-    }
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
-    OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
-#endif
-    const EVP_MD *sha512 = EVP_sha512();
-    const EVP_MD *ripemd160 = EVP_ripemd160();
-    EVP_MD_CTX *first[16];
-    EVP_MD_CTX *second[16];
-    EVP_MD_CTX *ripectx[16];
-    unsigned char hash[EVP_MAX_MD_SIZE * 16];
-    bulknew(first, 16);
-    bulknew(second, 16);
-    bulknew(ripectx, 16);
-    bulkinit_ex(second, 16, sha512);
-    time_t gstart = time(NULL);
-    time_t start = 0;
-    size_t y = 0;
-    getrandom(&y, 3, 0);
-    y = (le64toh(y) & 0xfffff0UL) * 65;
-    for (; y < 1090519040UL; y += 1040)
-    // for (size_t y = 0; y < 2080; y += 1040)
-    {
-        start = time(NULL);
-        bulkinit_ex(first, 16, sha512);
-        bulksignupdate(first, 16, key + y, 65);
-        for (size_t x = 0; x < 1090519040UL; x += 65)
-        {
-            bulkctxcopy(second, 16, first);
-            bulkencupdate(second, 16, key + x, 65);
-            bulkfinal_ex(second, 16, hash);
-            bulkinit_ex(ripectx, 16, ripemd160);
-            bulksignupdate(ripectx, 16, hash, 64);
-            bulkfinal_ex(ripectx, 16, hash);
-            bulkcheck(hash, 16, key, y, x);
-        }
-        fprintf(stderr, "%lu: %lfseconds\n", y, difftime(time(NULL), start));
-    }
-    fprintf(stderr, "global: %lfseconds\n", difftime(time(NULL), gstart));
-    bulkfree(first, 16);
-    bulkfree(second, 16);
-    bulkfree(ripectx, 16);
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    OSSL_PROVIDER_unload(def);
-    OSSL_PROVIDER_unload(legacy);
-#endif
-    free(key);
     return 0;
 }

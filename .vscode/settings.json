@@ -243,11 +243,11 @@
         "epoll.h": "c",
         "fcntl2.h": "c",
         "ssl.h": "c",
-        "numbers": "c"
+        "numbers": "c",
+        "rmd160.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
         "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
-    ],
-    "C_Cpp.dimInactiveRegions": true
+    ]
 }
