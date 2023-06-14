@@ -382,6 +382,7 @@ add_executable(main
                 queue.c
                 biom.c
                 rmd160.c
+                bulkevp.c
               )
 target_compile_definitions(main PRIVATE CL_TARGET_OPENCL_VERSION=220)
 target_include_directories(main PRIVATE

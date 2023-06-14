@@ -76,3 +76,31 @@ int random3_()
     }
     return 0;
 }
+
+struct tmp
+{
+    unsigned long tmp;
+    size_t size;
+};
+
+double getdouble(struct tmp *tmp)
+{
+    double out = 0;
+    if (tmp->size >= 52)
+    {
+        out = (double)(((tmp->tmp) >> (52 - tmp->size)) & 0xfffffffffffffUL)
+              / (1UL << 52);
+        tmp->size -= 52;
+        return out;
+    }
+    unsigned long work = 0;
+    if (getrandom(&work, 7, 0) != 7)
+    {
+        return 1;
+    }
+    work = le64toh(work);
+    tmp->tmp = (tmp->tmp << 4) | ((work >> 52) & 0xf);
+    tmp->size += 4;
+    out = (double)(work & 0xfffffffffffffUL) / (1UL << 52);
+    return out;
+}

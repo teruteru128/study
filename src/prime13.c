@@ -1,4 +1,5 @@
 
+#define _GNU_SOURCE 1
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -84,8 +85,11 @@ void *consume(void *arg)
     return NULL;
 }
 
+#define THREADS 12
+
 /**
  * @brief ビット篩の初期化をマルチスレッド化してみる
+ * 初期化っていうか生成
  * 
  * @param argc 
  * @param argv 
@@ -132,13 +136,13 @@ int main(const int argc, const char *argv[])
     arg.bs = &bs;
     arg.ctx = &ctx;
 
-    pthread_t *consumer_threads = calloc(12, sizeof(pthread_t));
-    for (size_t i = 0; i < 12; i++)
+    pthread_t *consumer_threads = calloc(THREADS, sizeof(pthread_t));
+    for (size_t i = 0; i < THREADS; i++)
     {
         pthread_create(consumer_threads + i, NULL, consume, &arg);
     }
 
-    for (size_t i = 0; i < 12; i++)
+    for (size_t i = 0; i < THREADS; i++)
     {
         pthread_join(consumer_threads[i], NULL);
     }
