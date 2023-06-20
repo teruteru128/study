@@ -101,8 +101,5 @@
  */
 int entrypoint(int argc, char **argv, char *const *envp)
 {
-    uint64_t a = 0;
-    getrandom(&a, 8, 0);
-    printf("%016lx\n", a);
     return 0;
 }
