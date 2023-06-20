@@ -244,7 +244,13 @@
         "fcntl2.h": "c",
         "ssl.h": "c",
         "numbers": "c",
-        "rmd160.h": "c"
+        "rmd160.h": "c",
+        "concepts": "cpp",
+        "ratio": "cpp",
+        "ranges": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
