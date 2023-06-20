@@ -1,6 +1,7 @@
 
-//#define OPENSSL_API_COMPAT 0x30000000L
-//#define OPENSSL_NO_DEPRECATED 1
+#define OPENSSL_API_COMPAT 0x30000000L
+#define OPENSSL_NO_DEPRECATED 1
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -12,6 +13,8 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
+#include <openssl/param_build.h>
+#include <openssl/params.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include <stdio.h>
@@ -27,7 +30,6 @@
 #include <openssl/types.h>
 #endif
 
-#define CONST_E 65537
 #define BUFFERSIZE 65537
 
 void init_gettext()
@@ -86,7 +88,7 @@ int readBigNum(BIGNUM *num, const char *filename)
         }
     }
     fclose(in);
-    if (BN_hex2bn(&num, catbuf) == 0)
+    if (BN_dec2bn(&num, catbuf) == 0)
     {
         perror("BN_hex2bn");
         free(catbuf);
@@ -181,17 +183,31 @@ static RSA *calc_RSA(RSA *dest, BIGNUM *e, BIGNUM *p, BIGNUM *q, BN_CTX *ctx)
         goto err2;
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    EVP_PKEY *work = (dest == NULL) ? EVP_PKEY_new() : dest;
-    // EVP_PKEY_CTX *pkctx = EVP_PKEY_CTX_new_from_name(NULL, "RSA", NULL);
-    EVP_PKEY_set_type(work, EVP_PKEY_RSA);
-    EVP_PKEY_set_bn_param(work, OSSL_PKEY_PARAM_RSA_N, n);
-    EVP_PKEY_set_bn_param(work, OSSL_PKEY_PARAM_RSA_E, e);
-    EVP_PKEY_set_bn_param(work, OSSL_PKEY_PARAM_RSA_D, d);
-    EVP_PKEY_set_bn_param(work, OSSL_PKEY_PARAM_RSA_FACTOR1, p);
-    EVP_PKEY_set_bn_param(work, OSSL_PKEY_PARAM_RSA_FACTOR2, q);
-    EVP_PKEY_set_bn_param(work, OSSL_PKEY_PARAM_RSA_EXPONENT1, dmp);
-    EVP_PKEY_set_bn_param(work, OSSL_PKEY_PARAM_RSA_EXPONENT2, dmq);
-    EVP_PKEY_set_bn_param(work, OSSL_PKEY_PARAM_RSA_COEFFICIENT1, iqmp);
+    OSSL_PARAM_BLD *bld = OSSL_PARAM_BLD_new();
+
+    OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_N, n);
+    OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_E, e);
+    OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_D, d);
+    OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_FACTOR1, p);
+    OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_FACTOR2, q);
+    OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_EXPONENT1, dmp);
+    OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_EXPONENT2, dmq);
+    OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_COEFFICIENT1, iqmp);
+
+    OSSL_PARAM *param = OSSL_PARAM_BLD_to_param(bld);
+    OSSL_PARAM_BLD_free(bld);
+
+    EVP_PKEY_CTX *pkeyctx = EVP_PKEY_CTX_new_from_name(NULL, "RSA", NULL);
+
+    EVP_PKEY_fromdata_init(pkeyctx);
+
+    EVP_PKEY *work = NULL;
+    EVP_PKEY_free(work);
+
+    EVP_PKEY_fromdata(pkeyctx, &work, EVP_PKEY_KEYPAIR, param);
+
+    OSSL_PARAM_free(param);
+    EVP_PKEY_CTX_free(pkeyctx);
 #else
     RSA *work = (dest == NULL) ? RSA_new() : dest;
     RSA_set0_key(work, n, e, d);
@@ -249,7 +265,7 @@ int encode_rsa_main(const int argc, const char *argv[])
         perror("BN_new");
         goto err;
     }
-    if (!BN_set_word(e, CONST_E))
+    if (!BN_set_word(e, RSA_F4))
     {
         perror("BN_set_word");
         goto err;
@@ -266,8 +282,8 @@ int encode_rsa_main(const int argc, const char *argv[])
     if (rsa == NULL)
     {
         // perror("calc_RSA");
-        fprintf(stderr, "calc_RSA : %s\n",
-                ERR_reason_error_string(ERR_get_error()));
+        unsigned long r = ERR_get_error();
+        fprintf(stderr, "calc_RSA : %lu %s\n", r, ERR_reason_error_string(r));
         goto err;
     }
 
