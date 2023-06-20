@@ -13,7 +13,6 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
-#include <openssl/params.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include <stdio.h>
@@ -28,6 +27,7 @@
 #include <openssl/core_names.h>
 #include <openssl/param_build.h>
 #include <openssl/types.h>
+#include <openssl/params.h>
 #endif
 
 #define BUFFERSIZE 65537
