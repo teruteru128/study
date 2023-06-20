@@ -13,7 +13,6 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
-#include <openssl/param_build.h>
 #include <openssl/params.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
@@ -27,6 +26,7 @@
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/core_names.h>
+#include <openssl/param_build.h>
 #include <openssl/types.h>
 #endif
 
@@ -88,7 +88,7 @@ int readBigNum(BIGNUM *num, const char *filename)
         }
     }
     fclose(in);
-    if (BN_dec2bn(&num, catbuf) == 0)
+    if (BN_hex2bn(&num, catbuf) == 0)
     {
         perror("BN_hex2bn");
         free(catbuf);
@@ -158,7 +158,7 @@ static RSA *calc_RSA(RSA *dest, BIGNUM *e, BIGNUM *p, BIGNUM *q, BN_CTX *ctx)
         goto err2;
     // オイラーのトーシェント関数
     // φ(n)計算
-    if (!BN_mul(phiN, p, q, ctx))
+    if (!BN_mul(phiN, psub1, qsub1, ctx))
         goto err2;
 
     // 秘密指数dを計算
