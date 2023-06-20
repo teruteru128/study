@@ -57,7 +57,7 @@ static void bs_sieveSingle(struct BitSieve *bs, size_t limit, size_t start,
  * @param arg
  * @return void*
  */
-void *consume(void *arg)
+static void *consume(void *arg)
 {
     struct arg *argp = (struct arg *)arg;
     struct BitSieve *bs = bs_new();
