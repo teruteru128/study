@@ -26,8 +26,8 @@
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/core_names.h>
 #include <openssl/param_build.h>
-#include <openssl/types.h>
 #include <openssl/params.h>
+#include <openssl/types.h>
 #endif
 
 #define BUFFERSIZE 65537
