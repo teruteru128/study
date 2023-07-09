@@ -113,6 +113,10 @@ add_executable(bmkeysearch16 bmkeysearch16.c)
 target_link_libraries(bmkeysearch16 ${OPENSSL_CRYPTO_LIBRARIES})
 target_include_directories(bmkeysearch16 PRIVATE ${OPENSSL_INCLUDE_DIR})
 
+add_executable(bmks17 bmks17.c)
+target_link_libraries(bmks17 ${OPENSSL_CRYPTO_LIBRARIES})
+target_include_directories(bmks17 PRIVATE ${OPENSSL_INCLUDE_DIR})
+
 add_executable(bmmultisendsample bmmultisendsample.c)
 target_link_libraries(bmmultisendsample study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util ${OPENSSL_CRYPTO_LIBRARIES})
 target_include_directories(bmmultisendsample PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)

@@ -1,4 +1,5 @@
 
+#define _GNU_SOURCE 1
 #include "timerfdsample0.h"
 #include <inttypes.h>
 #include <stddef.h>
