@@ -100,7 +100,11 @@ static void *func(void *a)
     EVP_MD_CTX *sha512ctx1 = EVP_MD_CTX_new();
     EVP_MD_CTX *sha512ctx2 = EVP_MD_CTX_new();
     EVP_MD_CTX *ripemd160ctx = EVP_MD_CTX_new();
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     EVP_DigestInit_ex2(sha512ctx2, sha512, NULL);
+#else
+    EVP_DigestInit_ex(sha512ctx2, sha512, NULL);
+#endif
     unsigned char hash[EVP_MAX_MD_SIZE];
     size_t j = 0;
     unsigned char *enckey = NULL;
@@ -108,14 +112,22 @@ static void *func(void *a)
     for (size_t sigindex = nextInt(&buffer, 67108864); sigindex < 67108864;
          sigindex++)
     {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
         EVP_DigestInit_ex2(sha512ctx1, sha512, NULL);
+#else
+        EVP_DigestInit_ex(sha512ctx1, sha512, NULL);
+#endif
         EVP_DigestUpdate(sha512ctx1, keys + ((sigindex << 6) + sigindex), 65);
         for (j = 0, enckey = keys; j < 67108864UL; j++, enckey += 65)
         {
             EVP_MD_CTX_copy_ex(sha512ctx2, sha512ctx1);
             EVP_DigestUpdate(sha512ctx2, enckey, 65);
             EVP_DigestFinal_ex(sha512ctx2, hash, NULL);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
             EVP_DigestInit_ex2(ripemd160ctx, ripemd160, NULL);
+#else
+            EVP_DigestInit_ex(ripemd160ctx, ripemd160, NULL);
+#endif
             EVP_DigestUpdate(ripemd160ctx, hash, 64);
             EVP_DigestFinal_ex(ripemd160ctx, hash, NULL);
             if ((*(unsigned long *)hash) & 0x0000ffffffffffffUL)
