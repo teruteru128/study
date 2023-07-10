@@ -1,5 +1,4 @@
 
-#define _GNU_SOURCE
 #include <limits.h>
 #include <openssl/ec.h>
 #include <openssl/err.h>

@@ -37,12 +37,6 @@ A garbage dump repository created for studying Teruteru.
 
 - ファイルからGMPのmpzに整数を読み込んだりOpenSSLのBIGNUMに整数を読み込んだり乱数を読み込んだりを共通化したい
 
-- TODO: #43 既存の鍵からbitmessage用アドレスを探索する
-- TODO: #44 P2P地震情報の実装を作る
-
-- TODO: #45 BitMessageの実装を作る
-- TODO: #46 82589934bit 素数候補を検証する
-
 ## Dependencies
 
 - libcurl4-gnutls-dev 7.58.0-2ubuntu3.8

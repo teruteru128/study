@@ -1,6 +1,5 @@
 /* ftm.c - from feature_test_macros(7) */
 
-#define _GNU_SOURCE
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

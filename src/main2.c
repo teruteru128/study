@@ -1,6 +1,4 @@
 
-#define _GNU_SOURCE 1
-#define _DEFAULT_SOURCE 1
 #define OPENSSL_API_COMPAT 0x30000000L
 #define OPENSSL_NO_DEPRECATED 1
 
@@ -87,10 +85,6 @@
  * ハッシュの各バイトを１バイトにORで集約して結果が0xffにならなかったら成功
  * 丸数字の1から50までforで出す
  * timer_create+sigeventでタイマーを使って呼ばれたスレッドから新しくスレッドを起動する
- * TODO bitmessageをCで実装する、bitmessaged + bmctl の形式が良い？
- * TODO
- * PyBitmessageは新しいアドレスと鍵を動的にロードできないの、なんとかなりません？
- * TODO EPSPで１行の最大長さがわからないのなんとかなりませんか？
  *
  * decodable random source?
  *

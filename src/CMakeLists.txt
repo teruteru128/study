@@ -180,7 +180,7 @@ target_link_libraries(collatz m)
 
 add_executable(concurrencysample concurrencysample.c)
 target_link_libraries(concurrencysample ${CMAKE_THREAD_LIBS_INIT})
-target_compile_definitions(concurrencysample PRIVATE _GNU_SOURCE=1)
+#target_compile_definitions(concurrencysample PRIVATE _GNU_SOURCE=1)
 
 add_executable(cp2peq cp2peq.c)
 target_link_libraries(cp2peq study)
@@ -298,7 +298,7 @@ target_include_directories(getnyanpass PRIVATE ${CURL_INCLUDE_DIRS})
 add_executable(getnyanpass2 getnyanpass2.c)
 target_link_libraries(getnyanpass2 ${CURL_LIBRARIES})
 target_include_directories(getnyanpass2 PRIVATE ${CURL_INCLUDE_DIRS})
-target_compile_definitions(getnyanpass2 PRIVATE _GNU_SOURCE)
+#target_compile_definitions(getnyanpass2 PRIVATE _GNU_SOURCE)
 
 add_executable(gettextsample2 gettextsample2.c)
 target_compile_definitions(gettextsample2 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
@@ -612,7 +612,7 @@ add_executable(serversample serversample.c queue.c)
 target_link_libraries(serversample study ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(service-sample service-sample.c serverconfig.c)
-target_compile_definitions(service-sample PUBLIC _GNU_SOURCE)
+#target_compile_definitions(service-sample PUBLIC _GNU_SOURCE)
 target_link_libraries(service-sample ${CMAKE_THREAD_LIBS_INIT} study)
 target_include_directories(service-sample PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 

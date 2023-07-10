@@ -17,13 +17,16 @@
 int split(char **dest, const char separator, const char *input, size_t limit)
 {
     size_t sepnum = 0;
-    char *work = strdupa(input);
+    const size_t length = strlen(input) + 1;
+    char *work = malloc(length);
+    memcpy(work, input, length);
     char *catch = NULL;
     while ((catch = strchr(work, separator)) != NULL)
     {
         work = catch + 1;
         sepnum++;
     }
+    free(work);
 
     return 0;
 }

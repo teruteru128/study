@@ -1,6 +1,4 @@
 
-#define _GNU_SOURCE 1
-
 #include "pngheaders.h"
 #include <complex.h>
 #include <math.h>

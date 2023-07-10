@@ -1,5 +1,4 @@
 
-#define _GNU_SOURCE 1
 #include <fcntl.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
@@ -47,10 +46,14 @@ struct arg
     unsigned char *keys;
 };
 
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
 static void initRandom(struct drand48_data *buffer)
 {
     unsigned short seed[3];
+    pthread_mutex_lock(&mutex);
     ssize_t ret = getrandom(seed, 6, 0);
+    pthread_mutex_unlock(&mutex);
     if (ret != 6)
     {
         perror("getrandom");
@@ -62,25 +65,25 @@ static void initRandom(struct drand48_data *buffer)
 static int next(struct drand48_data *buffer, int bits)
 {
     long r;
-    lrand48_r(buffer, &r);
-    return ((int)r) >> (32 - bits);
+    mrand48_r(buffer, &r);
+    return ((unsigned int)r) >> (32 - bits);
 }
 
-static int nextInt(struct drand48_data *buffer, int bound)
+static int nextInt(struct drand48_data *rnd, int bound)
 {
     if (bound <= 0)
         return 0;
 
-    int r = next(buffer, 31);
+    int r = next(rnd, 31);
+    // mask
     int m = bound - 1;
     if ((bound & m) == 0)
     {
-        // i.e., bound is a power of 2
-        r = (int)((bound * (long)r) >> 31);
+        r = (uint32_t)((bound * (uint64_t)r) >> 31);
     }
     else
     { // reject over-represented candidates
-        for (int u = r; u - (r = u % bound) + m < 0; u = next(buffer, 31))
+        for (int u = r; u - (r = u % bound) + m < 0; u = next(rnd, 31))
             ;
     }
     return r;
@@ -158,8 +161,6 @@ int main(int argc, char const *argv[])
             return 1;
         }
     }
-
-    fprintf(stderr, "ok\n");
 
     struct arg arg = { keys };
 
