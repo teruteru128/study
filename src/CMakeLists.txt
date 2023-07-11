@@ -114,7 +114,7 @@ target_link_libraries(bmkeysearch16 ${OPENSSL_CRYPTO_LIBRARIES})
 target_include_directories(bmkeysearch16 PRIVATE ${OPENSSL_INCLUDE_DIR})
 
 add_executable(bmks17 bmks17.c)
-target_link_libraries(bmks17 ${OPENSSL_CRYPTO_LIBRARIES})
+target_link_libraries(bmks17 ${OPENSSL_CRYPTO_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(bmks17 PRIVATE ${OPENSSL_INCLUDE_DIR})
 
 add_executable(bmmultisendsample bmmultisendsample.c)
