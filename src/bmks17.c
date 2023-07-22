@@ -134,6 +134,11 @@ static void *func(void *a)
             {
                 continue;
             }
+            for (size_t i = 0; i < 20; i++)
+            {
+                printf("%02x", hash[i]);
+            }
+            fputs(",", stdout);
             for (size_t i = 0; i < 65; i++)
             {
                 printf("%02x", keys[((sigindex << 6) + sigindex) + i]);

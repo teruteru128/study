@@ -1,17 +1,8 @@
 
+#define _DEFAULT_SOURCE 1
 #define OPENSSL_API_COMPAT 0x30000000L
 #define OPENSSL_NO_DEPRECATED 1
 
-#include "biom.h"
-#include "countdown.h"
-#include "countdown2038.h"
-#include "pngheaders.h"
-#include "pngsample_gennoise.h"
-#include "queue.h"
-#include "randomsample.h"
-#include "roulette.h"
-#include "searchAddressFromExistingKeys.h"
-#include "timeutil.h"
 #include <CL/opencl.h>
 #include <bm.h>
 #include <complex.h>
@@ -95,5 +86,27 @@
  */
 int entrypoint(int argc, char **argv, char *const *envp)
 {
+    struct drand48_data data = {};
+    unsigned short seed[3] = { 0 };
+    seed[2] = 0x5;
+    seed[1] = 0xDEEC;
+    seed[0] = 0xE66D;
+    seed48_r(seed, &data);
+    printf("__x: %04x%04x%04x\n", data.__x[2], data.__x[1], data.__x[0]);
+    printf("__old_x: %04x%04x%04x\n", data.__old_x[2], data.__old_x[1], data.__old_x[0]);
+    printf("__c: %04x\n", data.__c);
+    printf("__init: %04x\n", data.__init);
+    printf("__a: %016llx\n", data.__a);
+    long buf = 0;
+    mrand48_r(&data, &buf);
+    printf("%08x\n", (int32_t)buf);
+    mrand48_r(&data, &buf);
+    printf("%08x\n", (int32_t)buf);
+
+    seed48_r(seed, &data);
+    lrand48_r(&data, &buf);
+    printf("%08x\n", (int32_t)buf);
+    lrand48_r(&data, &buf);
+    printf("%08x\n", (int32_t)buf);
     return 0;
 }

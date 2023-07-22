@@ -1,10 +1,13 @@
 
 #include "java_random.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char const *argv[])
 {
     int64_t seed = 0x0;
+    struct drand48_data data;
+    unsigned short buf[3];
     /*
      seed = lcgInverse(seed);
      printf("%ld\n", initialScramble(seed));
@@ -35,8 +38,12 @@ int main(int argc, char const *argv[])
      printf("246 : %012lx\n", seed);
      */
     seed = initialScramble(74803317123181L);
-    printf("246 : %012lx\n", nextLong(&seed));
-    printf("246 : %012lx\n", nextLong(&seed));
+    buf[0] = (unsigned short)(seed >> 0);
+    buf[0] = (unsigned short)(seed >> 16);
+    buf[0] = (unsigned short)(seed >> 32);
+    seed48_r(buf, &data);
+    printf("246 : %012lx\n", nextLong(&data));
+    printf("246 : %012lx\n", nextLong(&data));
     long work = 0L;
     for (seed = 0x000000000000L; seed <= 0x00000000ffffL; seed++)
     {

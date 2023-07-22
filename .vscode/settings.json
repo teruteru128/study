@@ -250,7 +250,10 @@
         "ranges": "cpp",
         "semaphore": "cpp",
         "stop_token": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "struct_itimerspec.h": "c",
+        "time_t.h": "c",
+        "biom.h": "c"
     },
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [

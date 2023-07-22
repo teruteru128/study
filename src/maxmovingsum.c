@@ -110,7 +110,13 @@ int main(int argc, char *argv[])
         return 1;
     }
     srand(buf);
-    int64_t seed = lcg(114514);
+    struct drand48_data seed = { 0 };
+    int64_t l = initialScramble(lcg(114514));
+    unsigned short a[3];
+    a[0] = (unsigned short)l;
+    a[1] = (unsigned short)(l >> 16);
+    a[2] = (unsigned short)(l >> 32);
+    seed48_r(a, &seed);
     for (int i = 0; i < 625; i++)
     {
         rawchunk[i] = nextIntWithBounds(&seed, 10) == 0;

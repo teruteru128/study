@@ -1,4 +1,7 @@
 
+#if !defined _DEFAULT_SOURCE
+#define _DEFAULT_SOURCE 1
+#endif
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -84,6 +87,12 @@ int connect_network(void)
     // select server
     int64_t seed = ts.tv_nsec + ts.tv_sec;
     int64_t rnd = initialScramble(seed);
+    struct drand48_data data = { 0 };
+    unsigned short buf[3];
+    buf[0] = (unsigned short)rnd;
+    buf[1] = (unsigned short)(rnd >> 16);
+    buf[2] = (unsigned short)(rnd >> 32);
+    seed48_r(buf, &data);
     const char *domains[4];
     for (int i = 0; i < 4; i++)
     {
@@ -95,7 +104,7 @@ int connect_network(void)
     const char *swap;
     for (i = 3; i > 0; i--)
     {
-        j = nextIntWithBounds(&rnd, i);
+        j = nextIntWithBounds(&data, i);
         swap = domains[i];
         domains[i] = domains[j];
         domains[j] = swap;
