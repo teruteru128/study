@@ -93,7 +93,8 @@ int entrypoint(int argc, char **argv, char *const *envp)
     seed[0] = 0xE66D;
     seed48_r(seed, &data);
     printf("__x: %04x%04x%04x\n", data.__x[2], data.__x[1], data.__x[0]);
-    printf("__old_x: %04x%04x%04x\n", data.__old_x[2], data.__old_x[1], data.__old_x[0]);
+    printf("__old_x: %04x%04x%04x\n", data.__old_x[2], data.__old_x[1],
+           data.__old_x[0]);
     printf("__c: %04x\n", data.__c);
     printf("__init: %04x\n", data.__init);
     printf("__a: %016llx\n", data.__a);
