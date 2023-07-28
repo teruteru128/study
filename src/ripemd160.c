@@ -15,13 +15,13 @@ static unsigned int f(int j, unsigned int x, unsigned int y, unsigned int z)
     case 0:
         return x ^ y ^ z;
     case 1:
-        return (x & y) | (!x & z);
+        return (x & y) | (~x & z);
     case 2:
-        return (x | !y) ^ z;
+        return (x | ~y) ^ z;
     case 3:
-        return (x & z) | (y & !z);
+        return (x & z) | (y & ~z);
     default:
-        return x ^ (y | !z);
+        return x ^ (y | ~z);
     }
 }
 
