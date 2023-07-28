@@ -80,7 +80,7 @@ unsigned int f(int j, unsigned int x, unsigned int y, unsigned int z)
     case 1:
         return (x & y) | (!x & z);
     case 2:
-        return (x | y) ^ z;
+        return (x | !y) ^ z;
     case 3:
         return (x & z) | (y & !z);
     default:
@@ -170,16 +170,14 @@ void ripemd160_init(ripemd160_ctx *ctx, unsigned char *p, unsigned char len)
     // append 1 to ctx buffer
     uint32_t length = ctx->length;
     PUTCHAR(b32, length, 0x80);
-    // byte-unit padding
     while ((++length & 3) != 0)
     {
         PUTCHAR(b32, length, 0);
     }
 
     uint32_t *buffer32 = b32 + (length >> 2);
-    // int-unit padding
     // append 0 to 128
-    for (uint32_t i = length; i < 120; i += 4)
+    for (uint32_t i = length; i < 128; i += 4)
     {
         *buffer32++ = 0;
     }
@@ -222,7 +220,7 @@ void ripemd160(unsigned char *hash, unsigned char *x)
     unsigned int c_d;
     unsigned int d_d;
     unsigned int e_d;
-    unsigned int t;
+    unsigned int tmp;
     for (i = 0; i < 2; i++)
     {
         a = a_d = h0;
@@ -232,30 +230,30 @@ void ripemd160(unsigned char *hash, unsigned char *x)
         e = e_d = h4;
         for (j = 0; j < 80; j++)
         {
-            t = rol(a + f(j, b, c, d) + data[(i << 4) + r[j]] + K[j >> 4],
-                    s[j])
-                + e;
+            tmp = rol(a + f(j, b, c, d) + data[(i << 4) + r[j]] + K[j >> 4],
+                      s[j])
+                  + e;
             a = e;
             e = d;
             d = rol(c, 10);
             c = b;
-            b = t;
-            t = rol(a_d + f(79 - j, b_d, c_d, d_d) + data[(i << 4) + r_d[j]]
-                        + K_d[j >> 4],
-                    s_d[j])
-                + e_d;
+            b = tmp;
+            tmp = rol(a_d + f(79 - j, b_d, c_d, d_d) + data[(i << 4) + r_d[j]]
+                          + K_d[j >> 4],
+                      s_d[j])
+                  + e_d;
             a_d = e_d;
             e_d = d_d;
             d_d = rol(c_d, 10);
             c_d = b_d;
-            b_d = t;
+            b_d = tmp;
         }
-        t = h1 + c + d_d;
+        tmp = h1 + c + d_d;
         h1 = h2 + d + e_d;
         h2 = h3 + e + a_d;
         h3 = h4 + a + b_d;
         h4 = h0 + b + c_d;
-        h0 = t;
+        h0 = tmp;
     }
     *((unsigned int *)hash + 0) = h0;
     *((unsigned int *)hash + 1) = h1;
