@@ -385,6 +385,7 @@ add_executable(main
                 randomsample.c
                 queue.c
                 biom.c
+                ripemd160.c
                 rmd160.c
                 bulkevp.c
               )
