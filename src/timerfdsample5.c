@@ -13,15 +13,13 @@ struct data
     int minutes;
 };
 
-int create_timerfd(int minutes)
+int create_timerfd(struct timespec *spec, int minutes)
 {
     int fd = timerfd_create(CLOCK_REALTIME, 0);
-    struct timespec spec;
-    clock_gettime(CLOCK_REALTIME, &spec);
     struct itimerspec ispec;
     long interval = minutes * 60;
     ispec.it_value.tv_sec
-        = ((spec.tv_sec + interval - 1) / interval) * interval;
+        = ((spec->tv_sec + interval - 1) / interval) * interval;
     ispec.it_value.tv_nsec = 0;
     ispec.it_interval.tv_sec = interval;
     ispec.it_interval.tv_nsec = 0;
@@ -35,23 +33,27 @@ int create_timerfd(int minutes)
 epollと複数timerfdによる連携のサンプル
 3分タイマーと5分タイマーをepollで監視する
 複数のタイマーを同時に監視できるってすげえよなぁ
+epoll fdさえ保持しておけばlisten socketとかaccepted
+socketとか別に保持しておかなくてもいいのか
 */
 int timerfdsample5()
 {
     int efd = epoll_create1(0);
-    struct epoll_event *event = malloc(sizeof(struct epoll_event) * LIST_ENT);
+    struct epoll_event event = { 0 };
     struct data *data = malloc(sizeof(struct data) * LIST_ENT);
     struct timespec s;
     clock_gettime(CLOCK_REALTIME, &s);
     struct timespec d;
     int list[] = { 3, 5, 7, 11, 13, 17 };
+    struct timespec spec;
+    clock_gettime(CLOCK_REALTIME, &spec);
     for (int i = 0; i < LIST_ENT; i++)
     {
-        (data + i)->fd = create_timerfd(list[i]);
+        (data + i)->fd = create_timerfd(&spec, list[i]);
         (data + i)->minutes = list[i];
-        (event + i)->events = EPOLLIN;
-        (event + i)->data.ptr = data + i;
-        int ret = epoll_ctl(efd, EPOLL_CTL_ADD, (data + i)->fd, event + i);
+        event.events = EPOLLIN;
+        event.data.ptr = data + i;
+        int ret = epoll_ctl(efd, EPOLL_CTL_ADD, (data + i)->fd, &event);
         if (ret != 0)
         {
             perror("epoll_ctl 1");

@@ -1,4 +1,5 @@
 
+#define _GNU_SOURCE 1
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -11,9 +12,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/timerfd.h>
 #include <time.h>
+#include <unistd.h>
 
 static volatile sig_atomic_t running = 1;
 
@@ -25,6 +26,9 @@ static void handler(int sig, siginfo_t *info, void *ctx)
     (void)ctx;
 }
 
+/*
+signalサンプル……？
+*/
 int timerfdsample4(void)
 {
     char *lo = setlocale(LC_ALL, "");
@@ -66,7 +70,7 @@ int timerfdsample4(void)
     localtime_r(&spec.it_value.tv_sec, &times);
     strftime(buf, BUFSIZ, "%Ex %EX %z", &times);
     printf("タイマーに起動時刻ををセットしました。\n");
-     printf("初回起動時間 : %s\n", buf);
+    printf("初回起動時間 : %s\n", buf);
     uint64_t exp;
     ssize_t size;
     struct timespec current;
