@@ -89,6 +89,18 @@ static int nextInt(struct drand48_data *rnd, int bound)
     return r;
 }
 
+void d(EVP_MD_CTX *src, EVP_MD_CTX *dest, unsigned char *v, EVP_MD *ripemd160,
+       EVP_MD_CTX *ripectx)
+{
+    unsigned char hash[EVP_MAX_MD_SIZE];
+    EVP_MD_CTX_copy_ex(src, dest);
+    EVP_DigestUpdate(dest, v, 65);
+    EVP_DigestFinal_ex(dest, hash, NULL);
+    EVP_DigestInit_ex2(ripemd160, ripectx, NULL);
+    EVP_DigestUpdate(ripectx, hash, 64);
+    EVP_DigestFinal_ex(ripectx, hash, NULL);
+}
+
 static void *func(void *a)
 {
     const struct arg *arg = (struct arg *)a;
@@ -150,7 +162,7 @@ static void *func(void *a)
             }
             fputs("\n", stdout);
         }
-        fprintf(stderr, "%zu: done\n", sigindex);
+        fprintf(stderr, "%zu done\n", sigindex);
     }
     return NULL;
 }

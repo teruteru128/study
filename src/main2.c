@@ -1,5 +1,6 @@
 
 #define _DEFAULT_SOURCE 1
+#define _GNU_SOURCE 1
 #define OPENSSL_API_COMPAT 0x30000000L
 #define OPENSSL_NO_DEPRECATED 1
 
@@ -88,22 +89,5 @@
  */
 int entrypoint(int argc, char **argv, char *const *envp)
 {
-    unsigned char hash[20];
-    unsigned char x[64] = { 0 };
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    OSSL_PROVIDER *def = OSSL_PROVIDER_load(NULL, "default");
-    OSSL_PROVIDER *legacy = OSSL_PROVIDER_load(NULL, "legacy");
-#endif
-    const EVP_MD *ripemd160 = EVP_ripemd160();
-    EVP_MD_CTX *ripemd160ctx = EVP_MD_CTX_new();
-    EVP_DigestInit_ex2(ripemd160ctx, ripemd160, NULL);
-    EVP_DigestUpdate(ripemd160ctx, x, 64);
-    EVP_DigestFinal_ex(ripemd160ctx, hash, NULL);
-    int ret = 0;
-    unsigned char v[20]
-        = { 0x9b, 0x8c, 0xcc, 0x2f, 0x37, 0x4a, 0xe3, 0x13, 0xa9, 0x14,
-            0x76, 0x3c, 0xc9, 0xcd, 0xfb, 0x47, 0xbf, 0xe1, 0xc2, 0x29 };
-    ret |= memcmp(hash, v, 20);
-    printf("%d\n", ret);
     return 0;
 }

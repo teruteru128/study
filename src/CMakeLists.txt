@@ -385,8 +385,7 @@ add_executable(main
                 randomsample.c
                 queue.c
                 biom.c
-                ripemd160.c
-                rmd160.c
+                sha512.c
                 bulkevp.c
               )
 target_compile_definitions(main PRIVATE CL_TARGET_OPENCL_VERSION=220)
@@ -691,7 +690,7 @@ target_link_libraries(threadAttr ${CMAKE_THREAD_LIBS_INIT})
 add_executable(threadcount threadcount.c)
 target_link_libraries(threadcount ${CMAKE_THREAD_LIBS_INIT})
 
-add_executable(timerfdsample timerfdsample.c timerfdsample0.c timerfdsample1.c timerfdsample2.c timerfdsample3.c timerfdsample4.c)
+add_executable(timerfdsample timerfdsample.c timerfdsample0.c timerfdsample1.c timerfdsample2.c timerfdsample3.c timerfdsample4.c timerfdsample5.c)
 
 add_executable(timesample timesample.c)
 

@@ -1,4 +1,5 @@
 
+#define _GNU_SOURCE 1
 #include "queue.h"
 #include <netdb.h>
 #include <stdio.h>

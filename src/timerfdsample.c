@@ -7,6 +7,7 @@
 #include "timerfdsample2.h"
 #include "timerfdsample3.h"
 #include "timerfdsample4.h"
+#include "timerfdsample5.h"
 #include <errno.h>
 #include <inttypes.h>
 #include <stddef.h>
@@ -48,6 +49,9 @@ int main(int argc, const char *argv[])
         break;
     case 4:
         ret = timerfdsample4();
+        break;
+    case 5:
+        ret = timerfdsample5();
         break;
     default:
         fputs("unknown command number\n", stderr);

@@ -258,5 +258,8 @@
     "cmake.generator": "Ninja",
     "cmake.configureArgs": [
         "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
+    ],
+    "C_Cpp.default.defines": [
+        "_POSIX_C_SOURCE=200809L"
     ]
 }
