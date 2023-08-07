@@ -10,14 +10,14 @@
 struct data
 {
     int fd;
-    int minutes;
+    int seconds;
 };
 
-int create_timerfd(struct timespec *spec, int minutes)
+int create_timerfd(struct timespec *spec, int seconds)
 {
     int fd = timerfd_create(CLOCK_REALTIME, 0);
     struct itimerspec ispec;
-    long interval = minutes * 60;
+    long interval = seconds;
     ispec.it_value.tv_sec
         = ((spec->tv_sec + interval - 1) / interval) * interval;
     ispec.it_value.tv_nsec = 0;
@@ -44,13 +44,15 @@ int timerfdsample5()
     struct timespec s;
     clock_gettime(CLOCK_REALTIME, &s);
     struct timespec d;
-    int list[] = { 3, 5, 7, 11, 13, 17 };
+    /*
+    */
+    int list[] = { 181, 241, 307, 367, 421, 487 };
     struct timespec spec;
     clock_gettime(CLOCK_REALTIME, &spec);
     for (int i = 0; i < LIST_ENT; i++)
     {
         (data + i)->fd = create_timerfd(&spec, list[i]);
-        (data + i)->minutes = list[i];
+        (data + i)->seconds = list[i];
         event.events = EPOLLIN;
         event.data.ptr = data + i;
         int ret = epoll_ctl(efd, EPOLL_CTL_ADD, (data + i)->fd, &event);
@@ -78,8 +80,8 @@ int timerfdsample5()
             localtime_r(&d.tv_sec, &tm);
             strftime(buf, 512, "%Y/%m/%d %T", &tm);
             read(((struct data *)events[i].data.ptr)->fd, &expired, 8);
-            printf("[%s]%d分!, %lu\n", buf,
-                   ((struct data *)events[i].data.ptr)->minutes, expired);
+            printf("[%s]%d秒!, %lu\n", buf,
+                   ((struct data *)events[i].data.ptr)->seconds, expired);
         }
     }
 
