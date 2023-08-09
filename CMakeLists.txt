@@ -1,15 +1,12 @@
 # https://qiita.com/shohirose/items/45fb49c6b429e8b204ac
 # https://qiita.com/shohirose/items/637f4b712893764a7ec1
 # https://qiita.com/shohirose/items/d2b9c595a37b27ece607
-cmake_minimum_required(VERSION 3.7.0)
+cmake_minimum_required(VERSION 3.25.0)
 project(study VERSION 1.0.5 LANGUAGES C CXX)
 
 include(CheckLanguage)
 
 option(WITH_GETTEXT "translate messages if gettext is available" ON)
-#add_compile_definitions(HAVE_CONFIG_H=1)
-#add_compile_definitions(_XOPEN_SOURCE=700)
-#add_compile_definitions(_GNU_SOURCE)
 
 include(CTest)
 enable_testing()
