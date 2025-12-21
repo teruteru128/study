@@ -186,16 +186,6 @@ add_executable(cp2peq cp2peq.c)
 target_link_libraries(cp2peq study)
 target_include_directories(cp2peq PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
-if(CMAKE_CUDA_COMPILER)
-    message(NOTICE "CMAKE_CUDA_COMPILER:${CMAKE_CUDA_COMPILER}")
-
-    add_executable(cudahello cudahello.cu)
-    target_compile_definitions(cudahello PRIVATE CMAKE_CUDA_COMPILER=${CMAKE_CUDA_COMPILER})
-
-    add_executable(cudamalloctest cudamalloctest.cu)
-    target_compile_definitions(cudamalloctest PRIVATE CMAKE_CUDA_COMPILER=${CMAKE_CUDA_COMPILER})
-endif()
-
 add_executable(curlonionheadertest curlonionheadertest.c)
 target_link_libraries(curlonionheadertest ${CURL_LIBRARIES})
 target_include_directories(curlonionheadertest PRIVATE ${CURL_INCLUDE_DIRS})

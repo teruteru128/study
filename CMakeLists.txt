@@ -85,12 +85,6 @@ if(PKG_CONFIG_FOUND)
     pkg_check_modules(JSONRPC_GLIB1 REQUIRED jsonrpc-glib-1.0)
 endif()
 
-# see https://cliutils.gitlab.io/modern-cmake/chapters/packages/CUDA.html
-check_language(CUDA)
-if(CMAKE_CUDA_COMPILER)
-    enable_language(CUDA)
-endif()
-
 
 #link_libraries(${CMAKE_THREAD_LIBS_INIT} ${Intl_LIBRARIES} ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${OPENSSL_SSL_LIBRARIES})
 include(GNUInstallDirs)
@@ -187,6 +181,11 @@ add_subdirectory(pthreads)
 add_subdirectory(src)
 add_subdirectory(po)
 add_subdirectory(tests)
+
+option(ENABLE_CUDA "Enable CUDA support" OFF)
+if(ENABLE_CUDA)
+    add_subdirectory(cuda)
+endif()
 
 set(CPACK_PROJECT_NAME "${PROJECT_NAME}")
 set(CPACK_PROJECT_VERSION "${PROJECT_VERSION}")
