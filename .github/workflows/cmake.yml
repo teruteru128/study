@@ -16,8 +16,6 @@ jobs:
           submodules: "recursive"
       - name: apt update
         run: sudo apt update
-      - name: apt upgrade
-        run: sudo apt upgrade -y
       - name: Install dependents
         run: sudo apt install --no-install-recommends --no-install-suggests ninja-build autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64 gettext libjsonrpc-glib-1.0-dev opencl-c-headers libgnutls28-dev
       - name: Configuration
