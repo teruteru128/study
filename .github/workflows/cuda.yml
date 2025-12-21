@@ -26,6 +26,6 @@ jobs:
       - name: Install dependents
         run: sudo apt install --no-install-recommends --no-install-suggests ninja-build autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64 gettext libjsonrpc-glib-1.0-dev opencl-c-headers libgnutls28-dev libjpeg9-dev libpng-dev
       - name: Configuration
-        run: cmake . -G Ninja -B build
+        run: cmake . -G Ninja -B build -DENABLE_CUDA=ON
       - name: build
         run: ninja -j 0 -C build
