@@ -99,7 +99,7 @@ int timerfdsample5()
             {
                 if (events[i].data.fd == data[j].fd)
                 {
-                    printf("[%s]%d秒!, %lu\n", buf, data[j].seconds, expired);
+                    printf("[%s.%09ld]%d秒!, %lu\n", buf, d.tv_nsec, data[j].seconds, expired);
                     break;
                 }
             }
