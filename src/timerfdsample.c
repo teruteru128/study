@@ -52,6 +52,7 @@ int main(int argc, const char *argv[])
         ret = timerfdsample4();
         break;
     case 5:
+        // timerfd[6] + epoll
         ret = timerfdsample5();
         break;
     case 6:

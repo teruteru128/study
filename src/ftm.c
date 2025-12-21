@@ -1,5 +1,8 @@
 /* ftm.c - from feature_test_macros(7) */
 
+#define _GNU_SOURCE
+#define _DEFAULT_SOURCE
+#define _XOPEN_SOURCE 700
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -31,6 +34,10 @@ int main(int argc, char *argv[])
 
 #ifdef _ISOC11_SOURCE
     p(_ISOC11_SOURCE);
+#endif
+
+#ifdef STDC_VERSION
+    p(STDC_VERSION);
 #endif
 
 #ifdef _XOPEN_SOURCE

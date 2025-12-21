@@ -6,6 +6,7 @@
 #include <sys/timerfd.h>
 #include <time.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 struct data
 {
@@ -62,7 +63,7 @@ int timerfdsample5()
     {
         data[i].fd = create_timerfd(&spec, list[i]);
         data[i].seconds = list[i];
-        //ev.data.ptr = &(data[i]);
+        // ev.data.ptr = &(data[i]);
         ev.data.fd = data[i].fd;
         int ret = epoll_ctl(epfd, EPOLL_CTL_ADD, data[i].fd, &ev);
         if (ret != 0)
@@ -99,7 +100,7 @@ int timerfdsample5()
             {
                 if (events[i].data.fd == data[j].fd)
                 {
-                    printf("[%s.%09ld]%d秒!, %lu\n", buf, d.tv_nsec, data[j].seconds, expired);
+                    printf("[%s.%09" PRId64 "]%d秒!, %" PRIu64 "\n", buf, (int64_t)d.tv_nsec, data[j].seconds, expired);
                     break;
                 }
             }

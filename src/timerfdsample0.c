@@ -57,7 +57,7 @@
  */
 int timerfdsample0(void)
 {
-    int timerfd = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC);
+    int timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC);
     if (timerfd < 0)
     {
         perror("timerfd_create");
@@ -65,10 +65,10 @@ int timerfdsample0(void)
     }
     struct itimerspec spec;
     // 現在時刻を取得
-    clock_gettime(CLOCK_REALTIME, &spec.it_value);
+    clock_gettime(CLOCK_MONOTONIC, &spec.it_value);
     // it_valueを両方0にするとタイマー停止
     // タイマー満了時間の初期値用に繰り上げ
-    spec.it_value.tv_sec++;
+    spec.it_value.tv_sec += 2;
     spec.it_value.tv_nsec = 0;
     // it_intervalを両方0にすると繰り返しタイマー停止
     spec.it_interval.tv_sec = 1;
@@ -95,7 +95,7 @@ int timerfdsample0(void)
         r = read(timerfd, &exp, sizeof(uint64_t));
         if (r != sizeof(uint64_t))
         {
-            perror("recv");
+            perror("read timer");
             ret = EXIT_FAILURE;
             break;
         }

@@ -5,6 +5,7 @@
 #include <sys/epoll.h>
 #include <stdint.h>
 #include <time.h>
+#include <inttypes.h>
 
 #define MAX_EVENTS 2
 
@@ -76,11 +77,11 @@ int timerfdsample6(void)
 
             if (events[n].data.fd == tfd5)
             {
-                printf("[Timer A] 5 seconds elapsed! (total exp: %llu)\n", (unsigned long long)exp);
+                printf("[Timer A] 5 seconds elapsed! (total exp: %" PRIu64 ")\n", exp);
             }
             else if (events[n].data.fd == tfd3)
             {
-                printf("[Timer B] 3 seconds elapsed! (total exp: %llu)\n", (unsigned long long)exp);
+                printf("[Timer B] 3 seconds elapsed! (total exp: %" PRIu64 ")\n", exp);
             }
         }
     }
