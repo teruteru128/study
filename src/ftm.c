@@ -13,6 +13,10 @@
 
 int main(int argc, char *argv[])
 {
+#ifdef __STRICT_ANSI__
+    p(__STRICT_ANSI__);
+#endif
+
 #ifdef _POSIX_SOURCE
     p(_POSIX_SOURCE);
 #endif
@@ -92,6 +96,8 @@ int main(int argc, char *argv[])
 #else
     printf("BYTE_ORDER is UNKNOWN ENDIAN\n");
 #endif
+#else
+    printf("BYTE_ORDER not defined\n");
 #endif
 
     return EXIT_SUCCESS;

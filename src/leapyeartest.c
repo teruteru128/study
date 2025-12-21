@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 #include "timeutil.h"
 #include <locale.h>
@@ -33,7 +34,10 @@ void leapyeartest()
 
 int main(int argc, char const *argv[])
 {
-    setlocale(LC_ALL, "");
+    if (argc >= 2 && strcmp(argv[1], "--setlocale") == 0)
+    {
+        setlocale(LC_ALL, "");
+    }
     leapyeartest();
     return 0;
 }

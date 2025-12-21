@@ -13,7 +13,7 @@
 
 // TODO: スレッド数はコンパイル時ではなく実行時に決定すべきでは？
 #ifndef THREAD_NUM
-#define THREAD_NUM 12
+#define THREAD_NUM 1
 #endif
 
 struct globalConfig
@@ -133,11 +133,11 @@ int main(int argc, char **argv)
 
     struct globalConfig *config = globalConfig_new(776869784885228UL, 5);
 
-    for (size_t i = 0; i < THREAD_NUM; i++)
+    for (size_t i = 0; i < threadNum; i++)
     {
         pthread_create(&threads[i], NULL, hash, &config);
     }
-    for (size_t i = 0; i < THREAD_NUM; i++)
+    for (size_t i = 0; i < threadNum; i++)
     {
         pthread_join(threads[i], NULL);
     }

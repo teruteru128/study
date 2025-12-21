@@ -1,4 +1,5 @@
 
+#define _DEFAULT_SOURCE 1
 #include <fcntl.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>

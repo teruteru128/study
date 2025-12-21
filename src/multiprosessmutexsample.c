@@ -1,6 +1,7 @@
 
 #include <pthread.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -21,7 +22,7 @@ int main(int argc, char const *argv[])
         return 1;
     }
     // pthreadをマルチプロセス下で使うには設定をする必要がある
-    pthread_mutexattr_t mutexattr = { 0 };
+    pthread_mutexattr_t mutexattr;
     pthread_mutexattr_init(&mutexattr);
     if (pthread_mutexattr_setpshared(&mutexattr, PTHREAD_PROCESS_SHARED) != 0)
     {
@@ -43,9 +44,11 @@ int main(int argc, char const *argv[])
     else if (p == 0)
     {
         // 子プロセス
+        printf("子プロセスがロックする\n");
         pthread_mutex_lock(mutex);
         printf("子プロセス\n");
         sleep(5);
+        printf("子プロセススリープ終わり\n");
         pthread_mutex_unlock(mutex);
         printf("子プロセスロック終わり\n");
         _exit(0);
@@ -61,8 +64,9 @@ int main(int argc, char const *argv[])
         printf("親プロセス\n");
         pthread_mutex_unlock(mutex);
         printf("親プロセスロック終わり\n");
-        wait(&status);
-        printf("%d\n", status);
+        waitpid(p, &status, 0);
+        printf("exit status: %d\n", WEXITSTATUS(status));
+        printf("if exited: %d\n", WIFEXITED(status));
     }
 
     pthread_mutex_destroy(mutex);

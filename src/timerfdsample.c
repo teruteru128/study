@@ -8,6 +8,7 @@
 #include "timerfdsample3.h"
 #include "timerfdsample4.h"
 #include "timerfdsample5.h"
+#include "timerfdsample6.h"
 #include <errno.h>
 #include <inttypes.h>
 #include <stddef.h>
@@ -52,6 +53,10 @@ int main(int argc, const char *argv[])
         break;
     case 5:
         ret = timerfdsample5();
+        break;
+    case 6:
+        // 3秒と5秒のタイマーをepollで監視する
+        ret = timerfdsample6();
         break;
     default:
         fputs("unknown command number\n", stderr);

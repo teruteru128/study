@@ -4,6 +4,7 @@
 #include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -174,7 +175,8 @@ int main(int argc, char const *argv[])
     // register listen socket to epoll fd
     // この epoll_event
     // の構造体って中でポインタを保持してんのかねぇ？それともコピー？
-    struct epoll_event event = { 0 };
+    struct epoll_event event;
+    memset(&event, 0, sizeof(struct epoll_event));
     event.events = EPOLLIN;
     event.data.ptr = &info;
     epoll_ctl(e, EPOLL_CTL_ADD, listensock, &event);
