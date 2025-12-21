@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
     }
     freeaddrinfo(res);
     close(recv_sock);
+    fputs("--\n", stderr);
     dumpNTPpacket(&recvpacket, stderr);
     return EXIT_SUCCESS;
 }

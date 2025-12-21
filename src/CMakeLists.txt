@@ -1,7 +1,7 @@
 
 add_executable(FizzBuzz FizzBuzz.c)
 target_include_directories(FizzBuzz PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/include)
-target_compile_definitions(FizzBuzz PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
+target_compile_definitions(FizzBuzz PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}")
 
 add_executable(Nabeatsu Nabeatsu.c)
 target_compile_definitions(Nabeatsu PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")

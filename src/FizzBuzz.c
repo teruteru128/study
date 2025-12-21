@@ -41,8 +41,9 @@ void showFizzBuzz(size_t a)
 #define MAX (100000000UL)
 int main(int argc, char *argv[])
 {
+    printf("PACKAGE: %s, LOCALEDIR: %s\n", PACKAGE, LOCALEDIR);
     setlocale(LC_ALL, "");
     bindtextdomain(PACKAGE, LOCALEDIR);
     textdomain(PACKAGE);
-    showFizzBuzz(MAX);
+    showFizzBuzz(20);
 }

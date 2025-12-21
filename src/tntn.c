@@ -1,4 +1,5 @@
 
+#include "ochinchin.h"
 #include "eja.h"
 #include "ftnr.h"
 #include <stdio.h>

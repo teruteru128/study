@@ -35,7 +35,7 @@ int create_timerfd(struct timespec *spec, int seconds)
     return tfd;
 }
 
-#define LIST_ENT 6
+#define LIST_ENT 16
 #define MAX_EVENTS 16
 
 /*
@@ -55,7 +55,7 @@ int timerfdsample5()
     struct timespec d;
     /*
      */
-    int list[] = {3, 5, 7, 11, 13, 17};
+    int list[] = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59};
     struct timespec spec;
     clock_gettime(CLOCK_REALTIME, &spec);
     ev.events = EPOLLIN;
@@ -63,8 +63,8 @@ int timerfdsample5()
     {
         data[i].fd = create_timerfd(&spec, list[i]);
         data[i].seconds = list[i];
-        // ev.data.ptr = &(data[i]);
-        ev.data.fd = data[i].fd;
+        ev.data.ptr = &(data[i]);
+        // ev.data.fd = data[i].fd;
         int ret = epoll_ctl(epfd, EPOLL_CTL_ADD, data[i].fd, &ev);
         if (ret != 0)
         {
@@ -89,21 +89,14 @@ int timerfdsample5()
 
         for (size_t i = 0; i < nfds; i++)
         {
-            ssize_t s = read(events[i].data.fd, &expired, sizeof(uint64_t));
+            ssize_t s = read(((struct data *)events[i].data.ptr)->fd, &expired, sizeof(uint64_t));
             if (s != sizeof(uint64_t))
                 continue;
 
             clock_gettime(CLOCK_REALTIME, &d);
             localtime_r(&d.tv_sec, &tm);
             strftime(buf, 512, "%Y/%m/%d %T", &tm);
-            for (size_t j = 0; j < LIST_ENT; j++)
-            {
-                if (events[i].data.fd == data[j].fd)
-                {
-                    printf("[%s.%09" PRId64 "]%d秒!, %" PRIu64 "\n", buf, (int64_t)d.tv_nsec, data[j].seconds, expired);
-                    break;
-                }
-            }
+            printf("[%s.%09" PRId64 "]%d秒!, %" PRIu64 "\n", buf, (int64_t)d.tv_nsec, ((struct data *)events[i].data.ptr)->seconds, expired);
         }
     }
 

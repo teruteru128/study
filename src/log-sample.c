@@ -1,4 +1,5 @@
 
+#define _GNU_SOURCE
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -14,15 +15,15 @@ int main(int argc, char **argv)
     long double b = logl(2);
     long double c = logl(10);
     long double d = logl(16);
-    printf("%28.24Lf\n", a);
-    printf("%28.24Lf\n", b);
-    printf("%28.24Lf\n", c);
-    printf("%28.24Lf\n", d);
-    printf("%.24Lf\n", a / b);
-    printf("%.24Lf\n", a / c);
-    printf("%.24Lf\n", a / d);
+    printf("a: %28.24Lf\n", a);
+    printf("b: %28.24Lf\n", b);
+    printf("c: %28.24Lf\n", c);
+    printf("d: %28.24Lf\n", d);
+    printf("a / b: %.24Lf\n", a / b);
+    printf("a / c: %.24Lf\n", a / c);
+    printf("a / d: %.24Lf\n", a / d);
 #ifdef _GNU_SOURCE
-    printf("%.24Lf\n", powl(10, M_El));
+    printf("powl(10, El): %.24Lf\n", powl(10, M_El));
 #endif
     long double e = LDBL_EPSILON;
     printf("%La\n", e);

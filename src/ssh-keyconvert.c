@@ -20,8 +20,9 @@
 
 int main(int argc, char *argv[])
 {
-    if (argc < 1)
+    if (argc < 2)
     {
+        perror("引数不足");
         return EXIT_FAILURE;
     }
 

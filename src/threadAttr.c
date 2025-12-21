@@ -12,8 +12,8 @@
 
 #define SIZE 16777216
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t mutex;
+pthread_cond_t cond;
 
 void *threadFunc(void *arg)
 {
@@ -40,29 +40,36 @@ void *threadFunc(void *arg)
 
 int main(int argc, char *argv[])
 {
+    pthread_t thread;
     pthread_attr_t attr;
 
     pthread_attr_init(&attr);
 
     size_t stacksize;
     pthread_attr_getstacksize(&attr, &stacksize);
-    fprintf(stderr, "%lu -> ", stacksize);
 
-    stacksize += SIZE * sizeof(uint64_t);
-    fprintf(stderr, "%lu\n", stacksize);
+    size_t newStackSize = stacksize + SIZE * sizeof(uint64_t);
+    fprintf(stderr, "stacksize: %" PRIu64 " -> %" PRIu64 "\n", stacksize, newStackSize);
 
-    if (pthread_attr_setstacksize(&attr, stacksize) != 0)
+    if (pthread_attr_setstacksize(&attr, newStackSize) != 0)
     {
         perror("Failed to set stack size.");
         return EXIT_FAILURE;
     }
 
-    pthread_t thread;
+    pthread_mutex_init(&mutex, NULL);
+    pthread_condattr_t condattr;
+    pthread_condattr_init(&condattr);
+    pthread_condattr_setclock(&condattr, CLOCK_MONOTONIC);
+    pthread_cond_init(&cond, &condattr);
+    pthread_condattr_destroy(&condattr);
+
     if (pthread_create(&thread, &attr, threadFunc, NULL) != 0)
     {
         perror("Error: Failed to create new thread.");
         return EXIT_FAILURE;
     }
+    pthread_attr_destroy(&attr);
     pthread_mutex_lock(&mutex);
     pthread_cond_wait(&cond, &mutex);
     pthread_mutex_unlock(&mutex);
@@ -81,6 +88,5 @@ int main(int argc, char *argv[])
 
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&cond);
-    pthread_attr_destroy(&attr);
     return EXIT_SUCCESS;
 }
