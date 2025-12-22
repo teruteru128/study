@@ -30,6 +30,8 @@ add_executable(argparsesample argparsesample.c)
 add_executable(barrier_test barrier_test.c)
 target_link_libraries(barrier_test PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 
+add_executable(bb bb.c)
+
 add_executable(bcasttest bcasttest.c)
 
 add_executable(bino bino.c biom.c)
