@@ -3,6 +3,7 @@
 #include "config.h"
 #endif
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <inttypes.h>
 #include <locale.h>
@@ -23,19 +24,21 @@ int main(void)
     int fd;
     int c;
 
-    if ((fd = open("/dev/random", O_RDONLY | O_CLOEXEC)) != -1)
+    if ((fd = open("/dev/random", O_RDONLY | O_CLOEXEC)) == -1)
     {
-        if (ioctl(fd, RNDGETENTCNT, &c) == 0 && c < 160)
-        {
-            fputs("This system doesn't provide enough entropy to quickly generate high-quality random numbers.\n"
-                  "Installing the rng-utils/rng-tools, jitterentropy or haveged packages may help.\n"
-                  "On virtualized Linux environments, also consider using virtio-rng.\n"
-                  "The service will not start until enough entropy has been collected.\n",
-                  stderr);
-        }
-        (void)close(fd);
-        printf("%d\n", c);
+        perror("open /dev/random");
+        return EXIT_FAILURE;
     }
+    if (ioctl(fd, RNDGETENTCNT, &c) == 0 && c < 160)
+    {
+        fputs("This system doesn't provide enough entropy to quickly generate high-quality random numbers.\n"
+                "Installing the rng-utils/rng-tools, jitterentropy or haveged packages may help.\n"
+                "On virtualized Linux environments, also consider using virtio-rng.\n"
+                "The service will not start until enough entropy has been collected.\n",
+                stderr);
+    }
+    (void)close(fd);
+    printf("%d\n", c);
 #endif
     if (sodium_init() < 0)
     {
@@ -122,6 +125,7 @@ int main(void)
         snprintf(&ctxstr[i << 1], 3, "%02x", server_rx[i]);
     }
     printf("server_rx : %s\n", ctxstr);
+    printf("client_tx matches server_rx: %s\n", memcmp(client_tx, server_rx, crypto_kx_SESSIONKEYBYTES) == 0 ? "OK" : "NG");
     for (i = 0; i < crypto_kx_SESSIONKEYBYTES; i++)
     {
         snprintf(&ctxstr[i << 1], 3, "%02x", client_rx[i]);
@@ -132,5 +136,6 @@ int main(void)
         snprintf(&ctxstr[i << 1], 3, "%02x", server_tx[i]);
     }
     printf("server_tx : %s\n", ctxstr);
+    printf("client_rx matches server_tx: %s\n", memcmp(client_rx, server_tx, crypto_kx_SESSIONKEYBYTES) == 0 ? "OK" : "NG");
     return EXIT_SUCCESS;
 }
