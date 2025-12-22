@@ -380,7 +380,7 @@ add_executable(main
                 sha512.c
                 bulkevp.c
               )
-target_compile_definitions(main PRIVATE CL_TARGET_OPENCL_VERSION=220)
+target_compile_definitions(main PRIVATE $<$<BOOL:${OpenCL_FOUND}>:CL_TARGET_OPENCL_VERSION=220>)
 target_include_directories(main PRIVATE
                             ${PNG_INCLUDE_DIRS}
                             ${PROJECT_SOURCE_DIR}/libstudy/include
