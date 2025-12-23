@@ -37,8 +37,8 @@ add_executable(bcasttest bcasttest.c)
 add_executable(bino bino.c biom.c)
 
 add_executable(bm bm.c)
-target_link_libraries(bm study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util ${OPENSSL_CRYPTO_LIBRARIES})
-target_include_directories(bm PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/include)
+target_link_libraries(bm study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util ${OPENSSL_CRYPTO_LIBRARIES} $<$<BOOL:${JSONRPC_GLIB1_FOUND}>:${JSONRPC_GLIB1_LIBRARIES}>)
+target_include_directories(bm PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/include $<$<BOOL:${JSONRPC_GLIB1_FOUND}>:${JSONRPC_GLIB1_INCLUDE_DIRS}>)
 target_compile_definitions(bm PRIVATE VERSION="${study_VERSION}")
 
 add_executable(bmkeygen bmkeygen.c)
