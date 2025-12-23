@@ -1,13 +1,17 @@
 
-#include <base64.h>
+//#include <base64.h>
 #include <bm.h>
-#include <bmapi.h>
+//#include <bmapi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include <jsonrpc-glib.h>
+//#include <jsonrpc-glib.h>
+#include <errno.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 #include <sys/epoll.h>
 #include <sys/random.h>
 #include <fcntl.h>
@@ -366,7 +370,7 @@ int main(const int argc, const char **argv)
         return EXIT_FAILURE;
     }
     free(versionmsg);
-    char *connectedBuffer = malloc(BUFSIZ);
+    unsigned char *connectedBuffer = malloc(BUFSIZ);
     size_t size = BUFSIZ;
     size_t length = 0;
     while (1)
@@ -434,7 +438,7 @@ int main(const int argc, const char **argv)
                     // checksumを検証する
                     // checksumはpayloadの最初の4バイトをSHA512でハッシュ化したものの最初の4バイト
                     unsigned char computed_checksum[64];
-                    SHA512((unsigned char *)(connectedBuffer + 24), payload_length, computed_checksum);
+                    SHA512((connectedBuffer + 24), payload_length, computed_checksum);
                     int computed_checksum_int = *((int *)computed_checksum);
                     if (checksum != ntohl(computed_checksum_int))
                     {
@@ -458,7 +462,7 @@ int main(const int argc, const char **argv)
                     else if (strcmp(command, "version") == 0)
                     {
                         printf("Received version message\n");
-                        unsigned char *payload = (unsigned char *)(connectedBuffer + 24);
+                        unsigned char *payload = (connectedBuffer + 24);
                         uint32_t version = ntohl(*((uint32_t *)payload));
                         uint64_t services = be64toh(*((uint64_t *)(payload + 4)));
                         uint64_t timestamp = be64toh(*((uint64_t *)(payload + 12)));
@@ -578,7 +582,7 @@ int main(const int argc, const char **argv)
                         // decode varint number of addresses
                         size_t offset = 0;
                         uint64_t addr_count = 0;
-                        unsigned char *payload = (unsigned char *)(connectedBuffer + 24);
+                        unsigned char *payload = (connectedBuffer + 24);
                         // ここにvarintデコードの実装を書く
                         if (payload[0] < 0xfd)
                         {
@@ -650,7 +654,7 @@ int main(const int argc, const char **argv)
                     else if (strcmp(command, "inv") == 0)
                     {
                         printf("Received inv message\n");
-                        unsigned char *payload = (unsigned char *)(connectedBuffer + 24);
+                        unsigned char *payload = (connectedBuffer + 24);
                         size_t offset = 0;
                         uint64_t inv_count = 0;
                         if (payload[0] < 0xfd)
@@ -675,7 +679,6 @@ int main(const int argc, const char **argv)
                             offset = 9;
                         }
                         // inv_countはリモートが保持しているオブジェクト数でペイロードに含まれるオブジェクト数とは限らない
-                        printf("payload_length: %d, (payload_length - offset) / 32: %ld, (payload_length - offset) %% 32: %ld, inventory items: %" PRIu64 ", offset + inventory items * 32: %zu\n", payload_length, (payload_length - offset) / 32, (payload_length - offset) % 32, inv_count, offset + inv_count * 32);
                         size_t inv_count2 = (payload_length - offset) / 32;
                         for (uint64_t i = 0; i < inv_count2; i++)
                         {
@@ -708,5 +711,5 @@ int main(const int argc, const char **argv)
             }
         }
     }
-    return 0;
+    return EXIT_SUCCESS;
 }
