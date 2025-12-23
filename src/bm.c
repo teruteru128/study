@@ -1,13 +1,13 @@
 
-//#include <base64.h>
+// #include <base64.h>
 #include <bm.h>
-//#include <bmapi.h>
+// #include <bmapi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-//#include <jsonrpc-glib.h>
+// #include <jsonrpc-glib.h>
 #include <errno.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <time.h>
+#include <bm_protocol.h>
 
 #define NAME "/TRBMTESTCLIENT:" VERSION "/"
 #define MAX_EVENTS 16
@@ -24,6 +25,8 @@
 int epfd = -1;
 
 static const unsigned char magicbytes[] = {0xe9, 0xbe, 0xb4, 0xd9};
+
+struct message;
 
 static unsigned char *encodeVarStr(const char *str, size_t *outlen)
 {
@@ -100,46 +103,6 @@ IPv6/4 address:16byte
 port:uint16_t
 */
 
-static void encodeTimeAndStreamInNetworkAddress(unsigned char *addr,
-                                                uint64_t time,
-                                                uint32_t stream)
-{
-    uint64_t net_time = htobe64(time);
-    uint32_t net_stream = htobe32(stream);
-    memcpy(addr, &net_time, 8);       // 時間をコピー
-    memcpy(addr + 8, &net_stream, 4); // ストリーム番号をコピー
-}
-
-static void encodeNetworkAddress(unsigned char *addr, struct sockaddr_storage *local_addr)
-{
-    // servicesの8バイトはゼロ埋め
-    memset(addr, 0, 8);
-    if (local_addr->ss_family == AF_INET)
-    {
-        // IPv4アドレスの場合、IPv4マッピングIPv6アドレスに変換してセット
-        addr[8] = 0;
-        addr[9] = 0;
-        addr[10] = 0;
-        addr[11] = 0;
-        addr[12] = 0;
-        addr[13] = 0;
-        addr[14] = 0xff;
-        addr[15] = 0xff;
-        struct sockaddr_in *sin = (struct sockaddr_in *)local_addr;
-        memcpy(addr + 16, &sin->sin_addr, 4); // IPv4アドレスをコピー
-        uint16_t port = htons(sin->sin_port);
-        memcpy(addr + 24, &port, 2); // ポート番号をコピー
-    }
-    else if (local_addr->ss_family == AF_INET6)
-    {
-        // IPv6アドレスの場合
-        struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)local_addr;
-        memcpy(addr + 8, &sin6->sin6_addr, 16); // IPv6アドレスをコピー
-        uint16_t port = htons(sin6->sin6_port);
-        memcpy(addr + 24, &port, 2); // ポート番号をコピー
-    }
-}
-
 static unsigned char *endodeVariableLengthListOfIntegers(uint64_t *list, size_t listlen, size_t *outlen)
 {
     size_t total_len = 0;
@@ -162,7 +125,7 @@ static unsigned char *endodeVariableLengthListOfIntegers(uint64_t *list, size_t 
     return result;
 }
 
-static unsigned char *createVersionMessage(const char *user_agent_str, int version, struct sockaddr_storage *local_addr, struct sockaddr_storage *peer_addr, int sock, size_t *out_length)
+static unsigned char *createVersionMessage(const char *user_agent_str, int version, struct sockaddr_storage *peer_addr, struct sockaddr_storage *local_addr, int sock, size_t *out_length)
 {
     // user_agent
     size_t ua_len = 0;
@@ -344,7 +307,7 @@ int main(const int argc, const char **argv)
     size_t versionmsglen = 0;
     int version = 3;
     printf("NAME: %s\n", NAME);
-    unsigned char *versionmsg = createVersionMessage(NAME, version, &local_addr, &peer_addr, sock, &versionmsglen);
+    unsigned char *versionmsg = createVersionMessage(NAME, version, &peer_addr, &local_addr, sock, &versionmsglen);
     // ヘッダの作成
     unsigned char header[24];
     memcpy(header, magicbytes, 4);
@@ -609,7 +572,8 @@ int main(const int argc, const char **argv)
                         // 各アドレスをデコード
                         struct tm tm_info;
                         char time_buffer[128];
-                        for (uint64_t i = 0; i < addr_count; i++)
+                        uint64_t addr_count2 = (payload_length - offset) / 30;
+                        for (uint64_t i = 0; i < addr_count2; i++)
                         {
                             if (offset + 30 > (size_t)payload_length)
                             {
@@ -706,8 +670,7 @@ int main(const int argc, const char **argv)
                     // 1回の読み込みで2つ以上のメッセージ構造体が送られてきた場合は？
                     // その場合は、バッファの残りを処理し続ける
                 }
-                // 処理後、バッファをリセット
-                // length = 0;
+                // 再度読み込みが発生することがあるのでバッファをリセットせずにループに戻る
             }
         }
     }

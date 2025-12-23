@@ -158,3 +158,8 @@ A garbage dump repository created for studying Teruteru.
 
 ### キャッシュ
 
+## BitMessage TODO
+
+[gemini share](https://share.google/aimode/q5xEM7rZdjzPmkeEz)
+
+いちいちコピペすんのめんどくせえよ
