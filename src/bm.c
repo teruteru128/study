@@ -1,4 +1,5 @@
 
+#define _GNU_SOURCE
 // #include <base64.h>
 #include <bm.h>
 // #include <bmapi.h>
@@ -213,6 +214,8 @@ int main(const int argc, const char **argv)
     unsigned char *connectedBuffer = malloc(BUFSIZ);
     size_t size = BUFSIZ;
     size_t length = 0;
+    // epoll_waitも別スレッドで行い、メインスレッドではコネクション数管理を行いたい
+    // (アウトバウンド16コネクション、インバウンド16コネクションとか。実際はインバウンド数に上限はつけたくないけど)
     while (1)
     {
         int nfds = epoll_wait(epfd, events, MAX_EVENTS, -1);
@@ -262,76 +265,89 @@ int main(const int argc, const char **argv)
                 }
                 while (length > 0)
                 {
-                    char command[13] = {0};
-                    strncpy(command, connectedBuffer + 4, 12);
-                    command[12] = '\0';
-                    // fprintf(stderr, "Received command: %s\n", command);
-                    int payload_length = *((int *)(connectedBuffer + 16));
-                    payload_length = ntohl(payload_length);
-                    // fprintf(stderr, "Payload length: %d\n", payload_length);
-                    if (length < payload_length)
+                    struct message *msg = parse_message(connectedBuffer, length);
+                    if (msg == NULL)
                     {
-                        // ペイロード全体がまだ来ていない場合は待つ
-                        // fprintf(stderr, "Incomplete message, waiting for more data(current length: %zu bytes)\n", length);
+                        // fprintf(stderr, "Received command: %s\n", msg->command);
+                        int payload_length = *((int *)(connectedBuffer + 16));
+                        payload_length = ntohl(payload_length);
+                        // fprintf(stderr, "Payload length: %d\n", payload_length);
+                        if (length < payload_length)
+                        {
+                            // ペイロード全体がまだ来ていない場合は待つ
+                            // fprintf(stderr, "Incomplete message, waiting for more data(current length: %zu bytes)\n", length);
+                            break;
+                        }
+                        int checksum = *((int *)(connectedBuffer + 20));
+                        checksum = ntohl(checksum);
+                        // checksumを検証する
+                        // checksumはpayloadの最初の4バイトをSHA512でハッシュ化したものの最初の4バイト
+                        unsigned char computed_checksum[64];
+                        SHA512((connectedBuffer + 24), payload_length, computed_checksum);
+                        int computed_checksum_int = *((int *)computed_checksum);
+                        if (checksum != ntohl(computed_checksum_int))
+                        {
+                            fprintf(stderr, "Checksum mismatch! Expected: %08x, Computed: %08x\n", checksum, ntohl(computed_checksum_int));
+                            // 不正なメッセージなので破棄
+                            // 次のメッセージに備えてバッファを調整
+                            memmove(connectedBuffer, connectedBuffer + 24 + payload_length, length - (24 + payload_length));
+                            length -= (24 + payload_length);
+                            continue;
+                        }
+                        // 不完全なメッセージ、または不正なメッセージ
+                        fprintf(stderr, "Incomplete or invalid message, waiting for more data\n");
+                        void *nextpackethead = memmem(connectedBuffer + 4, length - 4, magicbytes, 4);
+                        if (nextpackethead != NULL)
+                        {
+                            // 次のメッセージの先頭が見つかった場合、その位置までスキップ
+                            size_t skip_bytes = (unsigned char *)nextpackethead - connectedBuffer;
+                            fprintf(stderr, "Skipping %zu bytes to next potential message\n", skip_bytes);
+                            memmove(connectedBuffer, nextpackethead, length - skip_bytes);
+                            length -= skip_bytes;
+                        }
                         break;
-                    }
-                    int checksum = *((int *)(connectedBuffer + 20));
-                    checksum = ntohl(checksum);
-                    // checksumを検証する
-                    // checksumはpayloadの最初の4バイトをSHA512でハッシュ化したものの最初の4バイト
-                    unsigned char computed_checksum[64];
-                    SHA512((connectedBuffer + 24), payload_length, computed_checksum);
-                    int computed_checksum_int = *((int *)computed_checksum);
-                    if (checksum != ntohl(computed_checksum_int))
-                    {
-                        fprintf(stderr, "Checksum mismatch! Expected: %08x, Computed: %08x\n", checksum, ntohl(computed_checksum_int));
-                        // 不正なメッセージなので破棄
-                        // 次のメッセージに備えてバッファを調整
-                        memmove(connectedBuffer, connectedBuffer + 24 + payload_length, length - (24 + payload_length));
-                        length -= (24 + payload_length);
-                        continue;
                     }
                     // コマンドに対する処理を Strategy パターンを模倣して実装
                     // ここに各コマンドに対する処理を追加
                     // もしcommandが"verack"なら
-                    if (strcmp(command, "verack") == 0)
+                    if (strncmp(msg->command, "verack", 12) == 0)
                     {
                         fprintf(stderr, "Received verack message\n");
                         // verackに対する処理をここに書く
                     }
-                    else if (strcmp(command, "version") == 0)
+                    else if (strncmp(msg->command, "version", 12) == 0)
                     {
                         fprintf(stderr, "Received version message\n");
                         unsigned char *payload = (connectedBuffer + 24);
-                        uint32_t version = ntohl(*((uint32_t *)payload));
-                        uint64_t services = be64toh(*((uint64_t *)(payload + 4)));
-                        uint64_t timestamp = be64toh(*((uint64_t *)(payload + 12)));
+                        uint32_t version = ntohl(*((uint32_t *)msg->payload));
+                        uint64_t services = be64toh(*((uint64_t *)(msg->payload + 4)));
+                        uint64_t timestamp = be64toh(*((uint64_t *)(msg->payload + 12)));
                         fprintf(stderr, "Version: %u, Services: %" PRIu64 ", Timestamp: %" PRIu64 "\n", version, services, timestamp);
-                        printNetworkAddress(payload + 20, 26); // addr_recv
-                        printNetworkAddress(payload + 46, 26); // addr_from
-                        uint64_t nonce = be64toh(*((uint64_t *)(payload + 72)));
+                        printNetworkAddress(msg->payload + 20, 26); // addr_recv
+                        printNetworkAddress(msg->payload + 46, 26); // addr_from
+                        uint64_t nonce = be64toh(*((uint64_t *)(msg->payload + 72)));
                         fprintf(stderr, "Nonce: %016" PRIx64 "\n", nonce);
                         // user_agentのデコード
                         size_t offset = 80;
                         size_t outlen = 0;
                         // varstrのデコード
                         // 先頭のvarintで長さを取得
-                        uint64_t ua_len = decodeVarint(payload + offset, &outlen);
+                        uint64_t ua_len = decodeVarint(msg->payload + offset, &outlen);
                         offset += outlen;
                         char *user_agent = malloc(ua_len + 1);
-                        memcpy(user_agent, payload + offset, ua_len);
+                        memcpy(user_agent, msg->payload + offset, ua_len);
                         user_agent[ua_len] = '\0';
                         offset += ua_len;
                         fprintf(stderr, "User Agent: %s\n", user_agent);
                         free(user_agent);
                         // stream_numbersのデコード
-                        uint64_t stream_count = decodeVarint(payload + offset, &outlen);
+                        uint64_t stream_count = decodeVarint(msg->payload + offset, &outlen);
                         offset += outlen;
                         fprintf(stderr, "Stream Count: %" PRIu64 "\n", stream_count);
                         fprintf(stderr, "Streams: ");
                         for (uint64_t i = 0; i < stream_count; i++)
                         {
-                            uint64_t stream_num = decodeVarint(payload + offset, &outlen);
+                            uint64_t stream_num = decodeVarint(msg->payload + offset, &outlen);
                             offset += outlen;
                             fprintf(stderr, "%" PRIu64 " ", stream_num);
                         }
@@ -355,7 +371,7 @@ int main(const int argc, const char **argv)
                             break;
                         }
                     }
-                    else if (strcmp(command, "addr") == 0)
+                    else if (strncmp(msg->command, "addr", 12) == 0)
                     {
                         fprintf(stderr, "Received addr message\n");
                         unsigned char *payload = (connectedBuffer + 24);
@@ -363,25 +379,25 @@ int main(const int argc, const char **argv)
                         size_t offset = 0;
                         size_t outlen = 0;
                         uint64_t addr_count = 0;
-                        addr_count = decodeVarint(payload + offset, &outlen);
+                        addr_count = decodeVarint(msg->payload + offset, &outlen);
                         offset += outlen;
                         fprintf(stderr, "Number of addresses: %" PRIu64 "\n", addr_count);
                         // 各アドレスをデコード
                         struct tm tm_info;
                         char time_buffer[128];
-                        uint64_t addr_count2 = (payload_length - offset) / 38;
+                        uint64_t addr_count2 = (msg->length - offset) / 38;
                         for (uint64_t i = 0; i < addr_count2; i++)
                         {
-                            uint64_t time = be64toh(*((uint64_t *)(payload + offset)));
+                            uint64_t time = be64toh(*((uint64_t *)(msg->payload + offset)));
                             offset += 8;
-                            uint32_t stream = ntohl(*((uint32_t *)(payload + offset)));
+                            uint32_t stream = ntohl(*((uint32_t *)(msg->payload + offset)));
                             offset += 4;
-                            uint64_t services = be64toh(*((uint64_t *)(payload + offset)));
+                            uint64_t services = be64toh(*((uint64_t *)(msg->payload + offset)));
                             offset += 8;
                             unsigned char ip[16];
-                            memcpy(ip, payload + offset, 16);
+                            memcpy(ip, msg->payload + offset, 16);
                             offset += 16;
-                            uint16_t port = ntohs(*((uint16_t *)(payload + offset)));
+                            uint16_t port = ntohs(*((uint16_t *)(msg->payload + offset)));
                             offset += 2;
                             localtime_r((time_t *)&time, &tm_info);
                             strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", &tm_info);
@@ -407,17 +423,17 @@ int main(const int argc, const char **argv)
                             }
                         }
                     }
-                    else if (strcmp(command, "inv") == 0)
+                    else if (strncmp(msg->command, "inv", 12) == 0)
                     {
                         fprintf(stderr, "Received inv message\n");
                         unsigned char *payload = (connectedBuffer + 24);
                         size_t offset = 0;
                         size_t outlen = 0;
                         uint64_t inv_count = 0;
-                        inv_count = decodeVarint(payload + offset, &outlen);
+                        inv_count = decodeVarint(msg->payload + offset, &outlen);
                         offset += outlen;
                         // inv_countはリモートが保持しているオブジェクト数でペイロードに含まれるオブジェクト数とは限らない
-                        uint64_t inv_count2 = (payload_length - offset) / 32;
+                        uint64_t inv_count2 = (msg->length - offset) / 32;
                         fprintf(stderr, "Declared inv count: %" PRIu64 ", Actual inv count in payload: %" PRIu64 "\n", inv_count, inv_count2);
                         if (inv_count != inv_count2)
                         {
@@ -426,7 +442,7 @@ int main(const int argc, const char **argv)
                         // for (uint64_t i = 0; i < inv_count2; i++)
                         // {
                         //     unsigned char object_hash[32];
-                        //     memcpy(object_hash, payload + offset, 32);
+                        //     memcpy(object_hash, msg->payload + offset, 32);
                         //     offset += 32;
                         //     fprintf(stderr, "  Inventory Item %" PRIu64 ": Hash=", i);
                         //     for (int j = 0; j < 32; j++)
@@ -437,7 +453,7 @@ int main(const int argc, const char **argv)
                         // }
                         // getdata送信スレッドにinvベクタを転送する
                     }
-                    else if (strcmp(command, "ping") == 0)
+                    else if (strncmp(msg->command, "ping", 12) == 0)
                     {
                         fprintf(stderr, "Received ping message\n");
                         // pingに対する処理をここに書く
@@ -460,11 +476,11 @@ int main(const int argc, const char **argv)
                             break;
                         }
                     }
-                    else if (strcmp(command, "getdata") == 0)
+                    else if (strncmp(msg->command, "getdata", 12) == 0)
                     {
                         fprintf(stderr, "Received getdata message\n");
                     }
-                    else if(strcmp(command, "object") == 0)
+                    else if(strncmp(msg->command, "object", 12) == 0)
                     {
                         fprintf(stderr, "Received object message\n");
                         // object payload保存スレッドに転送する
@@ -477,8 +493,11 @@ int main(const int argc, const char **argv)
                     // fprintf(stderr, "バッファに残ったペイロードデータの長さ: %zu, ", length - (24 + payload_length));
                     // fprintf(stderr, "Processed command: %s, payload length: %d\n", command, payload_length);
                     // 次のメッセージに備えてバッファを調整
-                    memmove(connectedBuffer, connectedBuffer + 24 + payload_length, length - (24 + payload_length));
-                    length -= (24 + payload_length);
+                    memmove(connectedBuffer, connectedBuffer + 24 + msg->length, length - (24 + msg->length));
+                    length -= (24 + msg->length);
+                    // メッセージ解放
+                    // 別スレッドにオブジェクトを転送する場合はmsgごと転送し解放は転送先で行う。msgにはNULLをセットしておく。
+                    free_message(msg);
                 }
                 // 再度読み込みが発生することがあるのでバッファをリセットせずにループに戻る
             }
