@@ -25,7 +25,10 @@
 
 int epfd = -1;
 
+// BitMessageプロトコルのマジックバイト列
 static const unsigned char magicbytes[] = {0xe9, 0xbe, 0xb4, 0xd9};
+// チェックサム: SHA512("")の最初の4バイト
+static const unsigned char empty_payload_checksum[4] = {0xcf, 0x83, 0xe1, 0x35};
 
 struct message;
 
@@ -106,6 +109,167 @@ static unsigned char *createVersionMessage(const char *user_agent_str, int versi
         *out_length = payload_length;
     }
     return payload;
+}
+
+struct version_message
+{
+    uint32_t version;
+    uint64_t services;
+    uint64_t timestamp;
+    unsigned char addr_recv[26];
+    unsigned char addr_from[26];
+    uint64_t nonce;
+    char *user_agent;
+    size_t stream_numbers_len;
+    uint64_t *stream_numbers;
+};
+
+void parseVersionMessage(unsigned char *payload, size_t payload_len, struct version_message *out_msg)
+{
+    size_t offset = 0;
+    out_msg->version = ntohl(*((uint32_t *)(payload + offset)));
+    offset += 4;
+    out_msg->services = be64toh(*((uint64_t *)(payload + offset)));
+    offset += 8;
+    out_msg->timestamp = be64toh(*((uint64_t *)(payload + offset)));
+    offset += 8;
+    memcpy(out_msg->addr_recv, payload + offset, 26);
+    offset += 26;
+    memcpy(out_msg->addr_from, payload + offset, 26);
+    offset += 26;
+    out_msg->nonce = be64toh(*((uint64_t *)(payload + offset)));
+    offset += 8;
+    // user_agentのデコード
+    size_t outlen = 0;
+    uint64_t ua_len = decodeVarint(payload + offset, &outlen);
+    offset += outlen;
+    out_msg->user_agent = malloc(ua_len + 1);
+    if(out_msg->user_agent == NULL)
+    {
+        perror("Memory allocation failed for user_agent");
+        exit(EXIT_FAILURE);
+    }
+    memcpy(out_msg->user_agent, payload + offset, ua_len);
+    out_msg->user_agent[ua_len] = '\0';
+    offset += ua_len;
+    // stream_numbersのデコード
+    uint64_t stream_count = decodeVarint(payload + offset, &outlen);
+    offset += outlen;
+    out_msg->stream_numbers_len = stream_count;
+    out_msg->stream_numbers = malloc(sizeof(uint64_t) * stream_count);
+    if(out_msg->stream_numbers == NULL)
+    {
+        perror("Memory allocation failed for stream_numbers");
+        free(out_msg->user_agent);
+        exit(EXIT_FAILURE);
+    }
+    for (size_t i = 0; i < stream_count; i++)
+    {
+        out_msg->stream_numbers[i] = decodeVarint(payload + offset, &outlen);
+        offset += outlen;
+    }
+}
+
+void freeVersionMessage(struct version_message *msg)
+{
+    if (msg->user_agent != NULL)
+    {
+        free(msg->user_agent);
+        msg->user_agent = NULL;
+    }
+    if (msg->stream_numbers != NULL)
+    {
+        free(msg->stream_numbers);
+        msg->stream_numbers = NULL;
+    }
+}
+
+struct address_info
+{
+    uint64_t time;
+    uint32_t stream;
+    uint64_t services;
+    unsigned char ip[16];
+    uint16_t port;
+};
+
+struct addr_message
+{
+    uint64_t count;
+    struct address_info *addresses;
+};
+
+void parseAddrMessage(unsigned char *payload, size_t payload_len, struct addr_message *out_msg)
+{
+    size_t offset = 0;
+    size_t outlen = 0;
+    out_msg->count = decodeVarint(payload + offset, &outlen);
+    offset += outlen;
+    out_msg->addresses = malloc(sizeof(struct address_info) * out_msg->count);
+    if (out_msg->addresses == NULL)
+    {
+        perror("Memory allocation failed for addresses");
+        exit(EXIT_FAILURE);
+    }
+    for (size_t i = 0; i < out_msg->count; i++)
+    {
+        out_msg->addresses[i].time = be64toh(*((uint64_t *)(payload + offset)));
+        offset += 8;
+        out_msg->addresses[i].stream = ntohl(*((uint32_t *)(payload + offset)));
+        offset += 4;
+        out_msg->addresses[i].services = be64toh(*((uint64_t *)(payload + offset)));
+        offset += 8;
+        memcpy(out_msg->addresses[i].ip, payload + offset, 16);
+        offset += 16;
+        out_msg->addresses[i].port = ntohs(*((uint16_t *)(payload + offset)));
+        offset += 2;
+    }
+}
+
+void freeAddrMessage(struct addr_message *msg)
+{
+    if (msg->addresses != NULL)
+    {
+        free(msg->addresses);
+        msg->addresses = NULL;
+    }
+}
+
+struct inventory_item
+{
+    unsigned char object_hash[32];
+};
+
+struct inventory_message
+{
+    uint64_t count;
+    struct inventory_item *items;
+};
+
+void parseInventoryMessage(unsigned char *payload, size_t payload_len, struct inventory_message *out_msg)
+{
+    size_t offset = 0;
+    size_t outlen = 0;
+    out_msg->count = decodeVarint(payload + offset, &outlen);
+    offset += outlen;
+    uint64_t actual_count = (payload_len - offset) / 32;
+    if (out_msg->count != actual_count)
+    {
+        fprintf(stderr, "Warning: inv count mismatch! Declared: %" PRIu64 ", Actual: %" PRIu64 "\n", out_msg->count, actual_count);
+    }
+    out_msg->count = actual_count;
+    out_msg->items = malloc(sizeof(struct inventory_item) * actual_count);
+    if (out_msg->items == NULL)
+    {
+        perror("Memory allocation failed for inventory items");
+        exit(EXIT_FAILURE);
+    }
+    // 実際のペイロードに含まれるアイテム数を計算
+    for (size_t i = 0; i < actual_count; i++)
+    {
+        memcpy(out_msg->items[i].object_hash, payload + offset, 32);
+        offset += 32;
+    }
 }
 
 /**
@@ -318,40 +482,21 @@ int main(const int argc, const char **argv)
                     else if (strncmp(msg->command, "version", 12) == 0)
                     {
                         fprintf(stderr, "Received version message\n");
-                        unsigned char *payload = (connectedBuffer + 24);
-                        uint32_t version = ntohl(*((uint32_t *)msg->payload));
-                        uint64_t services = be64toh(*((uint64_t *)(msg->payload + 4)));
-                        uint64_t timestamp = be64toh(*((uint64_t *)(msg->payload + 12)));
-                        fprintf(stderr, "Version: %u, Services: %" PRIu64 ", Timestamp: %" PRIu64 "\n", version, services, timestamp);
-                        printNetworkAddress(msg->payload + 20, 26); // addr_recv
-                        printNetworkAddress(msg->payload + 46, 26); // addr_from
-                        uint64_t nonce = be64toh(*((uint64_t *)(msg->payload + 72)));
-                        fprintf(stderr, "Nonce: %016" PRIx64 "\n", nonce);
-                        // user_agentのデコード
-                        size_t offset = 80;
-                        size_t outlen = 0;
-                        // varstrのデコード
-                        // 先頭のvarintで長さを取得
-                        uint64_t ua_len = decodeVarint(msg->payload + offset, &outlen);
-                        offset += outlen;
-                        char *user_agent = malloc(ua_len + 1);
-                        memcpy(user_agent, msg->payload + offset, ua_len);
-                        user_agent[ua_len] = '\0';
-                        offset += ua_len;
-                        fprintf(stderr, "User Agent: %s\n", user_agent);
-                        free(user_agent);
-                        // stream_numbersのデコード
-                        uint64_t stream_count = decodeVarint(msg->payload + offset, &outlen);
-                        offset += outlen;
-                        fprintf(stderr, "Stream Count: %" PRIu64 "\n", stream_count);
+                        struct version_message ver_msg;
+                        parseVersionMessage(msg->payload, msg->length, &ver_msg);
+                        fprintf(stderr, "Version: %u, Services: %" PRIu64 ", Timestamp: %" PRIu64 "\n", ver_msg.version, ver_msg.services, ver_msg.timestamp);
+                        printNetworkAddress(ver_msg.addr_recv, 26); // addr_recv
+                        printNetworkAddress(ver_msg.addr_from, 26); // addr_from
+                        fprintf(stderr, "Nonce: %016" PRIx64 "\n", ver_msg.nonce);
+                        fprintf(stderr, "User Agent: %s\n", ver_msg.user_agent);
+                        fprintf(stderr, "Stream Count: %" PRIu64 "\n", ver_msg.stream_numbers_len);
                         fprintf(stderr, "Streams: ");
-                        for (uint64_t i = 0; i < stream_count; i++)
+                        for (uint64_t i = 0; i < ver_msg.stream_numbers_len; i++)
                         {
-                            uint64_t stream_num = decodeVarint(msg->payload + offset, &outlen);
-                            offset += outlen;
-                            fprintf(stderr, "%" PRIu64 " ", stream_num);
+                            fprintf(stderr, "%" PRIu64 " ", ver_msg.stream_numbers[i]);
                         }
                         fprintf(stderr, "\n");
+                        freeVersionMessage(&ver_msg);
                         // verackコマンドを送信する
                         unsigned char verack_header[24];
                         memcpy(verack_header, magicbytes, 4);
@@ -361,8 +506,7 @@ int main(const int argc, const char **argv)
                         uint32_t verack_payload_length = 0;
                         uint32_t net_verack_payload_length = htobe32(verack_payload_length);
                         memcpy(verack_header + 16, &net_verack_payload_length, 4);
-                        unsigned char verack_checksum[4] = {0xcf, 0x83, 0xe1, 0x35}; // verackのペイロードは空なのでSHA512("")の最初の4バイト
-                        memcpy(verack_header + 20, verack_checksum, 4);
+                        memcpy(verack_header + 20, empty_payload_checksum, 4);
                         ssize_t w = write(sock, verack_header, 24);
                         if (w != 24)
                         {
@@ -374,35 +518,18 @@ int main(const int argc, const char **argv)
                     else if (strncmp(msg->command, "addr", 12) == 0)
                     {
                         fprintf(stderr, "Received addr message\n");
-                        unsigned char *payload = (connectedBuffer + 24);
-                        // decode varint number of addresses
-                        size_t offset = 0;
-                        size_t outlen = 0;
-                        uint64_t addr_count = 0;
-                        addr_count = decodeVarint(msg->payload + offset, &outlen);
-                        offset += outlen;
-                        fprintf(stderr, "Number of addresses: %" PRIu64 "\n", addr_count);
-                        // 各アドレスをデコード
-                        struct tm tm_info;
-                        char time_buffer[128];
-                        uint64_t addr_count2 = (msg->length - offset) / 38;
-                        for (uint64_t i = 0; i < addr_count2; i++)
+                        struct addr_message addr_msg;
+                        parseAddrMessage(msg->payload, msg->length, &addr_msg);
+                        fprintf(stderr, "Number of addresses: %" PRIu64 "\n", addr_msg.count);
+                        for (uint64_t i = 0; i < addr_msg.count; i++)
                         {
-                            uint64_t time = be64toh(*((uint64_t *)(msg->payload + offset)));
-                            offset += 8;
-                            uint32_t stream = ntohl(*((uint32_t *)(msg->payload + offset)));
-                            offset += 4;
-                            uint64_t services = be64toh(*((uint64_t *)(msg->payload + offset)));
-                            offset += 8;
-                            unsigned char ip[16];
-                            memcpy(ip, msg->payload + offset, 16);
-                            offset += 16;
-                            uint16_t port = ntohs(*((uint16_t *)(msg->payload + offset)));
-                            offset += 2;
-                            localtime_r((time_t *)&time, &tm_info);
+                            struct tm tm_info;
+                            char time_buffer[128];
+                            localtime_r((time_t *)&addr_msg.addresses[i].time, &tm_info);
                             strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", &tm_info);
-                            fprintf(stderr, "  Address %" PRIu64 ": time=%" PRIu64 "(%s), stream=%" PRIu32 ", services=%016" PRIx64 ", port=%u,", i, time, time_buffer, stream, services, port);
+                            fprintf(stderr, "  Address %" PRIu64 ": time=%" PRIu64 "(%s), stream=%" PRIu32 ", services=%016" PRIx64 ", port=%u,", i, addr_msg.addresses[i].time, time_buffer, addr_msg.addresses[i].stream, addr_msg.addresses[i].services, addr_msg.addresses[i].port);
                             // IPアドレスの表示
+                            unsigned char *ip = addr_msg.addresses[i].ip;
                             if (ip[0] == 0 && ip[1] == 0 && ip[2] == 0 && ip[3] == 0 &&
                                 ip[4] == 0 && ip[5] == 0 && ip[6] == 0 && ip[7] == 0 &&
                                 ip[8] == 0 && ip[9] == 0 && ip[10] == 0xff && ip[11] == 0xff)
@@ -422,11 +549,26 @@ int main(const int argc, const char **argv)
                                 fprintf(stderr, " IPv6 Address: %s\n", ipv6_str);
                             }
                         }
+                        // 本当は適宜ストレージに保存するんやろな
+                        // メモリ解放
+                        freeAddrMessage(&addr_msg);
                     }
                     else if (strncmp(msg->command, "inv", 12) == 0)
                     {
                         fprintf(stderr, "Received inv message\n");
-                        unsigned char *payload = (connectedBuffer + 24);
+                        struct inventory_message inv_msg;
+                        parseInventoryMessage(msg->payload, msg->length, &inv_msg);
+                        fprintf(stderr, "Number of inventory items: %" PRIu64 "\n", inv_msg.count);
+                        for (uint64_t i = 0; i < inv_msg.count; i++)
+                        {
+                            fprintf(stderr, "  Item %" PRIu64 ": hash=", i);
+                            for (int j = 0; j < 32; j++)
+                            {
+                                fprintf(stderr, "%02x", inv_msg.items[i].object_hash[j]);
+                            }
+                            fprintf(stderr, "\n");
+                        }
+                        freeInventoryMessage(&inv_msg);
                         size_t offset = 0;
                         size_t outlen = 0;
                         uint64_t inv_count = 0;
@@ -435,40 +577,22 @@ int main(const int argc, const char **argv)
                         // inv_countはリモートが保持しているオブジェクト数でペイロードに含まれるオブジェクト数とは限らない
                         uint64_t inv_count2 = (msg->length - offset) / 32;
                         fprintf(stderr, "Declared inv count: %" PRIu64 ", Actual inv count in payload: %" PRIu64 "\n", inv_count, inv_count2);
-                        if (inv_count != inv_count2)
-                        {
-                            fprintf(stderr, "Warning: inv count mismatch! Declared: %" PRIu64 ", Actual: %" PRIu64 "\n", inv_count, inv_count2);
-                        }
-                        // for (uint64_t i = 0; i < inv_count2; i++)
-                        // {
-                        //     unsigned char object_hash[32];
-                        //     memcpy(object_hash, msg->payload + offset, 32);
-                        //     offset += 32;
-                        //     fprintf(stderr, "  Inventory Item %" PRIu64 ": Hash=", i);
-                        //     for (int j = 0; j < 32; j++)
-                        //     {
-                        //         fprintf(stderr, "%02x", object_hash[j]);
-                        //     }
-                        //     fprintf(stderr, "\n");
-                        // }
                         // getdata送信スレッドにinvベクタを転送する
                     }
                     else if (strncmp(msg->command, "ping", 12) == 0)
                     {
                         fprintf(stderr, "Received ping message\n");
-                        // pingに対する処理をここに書く
-                        // pongコマンドを送信する
-                        unsigned char verack_header[24];
-                        memcpy(verack_header, magicbytes, 4);
-                        char verack_command[12] = {0};
-                        strncpy(verack_command, "pong", 12);
-                        memcpy(verack_header + 4, verack_command, 12);
-                        uint32_t verack_payload_length = 0;
-                        uint32_t net_verack_payload_length = htobe32(verack_payload_length);
-                        memcpy(verack_header + 16, &net_verack_payload_length, 4);
-                        unsigned char verack_checksum[4] = {0xcf, 0x83, 0xe1, 0x35}; // verackのペイロードは空なのでSHA512("")の最初の4バイト
-                        memcpy(verack_header + 20, verack_checksum, 4);
-                        ssize_t w = write(sock, verack_header, 24);
+                        // pongメッセージを返信する
+                        unsigned char pong_header[24];
+                        memcpy(pong_header, magicbytes, 4);
+                        char pong_command[12] = {0};
+                        strncpy(pong_command, "pong", 12);
+                        memcpy(pong_header + 4, pong_command, 12);
+                        uint32_t pong_payload_length = 0;
+                        uint32_t net_pong_payload_length = htobe32(pong_payload_length);
+                        memcpy(pong_header + 16, &net_pong_payload_length, 4);
+                        memcpy(pong_header + 20, empty_payload_checksum, 4);
+                        ssize_t w = write(sock, pong_header, 24);
                         if (w != 24)
                         {
                             perror("write pong error");
@@ -487,6 +611,8 @@ int main(const int argc, const char **argv)
                     }
                     else
                     {
+                        char command[13] = {0};
+                        strncpy(command, msg->command, 12);
                         fprintf(stderr, "Unknown command: %s\n", command);
                     }
                     // 処理が完了
