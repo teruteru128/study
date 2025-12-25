@@ -352,6 +352,25 @@ void freeInventoryMessage(struct inventory_message *msg)
     }
 }
 
+enum fd_type
+{
+    CLIENT_SOCKET,
+#define CLIENT_SOCKET CLIENT_SOCKET
+    SERVER_SOCKET,
+#define SERVER_SOCKET SERVER_SOCKET
+    TIMERFD
+#define TIMERFD TIMERFD
+};
+
+struct fd_data
+{
+    enum fd_type type;
+    int fd;
+};
+
+// 128kb
+#define INIT_CONNECT_BUFFER_SIZE 131072
+
 /**
  * サブコマンド方式でできねえかな
  * addrgen
@@ -424,7 +443,15 @@ int main(const int argc, const char **argv)
     struct epoll_event ev, events[MAX_EVENTS];
     ev.events = EPOLLIN | EPOLLET;
     // fdだけで足りるならfdだけでいいし足りなければポインタ使えばいい
-    ev.data.fd = sock;
+    // ev.data.fd = sock;
+    ev.data.ptr = malloc(sizeof(struct fd_data));
+    if (ev.data.ptr == NULL)
+    {
+        perror("malloc struct fd_data");
+        exit(EXIT_FAILURE);
+    }
+    ((struct fd_data *)ev.data.ptr)->type = CLIENT_SOCKET;
+    ((struct fd_data *)ev.data.ptr)->fd = sock;
     epoll_ctl(epfd, EPOLL_CTL_ADD, sock, &ev);
     // version messageを送信
     size_t versionmsglen = 0;
@@ -455,8 +482,8 @@ int main(const int argc, const char **argv)
         return EXIT_FAILURE;
     }
     free(versionmsg);
-    unsigned char *connectedBuffer = malloc(BUFSIZ);
-    size_t size = BUFSIZ;
+    unsigned char *connectedBuffer = malloc(INIT_CONNECT_BUFFER_SIZE);
+    size_t size = INIT_CONNECT_BUFFER_SIZE;
     size_t length = 0;
     // epoll_waitも別スレッドで行い、メインスレッドではコネクション数管理を行いたい
     // (アウトバウンド16コネクション、インバウンド16コネクションとか。実際はインバウンド数に上限はつけたくないけど)
@@ -465,14 +492,14 @@ int main(const int argc, const char **argv)
         int nfds = epoll_wait(epfd, events, MAX_EVENTS, -1);
         for (int i = 0; i < nfds; i++)
         {
-            if (events[i].data.fd == sock)
+            if (((struct fd_data *)events[i].data.ptr)->type == CLIENT_SOCKET)
             {
                 // Handle socket data
                 char buffer[BUFSIZ];
                 while (1)
                 {
                     errno = 0;
-                    ssize_t bytes_read = read(sock, buffer, BUFSIZ);
+                    ssize_t bytes_read = read(((struct fd_data *)events[i].data.ptr)->fd, buffer, BUFSIZ);
                     if (bytes_read == -1)
                     {
                         int errno_saved = errno;
@@ -499,8 +526,8 @@ int main(const int argc, const char **argv)
                         if (connectedBuffer == NULL)
                         {
                             perror("realloc");
-                            close(sock);
-                            return EXIT_FAILURE;
+                            close(((struct fd_data *)events[i].data.ptr)->fd);
+                            exit(EXIT_FAILURE);
                         }
                     }
                     memcpy(connectedBuffer + length, buffer, bytes_read);
@@ -607,6 +634,7 @@ int main(const int argc, const char **argv)
                         parseAddrMessage(msg->payload, msg->length, &addr_msg);
                         printAddrMessage(&addr_msg);
                         // 本当は適宜ストレージに保存するんやろな
+                        // struct addr_message を bm_node_t に詰め替えて送信
                         // メモリ解放
                         freeAddrMessage(&addr_msg);
                     }
