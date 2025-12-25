@@ -19,11 +19,10 @@
 #include <inttypes.h>
 #include <time.h>
 #include <bm_protocol.h>
+#include <bm_network.h>
 
-#define NAME "/TRBMTESTCLIENT:" VERSION "/"
+#define NAME "/TrBmTestClient:" BM_VERSION "/"
 #define MAX_EVENTS 16
-
-int epfd = -1;
 
 // BitMessageプロトコルのマジックバイト列
 static const unsigned char magicbytes[] = {0xe9, 0xbe, 0xb4, 0xd9};
@@ -144,7 +143,7 @@ void parseVersionMessage(unsigned char *payload, size_t payload_len, struct vers
     uint64_t ua_len = decodeVarint(payload + offset, &outlen);
     offset += outlen;
     out_msg->user_agent = malloc(ua_len + 1);
-    if(out_msg->user_agent == NULL)
+    if (out_msg->user_agent == NULL)
     {
         perror("Memory allocation failed for user_agent");
         exit(EXIT_FAILURE);
@@ -157,7 +156,7 @@ void parseVersionMessage(unsigned char *payload, size_t payload_len, struct vers
     offset += outlen;
     out_msg->stream_numbers_len = stream_count;
     out_msg->stream_numbers = malloc(sizeof(uint64_t) * stream_count);
-    if(out_msg->stream_numbers == NULL)
+    if (out_msg->stream_numbers == NULL)
     {
         perror("Memory allocation failed for stream_numbers");
         free(out_msg->user_agent);
@@ -232,6 +231,40 @@ void freeAddrMessage(struct addr_message *msg)
     {
         free(msg->addresses);
         msg->addresses = NULL;
+    }
+}
+
+void printAddrMessage(struct addr_message *addr_msg)
+{
+    fprintf(stderr, "Number of addresses: %" PRIu64 "\n", addr_msg->count);
+    for (uint64_t i = 0; i < addr_msg->count; i++)
+    {
+        struct tm tm_info;
+        char time_buffer[128];
+        localtime_r((time_t *)&addr_msg->addresses[i].time, &tm_info);
+        strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", &tm_info);
+        fprintf(stderr, "  Address %" PRIu64 ": time=%" PRIu64 "(%s), stream=%" PRIu32 ", services=%016" PRIx64 ", port=%u,", i,
+                addr_msg->addresses[i].time, time_buffer, addr_msg->addresses[i].stream, addr_msg->addresses[i].services, addr_msg->addresses[i].port);
+        // IPアドレスの表示
+        unsigned char *ip = addr_msg->addresses[i].ip;
+        if (ip[0] == 0 && ip[1] == 0 && ip[2] == 0 && ip[3] == 0 &&
+            ip[4] == 0 && ip[5] == 0 && ip[6] == 0 && ip[7] == 0 &&
+            ip[8] == 0 && ip[9] == 0 && ip[10] == 0xff && ip[11] == 0xff)
+        {
+            // IPv4-mapped IPv6 address
+            fprintf(stderr, " IPv4 Address: %u.%u.%u.%u\n", ip[12], ip[13], ip[14], ip[15]);
+        }
+        else
+        {
+            // IPv6 address
+            char ipv6_str[40];
+            snprintf(ipv6_str, sizeof(ipv6_str),
+                     "%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
+                     "%02x%02x:%02x%02x:%02x%02x:%02x%02x",
+                     ip[0], ip[1], ip[2], ip[3], ip[4], ip[5], ip[6], ip[7],
+                     ip[8], ip[9], ip[10], ip[11], ip[12], ip[13], ip[14], ip[15]);
+            fprintf(stderr, " IPv6 Address: %s\n", ipv6_str);
+        }
     }
 }
 
@@ -481,13 +514,18 @@ int main(const int argc, const char **argv)
                         }
                         break;
                     }
+                    // fprintf(stderr, "バッファに残ったペイロードデータの長さ: %zu, ", length - (24 + payload_length));
+                    // fprintf(stderr, "Processed command: %s, payload length: %d\n", command, payload_length);
+                    // 次のメッセージに備えてバッファを調整
+                    memmove(connectedBuffer, connectedBuffer + 24 + msg->length, length - (24 + msg->length));
+                    length -= (24 + msg->length);
                     // コマンドに対する処理を Strategy パターンを模倣して実装
                     // ここに各コマンドに対する処理を追加
                     // もしcommandが"verack"なら
                     if (strncmp(msg->command, "verack", 12) == 0)
                     {
                         fprintf(stderr, "Received verack message\n");
-                        // verackに対する処理をここに書く
+                        // NOP
                     }
                     else if (strncmp(msg->command, "version", 12) == 0)
                     {
@@ -530,35 +568,7 @@ int main(const int argc, const char **argv)
                         fprintf(stderr, "Received addr message\n");
                         struct addr_message addr_msg;
                         parseAddrMessage(msg->payload, msg->length, &addr_msg);
-                        fprintf(stderr, "Number of addresses: %" PRIu64 "\n", addr_msg.count);
-                        for (uint64_t i = 0; i < addr_msg.count; i++)
-                        {
-                            struct tm tm_info;
-                            char time_buffer[128];
-                            localtime_r((time_t *)&addr_msg.addresses[i].time, &tm_info);
-                            strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", &tm_info);
-                            fprintf(stderr, "  Address %" PRIu64 ": time=%" PRIu64 "(%s), stream=%" PRIu32 ", services=%016" PRIx64 ", port=%u,", i, addr_msg.addresses[i].time, time_buffer, addr_msg.addresses[i].stream, addr_msg.addresses[i].services, addr_msg.addresses[i].port);
-                            // IPアドレスの表示
-                            unsigned char *ip = addr_msg.addresses[i].ip;
-                            if (ip[0] == 0 && ip[1] == 0 && ip[2] == 0 && ip[3] == 0 &&
-                                ip[4] == 0 && ip[5] == 0 && ip[6] == 0 && ip[7] == 0 &&
-                                ip[8] == 0 && ip[9] == 0 && ip[10] == 0xff && ip[11] == 0xff)
-                            {
-                                // IPv4-mapped IPv6 address
-                                fprintf(stderr, " IPv4 Address: %u.%u.%u.%u\n", ip[12], ip[13], ip[14], ip[15]);
-                            }
-                            else
-                            {
-                                // IPv6 address
-                                char ipv6_str[40];
-                                snprintf(ipv6_str, sizeof(ipv6_str),
-                                         "%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
-                                         "%02x%02x:%02x%02x:%02x%02x:%02x%02x",
-                                         ip[0], ip[1], ip[2], ip[3], ip[4], ip[5], ip[6], ip[7],
-                                         ip[8], ip[9], ip[10], ip[11], ip[12], ip[13], ip[14], ip[15]);
-                                fprintf(stderr, " IPv6 Address: %s\n", ipv6_str);
-                            }
-                        }
+                        printAddrMessage(&addr_msg);
                         // 本当は適宜ストレージに保存するんやろな
                         // メモリ解放
                         freeAddrMessage(&addr_msg);
@@ -569,7 +579,7 @@ int main(const int argc, const char **argv)
                         struct inventory_message inv_msg;
                         parseInventoryMessage(msg->payload, msg->length, &inv_msg);
                         fprintf(stderr, "Number of inventory items: %" PRIu64 "\n", inv_msg.count);
-                        for (uint64_t i = 0; i < inv_msg.count; i++)
+                        /* for (uint64_t i = 0; i < inv_msg.count; i++)
                         {
                             fprintf(stderr, "  Item %" PRIu64 ": hash=", i);
                             for (int j = 0; j < 32; j++)
@@ -577,7 +587,7 @@ int main(const int argc, const char **argv)
                                 fprintf(stderr, "%02x", inv_msg.items[i].object_hash[j]);
                             }
                             fprintf(stderr, "\n");
-                        }
+                        } */
                         freeInventoryMessage(&inv_msg);
                         // getdata送信スレッドにinvベクタを転送する
                     }
@@ -606,7 +616,7 @@ int main(const int argc, const char **argv)
                     {
                         fprintf(stderr, "Received getdata message\n");
                     }
-                    else if(strncmp(msg->command, "object", 12) == 0)
+                    else if (strncmp(msg->command, "object", 12) == 0)
                     {
                         fprintf(stderr, "Received object message\n");
                         // object payload保存スレッドに転送する
@@ -618,17 +628,13 @@ int main(const int argc, const char **argv)
                         fprintf(stderr, "Unknown command: %s\n", command);
                     }
                     // 処理が完了
-                    // fprintf(stderr, "バッファに残ったペイロードデータの長さ: %zu, ", length - (24 + payload_length));
-                    // fprintf(stderr, "Processed command: %s, payload length: %d\n", command, payload_length);
-                    // 次のメッセージに備えてバッファを調整
-                    memmove(connectedBuffer, connectedBuffer + 24 + msg->length, length - (24 + msg->length));
-                    length -= (24 + msg->length);
                     // メッセージ解放
                     // 別スレッドにオブジェクトを転送する場合はmsgごと転送し解放は転送先で行う。msgにはNULLをセットしておく。
                     free_message(msg);
                 }
                 // 再度読み込みが発生することがあるのでバッファをリセットせずにループに戻る
             }
+            // 次のファイルディスクリプタへ
         }
     }
     return EXIT_SUCCESS;

@@ -39,7 +39,7 @@ add_executable(bino bino.c biom.c)
 add_executable(bm bm.c)
 target_link_libraries(bm PRIVATE study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util OpenSSL::Crypto PkgConfig::JSONRPC_GLIB1 SQLite::SQLite3)
 target_include_directories(bm PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/include $<$<BOOL:${JSONRPC_GLIB1_FOUND}>:${JSONRPC_GLIB1_INCLUDE_DIRS}>)
-target_compile_definitions(bm PRIVATE VERSION="${study_VERSION}")
+target_compile_definitions(bm PRIVATE VERSION="${study_VERSION}" BM_VERSION="0.1.0.0")
 
 add_executable(bmkeygen bmkeygen.c)
 target_link_libraries(bmkeygen OpenSSL::Crypto)
