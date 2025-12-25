@@ -188,7 +188,7 @@ struct address_info
     uint64_t time;
     uint32_t stream;
     uint64_t services;
-    unsigned char ip[16];
+    uint8_t ip[16];
     uint16_t port;
 };
 
@@ -233,37 +233,74 @@ void freeAddrMessage(struct addr_message *msg)
         msg->addresses = NULL;
     }
 }
+int is_valid_bm_addr(const uint8_t *p)
+{
+    // 1. IPv4射影アドレスの場合 (::ffff:x.x.x.x)
+    // 最初の10バイトが0、次の2バイトが0xff
+    int all_zero_prefix = p[0] == 0 && p[1] == 0 && p[2] == 0 && p[3] == 0 &&
+                          p[4] == 0 && p[5] == 0 && p[6] == 0 && p[7] == 0 &&
+                          p[8] == 0 && p[9] == 0;
+    if (all_zero_prefix)
+    {
+        // 次の2バイトが ff ff なら正常なIPv4
+        if (p[10] == 0xff && p[11] == 0xff)
+            return 1;
+        // それ以外の 0000...dfff... などは破損
+        return 0;
+    }
+
+    // 2. 本物のIPv6アドレスの場合
+    // 先頭が 00... は通常ありえない。グローバル(2000::/3)かULA(fd00::/8)が一般的
+    if (p[0] == 0x00)
+    {
+        return 0;
+    }
+    if ((p[0] & 0xe0) != 0x20)
+    {
+        return 0;
+    }
+
+    // それ以外はある程度信頼して表示
+    return 1;
+}
 
 void printAddrMessage(struct addr_message *addr_msg)
 {
     fprintf(stderr, "Number of addresses: %" PRIu64 "\n", addr_msg->count);
     for (uint64_t i = 0; i < addr_msg->count; i++)
     {
-        struct tm tm_info;
-        char time_buffer[128];
-        localtime_r((time_t *)&addr_msg->addresses[i].time, &tm_info);
-        strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", &tm_info);
-        fprintf(stderr, "  Address %" PRIu64 ": time=%" PRIu64 "(%s), stream=%" PRIu32 ", services=%016" PRIx64 ", port=%u,", i,
-                addr_msg->addresses[i].time, time_buffer, addr_msg->addresses[i].stream, addr_msg->addresses[i].services, addr_msg->addresses[i].port);
-        // IPアドレスの表示
-        unsigned char *ip = addr_msg->addresses[i].ip;
-        if (ip[0] == 0 && ip[1] == 0 && ip[2] == 0 && ip[3] == 0 &&
-            ip[4] == 0 && ip[5] == 0 && ip[6] == 0 && ip[7] == 0 &&
-            ip[8] == 0 && ip[9] == 0 && ip[10] == 0xff && ip[11] == 0xff)
+        if (is_valid_bm_addr(addr_msg->addresses[i].ip))
         {
-            // IPv4-mapped IPv6 address
-            fprintf(stderr, " IPv4 Address: %u.%u.%u.%u\n", ip[12], ip[13], ip[14], ip[15]);
+            struct tm tm_info;
+            char time_buffer[128];
+            localtime_r((time_t *)&addr_msg->addresses[i].time, &tm_info);
+            strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", &tm_info);
+            fprintf(stderr, "  Address %" PRIu64 ": time=%" PRIu64 "(%s), stream=%" PRIu32 ", services=%016" PRIx64 ", port=%u,", i,
+                    addr_msg->addresses[i].time, time_buffer, addr_msg->addresses[i].stream, addr_msg->addresses[i].services, addr_msg->addresses[i].port);
+            // IPアドレスの表示
+            unsigned char *ip = addr_msg->addresses[i].ip;
+            if (ip[0] == 0 && ip[1] == 0 && ip[2] == 0 && ip[3] == 0 &&
+                ip[4] == 0 && ip[5] == 0 && ip[6] == 0 && ip[7] == 0 &&
+                ip[8] == 0 && ip[9] == 0 && ip[10] == 0xff && ip[11] == 0xff)
+            {
+                // IPv4-mapped IPv6 address
+                fprintf(stderr, " IPv4 Address: %u.%u.%u.%u\n", ip[12], ip[13], ip[14], ip[15]);
+            }
+            else
+            {
+                // IPv6 address
+                char ipv6_str[40];
+                snprintf(ipv6_str, sizeof(ipv6_str),
+                         "%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
+                         "%02x%02x:%02x%02x:%02x%02x:%02x%02x",
+                         ip[0], ip[1], ip[2], ip[3], ip[4], ip[5], ip[6], ip[7],
+                         ip[8], ip[9], ip[10], ip[11], ip[12], ip[13], ip[14], ip[15]);
+                fprintf(stderr, " IPv6 Address: %s\n", ipv6_str);
+            }
         }
         else
         {
-            // IPv6 address
-            char ipv6_str[40];
-            snprintf(ipv6_str, sizeof(ipv6_str),
-                     "%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
-                     "%02x%02x:%02x%02x:%02x%02x:%02x%02x",
-                     ip[0], ip[1], ip[2], ip[3], ip[4], ip[5], ip[6], ip[7],
-                     ip[8], ip[9], ip[10], ip[11], ip[12], ip[13], ip[14], ip[15]);
-            fprintf(stderr, " IPv6 Address: %s\n", ipv6_str);
+            fprintf(stderr, "  Address %" PRIu64 ": ignored\n", i);
         }
     }
 }
