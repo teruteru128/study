@@ -82,9 +82,25 @@ endif(PNG_FOUND)
 
 find_package(PkgConfig REQUIRED)
 if(PKG_CONFIG_FOUND)
-    pkg_check_modules(JSONRPC_GLIB1 REQUIRED jsonrpc-glib-1.0)
+    pkg_check_modules(JSONRPC_GLIB1 REQUIRED IMPORTED_TARGET jsonrpc-glib-1.0)
 endif()
 
+find_package(XMLRPC REQUIRED)
+if(XMLRPC_FOUND)
+    #include_directories(${XMLRPC_INCLUDE_DIRS})
+    if(NOT TARGET XMLRPC::XMLRPC)
+        add_library(XMLRPC::XMLRPC INTERFACE IMPORTED)
+        set_target_properties(XMLRPC::XMLRPC PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${XMLRPC_INCLUDE_DIRS}"
+            INTERFACE_LINK_LIBRARIES "${XMLRPC_LIBRARIES}"
+        )
+    endif()
+endif()
+
+find_package(SQLite3 REQUIRED)
+if(SQLite3_FOUND)
+    #include_directories(${SQLite3_INCLUDE_DIRS})
+endif(SQLite3_FOUND)
 
 #link_libraries(${CMAKE_THREAD_LIBS_INIT} ${Intl_LIBRARIES} ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${OPENSSL_SSL_LIBRARIES})
 include(GNUInstallDirs)
