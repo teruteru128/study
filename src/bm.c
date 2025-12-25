@@ -253,6 +253,7 @@ void parseInventoryMessage(unsigned char *payload, size_t payload_len, struct in
     out_msg->count = decodeVarint(payload + offset, &outlen);
     offset += outlen;
     uint64_t actual_count = (payload_len - offset) / 32;
+    fprintf(stderr, "Declared inv count: %" PRIu64 ", Actual inv count in payload: %" PRIu64 "\n", out_msg->count, actual_count);
     if (out_msg->count != actual_count)
     {
         fprintf(stderr, "Warning: inv count mismatch! Declared: %" PRIu64 ", Actual: %" PRIu64 "\n", out_msg->count, actual_count);
@@ -269,6 +270,15 @@ void parseInventoryMessage(unsigned char *payload, size_t payload_len, struct in
     {
         memcpy(out_msg->items[i].object_hash, payload + offset, 32);
         offset += 32;
+    }
+}
+
+void freeInventoryMessage(struct inventory_message *msg)
+{
+    if (msg->items != NULL)
+    {
+        free(msg->items);
+        msg->items = NULL;
     }
 }
 
@@ -569,14 +579,6 @@ int main(const int argc, const char **argv)
                             fprintf(stderr, "\n");
                         }
                         freeInventoryMessage(&inv_msg);
-                        size_t offset = 0;
-                        size_t outlen = 0;
-                        uint64_t inv_count = 0;
-                        inv_count = decodeVarint(msg->payload + offset, &outlen);
-                        offset += outlen;
-                        // inv_countはリモートが保持しているオブジェクト数でペイロードに含まれるオブジェクト数とは限らない
-                        uint64_t inv_count2 = (msg->length - offset) / 32;
-                        fprintf(stderr, "Declared inv count: %" PRIu64 ", Actual inv count in payload: %" PRIu64 "\n", inv_count, inv_count2);
                         // getdata送信スレッドにinvベクタを転送する
                     }
                     else if (strncmp(msg->command, "ping", 12) == 0)
