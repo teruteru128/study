@@ -1,4 +1,6 @@
 
+#define OPENSSL_API_COMPAT 0x30000000L
+#define OPENSSL_NO_DEPRECATED 1
 #include <assert.h>
 #include <bitmessage.h>
 #include <stdio.h>

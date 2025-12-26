@@ -420,6 +420,9 @@ add_executable(md5fullzero md5fullzero.c)
 target_link_libraries(md5fullzero m ${CMAKE_THREAD_LIBS_INIT} OpenSSL::Crypto study xmlrpc xmlrpc_client)
 target_include_directories(md5fullzero PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
+add_executable(mdcountup mdcountup.c)
+target_link_libraries(mdcountup PRIVATE OpenSSL::Crypto OpenSSL::SSL)
+
 add_executable(mine mine.c)
 
 add_executable(mineseed mineseed.c)

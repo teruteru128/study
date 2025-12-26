@@ -24,8 +24,6 @@
 #define NAME "/TrBmTestClient:" BM_VERSION "/"
 #define MAX_EVENTS 16
 
-struct message;
-
 /*
 network addressのエンコード
 time:uint64_t

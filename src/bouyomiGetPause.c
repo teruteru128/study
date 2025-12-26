@@ -1,4 +1,5 @@
 
+#define _GNU_SOURCE
 #include <errno.h>
 #include <netdb.h>
 #include <stdio.h>
