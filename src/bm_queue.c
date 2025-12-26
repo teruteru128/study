@@ -1,5 +1,6 @@
 
 #include "bm_queue.h"
+#include <stdlib.h>
 
 // queue型定義
 

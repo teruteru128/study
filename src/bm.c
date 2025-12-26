@@ -24,11 +24,6 @@
 #define NAME "/TrBmTestClient:" BM_VERSION "/"
 #define MAX_EVENTS 16
 
-// BitMessageプロトコルのマジックバイト列
-static const unsigned char magicbytes[] = {0xe9, 0xbe, 0xb4, 0xd9};
-// チェックサム: SHA512("")の最初の4バイト
-static const unsigned char empty_payload_checksum[4] = {0xcf, 0x83, 0xe1, 0x35};
-
 struct message;
 
 /*
@@ -39,334 +34,6 @@ services:uint64_t
 IPv6/4 address:16byte
 port:uint16_t
 */
-
-static unsigned char *endodeVariableLengthListOfIntegers(uint64_t *list, size_t listlen, size_t *outlen)
-{
-    size_t total_len = 0;
-    unsigned char *result = encodeVarint((uint64_t)listlen, &total_len);
-    fprintf(stderr, "list len encoded to %zu bytes\n", total_len);
-    for (size_t i = 0; i < listlen; i++)
-    {
-        size_t item_len = 0;
-        unsigned char *item_encoded = encodeVarint(list[i], &item_len);
-        fprintf(stderr, "item %zu encoded to %zu bytes\n", i, item_len);
-        result = realloc(result, total_len + item_len);
-        memcpy(result + total_len, item_encoded, item_len);
-        total_len += item_len;
-        free(item_encoded);
-    }
-    if (outlen != NULL)
-    {
-        *outlen = total_len;
-    }
-    return result;
-}
-
-static unsigned char *createVersionMessage(const char *user_agent_str, int version, struct sockaddr_storage *peer_addr, struct sockaddr_storage *local_addr, int sock, size_t *out_length)
-{
-    // user_agent
-    size_t ua_len = 0;
-    unsigned char *user_agent = encodeVarStr(user_agent_str, &ua_len);
-    size_t payload_length = 82 + ua_len; // 固定長部分 + 可変長ユーザーエージェント
-    unsigned char *payload = malloc(payload_length);
-    size_t offset = 0;
-    uint32_t net_version = htobe32((uint32_t)version);
-    memcpy(payload + offset, &net_version, 4);
-    offset += 4;
-    uint64_t services = 0;
-    uint64_t net_services = htobe64(services);
-    memcpy(payload + offset, &net_services, 8);
-    offset += 8;
-    uint64_t timestamp = (uint64_t)time(NULL);
-    uint64_t net_timestamp = htobe64(timestamp);
-    memcpy(payload + offset, &net_timestamp, 8);
-    offset += 8;
-    // addr_recv
-    encodeNetworkAddress(payload + offset, peer_addr);
-    offset += 26;
-    // addr_from
-    encodeNetworkAddress(payload + offset, local_addr);
-    offset += 26;
-    uint64_t nonce = 0;
-    getrandom(&nonce, sizeof(nonce), GRND_NONBLOCK);
-    uint64_t net_nonce = htobe64(nonce);
-    memcpy(payload + offset, &net_nonce, 8);
-    offset += 8;
-    // user_agent
-    memcpy(payload + offset, user_agent, ua_len);
-    offset += ua_len;
-    // stream_numbers
-    size_t stream_list_len = 1;
-    size_t stream_list_encoded_len = 2;
-    unsigned char stream_list_encoded[] = {1, 1};
-    memcpy(payload + offset, stream_list_encoded, stream_list_encoded_len);
-    offset += stream_list_encoded_len;
-    free(user_agent);
-    // 全体の長さをセット
-    if (out_length != NULL)
-    {
-        *out_length = payload_length;
-    }
-    return payload;
-}
-
-struct version_message
-{
-    uint32_t version;
-    uint64_t services;
-    uint64_t timestamp;
-    unsigned char addr_recv[26];
-    unsigned char addr_from[26];
-    uint64_t nonce;
-    char *user_agent;
-    size_t stream_numbers_len;
-    uint64_t *stream_numbers;
-};
-
-void parseVersionMessage(unsigned char *payload, size_t payload_len, struct version_message *out_msg)
-{
-    size_t offset = 0;
-    out_msg->version = ntohl(*((uint32_t *)(payload + offset)));
-    offset += 4;
-    out_msg->services = be64toh(*((uint64_t *)(payload + offset)));
-    offset += 8;
-    out_msg->timestamp = be64toh(*((uint64_t *)(payload + offset)));
-    offset += 8;
-    memcpy(out_msg->addr_recv, payload + offset, 26);
-    offset += 26;
-    memcpy(out_msg->addr_from, payload + offset, 26);
-    offset += 26;
-    out_msg->nonce = be64toh(*((uint64_t *)(payload + offset)));
-    offset += 8;
-    // user_agentのデコード
-    size_t outlen = 0;
-    uint64_t ua_len = decodeVarint(payload + offset, &outlen);
-    offset += outlen;
-    out_msg->user_agent = malloc(ua_len + 1);
-    if (out_msg->user_agent == NULL)
-    {
-        perror("Memory allocation failed for user_agent");
-        exit(EXIT_FAILURE);
-    }
-    memcpy(out_msg->user_agent, payload + offset, ua_len);
-    out_msg->user_agent[ua_len] = '\0';
-    offset += ua_len;
-    // stream_numbersのデコード
-    uint64_t stream_count = decodeVarint(payload + offset, &outlen);
-    offset += outlen;
-    out_msg->stream_numbers_len = stream_count;
-    out_msg->stream_numbers = malloc(sizeof(uint64_t) * stream_count);
-    if (out_msg->stream_numbers == NULL)
-    {
-        perror("Memory allocation failed for stream_numbers");
-        free(out_msg->user_agent);
-        exit(EXIT_FAILURE);
-    }
-    for (size_t i = 0; i < stream_count; i++)
-    {
-        out_msg->stream_numbers[i] = decodeVarint(payload + offset, &outlen);
-        offset += outlen;
-    }
-}
-
-void freeVersionMessage(struct version_message *msg)
-{
-    if (msg->user_agent != NULL)
-    {
-        free(msg->user_agent);
-        msg->user_agent = NULL;
-    }
-    if (msg->stream_numbers != NULL)
-    {
-        free(msg->stream_numbers);
-        msg->stream_numbers = NULL;
-    }
-}
-
-struct address_info
-{
-    uint64_t time;
-    uint32_t stream;
-    uint64_t services;
-    uint8_t ip[16];
-    uint16_t port;
-};
-
-struct addr_message
-{
-    uint64_t count;
-    struct address_info *addresses;
-};
-
-void parseAddrMessage(unsigned char *payload, size_t payload_len, struct addr_message *out_msg)
-{
-    size_t offset = 0;
-    size_t outlen = 0;
-    out_msg->count = decodeVarint(payload + offset, &outlen);
-    offset += outlen;
-    out_msg->addresses = malloc(sizeof(struct address_info) * out_msg->count);
-    if (out_msg->addresses == NULL)
-    {
-        perror("Memory allocation failed for addresses");
-        exit(EXIT_FAILURE);
-    }
-    for (size_t i = 0; i < out_msg->count; i++)
-    {
-        out_msg->addresses[i].time = be64toh(*((uint64_t *)(payload + offset)));
-        offset += 8;
-        out_msg->addresses[i].stream = ntohl(*((uint32_t *)(payload + offset)));
-        offset += 4;
-        out_msg->addresses[i].services = be64toh(*((uint64_t *)(payload + offset)));
-        offset += 8;
-        memcpy(out_msg->addresses[i].ip, payload + offset, 16);
-        offset += 16;
-        out_msg->addresses[i].port = ntohs(*((uint16_t *)(payload + offset)));
-        offset += 2;
-    }
-}
-
-void freeAddrMessage(struct addr_message *msg)
-{
-    if (msg->addresses != NULL)
-    {
-        free(msg->addresses);
-        msg->addresses = NULL;
-    }
-}
-int is_valid_bm_addr(const uint8_t *p)
-{
-    // 1. IPv4射影アドレスの場合 (::ffff:x.x.x.x)
-    // 最初の10バイトが0、次の2バイトが0xff
-    int all_zero_prefix = p[0] == 0 && p[1] == 0 && p[2] == 0 && p[3] == 0 &&
-                          p[4] == 0 && p[5] == 0 && p[6] == 0 && p[7] == 0 &&
-                          p[8] == 0 && p[9] == 0;
-    if (all_zero_prefix)
-    {
-        // 次の2バイトが ff ff なら正常なIPv4
-        if (p[10] == 0xff && p[11] == 0xff)
-            return 1;
-        // それ以外の 0000...dfff... などは破損
-        return 0;
-    }
-
-    // 2. 本物のIPv6アドレスの場合
-    // 先頭が 00... は通常ありえない。グローバル(2000::/3)かULA(fd00::/8)が一般的
-    if (p[0] == 0x00)
-    {
-        return 0;
-    }
-    if ((p[0] & 0xe0) != 0x20)
-    {
-        return 0;
-    }
-
-    // それ以外はある程度信頼して表示
-    return 1;
-}
-
-void printAddrMessage(struct addr_message *addr_msg)
-{
-    fprintf(stderr, "Number of addresses: %" PRIu64 "\n", addr_msg->count);
-    for (uint64_t i = 0; i < addr_msg->count; i++)
-    {
-        if (is_valid_bm_addr(addr_msg->addresses[i].ip))
-        {
-            struct tm tm_info;
-            char time_buffer[128];
-            localtime_r((time_t *)&addr_msg->addresses[i].time, &tm_info);
-            strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", &tm_info);
-            fprintf(stderr, "  Address %" PRIu64 ": time=%" PRIu64 "(%s), stream=%" PRIu32 ", services=%016" PRIx64 ", port=%u,", i,
-                    addr_msg->addresses[i].time, time_buffer, addr_msg->addresses[i].stream, addr_msg->addresses[i].services, addr_msg->addresses[i].port);
-            // IPアドレスの表示
-            unsigned char *ip = addr_msg->addresses[i].ip;
-            if (ip[0] == 0 && ip[1] == 0 && ip[2] == 0 && ip[3] == 0 &&
-                ip[4] == 0 && ip[5] == 0 && ip[6] == 0 && ip[7] == 0 &&
-                ip[8] == 0 && ip[9] == 0 && ip[10] == 0xff && ip[11] == 0xff)
-            {
-                // IPv4-mapped IPv6 address
-                fprintf(stderr, " IPv4 Address: %u.%u.%u.%u\n", ip[12], ip[13], ip[14], ip[15]);
-            }
-            else
-            {
-                // IPv6 address
-                char ipv6_str[40];
-                snprintf(ipv6_str, sizeof(ipv6_str),
-                         "%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
-                         "%02x%02x:%02x%02x:%02x%02x:%02x%02x",
-                         ip[0], ip[1], ip[2], ip[3], ip[4], ip[5], ip[6], ip[7],
-                         ip[8], ip[9], ip[10], ip[11], ip[12], ip[13], ip[14], ip[15]);
-                fprintf(stderr, " IPv6 Address: %s\n", ipv6_str);
-            }
-        }
-        else
-        {
-            fprintf(stderr, "  Address %" PRIu64 ": ignored\n", i);
-        }
-    }
-}
-
-struct inventory_item
-{
-    unsigned char object_hash[32];
-};
-
-struct inventory_message
-{
-    uint64_t count;
-    struct inventory_item *items;
-};
-
-void parseInventoryMessage(unsigned char *payload, size_t payload_len, struct inventory_message *out_msg)
-{
-    size_t offset = 0;
-    size_t outlen = 0;
-    out_msg->count = decodeVarint(payload + offset, &outlen);
-    offset += outlen;
-    uint64_t actual_count = (payload_len - offset) / 32;
-    fprintf(stderr, "Declared inv count: %" PRIu64 ", Actual inv count in payload: %" PRIu64 "\n", out_msg->count, actual_count);
-    if (out_msg->count != actual_count)
-    {
-        fprintf(stderr, "Warning: inv count mismatch! Declared: %" PRIu64 ", Actual: %" PRIu64 "\n", out_msg->count, actual_count);
-    }
-    out_msg->count = actual_count;
-    out_msg->items = malloc(sizeof(struct inventory_item) * actual_count);
-    if (out_msg->items == NULL)
-    {
-        perror("Memory allocation failed for inventory items");
-        exit(EXIT_FAILURE);
-    }
-    // 実際のペイロードに含まれるアイテム数を計算
-    for (size_t i = 0; i < actual_count; i++)
-    {
-        memcpy(out_msg->items[i].object_hash, payload + offset, 32);
-        offset += 32;
-    }
-}
-
-void freeInventoryMessage(struct inventory_message *msg)
-{
-    if (msg->items != NULL)
-    {
-        free(msg->items);
-        msg->items = NULL;
-    }
-}
-
-enum fd_type
-{
-    CLIENT_SOCKET,
-#define CLIENT_SOCKET CLIENT_SOCKET
-    SERVER_SOCKET,
-#define SERVER_SOCKET SERVER_SOCKET
-    TIMERFD
-#define TIMERFD TIMERFD
-};
-
-struct fd_data
-{
-    enum fd_type type;
-    int fd;
-};
 
 // 128kb
 #define INIT_CONNECT_BUFFER_SIZE 131072
@@ -444,14 +111,14 @@ int main(const int argc, const char **argv)
     ev.events = EPOLLIN | EPOLLET;
     // fdだけで足りるならfdだけでいいし足りなければポインタ使えばいい
     // ev.data.fd = sock;
-    ev.data.ptr = malloc(sizeof(struct fd_data));
-    if (ev.data.ptr == NULL)
+    struct fd_data *data = new_fd_data(CLIENT_SOCKET, sock);
+    // ev.data.ptr = malloc(sizeof(struct fd_data));
+    if (data == NULL)
     {
         perror("malloc struct fd_data");
         exit(EXIT_FAILURE);
     }
-    ((struct fd_data *)ev.data.ptr)->type = CLIENT_SOCKET;
-    ((struct fd_data *)ev.data.ptr)->fd = sock;
+    ev.data.ptr = data;
     epoll_ctl(epfd, EPOLL_CTL_ADD, sock, &ev);
     // version messageを送信
     size_t versionmsglen = 0;
@@ -492,14 +159,15 @@ int main(const int argc, const char **argv)
         int nfds = epoll_wait(epfd, events, MAX_EVENTS, -1);
         for (int i = 0; i < nfds; i++)
         {
-            if (((struct fd_data *)events[i].data.ptr)->type == CLIENT_SOCKET)
+            struct fd_data *data = (struct fd_data *)events[i].data.ptr;
+            if (data->type == CLIENT_SOCKET)
             {
                 // Handle socket data
-                char buffer[BUFSIZ];
+                char buffer[131072];
                 while (1)
                 {
                     errno = 0;
-                    ssize_t bytes_read = read(((struct fd_data *)events[i].data.ptr)->fd, buffer, BUFSIZ);
+                    ssize_t bytes_read = read(data->fd, buffer, 131072);
                     if (bytes_read == -1)
                     {
                         int errno_saved = errno;
@@ -515,32 +183,34 @@ int main(const int argc, const char **argv)
                     {
                         // Connection closed
                         fprintf(stderr, "Connection closed by server\n");
-                        close(sock);
+                        close(data->fd);
+                        free_fd_data(data);
                         break;
                     }
                     // Append data to connectedBuffer
-                    if (length + bytes_read > size)
+                    if (data->length + bytes_read > data->size)
                     {
-                        size *= 2;
-                        connectedBuffer = realloc(connectedBuffer, size);
+                        data->size *= 2;
+                        data->connectedBuffer = realloc(data->connectedBuffer, data->size);
                         if (connectedBuffer == NULL)
                         {
                             perror("realloc");
-                            close(((struct fd_data *)events[i].data.ptr)->fd);
+                            close(data->fd);
+                            free_fd_data(data);
                             exit(EXIT_FAILURE);
                         }
                     }
-                    memcpy(connectedBuffer + length, buffer, bytes_read);
-                    length += bytes_read;
+                    memcpy(data->connectedBuffer + data->length, buffer, bytes_read);
+                    data->length += bytes_read;
                     // fprintf(stderr, "Read %zd bytes, total length: %zu bytes\n", bytes_read, length);
                 }
                 while (length > 0)
                 {
-                    struct message *msg = parse_message(connectedBuffer, length);
+                    struct message *msg = parse_message(data->connectedBuffer, data->length);
                     if (msg == NULL)
                     {
                         // fprintf(stderr, "Received command: %s\n", msg->command);
-                        int payload_length = *((int *)(connectedBuffer + 16));
+                        int payload_length = *((int *)(data->connectedBuffer + 16));
                         payload_length = ntohl(payload_length);
                         // fprintf(stderr, "Payload length: %d\n", payload_length);
                         if (length < payload_length)
@@ -549,149 +219,43 @@ int main(const int argc, const char **argv)
                             // fprintf(stderr, "Incomplete message, waiting for more data(current length: %zu bytes)\n", length);
                             break;
                         }
-                        int checksum = *((int *)(connectedBuffer + 20));
+                        int checksum = *((int *)(data->connectedBuffer + 20));
                         checksum = ntohl(checksum);
                         // checksumを検証する
                         // checksumはpayloadの最初の4バイトをSHA512でハッシュ化したものの最初の4バイト
                         unsigned char computed_checksum[64];
-                        SHA512((connectedBuffer + 24), payload_length, computed_checksum);
+                        SHA512((data->connectedBuffer + 24), payload_length, computed_checksum);
                         int computed_checksum_int = *((int *)computed_checksum);
                         if (checksum != ntohl(computed_checksum_int))
                         {
                             fprintf(stderr, "Checksum mismatch! Expected: %08x, Computed: %08x\n", checksum, ntohl(computed_checksum_int));
                             // 不正なメッセージなので破棄
                             // 次のメッセージに備えてバッファを調整
-                            memmove(connectedBuffer, connectedBuffer + 24 + payload_length, length - (24 + payload_length));
-                            length -= (24 + payload_length);
+                            memmove(data->connectedBuffer, data->connectedBuffer + 24 + payload_length, data->length - (24 + payload_length));
+                            data->length -= (24 + payload_length);
                             continue;
                         }
                         // 不完全なメッセージ、または不正なメッセージ
                         fprintf(stderr, "Incomplete or invalid message, waiting for more data\n");
-                        void *nextpackethead = memmem(connectedBuffer + 4, length - 4, magicbytes, 4);
+                        void *nextpackethead = memmem(data->connectedBuffer + 4, data->length - 4, magicbytes, 4);
                         if (nextpackethead != NULL)
                         {
                             // 次のメッセージの先頭が見つかった場合、その位置までスキップ
-                            size_t skip_bytes = (unsigned char *)nextpackethead - connectedBuffer;
+                            size_t skip_bytes = (unsigned char *)nextpackethead - data->connectedBuffer;
                             fprintf(stderr, "Skipping %zu bytes to next potential message\n", skip_bytes);
-                            memmove(connectedBuffer, nextpackethead, length - skip_bytes);
-                            length -= skip_bytes;
+                            memmove(data->connectedBuffer, nextpackethead, data->length - skip_bytes);
+                            data->length -= skip_bytes;
                         }
                         break;
                     }
                     // fprintf(stderr, "バッファに残ったペイロードデータの長さ: %zu, ", length - (24 + payload_length));
                     // fprintf(stderr, "Processed command: %s, payload length: %d\n", command, payload_length);
                     // 次のメッセージに備えてバッファを調整
-                    memmove(connectedBuffer, connectedBuffer + 24 + msg->length, length - (24 + msg->length));
-                    length -= (24 + msg->length);
-                    // コマンドに対する処理を Strategy パターンを模倣して実装
-                    // ここに各コマンドに対する処理を追加
-                    // もしcommandが"verack"なら
-                    if (strncmp(msg->command, "verack", 12) == 0)
-                    {
-                        fprintf(stderr, "Received verack message\n");
-                        // NOP
-                    }
-                    else if (strncmp(msg->command, "version", 12) == 0)
-                    {
-                        fprintf(stderr, "Received version message\n");
-                        struct version_message ver_msg;
-                        parseVersionMessage(msg->payload, msg->length, &ver_msg);
-                        fprintf(stderr, "Version: %u, Services: %" PRIu64 ", Timestamp: %" PRIu64 "\n", ver_msg.version, ver_msg.services, ver_msg.timestamp);
-                        printNetworkAddress(ver_msg.addr_recv, 26); // addr_recv
-                        printNetworkAddress(ver_msg.addr_from, 26); // addr_from
-                        fprintf(stderr, "Nonce: %016" PRIx64 "\n", ver_msg.nonce);
-                        fprintf(stderr, "User Agent: %s\n", ver_msg.user_agent);
-                        fprintf(stderr, "Stream Count: %" PRIu64 "\n", ver_msg.stream_numbers_len);
-                        fprintf(stderr, "Streams: ");
-                        for (uint64_t i = 0; i < ver_msg.stream_numbers_len; i++)
-                        {
-                            fprintf(stderr, "%" PRIu64 " ", ver_msg.stream_numbers[i]);
-                        }
-                        fprintf(stderr, "\n");
-                        freeVersionMessage(&ver_msg);
-                        // verackコマンドを送信する
-                        unsigned char verack_header[24];
-                        memcpy(verack_header, magicbytes, 4);
-                        char verack_command[12] = {0};
-                        strncpy(verack_command, "verack", 12);
-                        memcpy(verack_header + 4, verack_command, 12);
-                        uint32_t verack_payload_length = 0;
-                        uint32_t net_verack_payload_length = htobe32(verack_payload_length);
-                        memcpy(verack_header + 16, &net_verack_payload_length, 4);
-                        memcpy(verack_header + 20, empty_payload_checksum, 4);
-                        ssize_t w = write(sock, verack_header, 24);
-                        if (w != 24)
-                        {
-                            perror("write verack error");
-                            close(sock);
-                            break;
-                        }
-                    }
-                    else if (strncmp(msg->command, "addr", 12) == 0)
-                    {
-                        fprintf(stderr, "Received addr message\n");
-                        struct addr_message addr_msg;
-                        parseAddrMessage(msg->payload, msg->length, &addr_msg);
-                        printAddrMessage(&addr_msg);
-                        // 本当は適宜ストレージに保存するんやろな
-                        // struct addr_message を bm_node_t に詰め替えて送信
-                        // メモリ解放
-                        freeAddrMessage(&addr_msg);
-                    }
-                    else if (strncmp(msg->command, "inv", 12) == 0)
-                    {
-                        fprintf(stderr, "Received inv message\n");
-                        struct inventory_message inv_msg;
-                        parseInventoryMessage(msg->payload, msg->length, &inv_msg);
-                        fprintf(stderr, "Number of inventory items: %" PRIu64 "\n", inv_msg.count);
-                        /* for (uint64_t i = 0; i < inv_msg.count; i++)
-                        {
-                            fprintf(stderr, "  Item %" PRIu64 ": hash=", i);
-                            for (int j = 0; j < 32; j++)
-                            {
-                                fprintf(stderr, "%02x", inv_msg.items[i].object_hash[j]);
-                            }
-                            fprintf(stderr, "\n");
-                        } */
-                        freeInventoryMessage(&inv_msg);
-                        // getdata送信スレッドにinvベクタを転送する
-                    }
-                    else if (strncmp(msg->command, "ping", 12) == 0)
-                    {
-                        fprintf(stderr, "Received ping message\n");
-                        // pongメッセージを返信する
-                        unsigned char pong_header[24];
-                        memcpy(pong_header, magicbytes, 4);
-                        char pong_command[12] = {0};
-                        strncpy(pong_command, "pong", 12);
-                        memcpy(pong_header + 4, pong_command, 12);
-                        uint32_t pong_payload_length = 0;
-                        uint32_t net_pong_payload_length = htobe32(pong_payload_length);
-                        memcpy(pong_header + 16, &net_pong_payload_length, 4);
-                        memcpy(pong_header + 20, empty_payload_checksum, 4);
-                        ssize_t w = write(sock, pong_header, 24);
-                        if (w != 24)
-                        {
-                            perror("write pong error");
-                            close(sock);
-                            break;
-                        }
-                    }
-                    else if (strncmp(msg->command, "getdata", 12) == 0)
-                    {
-                        fprintf(stderr, "Received getdata message\n");
-                    }
-                    else if (strncmp(msg->command, "object", 12) == 0)
-                    {
-                        fprintf(stderr, "Received object message\n");
-                        // object payload保存スレッドに転送する
-                    }
-                    else
-                    {
-                        char command[13] = {0};
-                        strncpy(command, msg->command, 12);
-                        fprintf(stderr, "Unknown command: %s\n", command);
-                    }
+                    memmove(data->connectedBuffer, data->connectedBuffer + 24 + msg->length, data->length - (24 + msg->length));
+                    data->length -= (24 + msg->length);
+                    process_command(data, msg);
+                    // コマンド処理を全部別スレッドに委託してしまえばこのスレッドでfree_messageを呼び出す必要もなくなる
+                    // push_command_process_queue(data, msg);
                     // 処理が完了
                     // メッセージ解放
                     // 別スレッドにオブジェクトを転送する場合はmsgごと転送し解放は転送先で行う。msgにはNULLをセットしておく。
