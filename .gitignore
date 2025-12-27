@@ -170,6 +170,11 @@ config.rpath
 *-prime.txt
 *-initialValue.txt
 build/
+build-Debug/
+build-MinSizeRel/
+build-Release/
+build-RelWithDebInfo/
+build-Unspecified/
 
 ## https://github.com/github/gitignore/blob/991e760/CMake.gitignore
 CMakeLists.txt.user

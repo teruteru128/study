@@ -261,5 +261,6 @@
     ],
     "C_Cpp.default.defines": [
         "_POSIX_C_SOURCE=200809L"
-    ]
+    ],
+    "cmake.buildDirectory": "${workspaceFolder}/build-${buildType}"
 }

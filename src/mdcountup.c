@@ -28,7 +28,7 @@ struct arg
 
 void *task(void *arg)
 {
-    int i = ((struct arg *)arg)->count;
+    uint64_t i = (uint64_t)((struct arg *)arg)->count << 32;
     uint8_t input[16];
     memcpy(input, ((struct arg *)arg)->prefix, 8);
     EVP_MD *md5 = EVP_MD_fetch(NULL, "MD5", NULL);
@@ -38,16 +38,24 @@ void *task(void *arg)
     time_t start;
     time_t stop;
     start = time(NULL);
+    size_t len = 0;
+    size_t size = 8;
+    ssize_t bytes_read;
+    while (len < size)
+    {
+        bytes_read = getrandom(tail + len, 8, 0);
+        len += bytes_read;
+    }
     while (!isDone)
     {
-        getrandom(tail, 8, 0);
         EVP_DigestInit_ex2(ctx, md5, NULL);
         EVP_DigestUpdate(ctx, input, 16);
         EVP_DigestFinal_ex(ctx, hash, NULL);
-        if (be32toh(*(uint32_t *)hash) == i)
+        if ((be64toh(*(uint64_t *)hash) & 0xFFFFFFFF00000000UL) == i)
         {
             break;
         }
+        (*(uint64_t *)tail)++;
     }
     stop = time(NULL);
     pthread_mutex_lock(&lock);
@@ -72,7 +80,14 @@ int main(int argc, char const *argv[])
     time_t stop;
     pthread_t threads[THREADS];
     struct arg arg;
-    getrandom(arg.prefix, 8, 0);
+    size_t len = 0;
+    size_t size = 8;
+    ssize_t bytes_read;
+    while (len < size)
+    {
+        bytes_read = getrandom(arg.prefix + len, 8, 0);
+        len += bytes_read;
+    }
     for (int i = 0; i < 16; i++)
     {
         arg.count = i;
@@ -84,8 +99,7 @@ int main(int argc, char const *argv[])
         {
             pthread_join(threads[j], NULL);
         }
-        printf("%08" PRIx32 ": ", be32toh(*((uint32_t *)resulthash)));
-        printf(": ");
+        printf("%016" PRIx64 ": ", be64toh(*((uint64_t *)resulthash)));
         for (int j = 0; j < 16; j++)
         {
             printf("%02" PRIx8, result[j]);
