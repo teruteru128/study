@@ -35,8 +35,8 @@
 #define TASK_SIZE 16
 
 static PublicKey *publicKeys = NULL;
-static const EVP_MD *sha512md = NULL;
-static const EVP_MD *ripemd160md = NULL;
+static EVP_MD *sha512md = NULL;
+static EVP_MD *ripemd160md = NULL;
 
 /**
  * @brief threadpoolを停止するときは0を代入する
@@ -44,12 +44,12 @@ static const EVP_MD *ripemd160md = NULL;
 static volatile int threadpool_live = 1;
 static volatile int producer_has_a_task_that_has_not_been_shipped = 1;
 
-#define errchk(v, f)                                                          \
-    if (!v)                                                                   \
-    {                                                                         \
-        unsigned long err = ERR_get_error();                                  \
-        fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL));           \
-        return EXIT_FAILURE;                                                  \
+#define errchk(v, f)                                                \
+    if (!v)                                                         \
+    {                                                               \
+        unsigned long err = ERR_get_error();                        \
+        fprintf(stderr, #f " : %s\n", ERR_error_string(err, NULL)); \
+        return EXIT_FAILURE;                                        \
     }
 
 struct threadArg
@@ -82,7 +82,7 @@ void *produce(void *arg)
         task->signkeyindex = 0;
         task->encryptkeyindex = j;
         task->numberOfLeadingZero = 0;
-        put(queue, queue);
+        put(queue, task);
     }
 
     /*
@@ -130,7 +130,7 @@ void *consume(void *arg)
     PublicKey *encP = NULL;
     while (1)
     {
-        struct task *task = getTask(queue);
+        struct task *task = (struct task *)take(queue);
         if (task == NULL)
         {
             continue;
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
     bindtextdomain(PACKAGE, LOCALEDIR);
     textdomain(PACKAGE);
     unsigned char *a = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
-    //publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
+    // publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
     if (a == NULL)
     {
         perror("calloc");
@@ -223,11 +223,11 @@ int main(int argc, char *argv[])
      */
 
     QUEUE_DEFINE(queue);
-    pthread_t prucude_thread;
+    pthread_t produce_thraed;
     pthread_t consume_threads[THREAD_NUM];
     struct threadArg arg[THREAD_NUM];
-    sha512md = EVP_sha512();
-    ripemd160md = EVP_ripemd160();
+    sha512md = EVP_MD_fetch(NULL, "SHA512", NULL);
+    ripemd160md = EVP_MD_fetch(NULL, "ripemd160", NULL);
     for (size_t i = 0; i < THREAD_NUM; i++)
     {
         arg[i].publicKeys = publicKeys;
@@ -239,16 +239,18 @@ int main(int argc, char *argv[])
         arg[i].minExportThreshold = 4;
         arg[i].queue = &queue;
     }
-    pthread_create(&prucude_thread, NULL, produce, &queue);
+    pthread_create(&produce_thraed, NULL, produce, &queue);
     for (size_t i = 0; i < THREAD_NUM; i++)
     {
         pthread_create(&consume_threads[i], NULL, consume, &arg[i]);
     }
-    pthread_join(prucude_thread, NULL);
+    pthread_join(produce_thraed, NULL);
     for (size_t i = 0; i < THREAD_NUM; i++)
     {
         pthread_join(consume_threads[i], NULL);
     }
+    EVP_MD_free(sha512md);
+    EVP_MD_free(ripemd160md);
     // shutdown:
     // free(privateKeys);
     free(publicKeys);
