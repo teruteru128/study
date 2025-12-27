@@ -147,9 +147,6 @@ int main(const int argc, const char **argv)
         return EXIT_FAILURE;
     }
     free(versionmsg);
-    unsigned char *connectedBuffer = malloc(INIT_CONNECT_BUFFER_SIZE);
-    size_t size = INIT_CONNECT_BUFFER_SIZE;
-    size_t length = 0;
     // epoll_waitも別スレッドで行い、メインスレッドではコネクション数管理を行いたい
     // (アウトバウンド16コネクション、インバウンド16コネクションとか。実際はインバウンド数に上限はつけたくないけど)
     while (1)
@@ -190,7 +187,7 @@ int main(const int argc, const char **argv)
                     {
                         data->size *= 2;
                         data->connectedBuffer = realloc(data->connectedBuffer, data->size);
-                        if (connectedBuffer == NULL)
+                        if (data->connectedBuffer == NULL)
                         {
                             perror("realloc");
                             close(data->fd);
@@ -202,16 +199,21 @@ int main(const int argc, const char **argv)
                     data->length += bytes_read;
                     // fprintf(stderr, "Read %zd bytes, total length: %zu bytes\n", bytes_read, length);
                 }
-                while (length > 0)
+                while (data->length > 0)
                 {
+                    // 読み込み済みデータが24バイト未満でも考慮済みなので安全！
                     struct message *msg = parse_message(data->connectedBuffer, data->length);
                     if (msg == NULL)
                     {
+                        if(data->length < 24)
+                        {
+                            break;
+                        }
                         // fprintf(stderr, "Received command: %s\n", msg->command);
                         int payload_length = *((int *)(data->connectedBuffer + 16));
                         payload_length = ntohl(payload_length);
                         // fprintf(stderr, "Payload length: %d\n", payload_length);
-                        if (length < payload_length)
+                        if (data->length < payload_length)
                         {
                             // ペイロード全体がまだ来ていない場合は待つ
                             // fprintf(stderr, "Incomplete message, waiting for more data(current length: %zu bytes)\n", length);

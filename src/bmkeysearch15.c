@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "load_key.h"
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/provider.h>
@@ -30,41 +31,6 @@
 #define ENC_NUM 67108864UL
 
 #define LOCAL_CACHE_NUM 16
-
-static int loadKey1(unsigned char *publicKey, const char *path, size_t size,
-                    size_t num)
-{
-    // public keyは頻繁に使うのでメモリに読み込んでおく
-    FILE *publicKeyFile = fopen(path, "rb");
-    if (publicKeyFile == NULL)
-    {
-        if (publicKeyFile != NULL)
-        {
-            fclose(publicKeyFile);
-        }
-        return 1;
-    }
-    size_t pubnum = fread(publicKey, size, num, publicKeyFile);
-    fclose(publicKeyFile);
-    if (pubnum != num)
-    {
-        perror("fread");
-        free(publicKey);
-        return 1;
-    }
-    return 0;
-}
-
-static int loadPrivateKey1(unsigned char *publicKey, const char *path)
-{
-    return loadKey1(publicKey, path, 32, 16777216);
-}
-
-static int loadPublicKey(unsigned char *publicKey, const char *path)
-{
-    // public keyは頻繁に使うのでメモリに読み込んでおく
-    return loadKey1(publicKey, path, 64, 16777216);
-}
 
 static volatile sig_atomic_t running = 1;
 

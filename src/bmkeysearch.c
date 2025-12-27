@@ -193,19 +193,21 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "");
     bindtextdomain(PACKAGE, LOCALEDIR);
     textdomain(PACKAGE);
-    publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
-    if (publicKeys == NULL)
+    unsigned char *a = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
+    //publicKeys = calloc(KEY_CACHE_SIZE, PUBLIC_KEY_LENGTH);
+    if (a == NULL)
     {
         perror("calloc");
         return EXIT_FAILURE;
     }
     // 4362076160 == 65 * 16777216 * 4
     fprintf(stderr, "calloced\n");
-    if (loadPublicKey(publicKeys, "publicKeys.bin") != 0)
+    if (loadPublicKey(a, "publicKeys.bin") != 0)
     {
-        free(publicKeys);
+        free(a);
         return EXIT_FAILURE;
     }
+    publicKeys = (PublicKey *)a;
     fprintf(stderr, "loaded\n");
     /*
      * 67108864

@@ -105,7 +105,7 @@ target_link_libraries(bmkeysearch14 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT} st
 target_include_directories(bmkeysearch14 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_options(bmkeysearch14 PUBLIC $<$<BOOL:${OpenACC_C_FOUND}>:${OpenACC_C_FLAGS}>)
 
-add_executable(bmkeysearch15 bmkeysearch15.c timeutil.c)
+add_executable(bmkeysearch15 bmkeysearch15.c timeutil.c load_key.c)
 target_link_libraries(bmkeysearch15 OpenSSL::Crypto GnuTLS::GnuTLS ${CMAKE_THREAD_LIBS_INIT} study OpenMP::OpenMP_C)
 target_include_directories(bmkeysearch15 PRIVATE ${OPENSSL_INCLUDE_DIR} $<$<BOOL:${GNUTLS_FOUND}>:${GNUTLS_INCLUDE_DIR}> ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_options(bmkeysearch15 PRIVATE $<$<BOOL:${OpenACC_C_FOUND}>:${OpenACC_C_FLAGS}> $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
@@ -379,6 +379,7 @@ add_executable(main
                 biom.c
                 sha512.c
                 bulkevp.c
+                load_key.c
               )
 target_compile_definitions(main PRIVATE $<$<BOOL:${OpenCL_FOUND}>:CL_TARGET_OPENCL_VERSION=220>)
 target_include_directories(main PRIVATE
