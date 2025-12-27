@@ -119,34 +119,29 @@ int main(const int argc, const char **argv)
     ev.data.ptr = data;
     epoll_ctl(epfd, EPOLL_CTL_ADD, sock, &ev);
     // version messageを送信
-    size_t versionmsglen = 0;
+    size_t versionmsglen = get_version_message_size(NAME);
+    uint8_t *version_message = malloc(24 + versionmsglen);
     int version = 3;
-    unsigned char *versionmsg = createVersionMessage(NAME, version, &peer_addr, &local_addr, sock, &versionmsglen);
+    createVersionMessage(version_message + 24, NAME, version, &peer_addr, &local_addr, sock);
     // ヘッダの作成
-    unsigned char header[24];
-    memcpy(header, magicbytes, 4);
-    char command[12] = {0};
-    strncpy(command, "version", 12);
-    memcpy(header + 4, command, 12);
+    memcpy(version_message, magicbytes, 4);
+    strncpy(version_message + 4, "version", 12);
     uint32_t net_payload_length = htobe32((uint32_t)versionmsglen);
-    memcpy(header + 16, &net_payload_length, 4);
+    memcpy(version_message + 16, &net_payload_length, 4);
     // checksumの計算
     unsigned char checksum_full[64];
-    SHA512(versionmsg, versionmsglen, checksum_full);
-    unsigned char checksum[4];
-    memcpy(checksum, checksum_full, 4);
-    memcpy(header + 20, checksum, 4);
+    SHA512(version_message + 24, versionmsglen, checksum_full);
+    memcpy(version_message + 20, checksum_full, 4);
     // 送信
-    ssize_t a = write(sock, header, 24);
-    ssize_t b = write(sock, versionmsg, versionmsglen);
-    if (a != 24 || b != (ssize_t)versionmsglen)
+    ssize_t a = write(sock, version_message, 24 + versionmsglen);
+    if (a != 24 + versionmsglen)
     {
         perror("write error");
         close(sock);
         close(epfd);
         return EXIT_FAILURE;
     }
-    free(versionmsg);
+    free(version_message);
     // epoll_waitも別スレッドで行い、メインスレッドではコネクション数管理を行いたい
     // (アウトバウンド16コネクション、インバウンド16コネクションとか。実際はインバウンド数に上限はつけたくないけど)
     while (1)
@@ -205,7 +200,7 @@ int main(const int argc, const char **argv)
                     struct message *msg = parse_message(data->connectedBuffer, data->length);
                     if (msg == NULL)
                     {
-                        if(data->length < 24)
+                        if (data->length < 24)
                         {
                             break;
                         }
