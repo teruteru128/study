@@ -3,6 +3,7 @@
 
 // network thread
     // upload thread
+    // download thread
 
 // sql thread
 

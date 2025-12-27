@@ -131,6 +131,7 @@ int main(const int argc, const char **argv)
             struct fd_data *data = (struct fd_data *)events[i].data.ptr;
             if (data->type == CLIENT_SOCKET)
             {
+                // transfar to download thread
                 // Handle socket data
                 char buffer[131072];
                 while (1)
@@ -173,12 +174,8 @@ int main(const int argc, const char **argv)
                     data->length += bytes_read;
                     // fprintf(stderr, "Read %zd bytes, total length: %zu bytes\n", bytes_read, length);
                 }
-                while (data->length > 0)
+                while (data->length >= 24)
                 {
-                    if (data->length < 24)
-                    {
-                        break;
-                    }
                     // 読み込み済みデータが24バイト未満でも考慮済みなので安全！
                     struct message *msg = parse_message(data->connectedBuffer, data->length);
                     if (msg == NULL)
