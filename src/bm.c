@@ -189,7 +189,7 @@ int main(const int argc, const char **argv)
                         data->connectedBuffer = realloc(data->connectedBuffer, data->size);
                         if (data->connectedBuffer == NULL)
                         {
-                            perror("realloc");
+                            perror("realloc fail");
                             close(data->fd);
                             free_fd_data(data);
                             exit(EXIT_FAILURE);
