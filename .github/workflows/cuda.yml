@@ -2,7 +2,7 @@ name: cuda
 
 on:
   push:
-    paths: ["/CMakeLists.txt", "include/**", "libstudy/**", "po/**", "pthreads/**", "src/**", "tests/**", ".github/workflows/**"]
+    paths: ["/CMakeLists.txt", "include/**", "libstudy/**", "po/**", "pthreads/**", "src/**", "tests/**", ".github/workflows/**", "cuda/**"]
   pull_request:
 
   # Sample when vcpkg is a submodule of your repository (highly recommended!)
