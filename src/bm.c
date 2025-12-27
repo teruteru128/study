@@ -119,29 +119,8 @@ int main(const int argc, const char **argv)
     ev.data.ptr = data;
     epoll_ctl(epfd, EPOLL_CTL_ADD, sock, &ev);
     // version messageを送信
-    size_t versionmsglen = get_version_message_size(NAME);
-    uint8_t *version_message = malloc(24 + versionmsglen);
     int version = 3;
-    createVersionMessage(version_message + 24, NAME, version, &peer_addr, &local_addr, sock);
-    // ヘッダの作成
-    memcpy(version_message, magicbytes, 4);
-    strncpy(version_message + 4, "version", 12);
-    uint32_t net_payload_length = htobe32((uint32_t)versionmsglen);
-    memcpy(version_message + 16, &net_payload_length, 4);
-    // checksumの計算
-    unsigned char checksum_full[64];
-    SHA512(version_message + 24, versionmsglen, checksum_full);
-    memcpy(version_message + 20, checksum_full, 4);
-    // 送信
-    ssize_t a = write(sock, version_message, 24 + versionmsglen);
-    if (a != 24 + versionmsglen)
-    {
-        perror("write error");
-        close(sock);
-        close(epfd);
-        return EXIT_FAILURE;
-    }
-    free(version_message);
+    postVersion(sock, NAME, version, &peer_addr, &local_addr);
     // epoll_waitも別スレッドで行い、メインスレッドではコネクション数管理を行いたい
     // (アウトバウンド16コネクション、インバウンド16コネクションとか。実際はインバウンド数に上限はつけたくないけど)
     while (1)
@@ -196,17 +175,17 @@ int main(const int argc, const char **argv)
                 }
                 while (data->length > 0)
                 {
+                    if (data->length < 24)
+                    {
+                        break;
+                    }
                     // 読み込み済みデータが24バイト未満でも考慮済みなので安全！
                     struct message *msg = parse_message(data->connectedBuffer, data->length);
                     if (msg == NULL)
                     {
-                        if (data->length < 24)
-                        {
-                            break;
-                        }
                         // fprintf(stderr, "Received command: %s\n", msg->command);
-                        int payload_length = *((int *)(data->connectedBuffer + 16));
-                        payload_length = ntohl(payload_length);
+                        int net_payload_length = *((int *)(data->connectedBuffer + 16));
+                        int payload_length = ntohl(net_payload_length);
                         // fprintf(stderr, "Payload length: %d\n", payload_length);
                         if (data->length < payload_length)
                         {
