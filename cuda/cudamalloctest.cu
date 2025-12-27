@@ -7,7 +7,7 @@
 #ifdef CMAKE_CUDA_COMPILER
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
-#endif
+#endif // CMAKE_CUDA_COMPILER
 #include <stdio.h>
 #include <stdlib.h>
 #define _(str) gettext(str)
@@ -104,6 +104,6 @@ int main(void)
     {
         fprintf(stderr, "%f\n", arr3[i]);
     }
-#endif
+#endif // CMAKE_CUDA_COMPILER
     return EXIT_SUCCESS;
 }
