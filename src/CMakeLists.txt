@@ -293,7 +293,7 @@ target_include_directories(getnyanpass2 PRIVATE ${CURL_INCLUDE_DIRS})
 #target_compile_definitions(getnyanpass2 PRIVATE _GNU_SOURCE)
 
 add_executable(gettextsample2 gettextsample2.c)
-target_compile_definitions(gettextsample2 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
+target_compile_definitions(gettextsample2 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}")
 
 add_executable(gettextsample3 gettextsample3.c textdomain.c)
 target_compile_definitions(gettextsample3 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")

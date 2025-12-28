@@ -1,4 +1,6 @@
 
+#define _GNU_SOURCE
+#define _DEFAULT_SOURCE
 #include "gettime.h"
 
 void ntp2tv(uint32_t ntp[2], struct timeval *tv)
@@ -91,8 +93,8 @@ int main(int argc, char **argv)
 
     {
         unsigned char *tmp = (unsigned char *)&sendsntp;
-        //tmp[0] = 0xb0;
-        //memcpy(&(sntp.transmit_timestamp), ntp, 8);
+        // tmp[0] = 0xb0;
+        // memcpy(&(sntp.transmit_timestamp), ntp, 8);
         for (size_t i = 0; i < sizeof(SNTP); i++)
         {
             printf("%02x", (tmp[i] & 0xff));

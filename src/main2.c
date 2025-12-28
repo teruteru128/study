@@ -68,6 +68,7 @@
 #endif
 
 #include "ripemd160.h"
+#include "countdown.h"
 
 // https://homes.esat.kuleuven.be/~bosselae/ripemd160.html
 /**
@@ -91,5 +92,10 @@
  */
 int entrypoint(int argc, char **argv, char *const *envp)
 {
+    time_t now = time(NULL);
+    now += 10;
+    struct tm tm;
+    localtime_r(&now, &tm);
+    countdowns(&tm);
     return 0;
 }

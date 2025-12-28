@@ -4,6 +4,7 @@
 #include "ftnr.h"
 #include "penis.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char const *argv[])
 {
@@ -14,5 +15,6 @@ int main(int argc, char const *argv[])
         penis(length);
         length += i * 3;
     }
-    return 0;
+    ftnr_penis(argc, argv);
+    return EXIT_SUCCESS;
 }
