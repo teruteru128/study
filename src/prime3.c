@@ -17,13 +17,9 @@ int main(int argc, char *argv[])
     unsigned int i = 1;
     int isPrime = 0;
     char msg[3][17] = {"not prime", "probably prime", "definitely prime"};
-    for (i = 1; i <= 16384; i++)
+    for (i = 2049; i <= 16384; i++)
     {
-        mpz_mul_ui(nfac, nfac, i);
-        if (i <= 2048)
-        {
-            continue;
-        }
+        mpz_fac_ui(nfac, i);
         mpz_add_ui(nfacadd1, nfac, 1);
         isPrime = mpz_probab_prime_p(nfacadd1, 20);
         printf("%d! + 1 is %s\n", i, msg[isPrime]);

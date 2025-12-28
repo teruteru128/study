@@ -5,9 +5,11 @@
 #include "penis.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 int main(int argc, char const *argv[])
 {
+    /*
     size_t length = 27;
     for (size_t i = 1; length <= 300; i++)
     {
@@ -15,6 +17,12 @@ int main(int argc, char const *argv[])
         penis(length);
         length += i * 3;
     }
-    ftnr_penis(argc, argv);
+    */
+    if (argc < 2)
+    {
+        return EXIT_SUCCESS;
+    }
+    uint64_t a = strtoull(argv[1], NULL, 10);
+    ftnr_penis((int)a);
     return EXIT_SUCCESS;
 }

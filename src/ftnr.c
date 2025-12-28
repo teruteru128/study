@@ -47,7 +47,7 @@
  * 10.0cm, 47081.586164ml
  * 38.2cm, 74641.376689ml
  */
-int ftnr_penis(int argc, char const *argv[])
+int ftnr_penis(int n)
 {
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
@@ -63,7 +63,7 @@ int ftnr_penis(int argc, char const *argv[])
     }
     int32_t dick1;
     int32_t dick2;
-    for (size_t i = 0; i < 5; i++)
+    for (size_t i = 0; i < n; i++)
     {
         if (random_r(&buf, &dick1))
         {

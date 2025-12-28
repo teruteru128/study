@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     // mpz_set_str(number, "51515155212112155512544451215879794313484631643513515461313510654159642752672634875312153543513515153543513564564984646463564346842311254454685465132211546454881133115554645161516484849874321321348523202152305448405648254896348510549", 10);
     // mpz_set_str(number, "9cfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff3", 16);
     mpz_set_ui(number, 157);
-     mpz_mul_2exp(number, number, 504);
+    mpz_mul_2exp(number, number, 504);
     // mpz_sub_ui(number, number, 13);
     // 9cfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff4
     mpz_prevprime(p, number);
