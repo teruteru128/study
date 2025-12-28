@@ -10,50 +10,78 @@
 #include <openssl/sha.h>
 #include <openssl/evp.h>
 #include <string.h>
+#include <stdint.h>
+#include <inttypes.h>
+#include <alloca.h>
 
 #define PUBLIC_KEY "MEwDAgcAAgEgAiEA+i4ptdb7Q5ldNJjyJTd/+hC+ac2YoPoIXYLgPRJE6egCIBcdWTjBr/iW3QjAAl389HYDZF/0GwuxH+MpXdDBrpl0"
 
-struct a
-{
-    int tid;
-    pthread_barrier_t *barrier;
-};
+static pthread_barrier_t barrier;
+static pthread_spinlock_t spin;
+
+volatile int con = 1;
+static int max = 0;
+static uint64_t max_i = 0;
+static EVP_MD *sha1 = NULL;
+
+static inline int fast_utoa(uint64_t val, char *buf) {
+    char temp[20];
+    int i = 0;
+    if (val == 0) { buf[0] = '0'; return 1; }
+    while (val > 0) {
+        temp[i++] = (val % 10) + '0';
+        val /= 10;
+    }
+    int len = i;
+    while (i > 0) {
+        buf[len - i] = temp[i - 1];
+        i--;
+    }
+    return len;
+}
 
 void *function(void *arg)
 {
-    struct a *a = (struct a *)arg;
-    size_t i = 88172645463325252UL;
+    uint64_t i = ((uint64_t *)arg)[0];
+
     const size_t len = strlen(PUBLIC_KEY);
+    EVP_MD_CTX *common_ctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex2(common_ctx, sha1, NULL);
+    EVP_DigestUpdate(common_ctx, PUBLIC_KEY, len);
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-    const EVP_MD *sha1 = EVP_sha1();
     char count[24];
     unsigned char hash[20];
     int zerobyte = 0;
-    int max = 0;
-    size_t max_i = 0;
     uint64_t tmp = 0;
 
-    pthread_barrier_wait(a->barrier);
+    pthread_barrier_wait(&barrier);
     int length = 0;
-    //    for (; a->tid; i++)
-    for (; max < 6; i++)
+    uint64_t step = ((uint64_t *)arg)[1];
+    printf("init: %" PRIu64 ", step: %" PRIu64 "\n", i, step);
+    while (con)
     {
-        EVP_DigestInit(ctx, sha1);
-        EVP_DigestUpdate(ctx, PUBLIC_KEY, len);
-        length = snprintf(count, 24, "%zu", i);
+        EVP_MD_CTX_copy_ex(ctx, common_ctx);
+        length = fast_utoa(i, count);
         EVP_DigestUpdate(ctx, count, length);
-        EVP_DigestFinal(ctx, hash, NULL);
-        tmp = htobe64(*(unsigned long *)hash);
-        zerobyte =((tmp == 0) ? 64UL : __builtin_clzl(tmp));
-        if (zerobyte > max)
+        EVP_DigestFinal_ex(ctx, hash, NULL);
+        tmp = htobe64(*(uint64_t *)hash);
+        zerobyte = ((tmp == 0) ? 64UL : __builtin_clzl(tmp));
+        if (zerobyte > *(volatile int *)&max)
         {
-            // 更新したら置き換える
-            max = zerobyte;
-            max_i = i;
+            pthread_spin_lock(&spin);
+            // 2次チェック（ロック取得後に確定）
+            if (zerobyte > max)
+            {
+                // 更新したら置き換える
+                max = zerobyte;
+                max_i = i;
+            }
+            pthread_spin_unlock(&spin);
         }
+        i += step;
     }
     EVP_MD_CTX_free(ctx);
-    printf("%d, %zu\n", max, max_i);
+    EVP_MD_CTX_free(common_ctx);
     printf("%zu\n", i);
     return NULL;
 }
@@ -61,7 +89,7 @@ void *function(void *arg)
 #define THREAD_NUM 8
 
 /**
- * 
+ *
  * 対称鍵暗号
  *   EVP_CIPHER
  *   https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
@@ -92,49 +120,68 @@ void *function(void *arg)
  * geoip_load_file
  * https://youtu.be/MCzo6ZMfKa4
  * ターミュレーター
- * 
+ *
  * regex.h
  * - 最左最短一致
  * - 否定先読み
  * - 強欲な数量子
- * 
+ *
  * TODO: P2P地震情報 ピア接続受け入れ＆ピアへ接続
- * 
+ *
  * 標準入力と標準出力を別スレッドで行うアプリ
  * リクエストを投げると適当なデータを投げ返す簡単なサーバープログラム
  * リクエスト長さは8バイトに対応
- * 
+ *
  * --help
  * --version
  * --server-mode
  *   フォアグラウンドで起動
  * --daemon-mode
  *   デーモン化処理付きでバックグラウンドで起動
- * 
+ *
  * 複数スレッドをpthread_cond_tで止めてメインスレッドでtimerfdを使って指定時刻まで待ち、pthread_cond_broadcastで一斉に起動する
- * 
+ *
  * ファイルからGMPのmpzに整数を読み込んだりOpenSSLのBIGNUMに整数を読み込んだり乱数を読み込んだりを共通化したい
- * 
+ *
  * @brief sanbox func.
- * 
- * @param argc 
- * @param argv 
- * @return int 
+ *
+ * @param argc
+ * @param argv
+ * @return int
  */
 int main(int argc, char *argv[])
 {
-    pthread_t threads;
-    struct a a;
-    pthread_barrier_t barrier;
-    pthread_barrier_init(&barrier, NULL, 2);
+    uint64_t init = 0;
+    if (argc >= 2)
+    {
+        init = strtoull(argv[1], NULL, 10);
+    }
+    if (argc >= 3)
+    {
+        max = (int)strtoll(argv[2], NULL, 10);
+    }
+    sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
+    pthread_t threads[THREAD_NUM];
+    pthread_barrier_init(&barrier, NULL, THREAD_NUM + 1);
+    pthread_spin_init(&spin, 0);
+    uint64_t arg[THREAD_NUM * 2];
 
-    a.tid = 1;
-    a.barrier = &barrier;
-    pthread_create(&threads, NULL, function, &a);
+    for (int i = 0; i < THREAD_NUM; i++)
+    {
+        arg[i * 2] = init + i;
+        arg[i * 2 + 1] = THREAD_NUM;
+        pthread_create(threads + i, NULL, function, &arg[i * 2]);
+    }
     pthread_barrier_wait(&barrier);
-    sleep(10);
-    a.tid = 0;
-    pthread_join(threads, NULL);
+    sleep(1800);
+    con = 0;
+    for (int i = 0; i < THREAD_NUM; i++)
+    {
+        pthread_join(threads[i], NULL);
+    }
+    printf("%d, %zu\n", max, max_i);
+    pthread_spin_destroy(&spin);
     pthread_barrier_destroy(&barrier);
+    EVP_MD_free(sha1);
     return EXIT_SUCCESS;
 }
