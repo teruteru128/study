@@ -41,6 +41,7 @@ find_package(Gettext)
 if(GETTEXT_FOUND)
     set(HAVE_GETTEXT 1)
     set(ENABLE_NLS 1)
+    #gettext_process_po_files(ja ALL PO_FILES po/ja/study.po INSTALL_DESTINATION ${CMAKE_INSTALL_LOCALEDIR})
 endif(GETTEXT_FOUND)
 
 

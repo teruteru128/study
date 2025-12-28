@@ -12,7 +12,13 @@
 int main(int argc, char const *argv[])
 {
     setlocale(LC_ALL, "");
-    bindtextdomain(PACKAGE, LOCALEDIR);
+    const char *dir = getenv("TEXTDOMAINDIR");
+    if (dir == NULL)
+    {
+        dir = LOCALEDIR;
+    }
+    printf("%s\n", dir);
+    bindtextdomain(PACKAGE, dir);
     textdomain(PACKAGE);
     printf(_("Help me!\n"));
     printf(_("Hello world!\n"));

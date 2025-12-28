@@ -520,7 +520,7 @@ target_link_libraries(postgresqlsample PostgreSQL::PostgreSQL)
 target_include_directories(postgresqlsample PRIVATE ${PostgreSQL_INCLUDE_DIRS})
 
 add_executable(potest potest.c)
-target_compile_definitions(potest PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
+target_compile_definitions(potest PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}" $<$<BOOL:${GETTEXT_FOUND}>:ENABLE_NLS=1>)
 
 add_executable(prime1 prime1.c)
 target_link_libraries(prime1 gmp)
