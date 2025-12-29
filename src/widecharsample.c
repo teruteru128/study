@@ -7,22 +7,27 @@
 
 #define CNT_MAX 50
 
-int main(int argc, char const *argv[])
+int main(const int argc, const char const *argv[])
 {
-    setlocale(LC_ALL, ""); //必要
-    char work[] = "やったぜ。\U00029e49";
-    const char *p = work;
+    if (argc < 2)
+    {
+        return 1;
+    }
+    setlocale(LC_ALL, ""); // 必要
+    char work[] = "やったぜ。\U00029e49\U0001F4A9";
+    const char *p = (argc >= 2) ? argv[1] : work;
     wchar_t out[BUFSIZ] = L"";
     size_t length = 0;
     char tmpc[CNT_MAX];
     const char *tmpd = tmpc;
     wchar_t tmpw[CNT_MAX] = L"";
-    mbstate_t mbs1 = { 0 };
-    mbstate_t mbs2 = { 0 };
+    mbstate_t mbs1 = {0};
+    mbstate_t mbs2 = {0};
+    size_t l = 0;
     while (*p != '\0')
     {
-        tmpd = tmpc;
-        size_t l = mbrlen(p, CNT_MAX, &mbs1);
+        // 次のマルチバイト文字のバイト数を決定する
+        l = mbrlen(p, CNT_MAX, &mbs1);
         // (size_t)-1もほぼありえないとはいえ実際は有効な値の範囲なんだよなあ……
         if (l == (size_t)-1 || l == (size_t)-2)
         {
@@ -31,10 +36,12 @@ int main(int argc, char const *argv[])
         }
         strncpy(tmpc, p, l);
         tmpc[l] = '\0';
-        size_t wl = mbsrtowcs(tmpw, &tmpd, CNT_MAX, &mbs2);
+        // マルチバイト文字列をワイド文字列に変換する（再開可能）
+        size_t wl = mbsrtowcs(out, &tmpd, CNT_MAX, &mbs2);
         wcscat(out + length, tmpw);
         p += l;
         length += wl;
+        tmpd = tmpc;
     }
     printf("%ls\n", out);
     for (size_t i = 0; i < length; i++)
