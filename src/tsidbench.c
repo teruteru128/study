@@ -13,16 +13,16 @@
 #include <stdint.h>
 #include <inttypes.h>
 
-#define PUBLIC_KEY "MEwDAgcAAgEgAiEA+i4ptdb7Q5ldNJjyJTd/+hC+ac2YoPoIXYLgPRJE6egCIBcdWTjBr/iW3QjAAl389HYDZF/0GwuxH+MpXdDBrpl0"
-
 static pthread_barrier_t barrier;
 static pthread_spinlock_t spin;
 
-volatile int con = 1;
+static volatile int con = 1;
 static int max = 0;
 static uint64_t max_i = 0;
 static EVP_MD *sha1 = NULL;
 static char *public_key = NULL;
+static EVP_MD_CTX *common_ctx = NULL;
+static uint64_t g_step = 1;
 
 static inline int fast_utoa(uint64_t val, char *buf)
 {
@@ -50,12 +50,8 @@ static inline int fast_utoa(uint64_t val, char *buf)
 void *function(void *arg)
 {
     uint64_t i = ((uint64_t *)arg)[0];
-    const uint64_t step = ((uint64_t *)arg)[1];
+    const uint64_t step = g_step;
 
-    const size_t len = strlen(public_key);
-    EVP_MD_CTX *common_ctx = EVP_MD_CTX_new();
-    EVP_DigestInit_ex2(common_ctx, sha1, NULL);
-    EVP_DigestUpdate(common_ctx, public_key, len);
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
     char count[24];
     unsigned char hash[20];
@@ -88,8 +84,7 @@ void *function(void *arg)
         i += step;
     }
     EVP_MD_CTX_free(ctx);
-    EVP_MD_CTX_free(common_ctx);
-    printf("%zu\n", i);
+    fprintf(stderr, "%zu\n", i);
     return NULL;
 }
 
@@ -182,8 +177,10 @@ int main(int argc, char *argv[])
                 if (tmp == NULL)
                 {
                     perror("fgets");
+                    fclose(in);
                     return EXIT_FAILURE;
                 }
+                fclose(in);
                 tmp[strcspn(tmp, "\r\n")] = '\0';
                 char *tmp_dup = strdup(buffer);
                 if (tmp_dup == NULL)
@@ -194,7 +191,7 @@ int main(int argc, char *argv[])
                 public_key = tmp_dup;
             }
         }
-        else if (strcmp(argv[i], "--public-key-file") == 0 && i + 1 < argc)
+        else if (strcmp(argv[i], "--time") == 0 && i + 1 < argc)
         {
             sl = (uint32_t)strtoll(argv[i + 1], NULL, 10);
             i++;
@@ -205,18 +202,27 @@ int main(int argc, char *argv[])
         fprintf(stderr, "公開鍵ファイルを指定してください\n");
         return EXIT_FAILURE;
     }
-    printf("public_key: %s\n", public_key);
+    fprintf(stderr, "public_key: %s\n", public_key);
     sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
     pthread_t threads[THREAD_NUM];
     pthread_barrier_init(&barrier, NULL, THREAD_NUM + 1);
     pthread_spin_init(&spin, 0);
-    uint64_t arg[THREAD_NUM * 2];
+    uint64_t arg[THREAD_NUM];
+    time_t now = time(NULL);
+    struct tm tm;
+    localtime_r(&now, &tm);
+    fprintf(stderr, "%04d/%02d/%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    fprintf(stderr, "%d seconds\n", sl);
 
+    const size_t len = strlen(public_key);
+    common_ctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex2(common_ctx, sha1, NULL);
+    EVP_DigestUpdate(common_ctx, public_key, len);
+    g_step = THREAD_NUM;
     for (int i = 0; i < THREAD_NUM; i++)
     {
         arg[i * 2] = init + i;
-        arg[i * 2 + 1] = THREAD_NUM;
-        pthread_create(threads + i, NULL, function, &arg[i * 2]);
+        pthread_create(threads + i, NULL, function, &arg[i]);
     }
     pthread_barrier_wait(&barrier);
     sleep(sl);
@@ -225,9 +231,10 @@ int main(int argc, char *argv[])
     {
         pthread_join(threads[i], NULL);
     }
-    printf("%d, %zu\n", max, max_i);
+    fprintf(stderr, "%d, %zu\n", max, max_i);
     pthread_spin_destroy(&spin);
     pthread_barrier_destroy(&barrier);
+    EVP_MD_CTX_free(common_ctx);
     EVP_MD_free(sha1);
     free(public_key);
     return EXIT_SUCCESS;

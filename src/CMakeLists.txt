@@ -714,6 +714,8 @@ add_executable(upnp-port-fowarding-test upnp-port-fowarding-test.c)
 add_executable(uuidtest uuidtest.c)
 target_link_libraries(uuidtest uuid)
 
+add_executable(virtsample virtsample.c)
+
 add_executable(widecharsample widecharsample.c)
 
 add_executable(wordconv wordconv.c)
