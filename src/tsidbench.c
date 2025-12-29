@@ -12,7 +12,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <inttypes.h>
-#include <alloca.h>
 
 #define PUBLIC_KEY "MEwDAgcAAgEgAiEA+i4ptdb7Q5ldNJjyJTd/+hC+ac2YoPoIXYLgPRJE6egCIBcdWTjBr/iW3QjAAl389HYDZF/0GwuxH+MpXdDBrpl0"
 
@@ -23,17 +22,25 @@ volatile int con = 1;
 static int max = 0;
 static uint64_t max_i = 0;
 static EVP_MD *sha1 = NULL;
+static char *public_key = NULL;
 
-static inline int fast_utoa(uint64_t val, char *buf) {
+static inline int fast_utoa(uint64_t val, char *buf)
+{
     char temp[20];
     int i = 0;
-    if (val == 0) { buf[0] = '0'; return 1; }
-    while (val > 0) {
+    if (val == 0)
+    {
+        buf[0] = '0';
+        return 1;
+    }
+    while (val > 0)
+    {
         temp[i++] = (val % 10) + '0';
         val /= 10;
     }
     int len = i;
-    while (i > 0) {
+    while (i > 0)
+    {
         buf[len - i] = temp[i - 1];
         i--;
     }
@@ -43,21 +50,20 @@ static inline int fast_utoa(uint64_t val, char *buf) {
 void *function(void *arg)
 {
     uint64_t i = ((uint64_t *)arg)[0];
+    const uint64_t step = ((uint64_t *)arg)[1];
 
-    const size_t len = strlen(PUBLIC_KEY);
+    const size_t len = strlen(public_key);
     EVP_MD_CTX *common_ctx = EVP_MD_CTX_new();
     EVP_DigestInit_ex2(common_ctx, sha1, NULL);
-    EVP_DigestUpdate(common_ctx, PUBLIC_KEY, len);
+    EVP_DigestUpdate(common_ctx, public_key, len);
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
     char count[24];
     unsigned char hash[20];
     int zerobyte = 0;
     uint64_t tmp = 0;
 
-    pthread_barrier_wait(&barrier);
     int length = 0;
-    uint64_t step = ((uint64_t *)arg)[1];
-    printf("init: %" PRIu64 ", step: %" PRIu64 "\n", i, step);
+    pthread_barrier_wait(&barrier);
     while (con)
     {
         EVP_MD_CTX_copy_ex(ctx, common_ctx);
@@ -66,6 +72,7 @@ void *function(void *arg)
         EVP_DigestFinal_ex(ctx, hash, NULL);
         tmp = htobe64(*(uint64_t *)hash);
         zerobyte = ((tmp == 0) ? 64UL : __builtin_clzl(tmp));
+        // 1次チェック（ロックなし：ほとんどがここで弾かれる）
         if (zerobyte > *(volatile int *)&max)
         {
             pthread_spin_lock(&spin);
@@ -86,7 +93,7 @@ void *function(void *arg)
     return NULL;
 }
 
-#define THREAD_NUM 8
+#define THREAD_NUM 16
 
 /**
  *
@@ -152,14 +159,53 @@ void *function(void *arg)
 int main(int argc, char *argv[])
 {
     uint64_t init = 0;
-    if (argc >= 2)
+    uint32_t sl = 16;
+    for (int i = 1; i < argc; i++)
     {
-        init = strtoull(argv[1], NULL, 10);
+        if (strcmp(argv[i], "--init") == 0 && i + 1 < argc)
+        {
+            init = strtoull(argv[i + 1], NULL, 10);
+            i++;
+        }
+        else if (strcmp(argv[i], "--max") == 0 && i + 1 < argc)
+        {
+            max = (int)strtoll(argv[i + 1], NULL, 10);
+            i++;
+        }
+        else if (strcmp(argv[i], "--public-key-file") == 0 && i + 1 < argc)
+        {
+            FILE *in = fopen(argv[i + 1], "r");
+            char buffer[BUFSIZ];
+            if (in != NULL)
+            {
+                char *tmp = fgets(buffer, BUFSIZ, in);
+                if (tmp == NULL)
+                {
+                    perror("fgets");
+                    return EXIT_FAILURE;
+                }
+                tmp[strcspn(tmp, "\r\n")] = '\0';
+                char *tmp_dup = strdup(buffer);
+                if (tmp_dup == NULL)
+                {
+                    perror("strdup");
+                    return EXIT_FAILURE;
+                }
+                public_key = tmp_dup;
+            }
+        }
+        else if (strcmp(argv[i], "--public-key-file") == 0 && i + 1 < argc)
+        {
+            sl = (uint32_t)strtoll(argv[i + 1], NULL, 10);
+            i++;
+        }
     }
-    if (argc >= 3)
+    if (public_key == NULL)
     {
-        max = (int)strtoll(argv[2], NULL, 10);
+        fprintf(stderr, "公開鍵ファイルを指定してください\n");
+        return EXIT_FAILURE;
     }
+    printf("public_key: %s\n", public_key);
     sha1 = EVP_MD_fetch(NULL, "SHA-1", NULL);
     pthread_t threads[THREAD_NUM];
     pthread_barrier_init(&barrier, NULL, THREAD_NUM + 1);
@@ -173,7 +219,7 @@ int main(int argc, char *argv[])
         pthread_create(threads + i, NULL, function, &arg[i * 2]);
     }
     pthread_barrier_wait(&barrier);
-    sleep(1800);
+    sleep(sl);
     con = 0;
     for (int i = 0; i < THREAD_NUM; i++)
     {
@@ -183,5 +229,6 @@ int main(int argc, char *argv[])
     pthread_spin_destroy(&spin);
     pthread_barrier_destroy(&barrier);
     EVP_MD_free(sha1);
+    free(public_key);
     return EXIT_SUCCESS;
 }
