@@ -1,3 +1,9 @@
 [submodule "libstudy"]
 	path = libstudy
 	url = https://github.com/teruteru128/libstudy.git
+[submodule "java"]
+	path = java
+	url = https://github.com/teruteru128/java-study.git
+[submodule "math-scripts"]
+	path = math-scripts
+	url = https://github.com/teruteru128/math-scripts.git
