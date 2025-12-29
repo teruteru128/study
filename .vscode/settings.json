@@ -262,5 +262,9 @@
     "C_Cpp.default.defines": [
         "_POSIX_C_SOURCE=200809L"
     ],
-    "cmake.buildDirectory": "${workspaceFolder}/build-${buildType}"
+    "cmake.buildDirectory": "${workspaceFolder}/build-${buildType}",
+    "java.compile.nullAnalysis.mode": "disabled",
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.format.settings.url": ".vscode/java-formatter.xml",
+    "java.gradle.buildServer.enabled": "off"
 }
