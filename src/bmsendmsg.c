@@ -7,7 +7,7 @@
 #include <base64.h>
 #include <bitmessage.h>
 #include <bm_sonota.h>
-#include <bmapi.h>
+#include <bm_api.h>
 #include <err.h>
 #include <errno.h>
 #include <limits.h>

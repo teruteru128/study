@@ -2,7 +2,7 @@
 #define _GNU_SOURCE
 // #include <base64.h>
 #include <bm_sonota.h>
-// #include <bmapi.h>
+#include <bm_api.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

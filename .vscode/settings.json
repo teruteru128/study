@@ -24,7 +24,7 @@
         "bitsieve.h": "c",
         "blosc-export.h": "c",
         "bm_sonota.h": "c",
-        "bmapi.h": "c",
+        "bm_api.h": "c",
         "bmspam.h": "c",
         "bn.h": "c",
         "bouyomi.h": "c",
