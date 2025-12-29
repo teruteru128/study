@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #define _(str) gettext(str)
 #include "queue.h"
-#include <bm.h>
+#include <bm_sonota.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <locale.h>

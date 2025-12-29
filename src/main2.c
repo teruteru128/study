@@ -7,7 +7,7 @@
 #ifdef CL_TARGET_OPENCL_VERSION
 #include <CL/opencl.h>
 #endif
-#include <bm.h>
+#include <bm_sonota.h>
 #include <complex.h>
 #include <ctype.h>
 #include <curl/curl.h>

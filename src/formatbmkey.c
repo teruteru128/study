@@ -1,5 +1,5 @@
 
-#include <bm.h>
+#include <bm_sonota.h>
 
 int readprivkey(PrivateKey *pkey, size_t index)
 {

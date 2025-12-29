@@ -1,6 +1,6 @@
 
 #include <bitmessage.h>
-#include <bm.h>
+#include <bm_sonota.h>
 #include <stdio.h>
 #include <sys/random.h>
 

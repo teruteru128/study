@@ -23,7 +23,7 @@
         "bitmessage_type.h": "c",
         "bitsieve.h": "c",
         "blosc-export.h": "c",
-        "bm.h": "c",
+        "bm_sonota.h": "c",
         "bmapi.h": "c",
         "bmspam.h": "c",
         "bn.h": "c",

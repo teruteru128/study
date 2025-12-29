@@ -3,7 +3,7 @@
 #define OPENSSL_NO_DEPRECATED 1
 
 #include "timeutil.h"
-#include <bm.h>
+#include <bm_sonota.h>
 #include <fcntl.h>
 #include <omp.h>
 #include <openssl/err.h>

@@ -1,7 +1,7 @@
 
 #define OPENSSL_API_COMPAT 0x30000000L
 #define OPENSSL_NO_DEPRECATED 1
-#include <bm.h>
+#include <bm_sonota.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
 #include <stdint.h>

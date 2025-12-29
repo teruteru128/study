@@ -6,7 +6,7 @@
 #include "bmspam.h"
 #include <base64.h>
 #include <bitmessage.h>
-#include <bm.h>
+#include <bm_sonota.h>
 #include <bmapi.h>
 #include <err.h>
 #include <errno.h>

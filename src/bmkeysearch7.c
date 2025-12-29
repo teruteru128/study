@@ -5,7 +5,7 @@
 
 #include <assert.h>
 #include <bitmessage.h>
-#include <bm.h>
+#include <bm_sonota.h>
 #include <math.h>
 #include <omp.h>
 #include <stdatomic.h>

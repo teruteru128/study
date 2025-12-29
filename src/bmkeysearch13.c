@@ -5,7 +5,7 @@
 
 #include <assert.h>
 #include <bitmessage.h>
-#include <bm.h>
+#include <bm_sonota.h>
 #include <locale.h>
 #include <openssl/evp.h>
 #include <openssl/ripemd.h>

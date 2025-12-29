@@ -1,7 +1,7 @@
 
 #define _GNU_SOURCE
 // #include <base64.h>
-#include <bm.h>
+#include <bm_sonota.h>
 // #include <bmapi.h>
 #include <stdio.h>
 #include <stdlib.h>

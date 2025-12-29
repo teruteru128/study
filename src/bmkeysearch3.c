@@ -10,7 +10,7 @@
 //#include "queue.h"
 #include <assert.h>
 #include <bitmessage.h>
-#include <bm.h>
+#include <bm_sonota.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <locale.h>
