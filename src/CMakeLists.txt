@@ -181,8 +181,11 @@ add_executable(collatz collatz.c)
 target_link_libraries(collatz m)
 
 add_executable(concurrencysample concurrencysample.c)
-target_link_libraries(concurrencysample ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(concurrencysample PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 #target_compile_definitions(concurrencysample PRIVATE _GNU_SOURCE=1)
+
+add_executable(conv conv.c)
+target_link_libraries(conv PRIVATE gmp)
 
 add_executable(cp2peq cp2peq.c)
 target_link_libraries(cp2peq study)
