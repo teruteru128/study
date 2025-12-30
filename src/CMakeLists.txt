@@ -481,6 +481,9 @@ add_executable(openmpsample7 openmpsample7-driver.c openmpsample7.c openmpsample
 target_compile_options(openmpsample7 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 target_link_libraries(openmpsample7 PRIVATE OpenMP::OpenMP_C)
 
+add_executable(paribatch paribatch.c)
+target_link_libraries(paribatch PRIVATE pari)
+
 add_executable(passwordhashsample passwordhashsample.c)
 target_link_libraries(passwordhashsample OpenSSL::Crypto)
 target_include_directories(passwordhashsample PRIVATE ${OPENSSL_INCLUDE_DIR})

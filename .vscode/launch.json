@@ -111,6 +111,30 @@
                     "ignoreFailures": true
                 }
             ]
-        }
+        },
+        {
+            "name": "(gdb) paribatch起動",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build-${buildType}/src/paribatch",
+            "args": ["${workspaceFolder}/math-scripts/factordb_export_400.txt"],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "gdb の再フォーマットを有効にする",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "逆アセンブリ フレーバーを Intel に設定",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
     ]
 }

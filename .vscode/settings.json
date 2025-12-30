@@ -263,6 +263,9 @@
         "_POSIX_C_SOURCE=200809L"
     ],
     "cmake.buildDirectory": "${workspaceFolder}/build-${buildType}",
+    "cmake.debugConfig": {
+        "args": ["${workspaceFolder}/math-scripts/factordb_export_400.txt"]
+    },
     "java.compile.nullAnalysis.mode": "disabled",
     "java.configuration.updateBuildConfiguration": "interactive",
     "java.format.settings.url": ".vscode/java-formatter.xml",
