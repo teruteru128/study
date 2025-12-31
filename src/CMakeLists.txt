@@ -482,7 +482,7 @@ target_compile_options(openmpsample7 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C
 target_link_libraries(openmpsample7 PRIVATE OpenMP::OpenMP_C)
 
 add_executable(paribatch paribatch.c)
-target_link_libraries(paribatch PRIVATE pari)
+target_link_libraries(paribatch PRIVATE pari ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(passwordhashsample passwordhashsample.c)
 target_link_libraries(passwordhashsample OpenSSL::Crypto)

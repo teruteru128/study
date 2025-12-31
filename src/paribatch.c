@@ -41,7 +41,10 @@ int main(int argc, char const *argv[])
     char outfilename[1024];
 
     // PARIスタックの初期化 (約16GBを確保)
-    pari_init(17179869184ULL, (pari_ulong)1024UL);
+    pari_init(1000000000ULL, (pari_ulong)500000UL);
+    default0("nbthreads", "16");
+    default0("threadsize", "104857600");
+    pari_mt_init();
 
     // 入力ファイルと出力ファイルのオープン
     fin = fopen(argv[1], "r");
@@ -75,7 +78,7 @@ int main(int argc, char const *argv[])
             // ファイル名生成
             snprintf(outfilename, sizeof(outfilename), "cert%zu.txt", n_length);
             // ファイルオープン(桁数が衝突したときのために追記モードで開く)
-            fout = fopen(outfilename, "wa");
+            fout = fopen(outfilename, "a");
             if (!fout)
             {
                 fprintf(stderr, "ファイルのオープンに失敗しました。 fout\n");
@@ -91,14 +94,14 @@ int main(int argc, char const *argv[])
         }
         else
         {
-            fprintf(fout, "Number: %s Status: Not Prime\n\n", line);
+            fprintf(stderr, "Number: %s Status: Not Prime\n\n", line);
         }
 
         avma = av;
     }
 
     fclose(fin);
-    fclose(fout);
+    pari_mt_close();
     pari_close();
     return 0;
 }
