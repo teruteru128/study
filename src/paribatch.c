@@ -38,14 +38,14 @@ int main(int argc, char const *argv[])
     }
     FILE *fin, *fout;
     char line[8192];
+    char outfilename[1024];
 
-    // PARIスタックの初期化 (約100MBを確保)
-    pari_init(17179869184ULL, 1024);
+    // PARIスタックの初期化 (約16GBを確保)
+    pari_init(17179869184ULL, (pari_ulong)1024UL);
 
     // 入力ファイルと出力ファイルのオープン
     fin = fopen(argv[1], "r");
-    fout = fopen("certificates.txt", "wa");
-    if (!fin || !fout)
+    if (!fin)
     {
         fprintf(stderr, "ファイルのオープンに失敗しました。\n");
         return 1;
@@ -56,7 +56,10 @@ int main(int argc, char const *argv[])
     {
         pari_sp av = avma;
         line[strcspn(line, "\r\n")] = '\0';
-        fprintf(stderr, "%zu桁\n", strlen(line));
+        if (line[0] == '\0')
+            continue;
+        size_t n_length = strlen(line);
+        fprintf(stderr, "%zu桁\n", n_length);
         // PARIの整数オブジェクト(GEN)に変換
         GEN n = gp_read_str(line);
 
@@ -67,10 +70,24 @@ int main(int argc, char const *argv[])
             GEN cert = primecert(n, 0);
 
             // 文字列として書き出し
-            GEN certstr = primecertexport(cert, 1);
-            pari_fprintf(fout, "%Ps\n", certstr);
-            char *a = pari_sprintf("%Ps\n", certstr);
-            malloc(a);
+            GEN exported = primecertexport(cert, 1);
+
+            // ファイル名生成
+            snprintf(outfilename, sizeof(outfilename), "cert%zu.txt", n_length);
+            // ファイルオープン(桁数が衝突したときのために追記モードで開く)
+            fout = fopen(outfilename, "wa");
+            if (!fout)
+            {
+                fprintf(stderr, "ファイルのオープンに失敗しました。 fout\n");
+                return 1;
+            }
+            // 書き出し
+            pari_fprintf(fout, "%Ps\n", exported);
+            // 閉じる
+            fclose(fout);
+            fprintf(stderr, "追記しました\n");
+            // 一応NULLで埋める
+            fout = NULL;
         }
         else
         {
