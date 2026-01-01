@@ -15,39 +15,36 @@ int main(int argc, char const *argv[])
     }
     size_t digits = strtoull(argv[1], NULL, 10);
     size_t num = (argc < 3) ? 1 : strtoull(argv[2], NULL, 10);
-    mpz_t n;
-    mpz_init(n);
-    __mpz_struct *array = malloc(sizeof(__mpz_struct) * num);
-    for (size_t i = 0; i < num; i++)
-    {
-        mpz_init(array + i);
-    }
-    mpz_t min, max, window;
+    MP_INT min, max, window;
 
-    mpz_init_set_ui(min, 10);
-    mpz_init_set_ui(max, 10);
-    mpz_pow_ui(min, min, digits - 1);
-    mpz_pow_ui(max, max, digits);
-    mpz_init(window);
-    mpz_sub(window, max, min);
-    gmp_randstate_t state;
-    gmp_randinit_default(state);
-    mpz_t seed;
-    mpz_init(seed);
+    mpz_init_set_ui(&min, 10);
+    mpz_init_set_ui(&max, 10);
+    mpz_pow_ui(&min, &min, digits - 1);
+    mpz_pow_ui(&max, &max, digits);
+    mpz_init(&window);
+    mpz_sub(&window, &max, &min);
+
+    __gmp_randstate_struct state;
+    gmp_randinit_default(&state);
+    MP_INT seed;
+    mpz_init(&seed);
     uint8_t op[128];
     size_t length = 128;
     getrandom(op, length, GRND_NONBLOCK);
-    mpz_import(seed, length, 1, 1, 0, 0, op);
-    gmp_randseed(state, seed);
-    mpz_clear(seed);
+    mpz_import(&seed, length, 1, 1, 0, 0, op);
+    gmp_randseed(&state, &seed);
+    mpz_clear(&seed);
+
+    MP_INT *array = malloc(sizeof(MP_INT) * num);
     for (size_t i = 0; i < num; i++)
     {
-        mpz_urandomm(n, state, window);
-        mpz_add(n, n, min);
-        mpz_nextprime(n, n);
-        mpz_set(array + i, n);
+        MP_INT *ptr = array + i;
+        mpz_init(ptr);
+        mpz_urandomm(ptr, &state, &window);
+        mpz_add(ptr, ptr, &min);
+        mpz_nextprime(ptr, ptr);
     }
-    gmp_randclear(state);
+    gmp_randclear(&state);
     qsort(array, num, sizeof(__mpz_struct), (int (*)(const void *, const void *))mpz_cmp);
     for (size_t i = 0; i < num; i++)
     {
@@ -64,6 +61,6 @@ int main(int argc, char const *argv[])
         mpz_clear(array + i);
     }
     free(array);
-    mpz_clears(min, max, window, NULL);
+    mpz_clears(&min, &max, &window, NULL);
     return 0;
 }
