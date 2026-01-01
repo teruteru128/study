@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <sys/random.h>
 #include <unistd.h>
 #include <gmp.h>
@@ -17,7 +18,7 @@ int main(int argc, char const *argv[])
     mpz_t n;
     mpz_init(n);
     mpz_t min, max, window;
-    
+
     mpz_init_set_ui(min, 10);
     mpz_init_set_ui(max, 10);
     mpz_pow_ui(min, min, digits - 1);
@@ -47,6 +48,7 @@ int main(int argc, char const *argv[])
         char *str = malloc(digits2 + 2);
         mpz_get_str(str, 10, n);
         printf("%s\n", str);
+        fprintf(stderr, "%zu, %zu, %zu digits written\n", digits, digits2, strlen(str));
         free(str);
     }
     gmp_randclear(state);
