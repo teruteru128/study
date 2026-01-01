@@ -264,7 +264,7 @@
     ],
     "cmake.buildDirectory": "${workspaceFolder}/build-${buildType}",
     "cmake.debugConfig": {
-        "args": ["${workspaceFolder}/math-scripts/factordb_export_400.txt"]
+        "args": ["182", "3"]
     },
     "java.compile.nullAnalysis.mode": "disabled",
     "java.configuration.updateBuildConfiguration": "interactive",

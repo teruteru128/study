@@ -50,6 +50,6 @@ int main(int argc, char const *argv[])
         free(str);
     }
     gmp_randclear(state);
-    mpz_clears(min, max, window);
+    mpz_clears(min, max, window, NULL);
     return 0;
 }
