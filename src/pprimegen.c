@@ -17,6 +17,11 @@ int main(int argc, char const *argv[])
     size_t num = (argc < 3) ? 1 : strtoull(argv[2], NULL, 10);
     mpz_t n;
     mpz_init(n);
+    __mpz_struct *array = malloc(sizeof(__mpz_struct) * num);
+    for (size_t i = 0; i < num; i++)
+    {
+        mpz_init(array + i);
+    }
     mpz_t min, max, window;
 
     mpz_init_set_ui(min, 10);
@@ -40,18 +45,25 @@ int main(int argc, char const *argv[])
         mpz_urandomm(n, state, window);
         mpz_add(n, n, min);
         mpz_nextprime(n, n);
-        size_t digits2 = mpz_sizeinbase(n, 10);
+        mpz_set(array + i, n);
+    }
+    gmp_randclear(state);
+    qsort(array, num, sizeof(__mpz_struct), (int (*)(const void *, const void *))mpz_cmp);
+    for (size_t i = 0; i < num; i++)
+    {
+        size_t digits2 = mpz_sizeinbase(array + i, 10);
         if (digits != digits2)
         {
             fprintf(stderr, "digits not match: %zu, %zu\n", digits, digits2);
         }
         char *str = malloc(digits2 + 2);
-        mpz_get_str(str, 10, n);
+        mpz_get_str(str, 10, array + i);
         printf("%s\n", str);
         fprintf(stderr, "%zu, %zu, %zu digits written\n", digits, digits2, strlen(str));
         free(str);
+        mpz_clear(array + i);
     }
-    gmp_randclear(state);
+    free(array);
     mpz_clears(min, max, window, NULL);
     return 0;
 }
