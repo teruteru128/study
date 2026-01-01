@@ -481,8 +481,11 @@ add_executable(openmpsample7 openmpsample7-driver.c openmpsample7.c openmpsample
 target_compile_options(openmpsample7 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 target_link_libraries(openmpsample7 PRIVATE OpenMP::OpenMP_C)
 
+add_executable(pari-script-generator pari-script-generator.c)
+
 add_executable(paribatch paribatch.c)
 target_link_libraries(paribatch PRIVATE pari ${CMAKE_THREAD_LIBS_INIT})
+target_compile_options(paribatch PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 
 add_executable(passwordhashsample passwordhashsample.c)
 target_link_libraries(passwordhashsample OpenSSL::Crypto)
