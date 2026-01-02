@@ -48,17 +48,18 @@ int main(int argc, char const *argv[])
     qsort(array, num, sizeof(__mpz_struct), (int (*)(const void *, const void *))mpz_cmp);
     for (size_t i = 0; i < num; i++)
     {
-        size_t digits2 = mpz_sizeinbase(array + i, 10);
+        MP_INT *ptr = array + i;
+        size_t digits2 = mpz_sizeinbase(ptr, 10);
         if (digits != digits2)
         {
             fprintf(stderr, "digits not match: %zu, %zu\n", digits, digits2);
         }
         char *str = malloc(digits2 + 2);
-        mpz_get_str(str, 10, array + i);
+        mpz_get_str(str, 10, ptr);
         printf("%s\n", str);
         fprintf(stderr, "%zu, %zu, %zu digits written\n", digits, digits2, strlen(str));
         free(str);
-        mpz_clear(array + i);
+        mpz_clear(ptr);
     }
     free(array);
     mpz_clears(&min, &max, &window, NULL);

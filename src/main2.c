@@ -96,6 +96,34 @@ int entrypoint(int argc, char **argv, char *const *envp)
     now += 10;
     struct tm tm;
     localtime_r(&now, &tm);
-    countdowns(&tm);
+    // countdowns(&tm);
+    struct drand48_data data;
+    uint64_t seeds[] = {125352706827826ULL, 116229385253865ULL};
+    uint64_t seed;
+    uint16_t seed2[3];
+    size_t size = sizeof(struct drand48_data);
+    for (int j = 0; j < 2; j++)
+    {
+        seed = seeds[j];
+        fprintf(stderr, "before scramble: %012" PRIx64 "\n", seed);
+        seed = initialScramble(seed);
+        fprintf(stderr, "after scramble: %012" PRIx64 "\n", seed);
+        memcpy(seed2, &seed, 6);
+        fprintf(stderr, "after memcpy: %04" PRIx16 "%04" PRIx16 "%04" PRIx16 "\n", seed2[2], seed2[1], seed2[0]);
+        seed48_r((uint16_t *)seed2, &data);
+        fprintf(stderr, "after setseed: %04x%04x%04x\n", data.__x[2], data.__x[1], data.__x[0]);
+        float f;
+        int ffff;
+        for (int i = 0; i < 2; i++)
+        {
+            f = nextFloat(&data);
+            memcpy(&ffff, &f, 4);
+            fprintf(stderr, "%f, %08x\n", f, ffff);
+        }
+        if (j != 1)
+        {
+            fprintf(stderr, "--\n");
+        }
+    }
     return 0;
 }

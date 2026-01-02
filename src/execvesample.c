@@ -16,7 +16,7 @@ int main(int argc, char const *argv[], char *envp[])
     }
     else if (pid == 0)
     {
-        char *const cmd[] = { "/usr/bin/ls", "-al", "--color", NULL };
+        char *const cmd[] = {"/usr/bin/ls", "-al", "--color", NULL};
         execve(cmd[0], cmd, envp);
         perror("execve");
         exit(3);
