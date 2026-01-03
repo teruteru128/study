@@ -3,6 +3,7 @@
  * http://www.koutou-software.net/misc/howto-independ-addfamilysock.php
  */
 
+#define _GNU_SOURCE
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

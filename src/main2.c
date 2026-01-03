@@ -108,6 +108,7 @@ int entrypoint(int argc, char **argv, char *const *envp)
         fprintf(stderr, "before scramble: %012" PRIx64 "\n", seed);
         seed = initialScramble(seed);
         fprintf(stderr, "after scramble: %012" PRIx64 "\n", seed);
+        // これメモリオーダーがビッグエンディアンだったら0x00ffff部分がコピーされるんか？
         memcpy(seed2, &seed, 6);
         fprintf(stderr, "after memcpy: %04" PRIx16 "%04" PRIx16 "%04" PRIx16 "\n", seed2[2], seed2[1], seed2[0]);
         seed48_r((uint16_t *)seed2, &data);

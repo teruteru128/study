@@ -4,6 +4,7 @@
  * 前前回: https://qiita.com/tajima_taso/items/fb5669ddca6e4d022c15
  */
 
+#define _GNU_SOURCE
 #include "yattaze.h"
 #include <errno.h>
 #include <getopt.h>

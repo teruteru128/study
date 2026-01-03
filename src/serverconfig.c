@@ -1,4 +1,5 @@
 
+#define _GNU_SOURCE
 #include "serverconfig.h"
 #include <netdb.h>
 #include <pthread.h>

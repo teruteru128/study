@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 int main(int argc, char const *argv[])
 {
@@ -13,8 +14,16 @@ int main(int argc, char const *argv[])
     {
         return 1;
     }
+    FILE *tests = fopen("gp-tests.gp", "w");
+    if (!tests)
+    {
+        fclose(fin);
+        return 1;
+    }
+    fputs("default(nbthreads, 16);\n", tests);
+    fputs("print(\"nbthreads->\", default(nbthreads), \"<-\");", tests);
     char line[BUFSIZ];
-    char filename[1024];
+    char filename[NAME_MAX];
     size_t counter = 1;
     while (fgets(line, BUFSIZ, fin))
     {
@@ -22,7 +31,7 @@ int main(int argc, char const *argv[])
         if (line[0] == '\0')
             continue;
         size_t digits = strlen(line);
-        snprintf(filename, 1024, "gp-tests-%zu (%zu).gp", digits, counter);
+        snprintf(filename, NAME_MAX, "gp-tests-%zu (%04zu).gp", digits, counter);
 
         FILE *fout = fopen(filename, "w");
         if (!fout)
@@ -30,12 +39,14 @@ int main(int argc, char const *argv[])
             perror("fopen");
             return 1;
         }
-        fprintf(fout, "write(\"cert%zu (%zu).txt\", primecertexport(primecert(%s), 1))\n", digits, counter, line);
+        fprintf(fout, "write(\"cert%zu (%04zu).txt\", primecertexport(primecert(%s), 1))\n", digits, counter, line);
         fclose(fout);
         fout = NULL;
+        fprintf(tests, "\\r \"%s\"\n", filename);
         counter++;
     }
 
+    fclose(tests);
     fclose(fin);
     return 0;
 }

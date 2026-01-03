@@ -1,4 +1,5 @@
 
+#define _GNU_SOURCE
 #include <inttypes.h>
 #include <netdb.h>
 #include <printaddrinfo.h>
