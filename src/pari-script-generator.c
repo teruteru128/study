@@ -31,7 +31,7 @@ int main(int argc, char const *argv[])
         if (line[0] == '\0')
             continue;
         size_t digits = strlen(line);
-        snprintf(filename, NAME_MAX, "gp-tests-%zu (%04zu).gp", digits, counter);
+        snprintf(filename, NAME_MAX, "%04zu-gp-tests-%zu.gp", counter, digits);
 
         FILE *fout = fopen(filename, "w");
         if (!fout)
@@ -39,7 +39,7 @@ int main(int argc, char const *argv[])
             perror("fopen");
             return 1;
         }
-        fprintf(fout, "write(\"cert%zu (%04zu).txt\", primecertexport(primecert(%s), 1))\n", digits, counter, line);
+        fprintf(fout, "write(\"%04zu-cert%zu.txt\", primecertexport(primecert(%s), 1))\n", counter, digits, line);
         fclose(fout);
         fout = NULL;
         fprintf(tests, "\\r \"%s\"\n", filename);
