@@ -592,9 +592,6 @@ target_include_directories(printinttest PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/i
 add_executable(pngshowstatus pngshowstatus.c pngreadwrite.c)
 target_link_libraries(pngshowstatus PRIVATE PNG::PNG)
 
-add_executable(ptest ptest.c)
-target_link_libraries(ptest PRIVATE gmp)
-
 add_executable(randomcolor randomcolor.c)
 
 add_executable(read_random read_random.c)
