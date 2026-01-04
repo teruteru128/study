@@ -10,9 +10,8 @@ int main(int argc, char *argv[])
 {
     int pipefd[2];
     pid_t cpid;
-    char buf;
 
-    if (argc != 2)
+    if (argc < 2)
     {
         fprintf(stderr, "Usage: %s <string>\n", argv[0]);
         exit(EXIT_FAILURE);
@@ -32,7 +31,9 @@ int main(int argc, char *argv[])
     }
 
     if (cpid == 0)
-    {                     /* 子プロセスがパイプから読み込む */
+    {
+        char buf;
+                          /* 子プロセスがパイプから読み込む */
         close(pipefd[1]); /* 使用しない write 側はクローズする */
 
         while (read(pipefd[0], &buf, 1) > 0)

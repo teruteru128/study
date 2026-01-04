@@ -589,6 +589,12 @@ add_executable(printinttest printinttest.c)
 target_link_libraries(printinttest study)
 target_include_directories(printinttest PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
+add_executable(pngshowstatus pngshowstatus.c pngreadwrite.c)
+target_link_libraries(pngshowstatus PRIVATE PNG::PNG)
+
+add_executable(ptest ptest.c)
+target_link_libraries(ptest PRIVATE gmp)
+
 add_executable(randomcolor randomcolor.c)
 
 add_executable(read_random read_random.c)
@@ -628,9 +634,6 @@ target_include_directories(sha1rngsample PRIVATE ${OPENSSL_INCLUDE_DIR})
 add_executable(shanfrowatcher shanfrowatcher.c)
 target_link_libraries(shanfrowatcher CURL::libcurl)
 target_include_directories(shanfrowatcher PRIVATE ${CURL_INCLUDE_DIRS})
-
-add_executable(pngshowstatus pngshowstatus.c pngreadwrite.c)
-target_link_libraries(pngshowstatus PRIVATE PNG::PNG)
 
 add_executable(signalsample signalsample.c)
 target_link_libraries(signalsample ${CMAKE_THREAD_LIBS_INIT})
