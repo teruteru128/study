@@ -92,19 +92,6 @@ int main(const int argc, const char **argv)
     int flags = fcntl(sock, F_GETFL, 0);
     fcntl(sock, F_SETFL, flags | O_NONBLOCK);
     freeaddrinfo(res);
-    struct sockaddr_storage local_addr, peer_addr;
-    socklen_t local_len = sizeof(local_addr);
-    socklen_t peer_len = sizeof(peer_addr);
-    // ローカルアドレスの取得
-    if (getsockname(sock, (struct sockaddr *)&local_addr, &local_len) == -1)
-    {
-        perror("getsockname error");
-    }
-    // ピアアドレス（相手先）の取得
-    if (getpeername(sock, (struct sockaddr *)&peer_addr, &peer_len) == -1)
-    {
-        perror("getpeername error (may be normal for unconnected sockets)");
-    }
     struct epoll_event ev, events[MAX_EVENTS];
     ev.events = EPOLLIN | EPOLLET;
     // fdだけで足りるならfdだけでいいし足りなければポインタ使えばいい
@@ -120,7 +107,7 @@ int main(const int argc, const char **argv)
     epoll_ctl(epfd, EPOLL_CTL_ADD, sock, &ev);
     // version messageを送信
     int version = 3;
-    postVersion(sock, NAME, version, &peer_addr, &local_addr);
+    postVersion(sock, NAME, version, &data->peer_addr, &data->local_addr);
     // epoll_waitも別スレッドで行い、メインスレッドではコネクション数管理を行いたい
     // (アウトバウンド16コネクション、インバウンド16コネクションとか。実際はインバウンド数に上限はつけたくないけど)
     while (1)
