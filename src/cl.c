@@ -76,7 +76,6 @@ int connect_to_server(char *name, char *service)
         perror("getsockname");
     }
     char host[NI_MAXHOST]; /* 返されるアドレスを格納する */
-
     char serv[NI_MAXSERV]; /* 返されるポート番号を格納する */
     rc = getnameinfo((struct sockaddr *)&storage, socklen, host, NI_MAXHOST,
                      serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);

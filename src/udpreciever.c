@@ -16,7 +16,7 @@ int main(void)
 {
     struct addrinfo hints, *res = NULL, *ptr = NULL;
     hints.ai_flags = AI_PASSIVE;
-    hints.ai_family = AF_INET;
+    hints.ai_family = AF_INET6;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = IPPROTO_UDP;
 
@@ -54,28 +54,38 @@ int main(void)
         close(sock);
         return EXIT_FAILURE;
     }
-    printf("%s, %s\n", host, port);
+    if (ptr->ai_family == AF_INET)
+    {
+        printf("%s:%s\n", host, port);
+    }
+    else if (ptr->ai_family == AF_INET6)
+    {
+        printf("[%s]:%s\n", host, port);
+    }
 
     int r = bind(sock, ptr->ai_addr, ptr->ai_addrlen);
+    freeaddrinfo(res);
 
     if (r == -1)
     {
         perror("bind");
-        freeaddrinfo(res);
         close(sock);
         return EXIT_FAILURE;
     }
 
     char buf[BUFSIZ];
+    struct sockaddr_storage resaddr;
+    socklen_t addr_len;
     do
     {
+        addr_len = sizeof(struct sockaddr_storage);
         memset(buf, 0, BUFSIZ);
-        ssize_t len = recv(sock, buf, BUFSIZ, 0);
+        ssize_t len = recvfrom(sock, buf, BUFSIZ, 0, (struct sockaddr *)&resaddr, &addr_len);
+        getnameinfo((struct sockaddr *)&resaddr, addr_len, host, NI_MAXHOST, port, NI_MAXSERV, NI_NUMERICHOST);
 
-        printf("%s : %zd\n", buf, len);
+        printf("[%s(%d):%s][%s] : %zd\n", host, resaddr.ss_family == AF_INET ? 4 : (resaddr.ss_family == AF_INET6 ? 6 : -1), port, buf, len);
     } while (strcmp(buf, "end") != 0);
     r = close(sock);
-    freeaddrinfo(res);
 
     if (r)
         perror("close");

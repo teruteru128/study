@@ -13,7 +13,7 @@
 #include <string.h>
 #include <byteswap.h>
 
-int main(int argc, char **argv)
+int main(int argc, const char *argv[])
 {
     int sock;
     struct addrinfo hints, *res = NULL, *ptr = NULL;
@@ -45,17 +45,17 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    char *msg = strdup(argc >= 2 ? argv[1] : "HELLO");
-    if(msg == NULL)
+    const char *msg = (argc >= 2) ? argv[1] : "HELLO";
+    if (msg == NULL)
     {
         perror("strdup error");
         return EXIT_FAILURE;
     }
 
-    r = sendto(sock, msg, strlen(msg), 0, ptr->ai_addr, ptr->ai_addrlen);
-    free(msg);
+    size_t n = strlen(msg);
+    r = sendto(sock, msg, n, 0, ptr->ai_addr, ptr->ai_addrlen);
 
-    printf("%lu\n", r);
+    printf("(%d)%zu, %zd, %s\n", ptr->ai_family == AF_INET ? 4 : (ptr->ai_family == AF_INET6 ? 6 : -1), n, r, (n == r) ? "OK": "NG");
 
     close(sock);
     freeaddrinfo(res);
