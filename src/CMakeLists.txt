@@ -15,6 +15,9 @@ target_compile_definitions(Nabeatsu3 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOC
 add_executable(TSIdentityTool TSIdentityTool.c)
 target_link_libraries(TSIdentityTool tommath tomcrypt)
 
+add_executable(114514 114514.c)
+target_link_libraries(114514 PRIVATE gmp)
+
 add_executable(addpadding addpadding.c)
 
 add_executable(alignformatter alignformatter.c)
