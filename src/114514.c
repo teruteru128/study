@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <gmp.h>
+#include <time.h>
 
 #define MAX_LENGTH 114514
 
@@ -50,14 +51,32 @@ int main(int argc, char const *argv[])
 {
     mpz_t n, result;
     mpz_init(result);
+    struct timespec start;
+    struct timespec finish;
+    double diff;
 
-    // 例として n = 2 を計算
-    unsigned long n_val = 2;
-    calculate_expression(result, n_val);
+    for (unsigned long n_val = 1583; n_val <= 19085; n_val++)
+    {
+        calculate_expression(result, n_val);
 
-    // 結果の出力
-    gmp_printf("n = %lu のとき、結果は: %Zd\n", n_val, result);
-
+        clock_gettime(CLOCK_MONOTONIC, &start);
+        int r = mpz_probab_prime_p(result, 1);
+        clock_gettime(CLOCK_MONOTONIC, &finish);
+        if (finish.tv_nsec - start.tv_nsec < 0)
+        {
+            diff = finish.tv_sec - start.tv_sec - 1 + (finish.tv_nsec - start.tv_nsec + 1000000000L) / 1e9;
+        }
+        else
+        {
+            diff = finish.tv_sec - start.tv_sec + (finish.tv_nsec - start.tv_nsec) / 1e9;
+        }
+        // 結果の出力
+        gmp_printf("n = %4lu のとき、結果は: %d(%f seconds)\n", n_val, r, diff);
+        if (r != 0)
+        {
+            break;
+        }
+    }
     mpz_clear(result);
     return 0;
 }
