@@ -55,7 +55,7 @@ int main(int argc, char const *argv[])
     struct timespec finish;
     double diff;
 
-    for (unsigned long n_val = 1583; n_val <= 19085; n_val++)
+    for (unsigned long n_val = 8342; n_val <= 19085; n_val++)
     {
         calculate_expression(result, n_val);
 
