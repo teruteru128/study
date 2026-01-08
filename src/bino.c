@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <gmp.h>
 
 #define X 25
 
@@ -31,6 +32,8 @@ int main(int argc, char *argv[])
 {
 
     int i, j;
+    mpz_t k, l, r;
+    mpz_init(r);
     for (i = 0; i <= X; i++)
     {
         for (j = 0; j <= i; j++)
@@ -39,9 +42,12 @@ int main(int argc, char *argv[])
             {
                 printf(" ");
             }
+            mpz_bin_ui(r, NULL, 0);
+            mpz_bin_uiui(r, i, j);
             printf("%" PRIu64, binomial(i, j));
         }
         printf("\n");
     }
+    mpz_clear(r);
     return EXIT_SUCCESS;
 }

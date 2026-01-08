@@ -37,13 +37,6 @@ void calculate_expression(mpz_t result, unsigned long n)
     mpz_clear(power_n);
 }
 
-static size_t getlength(MP_INT *n)
-{
-    char n_str[229038];
-    mpz_get_str(n_str, 10, n);
-    return strlen(n_str);
-}
-
 /**
  * 114514桁の素数を探索するための事前ツール
  */
