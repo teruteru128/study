@@ -38,6 +38,7 @@ add_executable(bb bb.c)
 add_executable(bcasttest bcasttest.c)
 
 add_executable(bino bino.c biom.c)
+target_link_libraries(bino PRIVATE gmp)
 
 add_executable(bm bm.c bm_queues.c bm_threads.c)
 target_link_libraries(bm PRIVATE study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util OpenSSL::Crypto PkgConfig::JSONRPC_GLIB1 SQLite::SQLite3)

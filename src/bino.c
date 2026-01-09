@@ -42,9 +42,8 @@ int main(int argc, char *argv[])
             {
                 printf(" ");
             }
-            mpz_bin_ui(r, NULL, 0);
             mpz_bin_uiui(r, i, j);
-            printf("%" PRIu64, binomial(i, j));
+            gmp_printf("%Zd", r);
         }
         printf("\n");
     }
