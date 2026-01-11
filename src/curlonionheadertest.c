@@ -6,6 +6,7 @@
 
 int main(int argc, char *argv[])
 {
+    curl_global_init(CURL_GLOBAL_ALL);
     CURLcode ret;
     CURL *hnd = curl_easy_init();
     curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
@@ -41,6 +42,7 @@ int main(int argc, char *argv[])
 
     curl_easy_cleanup(hnd);
     hnd = NULL;
+    curl_global_cleanup();
 
     return (int)ret;
 }

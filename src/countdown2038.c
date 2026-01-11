@@ -8,7 +8,7 @@
 int countdown2038(void)
 {
     time_t u = 0x80000000L;
-    ldiv_t quot = { 0 };
+    ldiv_t quot = {0};
     for (long diff = (long)difftime(u, time(NULL)); diff > 0; diff = (long)difftime(u, time(NULL)))
     {
         quot = ldiv(diff, 86400L);
@@ -17,4 +17,9 @@ int countdown2038(void)
         sleep(1);
     }
     return 0;
+}
+
+int main(int argc, char const *argv[])
+{
+    return countdown2038();
 }

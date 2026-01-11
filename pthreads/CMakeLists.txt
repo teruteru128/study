@@ -1,3 +1,5 @@
+add_executable(atomic_fetch_addsample atomic_fetch_addsample.c)
+target_link_libraries(atomic_fetch_addsample ${CMAKE_THREAD_LIBS_INIT})
 add_executable(condTimedWait condTimedWait.c)
 target_link_libraries(condTimedWait PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 add_executable(condWait condWait.c)

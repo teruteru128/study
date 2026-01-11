@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
   CURL *hnd;
 
   char urlBuffer[BUFSIZ];
+  curl_global_init(CURL_GLOBAL_ALL);
 
   hnd = curl_easy_init();
   for (int i = 0; i < 19; i++)
@@ -47,6 +48,7 @@ int main(int argc, char *argv[])
 
   curl_easy_cleanup(hnd);
   hnd = NULL;
+  curl_global_cleanup();
 
   return (int)ret;
 }

@@ -16,7 +16,8 @@ int main(int argc, char const *argv[])
 
     unsigned char out[KEYLEN];
     unsigned char salt[SALTLEN] = "";
-    if (PKCS5_PBKDF2_HMAC(YATTAZE, -1, salt, SALTLEN, 100000, EVP_sha512(), KEYLEN,
+    EVP_MD *sha512 = EVP_MD_fetch(NULL, "SHA-512", NULL);
+    if (PKCS5_PBKDF2_HMAC(YATTAZE, -1, salt, SALTLEN, 100000, sha512, KEYLEN,
                           out))
     {
         for (size_t i = 0; i < KEYLEN; i++)
@@ -25,6 +26,7 @@ int main(int argc, char const *argv[])
         }
         printf("\n");
     }
+    EVP_MD_free(sha512);
 
     return 0;
 }

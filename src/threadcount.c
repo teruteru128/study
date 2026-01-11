@@ -9,17 +9,16 @@
 #include <pthread.h>
 #include <unistd.h>
 
-struct a
+struct count
 {
     long count;
     long finish;
     pthread_mutex_t mutex;
-    pthread_cond_t cond;
 };
 
 void *funcyou(void *arg)
 {
-    struct a *a = (struct a *)arg;
+    struct count *a = (struct count *)arg;
     for (size_t i = 0; i < 0xffffffffL; i++)
     {
         pthread_mutex_lock(&a->mutex);
@@ -33,11 +32,10 @@ void *funcyou(void *arg)
 int main(int argc, char *argv[])
 {
     pthread_t thread;
-    struct a a;
+    struct count a;
     a.count = 0;
     a.finish = 0;
     pthread_mutex_init(&a.mutex, NULL);
-    pthread_cond_init(&a.cond, NULL);
 
     if (pthread_create(&thread, NULL, funcyou, &a) != 0)
     {
@@ -58,6 +56,5 @@ int main(int argc, char *argv[])
     pthread_join(thread, NULL);
 
     pthread_mutex_destroy(&a.mutex);
-    pthread_cond_destroy(&a.cond);
     return EXIT_SUCCESS;
 }

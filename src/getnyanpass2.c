@@ -2,6 +2,8 @@
  * All curl_easy_setopt() options are documented at:
  * https://curl.haxx.se/libcurl/c/curl_easy_setopt.html
  ************************************************************************/
+#define _XOPEN_SOURCE
+#define _POSIX_C_SOURCE 200809L
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif

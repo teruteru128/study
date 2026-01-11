@@ -10,8 +10,47 @@
 
 #define BUFSIZE (67108864)
 
-//ファイルから先頭2行読んで16進数としてパースして掛け算する
-//掛け算した結果のビット数を表示する
+int load(char *fname, MP_INT **num, size_t len)
+{
+    FILE *fp = fopen(fname, "r");
+    if (fp == NULL)
+    {
+        perror("fopen");
+        return 2;
+    }
+    char *buf = malloc(BUFSIZE);
+    if (!buf)
+    {
+        perror("malloc buf");
+        return EXIT_FAILURE;
+    }
+
+    memset(buf, 0, BUFSIZE);
+    char *f = NULL;
+    for (size_t i = 0; i < 2 && (f = fgets(buf, BUFSIZE, fp)) != NULL;)
+    {
+        if (ferror(fp))
+        {
+            perror("fgets");
+            fclose(fp);
+            return 3;
+        }
+        char firstchar = f[0];
+        if (firstchar != '#' && firstchar != '\r' && firstchar != '\n' && firstchar != '\0')
+        {
+            mpz_set_str(num[i], f, 10);
+            i++;
+        }
+    }
+    fclose(fp);
+    free(buf);
+    buf = NULL;
+    return 0;
+}
+
+// ファイルから先頭2行読んで16進数としてパースして掛け算する
+// 掛け算した結果のビット数を表示する
+// これどっからどーみてもRSA秘密鍵から公開鍵を算出する計算機ですよね？
 int main(int argc, char **argv)
 {
     if (argc < 2)
@@ -21,46 +60,11 @@ int main(int argc, char **argv)
     }
     char *fname = argv[1];
 
-    size_t i;
     mpz_t num[2];
 
     mpz_inits(num[0], num[1], NULL);
 
-    {
-        FILE *fp = fopen(fname, "r");
-        if (fp == NULL)
-        {
-            perror("fopen");
-            return 2;
-        }
-        char *buf = malloc(BUFSIZE);
-        if (!buf)
-        {
-            perror("malloc buf");
-            return EXIT_FAILURE;
-        }
-
-        memset(buf, 0, BUFSIZE);
-        char *f = NULL;
-        for (i = 0; i < 2 && (f = fgets(buf, BUFSIZE, fp)) != NULL;)
-        {
-            if (ferror(fp))
-            {
-                perror("fgets");
-                fclose(fp);
-                return 3;
-            }
-            char firstchar = f[0];
-            if (firstchar != '#' && firstchar != '\r' && firstchar != '\n' && firstchar != '\0')
-            {
-                mpz_set_str(num[i], f, 10);
-                i++;
-            }
-        }
-        fclose(fp);
-        free(buf);
-        buf = NULL;
-    }
+    load(fname, num, 2);
     mpz_t p;
     mpz_t q;
     mpz_t n;
@@ -72,16 +76,13 @@ int main(int argc, char **argv)
     mpz_t exponent1;
     mpz_t exponent2;
     mpz_t coefficient;
-    mpz_t tmp;
 
     // 変数初期化
-    mpz_inits(p, q, n, e, d, psub1, qsub1, phin, exponent1, exponent2, coefficient, tmp, NULL);
+    mpz_inits(p, q, n, e, d, psub1, qsub1, phin, exponent1, exponent2, coefficient, NULL);
     // pへ素数をセット
     mpz_set(p, num[0]);
     // 素数をセット
     mpz_set(q, num[1]);
-    // 使い終わったtmpをクリア
-    mpz_clear(tmp);
     // nを算出
     mpz_mul(n, p, q);
     fprintf(stderr, "n is %ld bits\n", mpz_sizeinbase(n, 2));
@@ -109,23 +110,14 @@ int main(int argc, char **argv)
     mpz_invert(coefficient, q, p);
     fputs("cof\n", stdout);
 
-    fputs("\n", stdout);
-    mpz_out_str(stdout, 16, n);
-    fputs("\n", stdout);
-    mpz_out_str(stdout, 16, e);
-    fputs("\n", stdout);
-    mpz_out_str(stdout, 16, d);
-    fputs("\n", stdout);
-    mpz_out_str(stdout, 16, p);
-    fputs("\n", stdout);
-    mpz_out_str(stdout, 16, q);
-    fputs("\n", stdout);
-    mpz_out_str(stdout, 16, exponent1);
-    fputs("\n", stdout);
-    mpz_out_str(stdout, 16, exponent2);
-    fputs("\n", stdout);
-    mpz_out_str(stdout, 16, coefficient);
-    fputs("\n", stdout);
+    gmp_fprintf(stdout, "%Zx\n", n);
+    gmp_fprintf(stdout, "%Zx\n", e);
+    gmp_fprintf(stdout, "%Zx\n", d);
+    gmp_fprintf(stdout, "%Zx\n", p);
+    gmp_fprintf(stdout, "%Zx\n", q);
+    gmp_fprintf(stdout, "%Zx\n", exponent1);
+    gmp_fprintf(stdout, "%Zx\n", exponent2);
+    gmp_fprintf(stdout, "%Zx\n", coefficient);
 
     mpz_clears(n, e, d, p, q, exponent1, exponent2, coefficient, NULL);
     return EXIT_SUCCESS;

@@ -47,8 +47,9 @@ int main(int argc, char **argv)
 
     char messages[] = "ファルコン・パンチ";
     size_t charnum = countmbchar(messages);
-    wchar_t *s = alloca((charnum + 1) * sizeof(wchar_t));
-    memset(s, 0, (charnum + 1) * sizeof(wchar_t));
+    size_t wstrlen = (charnum + 1) * sizeof(wchar_t);
+    wchar_t *s = alloca(wstrlen);
+    memset(s, 0, wstrlen);
     char *work = messages;
     mbstate_t st = { 0 };
     mbsrtowcs(s, (const char **)&work, charnum + 1, &st);

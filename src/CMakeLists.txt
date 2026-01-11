@@ -12,6 +12,8 @@ target_compile_definitions(Nabeatsu2 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOC
 add_executable(Nabeatsu3 Nabeatsu3.c)
 target_compile_definitions(Nabeatsu3 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
+add_executable(Nabeatsu4 Nabeatsu4.c)
+
 add_executable(TSIdentityTool TSIdentityTool.c)
 target_link_libraries(TSIdentityTool tommath tomcrypt)
 
@@ -167,8 +169,6 @@ target_link_libraries(bouyomiTalk study)
 add_executable(calc calc.c)
 target_link_libraries(calc gmp)
 
-add_executable(centos_rip centos_rip.c centos_rip-driver.c countdown.c)
-
 add_executable(checkprimes checkprimes.c)
 
 target_link_libraries(checkprimes gmp)
@@ -190,6 +190,9 @@ target_link_libraries(concurrencysample PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(conv conv.c)
 target_link_libraries(conv PRIVATE gmp)
+
+add_executable(countdownsample countdownsample.c countdown.c)
+add_executable(countdown2038 countdown2038.c)
 
 add_executable(cp2peq cp2peq.c)
 target_link_libraries(cp2peq study)
@@ -332,6 +335,9 @@ target_link_libraries(itoabench study)
 target_include_directories(itoabench PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_definitions(itoabench PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
+add_executable(javarandom-sandbox javarandom-sandbox.c)
+target_link_libraries(javarandom-sandbox PRIVATE gmp)
+
 add_executable(json-c_test json-c_test.c)
 target_link_libraries(json-c_test json-c)
 
@@ -370,8 +376,6 @@ add_executable(logging-sample logging-sample.c)
 add_executable(loop-bench loop-bench.c)
 
 add_executable(main
-                countdown2038.c
-                countdown.c
                 timeutil.c
                 finddiffinnumofdigits.c
                 main.cpp
@@ -662,9 +666,6 @@ target_link_libraries(spuriouswakeupsample PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 add_executable(ssh-keyconvert ssh-keyconvert.c)
 target_link_libraries(ssh-keyconvert OpenSSL::Crypto)
 target_include_directories(ssh-keyconvert PRIVATE ${OPENSSL_INCLUDE_DIR})
-
-add_executable(atomic_fetch_addsample atomic_fetch_addsample.c)
-target_link_libraries(atomic_fetch_addsample ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(atomicsample atomicsample.c)
 target_link_libraries(atomicsample ${CMAKE_THREAD_LIBS_INIT})

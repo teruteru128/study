@@ -48,12 +48,22 @@ int timerfdsample6(void)
 
     // epollに登録
     struct epoll_event ev, events[MAX_EVENTS];
+    struct timerinfo
+    {
+        int fd;
+        int seconds;
+    };
+    struct timerinfo array[2];
 
     ev.events = EPOLLIN;
-    ev.data.fd = tfd5;
+    array[0].fd = tfd5;
+    array[0].seconds = 5;
+    ev.data.ptr = &array[0];
     epoll_ctl(epfd, EPOLL_CTL_ADD, tfd5, &ev);
 
-    ev.data.fd = tfd3;
+    array[1].fd = tfd3;
+    array[1].seconds = 3;
+    ev.data.ptr = &array[1];
     epoll_ctl(epfd, EPOLL_CTL_ADD, tfd3, &ev);
 
     printf("Monitoring timers (5s and 3s)... Ctrl+C to stop\n");
@@ -71,15 +81,15 @@ int timerfdsample6(void)
         {
             uint64_t exp;
             // timerfdはreadしないと次のイベントが発生し続けない
-            ssize_t s = read(events[n].data.fd, &exp, sizeof(uint64_t));
+            ssize_t s = read(((struct timerinfo *)events[n].data.ptr)->fd, &exp, sizeof(uint64_t));
             if (s != sizeof(uint64_t))
                 continue;
 
-            if (events[n].data.fd == tfd5)
+            if (((struct timerinfo *)events[n].data.ptr)->seconds == 5)
             {
                 printf("[Timer A] 5 seconds elapsed! (total exp: %" PRIu64 ")\n", exp);
             }
-            else if (events[n].data.fd == tfd3)
+            else if (((struct timerinfo *)events[n].data.ptr)->seconds == 3)
             {
                 printf("[Timer B] 3 seconds elapsed! (total exp: %" PRIu64 ")\n", exp);
             }
