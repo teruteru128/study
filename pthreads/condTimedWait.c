@@ -14,24 +14,30 @@ pthread_cond_t cond;
 
 void *threadFunc(void *arg)
 {
+    _Atomic volatile int *f = (_Atomic volatile int *)arg;
     struct timespec ts;
     printf("threadFunc: Start\n");
     sleep(2);
-    pthread_mutex_lock(&mutex);
-    printf("threadFunc: Wait for signal\n");
+    int r;
     clock_gettime(CLOCK_REALTIME, &ts);
     ts.tv_sec += 2;
-    switch (pthread_cond_timedwait(&cond, &mutex, &ts))
+    pthread_mutex_lock(&mutex);
+    printf("threadFunc: Wait for signal\n");
+    while (*f == 0)
     {
-    case 0:
-        fprintf(stderr, "threadFunc: Got signal\n");
-        break;
-    case ETIMEDOUT:
-        fprintf(stderr, "threadFunc: Timeout\n");
-        break;
-    default:
-        fprintf(stderr, "threadFunc: Error on pthread_cond_wait\n");
-        exit(1);
+        r = pthread_cond_timedwait(&cond, &mutex, &ts);
+        switch (r)
+        {
+        case 0:
+            fprintf(stderr, "threadFunc: Got signal\n");
+            break;
+        case ETIMEDOUT:
+            fprintf(stderr, "threadFunc: Timeout\n");
+            break;
+        default:
+            fprintf(stderr, "threadFunc: Error on pthread_cond_wait\n");
+            exit(1);
+        }
     }
     pthread_mutex_unlock(&mutex);
     return NULL;
@@ -40,14 +46,16 @@ void *threadFunc(void *arg)
 int main(void)
 {
     pthread_t thread;
+    _Atomic volatile int f = 0;
 
     pthread_mutex_init(&mutex, NULL);
     pthread_cond_init(&cond, NULL);
 
-    pthread_create(&thread, NULL, threadFunc, NULL);
-    sleep(1);
+    pthread_create(&thread, NULL, threadFunc, &f);
+    sleep(3);
     fprintf(stderr, "main: Signal\n");
     pthread_mutex_lock(&mutex);
+    f = 1;
     pthread_cond_signal(&cond);
     pthread_mutex_unlock(&mutex);
     pthread_join(thread, NULL);
