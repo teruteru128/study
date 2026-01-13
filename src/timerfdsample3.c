@@ -15,15 +15,15 @@
 
 /**
  * @brief コマンドライン引数でtimerfdを制御できるようにした残骸
- * 
- * @param argc 
- * @param argv 
- * @return int 
+ *
+ * @param argc
+ * @param argv
+ * @return int
  */
 int timerfdsample3(int argc, const char *argv[])
 {
     setlocale(LC_ALL, "");
-    if ((argc != 1) && (argc != 2) && (argc != 3) && (argc != 4))
+    if (argc < 1 || 5 < argc)
     {
         return EXIT_FAILURE;
     }
@@ -34,39 +34,11 @@ int timerfdsample3(int argc, const char *argv[])
         return EXIT_FAILURE;
     }
     struct itimerspec newSpec;
-    if (argc < 2)
-    {
-        // argc == 1
-        newSpec.it_value.tv_sec = 1;
-    }
-    else
-    {
-        // (argc == 2) || (argc == 3) || (argc == 4)
-        newSpec.it_value.tv_sec = strtol(argv[1], NULL, 0);
-    }
-    newSpec.it_value.tv_nsec = 0;
-    if (argc < 3)
-    {
-        // (argc == 1) || (argc == 2)
-        newSpec.it_interval.tv_sec = 1;
-    }
-    else
-    {
-        // (argc == 3) || (argc == 4)
-        newSpec.it_interval.tv_sec = strtol(argv[2], NULL, 0);
-    }
+    newSpec.it_interval.tv_sec = argc >= 3 ? strtol(argv[3], NULL, 0) : 1;
     newSpec.it_interval.tv_nsec = 0;
-    size_t max_exp;
-    if (argc < 4)
-    {
-        // (argc == 1) || (argc == 2) || (argc == 3)
-        max_exp = 10;
-    }
-    else
-    {
-        // argc == 4
-        max_exp = strtoul(argv[3], NULL, 0);
-    }
+    newSpec.it_value.tv_sec = argc >= 2 ? strtol(argv[2], NULL, 0) : 1;
+    newSpec.it_value.tv_nsec = 0;
+    size_t max_exp = argc >= 5 ? strtoul(argv[4], NULL, 0) : 10;
     struct itimerspec oldSpec;
     if (timerfd_settime(timerfd, 0, &newSpec, &oldSpec) != 0)
     {
