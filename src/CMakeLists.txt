@@ -281,6 +281,8 @@ target_include_directories(falcon PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include
 
 add_executable(fdProcess fdProcess.c)
 
+add_executable(fdsample fdsample.c)
+
 add_executable(fdThread fdThread.c)
 
 add_executable(ftm ftm.c)
