@@ -5,6 +5,11 @@
 #include <errno.h>
 #include <unistd.h>
 
+/**
+ * リダイレクトでファイルディスクリプタを渡すサンプル
+ * fdsample 3 3< input.txt
+ * みたいに使ってね
+*/
 int main(int argc, char *argv[])
 {
 	if(argc < 2)
