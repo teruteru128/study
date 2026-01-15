@@ -15,7 +15,8 @@ int main(int argc, char *argv[], char *envp[])
 	{
 		return 1;
 	}
-	FILE *in = fopen(argv[1], "rb");
+	char *path = argv[1];
+	FILE *in = fopen(path, "rb");
 	if (in == NULL)
 	{
 		perror("fopen");
