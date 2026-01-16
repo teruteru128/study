@@ -96,5 +96,6 @@ done:
   fclose(in);
   mpz_clear(p);
   mpz_clear(term1);
+  mpz_clear(remove_factor);
   return 0;
 }

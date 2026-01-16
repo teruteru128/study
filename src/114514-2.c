@@ -52,7 +52,7 @@ int main(int argc, char *argv[], char *envp[])
 			}
 		}
 		num += bits;
-		if(num >= note)
+		if (num >= note)
 		{
 			fprintf(stderr, "note: %zu\n", num);
 			note += 100000000ULL;
