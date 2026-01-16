@@ -26,6 +26,9 @@ target_link_libraries(114514-2 PRIVATE gmp)
 add_executable(114514-3 114514-3.c)
 target_link_libraries(114514-3 PRIVATE gmp)
 
+add_executable(114514-4 114514-4.c)
+target_link_libraries(114514-4 PRIVATE gmp)
+
 add_executable(141361 141361.c)
 target_link_libraries(141361 PRIVATE gmp)
 
