@@ -14,6 +14,7 @@ int main(int argc, char *argv[], char *envp[])
 {
   if (argc < 3)
   {
+    fprintf(stderr, "%s small-sieve-path n\n", argv[0]);
     return 1;
   }
   char *path = argv[1];
@@ -47,6 +48,7 @@ int main(int argc, char *argv[], char *envp[])
   }
   fseek(in, 8, SEEK_SET);
   size_t num = 0;
+  size_t note = 100000000ULL;
   struct timespec start, finish, diff;
   clock_gettime(CLOCK_MONOTONIC, &start);
   mpz_t remove_factor;
@@ -91,6 +93,11 @@ int main(int argc, char *argv[], char *envp[])
       }
     }
     num += bits;
+    if (num >= note)
+    {
+      fprintf(stderr, "note: %zu\n", num);
+      note += 100000000ULL;
+    }
   }
 done:
   fclose(in);
