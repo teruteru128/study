@@ -47,6 +47,9 @@ add_executable(alignformatter alignformatter.c)
 
 add_executable(alimentsample alimentsample.c)
 
+add_executable(aliquot780 aliquot780.c)
+target_link_libraries(aliquot780 PRIVATE gmp)
+
 add_executable(argsample argsample.c)
 target_link_libraries(argsample study)
 target_include_directories(argsample PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/include)

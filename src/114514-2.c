@@ -15,6 +15,7 @@ int main(int argc, char *argv[], char *envp[])
 	{
 		return 1;
 	}
+	// small sieveファイル
 	char *path = argv[1];
 	FILE *in = fopen(path, "rb");
 	if (in == NULL)
@@ -23,7 +24,15 @@ int main(int argc, char *argv[], char *envp[])
 		return 1;
 	}
 	uint64_t primes[ELM];
-	fseek(in, 8, SEEK_SET);
+	// fseek(in, 8, SEEK_SET);
+	size_t bitlength;
+	ssize_t readed = fread(&bitlength, sizeof(size_t), 1, in);
+	if (readed != 1)
+	{
+		fclose(in);
+		return 1;
+	}
+	bitlength = be64toh(bitlength);
 	mpz_t p, power_n;
 	mpz_inits(p, power_n, NULL);
 	mpz_set_ui(p, 114514);
@@ -32,7 +41,7 @@ int main(int argc, char *argv[], char *envp[])
 	mpz_add_ui(p, p, strtoull(argv[2], NULL, 10));
 	size_t num = 0;
 	size_t note = 100000000ULL;
-	while (num < 137438953280ULL)
+	while (num < bitlength)
 	{
 		size_t len = fread(primes, sizeof(uint64_t), ELM, in);
 		for (int i = 0; i < len; i++)
