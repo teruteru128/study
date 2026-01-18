@@ -33,15 +33,25 @@ int main(int argc, char const *argv[])
         perror("fopen");
         return 1;
     }
+    uint64_t offsetbits = 0;
+    uint64_t offsetbytes = 0;
+    uint64_t offsetlongelements = 0;
+    if (argc < 4)
+    {
+        offsetbits = strtoull(argv[3], NULL, 10);
+        offsetlongelements = ((offsetbits - 1) >> 6) + 1;
+        offsetbytes = offsetlongelements << 3;
+    }
     // 100,007,936 = 65536 * 1526 = 1562624 * 64, 65536bit単位で1億bitを超える最小データサイズ
-    uint64_t *sieve = malloc(1562624 * sizeof(uint64_t));
-    fseek(sievefile, 8, SEEK_SET);
-    ssize_t elemetns = fread(sieve, sizeof(uint64_t), 1562624, sievefile);
+    uint64_t *sieve = malloc(1562624 * sizeof(uint64_t) * 10);
+    fseek(sievefile, 8 + offsetbytes, SEEK_SET);
+    ssize_t elemetns = fread(sieve, sizeof(uint64_t), 1562624 * 10, sievefile);
     fclose(sievefile);
     for (int i = 0; i < elemetns; i++)
     {
-      sieve[i] = be64toh(sieve[i]);
+        sieve[i] = be64toh(sieve[i]);
     }
+    size_t loadbits = elemetns * 64;
     sievefile = NULL;
     mpz_t p, factorial1564, diff;
     mpz_init(p);
@@ -81,11 +91,11 @@ int main(int argc, char const *argv[])
         // 始点からの距離を計測
         mpz_sub(diff, p, factorial1564);
         // 試し割り
-        for (index = 1; index < 100007936; index++)
+        for (index = 1; index < loadbits; index++)
         {
-            if (((sieve[index >> 6] >> (index & 0x3f)) & 1) == 0)
+            if (((sieve[index / 64] >> (index % 64)) & 1) == 0)
             {
-                if (mpz_divisible_ui_p(p, index * 2 + 1) != 0)
+                if (mpz_divisible_ui_p(p, (offsetbits + index) * 2 + 1) != 0)
                 {
                     factor = index * 2 + 1;
                     break;
@@ -137,8 +147,6 @@ int main(int argc, char const *argv[])
         {
             fprintf(stderr, "見つかりませんでした。スキップします。: %lu\n", mpz_get_ui(diff));
         }
-        // レートリミットを掛ける
-        sleep(1);
     }
     mpz_clear(diff);
     mpz_clear(factorial1564);
