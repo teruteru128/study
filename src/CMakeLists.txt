@@ -57,7 +57,7 @@ target_include_directories(argsample PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/inclu
 add_executable(argparsesample argparsesample.c)
 
 add_executable(barrier_test barrier_test.c)
-target_link_libraries(barrier_test PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(barrier_test PRIVATE Threads::Threads)
 
 add_executable(bb bb.c)
 
@@ -76,67 +76,67 @@ target_link_libraries(bmkeygen OpenSSL::Crypto)
 target_include_directories(bmkeygen PRIVATE ${OPENSSL_INCLUDE_DIR})
 
 add_executable(bmkeysearch bmkeysearch.c queue.c bmkeyload.c)
-target_link_libraries(bmkeysearch study xmlrpc xmlrpc_client ${CMAKE_THREAD_LIBS_INIT} OpenSSL::Crypto)
+target_link_libraries(bmkeysearch study xmlrpc xmlrpc_client Threads::Threads OpenSSL::Crypto)
 target_include_directories(bmkeysearch PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_definitions(bmkeysearch PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
 add_executable(bmkeysearch2 bmkeysearch2.c queue.c)
-target_link_libraries(bmkeysearch2 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT} study xmlrpc xmlrpc_client)
+target_link_libraries(bmkeysearch2 OpenSSL::Crypto Threads::Threads study xmlrpc xmlrpc_client)
 target_include_directories(bmkeysearch2 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(bmkeysearch3 bmkeysearch3.c)
-target_link_libraries(bmkeysearch3 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT} study xmlrpc xmlrpc_client)
+target_link_libraries(bmkeysearch3 OpenSSL::Crypto Threads::Threads study xmlrpc xmlrpc_client)
 target_include_directories(bmkeysearch3 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(bmkeysearch4 bmkeysearch4.c)
-target_link_libraries(bmkeysearch4 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT} study xmlrpc xmlrpc_client)
+target_link_libraries(bmkeysearch4 OpenSSL::Crypto Threads::Threads study xmlrpc xmlrpc_client)
 target_include_directories(bmkeysearch4 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(bmkeysearch5 bmkeysearch5.c)
-target_link_libraries(bmkeysearch5 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(bmkeysearch5 OpenSSL::Crypto Threads::Threads)
 target_include_directories(bmkeysearch5 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(bmkeysearch6 bmkeysearch6.c)
-target_link_libraries(bmkeysearch6 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(bmkeysearch6 OpenSSL::Crypto Threads::Threads)
 target_include_directories(bmkeysearch6 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(bmkeysearch7 bmkeysearch7.c)
-target_link_libraries(bmkeysearch7 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT} study OpenMP::OpenMP_C)
+target_link_libraries(bmkeysearch7 OpenSSL::Crypto Threads::Threads study OpenMP::OpenMP_C)
 target_include_directories(bmkeysearch7 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_options(bmkeysearch7 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 
 add_executable(bmkeysearch8 bmkeysearch8.c)
-target_link_libraries(bmkeysearch8 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT} OpenMP::OpenMP_C)
+target_link_libraries(bmkeysearch8 OpenSSL::Crypto Threads::Threads OpenMP::OpenMP_C)
 target_include_directories(bmkeysearch8 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_options(bmkeysearch8 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 
 add_executable(bmkeysearch9 bmkeysearch9.c)
-target_link_libraries(bmkeysearch9 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT} study)
+target_link_libraries(bmkeysearch9 OpenSSL::Crypto Threads::Threads study)
 target_include_directories(bmkeysearch9 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(bmkeysearch10 bmkeysearch10.c)
-target_link_libraries(bmkeysearch10 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT} study)
+target_link_libraries(bmkeysearch10 OpenSSL::Crypto Threads::Threads study)
 target_include_directories(bmkeysearch10 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(bmkeysearch11 bmkeysearch11.c)
-target_link_libraries(bmkeysearch11 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT} study)
+target_link_libraries(bmkeysearch11 OpenSSL::Crypto Threads::Threads study)
 target_include_directories(bmkeysearch11 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(bmkeysearch12 bmkeysearch12.c)
-target_link_libraries(bmkeysearch12 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT} study)
+target_link_libraries(bmkeysearch12 OpenSSL::Crypto Threads::Threads study)
 target_include_directories(bmkeysearch12 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(bmkeysearch13 bmkeysearch13.c)
-target_link_libraries(bmkeysearch13 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT} study)
+target_link_libraries(bmkeysearch13 OpenSSL::Crypto Threads::Threads study)
 target_include_directories(bmkeysearch13 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(bmkeysearch14 bmkeysearch14.c)
-target_link_libraries(bmkeysearch14 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT} study)
+target_link_libraries(bmkeysearch14 OpenSSL::Crypto Threads::Threads study)
 target_include_directories(bmkeysearch14 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_options(bmkeysearch14 PUBLIC $<$<BOOL:${OpenACC_C_FOUND}>:${OpenACC_C_FLAGS}>)
 
 add_executable(bmkeysearch15 bmkeysearch15.c timeutil.c load_key.c)
-target_link_libraries(bmkeysearch15 OpenSSL::Crypto GnuTLS::GnuTLS ${CMAKE_THREAD_LIBS_INIT} study OpenMP::OpenMP_C)
+target_link_libraries(bmkeysearch15 OpenSSL::Crypto GnuTLS::GnuTLS Threads::Threads study OpenMP::OpenMP_C)
 target_include_directories(bmkeysearch15 PRIVATE ${OPENSSL_INCLUDE_DIR} $<$<BOOL:${GNUTLS_FOUND}>:${GNUTLS_INCLUDE_DIR}> ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_options(bmkeysearch15 PRIVATE $<$<BOOL:${OpenACC_C_FOUND}>:${OpenACC_C_FLAGS}> $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 target_compile_definitions(bmkeysearch15 PRIVATE $<$<BOOL:${GNUTLS_FOUND}>:${GNUTLS_DEFINITIONS}>)
@@ -146,7 +146,7 @@ target_link_libraries(bmkeysearch16 OpenSSL::Crypto)
 target_include_directories(bmkeysearch16 PRIVATE ${OPENSSL_INCLUDE_DIR})
 
 add_executable(bmks17 bmks17.c)
-target_link_libraries(bmks17 OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(bmks17 OpenSSL::Crypto Threads::Threads)
 target_include_directories(bmks17 PRIVATE ${OPENSSL_INCLUDE_DIR})
 
 add_executable(bmmultisendsample bmmultisendsample.c)
@@ -155,7 +155,7 @@ target_include_directories(bmmultisendsample PRIVATE ${PROJECT_SOURCE_DIR}/libst
 target_compile_definitions(bmmultisendsample PRIVATE VERSION="${study_VERSION}")
 
 add_executable(bmrandomaddressgenerator bmrandomaddressgenerator.c)
-target_link_libraries(bmrandomaddressgenerator OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT} study)
+target_link_libraries(bmrandomaddressgenerator OpenSSL::Crypto Threads::Threads study)
 target_include_directories(bmrandomaddressgenerator PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_include_directories(bmrandomaddressgenerator PRIVATE ${OPENSSL_INCLUDE_DIR})
 
@@ -209,7 +209,7 @@ add_executable(collatz collatz.c)
 target_link_libraries(collatz m)
 
 add_executable(concurrencysample concurrencysample.c)
-target_link_libraries(concurrencysample PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(concurrencysample PRIVATE Threads::Threads)
 #target_compile_definitions(concurrencysample PRIVATE _GNU_SOURCE=1)
 
 add_executable(conv conv.c)
@@ -243,7 +243,7 @@ add_executable(danceparade danceparade.c)
 add_executable(dayofweeksearcher dayofweeksearcher.c)
 
 add_executable(deadlocksample deadlocksample.c)
-target_link_libraries(deadlocksample ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(deadlocksample Threads::Threads)
 
 add_executable(deterministicaddressgenerator deterministicaddressgenerator.c)
 target_link_libraries(deterministicaddressgenerator study)
@@ -279,7 +279,7 @@ add_executable(envgettest envgettest.c)
 add_executable(epspsample epspsample.c epspsample-driver.c)
 
 add_executable(errnosample1 errnosample1.c)
-target_link_libraries(errnosample1 ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(errnosample1 Threads::Threads)
 target_include_directories(errnosample1 PRIVATE ${CURL_INCLUDE_DIRS})
 target_compile_definitions(errnosample1 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
@@ -374,11 +374,11 @@ target_link_libraries(keyconvert OpenSSL::Crypto study OpenMP::OpenMP_C)
 target_compile_options(keyconvert PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 
 add_executable(keypairgenerator keypairgenerator.c)
-target_link_libraries(keypairgenerator ${CMAKE_THREAD_LIBS_INIT} OpenSSL::Crypto uuid)
+target_link_libraries(keypairgenerator Threads::Threads OpenSSL::Crypto uuid)
 target_include_directories(keypairgenerator PRIVATE ${OPENSSL_INCLUDE_DIR})
 
 add_executable(keysample keysample.c)
-target_link_libraries(keysample ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(keysample Threads::Threads)
 
 add_executable(kxsample kxsample.c)
 target_link_libraries(kxsample sodium)
@@ -455,7 +455,7 @@ target_link_libraries(maxmovingsum study)
 target_include_directories(maxmovingsum PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(md5fullzero md5fullzero.c)
-target_link_libraries(md5fullzero m ${CMAKE_THREAD_LIBS_INIT} OpenSSL::Crypto study xmlrpc xmlrpc_client)
+target_link_libraries(md5fullzero m Threads::Threads OpenSSL::Crypto study xmlrpc xmlrpc_client)
 target_include_directories(md5fullzero PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(mdcountup mdcountup.c)
@@ -470,7 +470,7 @@ target_include_directories(mineseed PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/inclu
 add_executable(mkk mkk.c)
 
 add_executable(multiprosessmutexsample multiprosessmutexsample.c)
-target_link_libraries(multiprosessmutexsample PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(multiprosessmutexsample PRIVATE Threads::Threads)
 
 add_executable(mysqlaccesssample mysqlaccesssample.c)
 target_link_libraries(mysqlaccesssample mysqlclient)
@@ -488,7 +488,7 @@ add_executable(octorberfirst octoberfirst.c)
 #target_link_libraries(octorberfirst)
 
 add_executable(oncecallsample oncecallsample.c)
-target_link_libraries(oncecallsample ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(oncecallsample Threads::Threads)
 
 add_executable(openmpsample1 openmpsample1.c)
 target_compile_options(openmpsample1 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
@@ -518,7 +518,7 @@ target_link_libraries(openmpsample7 PRIVATE OpenMP::OpenMP_C)
 add_executable(pari-script-generator pari-script-generator.c)
 
 add_executable(paribatch paribatch.c)
-target_link_libraries(paribatch PRIVATE pari ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(paribatch PRIVATE pari Threads::Threads)
 target_compile_options(paribatch PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
 
 add_executable(passwordhashsample passwordhashsample.c)
@@ -584,13 +584,13 @@ add_executable(prime5 prime5.c)
 target_link_libraries(prime5 gmp uuid)
 
 add_executable(prime6 prime6.c bitsieve.c timeutil.c)
-target_link_libraries(prime6 gmp ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(prime6 gmp Threads::Threads)
 
 add_executable(prime7 prime7.c bitsieve.c timeutil.c)
-target_link_libraries(prime7 gmp ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(prime7 gmp Threads::Threads)
 
 add_executable(prime8 prime8.c bitsieve.c task_queue.c queue.c timeutil.c gettextsample.c)
-target_link_libraries(prime8 gmp ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(prime8 gmp Threads::Threads)
 target_compile_definitions(prime8 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
 add_executable(prime9 prime9.c)
@@ -603,13 +603,13 @@ add_executable(prime11 prime11.c)
 target_link_libraries(prime11 gmp)
 
 add_executable(prime12 prime12.c bitsieve.c timeutil.c)
-target_link_libraries(prime12 gmp ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(prime12 gmp Threads::Threads)
 
 add_executable(prime13 prime13.c bitsieve.c queue.c timeutil.c)
-target_link_libraries(prime13 gmp ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(prime13 gmp Threads::Threads)
 
 add_executable(prime14 prime14.c bitsieve.c timeutil.c)
-target_link_libraries(prime14 gmp ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(prime14 gmp Threads::Threads)
 
 add_executable(primesearch primesearch.c)
 target_link_libraries(primesearch gmp)
@@ -651,11 +651,11 @@ add_executable(seq seq.c)
 add_executable(server server.c)
 
 add_executable(serversample serversample.c queue.c)
-target_link_libraries(serversample study ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(serversample study Threads::Threads)
 
 add_executable(service-sample service-sample.c serverconfig.c)
 #target_compile_definitions(service-sample PUBLIC _GNU_SOURCE)
-target_link_libraries(service-sample ${CMAKE_THREAD_LIBS_INIT} study)
+target_link_libraries(service-sample Threads::Threads study)
 target_include_directories(service-sample PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(sha1rngsample sha1rngsample.c)
@@ -667,12 +667,12 @@ target_link_libraries(shanfrowatcher CURL::libcurl)
 target_include_directories(shanfrowatcher PRIVATE ${CURL_INCLUDE_DIRS})
 
 add_executable(signalsample signalsample.c)
-target_link_libraries(signalsample ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(signalsample Threads::Threads)
 
 add_executable(signalsample2 signalsample2.c)
 
 add_executable(signalsample3 signalsample3.c)
-target_link_libraries(signalsample3 ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(signalsample3 Threads::Threads)
 
 add_executable(slimesearch slimesearch.c timeutil.c)
 target_link_libraries(slimesearch m study)
@@ -687,14 +687,14 @@ add_executable(splitsample splitsample.c splitsample-driver.c)
 target_include_directories(splitsample PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(spuriouswakeupsample spuriouswakeupsample.c)
-target_link_libraries(spuriouswakeupsample PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(spuriouswakeupsample PRIVATE Threads::Threads)
 
 add_executable(ssh-keyconvert ssh-keyconvert.c)
 target_link_libraries(ssh-keyconvert OpenSSL::Crypto)
 target_include_directories(ssh-keyconvert PRIVATE ${OPENSSL_INCLUDE_DIR})
 
 add_executable(atomicsample atomicsample.c)
-target_link_libraries(atomicsample ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(atomicsample Threads::Threads)
 
 add_executable(strspntest strspntest.c)
 
@@ -707,7 +707,7 @@ target_link_libraries(sum gmp study)
 target_include_directories(sum PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(teamspeakIdUpgrader teamspeakIdUpgrader.c)
-target_link_libraries(teamspeakIdUpgrader study OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(teamspeakIdUpgrader study OpenSSL::Crypto Threads::Threads)
 target_include_directories(teamspeakIdUpgrader PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(teamspeakcalc teamspeakcalc.c)
@@ -721,10 +721,10 @@ target_link_libraries(teamspeakcalc2 PRIVATE OpenSSL::Crypto OpenMP::OpenMP_C)
 target_include_directories(teamspeakcalc2 PRIVATE ${OPENSSL_INCLUDE_DIR})
 
 add_executable(threadAttr threadAttr.c)
-target_link_libraries(threadAttr ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(threadAttr Threads::Threads)
 
 add_executable(threadcount threadcount.c)
-target_link_libraries(threadcount ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(threadcount Threads::Threads)
 
 add_executable(timerfdsample timerfdsample.c timerfdsample0.c timerfdsample1.c timerfdsample2.c timerfdsample3.c timerfdsample4.c timerfdsample5.c timerfdsample6.c)
 
@@ -739,7 +739,7 @@ target_link_libraries(totp m study OpenSSL::Crypto xmlrpc xmlrpc_client)
 target_include_directories(totp PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(tsidbench tsidbench.c)
-target_link_libraries(tsidbench OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(tsidbench OpenSSL::Crypto Threads::Threads)
 target_include_directories(tsidbench PRIVATE ${OPENSSL_INCLUDE_DIR})
 
 add_executable(tsidshowsample tsidshowsample.c)
