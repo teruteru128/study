@@ -36,7 +36,7 @@ add_executable(1564 1564.c)
 target_link_libraries(1564 PRIVATE gmp)
 
 add_executable(1564-2 1564-2.c)
-target_link_libraries(1564-2 PRIVATE gmp CURL::libcurl)
+target_link_libraries(1564-2 PRIVATE gmp CURL::libcurl Threads::Threads)
 
 add_executable(1919191919419 1919191919419.c)
 target_link_libraries(1919191919419 PRIVATE gmp)
