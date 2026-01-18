@@ -12,6 +12,9 @@
 
 #define FIELDS_SIZE (BUFSIZ * 2)
 
+/**
+ * (1564!)+nを試し割りして割り切れたらfactordbにアップロードするプログラム
+ */
 int main(int argc, char const *argv[])
 {
     if (argc < 3)
@@ -36,7 +39,7 @@ int main(int argc, char const *argv[])
     uint64_t offsetbits = 0;
     uint64_t offsetbytes = 0;
     uint64_t offsetlongelements = 0;
-    if (argc < 4)
+    if (argc >= 4)
     {
         offsetbits = strtoull(argv[3], NULL, 10);
         offsetlongelements = ((offsetbits - 1) >> 6) + 1;
@@ -44,6 +47,7 @@ int main(int argc, char const *argv[])
     }
     // 100,007,936 = 65536 * 1526 = 1562624 * 64, 65536bit単位で1億bitを超える最小データサイズ
     uint64_t *sieve = malloc(1562624 * sizeof(uint64_t) * 10);
+    // 冒頭8バイトはこのファイルのエラトステネスのふるいに含まれるbit数(uint64_t, big endian)
     fseek(sievefile, 8 + offsetbytes, SEEK_SET);
     ssize_t elemetns = fread(sieve, sizeof(uint64_t), 1562624 * 10, sievefile);
     fclose(sievefile);
@@ -93,7 +97,7 @@ int main(int argc, char const *argv[])
         // 試し割り
         for (index = 1; index < loadbits; index++)
         {
-            if (((sieve[index / 64] >> (index % 64)) & 1) == 0)
+            if (((sieve[index >> 6] >> (index & 0x3f)) & 1) == 0)
             {
                 if (mpz_divisible_ui_p(p, (offsetbits + index) * 2 + 1) != 0)
                 {
