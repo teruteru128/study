@@ -32,6 +32,29 @@
 #define MAX_LINES 1000
 #define MAX_LINE_LEN 8192
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const *argv[])
+{
+    pari_init(10000000000, 2);
+    pari_sp av = avma;
+    GEN n = gp_read_str("205418657260510546733082285384744539230409867551175649321847618486369671955948433884385977461705708629768431483165108678"
+                        "842880244207056768833777064305266103662894985870100602095555059567859056442004466890122799106190021904948149190201604561"
+                        "628294348810111247456668012661062759824237516660249492423275843900556024784633907707702168009570043412165798770398631403"
+                        "96883441364071520209755306158275717559559480560005878211595554373620251722345004673");
+    GEN cert = ecpp0(n, 0L);
+    if (gequal0(cert))
+    {
+        pari_close();
+        return 1;
+    }
+    GEN exportcert = ecppexport(cert, 1L);
+    if (gequal0(exportcert))
+    {
+        pari_close();
+        return 1;
+    }
+    char *str = GSTR(exportcert);
+    fprintf(stdout, "%s\n", str);
+    avma = av;
+    pari_close();
     return 0;
 }

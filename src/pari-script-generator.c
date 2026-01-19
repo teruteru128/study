@@ -21,7 +21,7 @@ int main(int argc, char const *argv[])
         return 1;
     }
     fputs("default(nbthreads, 16);\n", tests);
-    fputs("print(\"nbthreads->\", default(nbthreads), \"<-\");", tests);
+    fputs("print(\"nbthreads->\", default(nbthreads), \"<-\");\n", tests);
     char line[BUFSIZ];
     size_t counter = 1;
     while (fgets(line, BUFSIZ, fin))
