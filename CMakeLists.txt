@@ -103,6 +103,13 @@ if(SQLite3_FOUND)
     #include_directories(${SQLite3_INCLUDE_DIRS})
 endif(SQLite3_FOUND)
 
+find_path(PARI_INCLUDE_DIR NAMES pari/pari.h)
+find_library(PARI_LIBRARY NAMES pari)
+if(PARI_INCLUDE_DIR AND PARI_LIBRARY)
+else()
+	message(FATAL_ERROR "PARI/GP library not found.")
+endif()
+
 #link_libraries(${CMAKE_THREAD_LIBS_INIT} ${Intl_LIBRARIES} ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${OPENSSL_SSL_LIBRARIES})
 include(GNUInstallDirs)
 include(CheckIncludeFile)

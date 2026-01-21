@@ -41,6 +41,9 @@ target_link_libraries(1564-2 PRIVATE gmp CURL::libcurl Threads::Threads)
 add_executable(1919191919419 1919191919419.c)
 target_link_libraries(1919191919419 PRIVATE gmp)
 
+add_executable(656 656.c)
+target_link_libraries(656 PRIVATE gmp)
+
 add_executable(addpadding addpadding.c)
 
 add_executable(alignformatter alignformatter.c)
@@ -355,6 +358,8 @@ add_executable(iconvtest iconvtest.c)
 
 add_executable(idvalidate idvalidate.c)
 target_link_libraries(idvalidate m)
+
+add_executable(inf inf.c)
 
 add_executable(itoabench itoabench.c)
 target_link_libraries(itoabench study)
