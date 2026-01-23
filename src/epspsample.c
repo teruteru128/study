@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #define SRC                                                                        \
@@ -77,7 +78,7 @@ int epsptest(void)
     return EXIT_SUCCESS;
 }
 
-void readsample(void)
+int readsample(void)
 {
     size_t length = 0;
     char *buffer = NULL;

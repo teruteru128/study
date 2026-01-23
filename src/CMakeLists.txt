@@ -204,7 +204,8 @@ add_executable(cl cl.c)
 target_link_libraries(cl study)
 target_include_directories(cl PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
-add_executable(clocksample clocktest clocktest-driver.c)
+add_executable(clocksample clocktest-driver.c)
+target_link_libraries(clocksample PRIVATE clocktest)
 
 add_library(clocktest clocktest.c)
 
@@ -657,6 +658,7 @@ add_executable(server server.c)
 
 add_executable(serversample serversample.c queue.c)
 target_link_libraries(serversample study Threads::Threads)
+target_include_directories(serversample PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(service-sample service-sample.c serverconfig.c)
 #target_compile_definitions(service-sample PUBLIC _GNU_SOURCE)
