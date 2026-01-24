@@ -547,8 +547,8 @@ add_executable(pkeyencsample pkeyencsample.c)
 target_link_libraries(pkeyencsample OpenSSL::Crypto)
 target_include_directories(pkeyencsample PRIVATE ${OPENSSL_INCLUDE_DIR})
 
-add_executable(pngconcat pngconcat.c pngreadwrite.c)
-target_link_libraries(pngconcat PNG::PNG)
+add_executable(pngconcat pngconcat.c)
+target_link_libraries(pngconcat m)
 
 add_executable(pngdiff pngdiff.c)
 target_link_libraries(pngdiff PNG::PNG)
