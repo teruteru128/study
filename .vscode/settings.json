@@ -266,6 +266,9 @@
     "cmake.debugConfig": {
         "args": ["182", "3"]
     },
+	"clangd.arguments": [
+		"--compile-commands-dir=build-${buildType}" 
+	],
     "java.compile.nullAnalysis.mode": "disabled",
     "java.configuration.updateBuildConfiguration": "interactive",
     "java.format.settings.url": ".vscode/java-formatter.xml",

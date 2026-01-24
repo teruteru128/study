@@ -3,8 +3,8 @@ add_executable(FizzBuzz FizzBuzz.c)
 target_include_directories(FizzBuzz PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_definitions(FizzBuzz PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}")
 
-add_executable(Nabeatsu Nabeatsu.c)
-target_compile_definitions(Nabeatsu PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
+add_executable(Nabeatsu1 Nabeatsu1.c)
+target_compile_definitions(Nabeatsu1 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
 add_executable(Nabeatsu2 Nabeatsu2.c)
 target_compile_definitions(Nabeatsu2 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
@@ -550,7 +550,7 @@ target_include_directories(pkeyencsample PRIVATE ${OPENSSL_INCLUDE_DIR})
 add_executable(pngconcat pngconcat.c pngreadwrite.c)
 target_link_libraries(pngconcat PNG::PNG)
 
-add_executable(pngdiff pngdiff.c pngreadwrite.c)
+add_executable(pngdiff pngdiff.c)
 target_link_libraries(pngdiff PNG::PNG)
 
 add_executable(pngpalletssample pngpalletssample.c pngreadwrite.c)
@@ -616,6 +616,9 @@ target_link_libraries(prime13 gmp Threads::Threads)
 
 add_executable(prime14 prime14.c bitsieve.c timeutil.c)
 target_link_libraries(prime14 gmp Threads::Threads)
+
+add_executable(prime15 prime15.c)
+target_link_libraries(prime15 PRIVATE gmp)
 
 add_executable(primesearch primesearch.c)
 target_link_libraries(primesearch gmp)
