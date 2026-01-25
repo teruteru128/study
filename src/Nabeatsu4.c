@@ -1,24 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <stdint.h>
 #include <inttypes.h>
 
+void printhelp(const char *prg)
+{
+        fprintf(stderr, "%s <tweet id> <count> [target count] [--verbose]\n", prg);
+        fprintf(stderr, "世界のナベアツbot カウント30万時刻推定プログラム\n");
+        fprintf(stderr, "ツイートIDとカウント番号から30万台に突入する時刻を推定します\n");
+}
+
 /**
+ * 世界のナベアツbot カウント30万時刻推定プログラム
  * ツイートIDとカウント番号から30万台に突入する時刻を推定します
  * */
 int main(int argc, char const *argv[], char const *envp[])
 {
-    if (argc < 3)
+    if(argc == 2 && strcmp(argv[1], "--help") == 0)
     {
-        fprintf(stderr, "%s <tweet id> <count> [target count]\n", argv[0]);
-        fprintf(stderr, "ツイートIDとカウント番号から30万台に突入する時刻を推定します\n");
+        printhelp(argv[0]);
+        return 0;
+    }
+    else if (argc < 3)
+    {
+        printhelp(argv[0]);
         return 1;
     }
     int64_t id = (int64_t)strtol(argv[1], NULL, 10);
     int64_t timewithmilli = (id >> 22) + 1288834974657L;
-    int64_t machine = (id >> 12) & 0x3ff;
-    int64_t sequence = id & 0xfff;
+    int verbose = 0;
+    if(argc >= 5 && strcmp(argv[4], "--verbose") == 0)
+    {
+        verbose = 1;
+    }
     struct timespec t;
     t.tv_sec = timewithmilli / 1000;
     t.tv_nsec = (timewithmilli % 1000) * 1000000L;
@@ -30,6 +46,10 @@ int main(int argc, char const *argv[], char const *envp[])
     char buffer[32];
     strftime(buffer, 32, "%FT%T%z", &tm);
     printf("%s\n", buffer);
-    printf("machine id: %" PRId64 ", sequence id: %" PRId64 "\n", machine, sequence);
+    if(verbose){
+        int64_t machine = (id >> 12) & 0x3ff;
+        int64_t sequence = id & 0xfff;
+        printf("machine id: %" PRId64 ", sequence id: %" PRId64 "\n", machine, sequence);
+    }
     return 0;
 }

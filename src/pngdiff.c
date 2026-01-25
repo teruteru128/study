@@ -58,7 +58,7 @@ void write_png(const char *filename, PNGImage *img) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc < 7) {
+    if (argc < 8) {
         printf("使用法: %s img1.png img2.png out.png R G B A\n", argv[0]);
         printf("※RGBAは 0-255。A=0で透明。\n");
         return 1;

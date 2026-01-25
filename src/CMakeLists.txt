@@ -693,6 +693,9 @@ target_link_libraries(sntpc m study)
 target_include_directories(sntpc PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_definitions(sntpc PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
+add_executable(split split.c)
+target_link_libraries(split PRIVATE gmp)
+
 add_executable(splitsample splitsample.c splitsample-driver.c)
 target_include_directories(splitsample PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
