@@ -1,95 +1,75 @@
 
 #include "pngheaders.h"
 #include <complex.h>
-#include <immintrin.h>
 #include <png.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #define WIDTH 3840
 #define HEIGHT 2160
-#define MAX_ITER 512
+#define MAX_ITER 1000
 #define THREAD_COUNT 16  // 使用するスレッド数
 
 typedef struct {
     png_byte **data;
-    double center_re; // ズーム中心(実部)
-    double center_im; // ズーム中心(虚部)
-    double range;     // 表示範囲（小さいほどズーム）
+    long double center_re;
+    long double center_im;
+    long double range;
 } SharedData;
 
 typedef struct { int start_y, end_y; SharedData *shared; } ThreadArg;
 
-// 色付け：反復回数に基づいて青系のグラデーション
+// 色付け：対数スケーリング（深いズームで色を滑らかにする手法）
 void get_color(int iter, unsigned char *rgb) {
     if (iter == MAX_ITER) {
         rgb[0] = rgb[1] = rgb[2] = 0;
         return;
     }
-    rgb[0] = (iter * 2) % 255;
-    rgb[1] = (iter * 5) % 255;
-    rgb[2] = (iter * 13) % 255;
+    // 周期的な色変化
+    rgb[0] = (unsigned char)(127.5 * (1.0 + sin(0.1 * iter)));
+    rgb[1] = (unsigned char)(127.5 * (1.0 + sin(0.1 * iter + 2.0)));
+    rgb[2] = (unsigned char)(127.5 * (1.0 + sin(0.1 * iter + 4.0)));
 }
 
 void *thread_func(void *arg) {
     ThreadArg *t_arg = (ThreadArg *)arg;
     SharedData *s = t_arg->shared;
-    double aspect_ratio = (double)WIDTH / HEIGHT;
-    double unit = s->range / HEIGHT;
+    long double unit = s->range / HEIGHT;
 
     for (int y = t_arg->start_y; y < t_arg->end_y; y++) {
-        float c_imag = (float)(s->center_im + (HEIGHT / 2.0 - y) * unit);
-        __m256 c_imag_v = _mm256_set1_ps(c_imag);
-
-        for (int x = 0; x < WIDTH; x += 8) {
-            float start_re = (float)(s->center_re + (x - WIDTH / 2.0) * unit);
-            __m256 c_real_v = _mm256_set_ps(
-                start_re + 7*(float)unit, start_re + 6*(float)unit,
-                start_re + 5*(float)unit, start_re + 4*(float)unit,
-                start_re + 3*(float)unit, start_re + 2*(float)unit,
-                start_re + 1*(float)unit, start_re + 0*(float)unit
-            );
-
-            __m256 z_re = _mm256_setzero_ps();
-            __m256 z_im = _mm256_setzero_ps();
-            __m256i iterations = _mm256_setzero_si256();
-            __m256 four = _mm256_set1_ps(4.0f);
-
-            for (int i = 0; i < MAX_ITER; i++) {
-                __m256 re2 = _mm256_mul_ps(z_re, z_re);
-                __m256 im2 = _mm256_mul_ps(z_im, z_im);
-                __m256 mask = _mm256_cmp_ps(_mm256_add_ps(re2, im2), four, _CMP_LT_OQ);
-                if (_mm256_movemask_ps(mask) == 0) break;
-
-                iterations = _mm256_add_epi32(iterations, _mm256_and_si256(_mm256_castps_si256(mask), _mm256_set1_epi32(1)));
-                __m256 new_re = _mm256_add_ps(_mm256_sub_ps(re2, im2), c_real_v);
-                z_im = _mm256_add_ps(_mm256_mul_ps(_mm256_set1_ps(2.0f), _mm256_mul_ps(z_re, z_im)), c_imag_v);
-                z_re = new_re;
+        long double c_imag = s->center_im + (HEIGHT / 2.0L - y) * unit;
+        for (int x = 0; x < WIDTH; x++) {
+            long double c_real = s->center_re + (x - WIDTH / 2.0L) * unit;
+            
+            long double z_re = 0, z_im = 0;
+            int iter = 0;
+            // 数学的な最適化：z^2 の計算をインライン化
+            while (z_re*z_re + z_im*z_im <= 4.0L && iter < MAX_ITER) {
+                long double next_re = z_re*z_re - z_im*z_im + c_real;
+                z_im = 2.0L * z_re * z_im + c_imag;
+                z_re = next_re;
+                iter++;
             }
-
-            int iters[8];
-            _mm256_storeu_si256((__m256i*)iters, iterations);
-            for (int k = 0; k < 8; k++) get_color(iters[k], &s->data[y][(x + k) * 3]);
+            get_color(iter, &s->data[y][x * 3]);
         }
     }
     return NULL;
 }
 
 int main(int argc, char *argv[]) {
-    // デフォルト値
-    char *filename = "out.png";
-    double cx = -0.745, cy = 0.1; // 人気のズームスポット
-    double range = 2.5;
+    char *filename = "deep_zoom.png";
+    // 例：Seahorse Valley（タツノオトシゴの谷）の深い座標
+    long double cx = -0.74364388703715870833L;
+    long double cy = 0.13182590420641924031L;
+    long double range = 0.00000000000001L; // 非常に深いズーム
 
     if (argc >= 5) {
         filename = argv[1];
-        cx = atof(argv[2]);
-        cy = atof(argv[3]);
-        range = atof(argv[4]);
-    } else {
-        printf("Usage: %s [filename] [center_x] [center_y] [range]\n", argv[0]);
-        printf("Using default values...\n");
+        cx = strtold(argv[2], NULL); // long double 用の変換
+        cy = strtold(argv[3], NULL);
+        range = strtold(argv[4], NULL);
     }
 
     png_byte **data = malloc(HEIGHT * sizeof(png_byte *));
@@ -110,6 +90,6 @@ int main(int argc, char *argv[]) {
 
     for (size_t y = 0; y < HEIGHT; y++) free(data[y]);
     free(data);
-    printf("Saved to %s (Center: %f, %f, Range: %f)\n", filename, cx, cy, range);
+    printf("Saved to %s (Precision: long double)\n", filename);
     return 0;
 }
