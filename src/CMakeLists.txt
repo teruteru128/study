@@ -454,6 +454,7 @@ target_compile_options(main PRIVATE)
 
 add_executable(mandelbrot mandelbrot.c pngreadwrite.c)
 target_link_libraries(mandelbrot PRIVATE m PNG::PNG)
+target_compile_options(mandelbrot PRIVATE $<$<BOOL:${COMPILER_SUPPORTS_AVX2}>:-mavx2>)
 
 add_executable(mappingsample mappingsample.c)
 target_link_libraries(mappingsample m)

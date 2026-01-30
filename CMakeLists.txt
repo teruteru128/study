@@ -187,6 +187,18 @@ set(CMAKE_REQUIRED_DEFINITIONS "_BSD_SOURCE")
 check_symbol_exists(flsll "string.h" HAVE_FLSLL)
 set(CMAKE_REQUIRED_DEFINITIONS)
 
+include(CheckCXXSourceRuns)
+
+# AVX2サポートをテストするコード
+set(CMAKE_REQUIRED_FLAGS "-mavx2") # GCC/Clangの場合
+check_cxx_source_runs("
+  #include <immintrin.h>
+  int main() {
+    __m256i a = _mm256_set1_epi32(1);
+    return 0;
+  }
+" COMPILER_SUPPORTS_AVX2)
+
 # CheckSourceCompiles はcmake 3.19以上
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.19")
     include(CheckSourceCompiles)
