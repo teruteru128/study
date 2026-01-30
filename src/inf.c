@@ -8,6 +8,16 @@ int main(int argc, char *argv[], char *envp[]) {
   }
   printf("\U0000221E\n");
   int codepoint;
+  for(codepoint = 0x0390; codepoint < 0x0480; codepoint++){
+    if ((codepoint + 1) % 16 == 1) {
+      printf("[");
+    }
+    printf("%lc", codepoint);
+    if ((codepoint + 1) % 16 == 0) {
+      printf("]\n");
+    }
+  }
+  printf("--\n");
   for (codepoint = 0x2200; codepoint < 0x2300; codepoint++) {
     if ((codepoint + 1) % 16 == 1) {
       printf("[");

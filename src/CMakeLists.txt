@@ -106,12 +106,12 @@ target_include_directories(bmkeysearch6 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT
 add_executable(bmkeysearch7 bmkeysearch7.c)
 target_link_libraries(bmkeysearch7 OpenSSL::Crypto Threads::Threads study OpenMP::OpenMP_C)
 target_include_directories(bmkeysearch7 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
-target_compile_options(bmkeysearch7 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_options(bmkeysearch7 PUBLIC)
 
 add_executable(bmkeysearch8 bmkeysearch8.c)
 target_link_libraries(bmkeysearch8 OpenSSL::Crypto Threads::Threads OpenMP::OpenMP_C)
 target_include_directories(bmkeysearch8 PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
-target_compile_options(bmkeysearch8 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_options(bmkeysearch8 PUBLIC)
 
 add_executable(bmkeysearch9 bmkeysearch9.c)
 target_link_libraries(bmkeysearch9 OpenSSL::Crypto Threads::Threads study)
@@ -141,7 +141,7 @@ target_compile_options(bmkeysearch14 PUBLIC $<$<BOOL:${OpenACC_C_FOUND}>:${OpenA
 add_executable(bmkeysearch15 bmkeysearch15.c timeutil.c load_key.c)
 target_link_libraries(bmkeysearch15 OpenSSL::Crypto GnuTLS::GnuTLS Threads::Threads study OpenMP::OpenMP_C)
 target_include_directories(bmkeysearch15 PRIVATE ${OPENSSL_INCLUDE_DIR} $<$<BOOL:${GNUTLS_FOUND}>:${GNUTLS_INCLUDE_DIR}> ${PROJECT_SOURCE_DIR}/libstudy/include)
-target_compile_options(bmkeysearch15 PRIVATE $<$<BOOL:${OpenACC_C_FOUND}>:${OpenACC_C_FLAGS}> $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_options(bmkeysearch15 PRIVATE $<$<BOOL:${OpenACC_C_FOUND}>:${OpenACC_C_FLAGS}>)
 target_compile_definitions(bmkeysearch15 PRIVATE $<$<BOOL:${GNUTLS_FOUND}>:${GNUTLS_DEFINITIONS}>)
 
 add_executable(bmkeysearch16 bmkeysearch16.c)
@@ -345,6 +345,8 @@ add_executable(gettime gettime.c)
 target_link_libraries(gettime study)
 target_include_directories(gettime PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
+add_executable(getuidsample getuidsample.c)
+
 add_executable(harmonic harmonic.c)
 
 add_executable(httpd httpd.c)
@@ -377,7 +379,7 @@ add_executable(kana kana.c)
 
 add_executable(keyconvert keyconvert.c)
 target_link_libraries(keyconvert OpenSSL::Crypto study OpenMP::OpenMP_C)
-target_compile_options(keyconvert PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_options(keyconvert PRIVATE)
 
 add_executable(keypairgenerator keypairgenerator.c)
 target_link_libraries(keypairgenerator Threads::Threads OpenSSL::Crypto uuid)
@@ -448,7 +450,7 @@ target_link_libraries(main
                         CURL::libcurl
                         uuid
                      )
-target_compile_options(main PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_options(main PRIVATE)
 
 add_executable(mandelbrot mandelbrot.c pngreadwrite.c)
 target_link_libraries(mandelbrot PRIVATE m PNG::PNG)
@@ -497,35 +499,35 @@ add_executable(oncecallsample oncecallsample.c)
 target_link_libraries(oncecallsample Threads::Threads)
 
 add_executable(openmpsample1 openmpsample1.c)
-target_compile_options(openmpsample1 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_options(openmpsample1 PRIVATE)
 target_link_libraries(openmpsample1 PRIVATE OpenMP::OpenMP_C)
 
 add_executable(openmpsample2 openmpsample2.c)
-target_compile_options(openmpsample2 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_options(openmpsample2 PUBLIC)
 target_link_libraries(openmpsample2 PRIVATE OpenMP::OpenMP_C)
 add_executable(openmpsample3 openmpsample3.c)
-target_compile_options(openmpsample3 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_options(openmpsample3 PUBLIC )
 target_link_libraries(openmpsample3 PRIVATE OpenMP::OpenMP_C)
 
 add_executable(openmpsample4 openmpsample4.c)
-target_compile_options(openmpsample4 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_options(openmpsample4 PUBLIC )
 target_link_libraries(openmpsample4 PRIVATE OpenMP::OpenMP_C)
 add_executable(openmpsample5 openmpsample5.c)
-target_compile_options(openmpsample5 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_options(openmpsample5 PUBLIC )
 target_link_libraries(openmpsample5 PRIVATE OpenMP::OpenMP_C)
 
 add_executable(openmpsample6 openmpsample6.c)
-target_compile_options(openmpsample6 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_options(openmpsample6 PUBLIC )
 target_link_libraries(openmpsample6 PRIVATE OpenMP::OpenMP_C)
 add_executable(openmpsample7 openmpsample7-driver.c openmpsample7.c openmpsample7-stub.c)
-target_compile_options(openmpsample7 PUBLIC $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_options(openmpsample7 PUBLIC )
 target_link_libraries(openmpsample7 PRIVATE OpenMP::OpenMP_C)
 
 add_executable(pari-script-generator pari-script-generator.c)
 
 add_executable(paribatch paribatch.c)
-target_link_libraries(paribatch PRIVATE pari Threads::Threads)
-target_compile_options(paribatch PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_link_libraries(paribatch PRIVATE pari Threads::Threads OpenMP::OpenMP_C)
+target_compile_options(paribatch PRIVATE)
 
 add_executable(passwordhashsample passwordhashsample.c)
 target_link_libraries(passwordhashsample OpenSSL::Crypto)
@@ -726,7 +728,7 @@ target_include_directories(teamspeakIdUpgrader PRIVATE ${OPENSSL_INCLUDE_DIR} ${
 add_executable(teamspeakcalc teamspeakcalc.c)
 target_link_libraries(teamspeakcalc study OpenSSL::Crypto OpenMP::OpenMP_C Intl::Intl)
 target_include_directories(teamspeakcalc PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include $<$<BOOL:${GETTEXT_FOUND}>:${Intl_INCLUDE_DIRS}>)
-target_compile_options(teamspeakcalc PRIVATE $<$<BOOL:${OpenMP_FOUND}>:${OpenMP_C_FLAGS}>)
+target_compile_options(teamspeakcalc PRIVATE )
 target_compile_definitions(teamspeakcalc PRIVATE $<$<BOOL:${GETTEXT_FOUND}>:ENABLE_NLS>)
 
 add_executable(teamspeakcalc2 teamspeakcalc2.c)

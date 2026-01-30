@@ -1,110 +1,66 @@
 
 #include "pngheaders.h"
 #include <complex.h>
-#include <math.h>
 #include <png.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-struct arg
-{
-    size_t x;
-    size_t y;
-    float complex c;
-    int result;
-};
-
-void *func(void *a)
-{
-    struct arg *args = (struct arg *)a;
-    float complex z = 0;
-    const float complex c = args->c;
-    for (size_t i = 0; i < 1000; i++)
-    {
-        z = z * z + c;
-        if (cabsf(z) >= 3)
-        {
-            break;
-        }
-    }
-    if (cimag(z) <= 1)
-    {
-        args->result = 1;
-    }
-    else
-    {
-        args->result = 0;
-    }
-    return a;
-}
-
 #define WIDTH 2560
 #define HEIGHT 1920
+#define MAX_ITER 1000
 
-/**
- * @brief
- *
- * @param argc
- * @param argv
- * @return int
- */
-int main(int argc, char const *argv[])
-{
-    size_t width = WIDTH;
-    size_t height = HEIGHT;
-    //
-    float complex hidariue = -2. + 1.i;
-    const float unit = 2.1 / HEIGHT;
+// 数学的に正しい判定関数
+int mandelbrot(float complex c) {
     float complex z = 0;
-    float complex c = 0;
-    size_t y = 0;
-    size_t i = 0;
-    struct IHDR ihdr = { 0 };
-    ihdr.width = WIDTH;
-    ihdr.height = HEIGHT;
-    ihdr.bit_depth = 8;
-    ihdr.color_type = PNG_COLOR_TYPE_RGB;
-    ihdr.interlace_method = PNG_INTERLACE_NONE;
-    ihdr.compression_method = PNG_COMPRESSION_TYPE_DEFAULT;
-    ihdr.filter_method = PNG_NO_FILTERS;
-    png_byte **data = malloc(HEIGHT * sizeof(png_byte *));
-    for (size_t x = 0; x < HEIGHT; x++)
-    {
-        data[x] = malloc(sizeof(png_byte) * 3 * WIDTH);
+    for (int i = 0; i < MAX_ITER; i++) {
+        // |z|^2 > 4 ならば発散とみなす (cabsfより高速)
+        if (crealf(z)*crealf(z) + cimagf(z)*cimagf(z) > 4.0f) {
+            return 0; // 集合の外
+        }
+        z = z * z + c;
     }
-    int result = 0;
-    for (size_t x = 0; x < WIDTH; x++)
-    {
-        for (y = 0; y < HEIGHT; y++)
-        {
-            z = 0;
-            c = hidariue + unit * x - unit * y * I;
-            for (i = 0; i < 1000; i++)
-            {
-                z = z * z + c;
-                if (cimagf(z) >= 3)
-                {
-                    break;
-                }
-            }
-            result = cimagf(z) >= 1;
-            data[y][x*3 + 0] = 0xff * result;
-            data[y][x*3 + 1] = 0xff * result;
-            data[y][x*3 + 2] = 0xff * result;
+    return 1; // 集合の内
+}
+
+int main() {
+    struct IHDR ihdr = {
+        .width = WIDTH, .height = HEIGHT, .bit_depth = 8,
+        .color_type = PNG_COLOR_TYPE_RGB, .interlace_method = PNG_INTERLACE_NONE,
+        .compression_method = PNG_COMPRESSION_TYPE_DEFAULT, .filter_method = PNG_NO_FILTERS
+    };
+
+    png_byte **data = malloc(HEIGHT * sizeof(png_byte *));
+    for (size_t y = 0; y < HEIGHT; y++) {
+        data[y] = malloc(3 * WIDTH * sizeof(png_byte));
+    }
+
+    const float complex left_top = -2.0f + 1.0f*I;
+    const float unit = 2.0f / HEIGHT; // 縦の範囲を基準にスケーリング
+
+    // 行優先ループ (キャッシュ効率のため y が外側)
+    for (size_t y = 0; y < HEIGHT; y++) {
+        for (size_t x = 0; x < WIDTH; x++) {
+            float complex c = left_top + (float)x * unit - (float)y * unit * I;
+            
+            int is_inside = mandelbrot(c);
+            unsigned char color = is_inside ? 0x00 : 0xFF; // 内側は黒、外側は白
+
+            data[y][x*3 + 0] = color;
+            data[y][x*3 + 1] = color;
+            data[y][x*3 + 2] = color;
         }
     }
-    int ret = 0;
 
-    ret = write_png("out.png", &ihdr, NULL, NULL, 0, data);
-    if (ret == 0)
-    {
-        printf("OK\n");
+    if (write_png("out.png", &ihdr, NULL, NULL, 0, data) == 0) {
+        printf("Success: out.png generated.\n");
+    } else {
+        fprintf(stderr, "Error: Failed to write PNG.\n");
     }
-    else
-    {
-        printf("FAIL\n");
-    }
+
+    // メモリ解放
+    for (size_t y = 0; y < HEIGHT; y++) free(data[y]);
+    free(data);
 
     return 0;
 }

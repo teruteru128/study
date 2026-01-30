@@ -13,11 +13,12 @@ int main(int argc, char *argv[], char *envp[])
 {
     if(argc < 3)
     {
-        fprintf(stderr, "Usage: %s <sieve file> <number file>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <sieve file> <number file> [max-prime]\n", argv[0]);
         return 1;
     }
     FILE *sievef = fopen(argv[1], "rb");
     FILE *numberf = fopen(argv[2], "r");
+    uint64_t maxprime = argc >= 4 ? strtoull(argv[3], NULL, 10) : 1048576 * 2 + 1;
     if(sievef == NULL || numberf == NULL)
     {
         perror("fopen");
@@ -30,10 +31,10 @@ int main(int argc, char *argv[], char *envp[])
         return 1;
     }
     fseek(sievef, 8, SEEK_SET);
-    // 1,048,576 bit
-    uint64_t *sieve = malloc(sizeof(uint64_t) * E);
-    ssize_t sievelength = fread(sieve, sizeof(uint64_t), E, sievef);
-    if(sievelength != E)
+    uint64_t req_sieve_length = ((maxprime - 1) / 128) + 1;
+    uint64_t *sieve = malloc(sizeof(uint64_t) * req_sieve_length);
+    ssize_t sievelength = fread(sieve, sizeof(uint64_t), req_sieve_length, sievef);
+    if(sievelength != req_sieve_length)
     {
         perror("fread");
         fclose(sievef);
@@ -57,7 +58,8 @@ int main(int argc, char *argv[], char *envp[])
     mpz_init_set_str(n, buffer, 10);
 
     uint64_t r;
-    for(i = 1; i < ES; i++)
+    uint64_t maxindex = req_sieve_length * 64;
+    for(i = 1; i < maxindex; i++)
     {
         if(((sieve[i >> 6] >> (i & 0x3f)) & 1) == 0)
         {

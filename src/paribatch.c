@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <pari/pari.h>
-#include <omp.h>
 #define t_INT t_INT
 #define t_REAL t_REAL
 #define t_INTMOD t_INTMOD
@@ -32,9 +31,15 @@
 #define MAX_LINES 1000
 #define MAX_LINE_LEN 8192
 
+/**
+ * curlで100件素数を取得する
+ * pari/gpで証明書を生成する
+ * libzipで圧縮する
+ * curlでポストする
+ */
 int main(int argc, char const *argv[])
 {
-    pari_init(10000000000, 2);
+    pari_init(4ULL * 1024 * 1024 * 1024, 2);
     pari_sp av = avma;
     GEN n = gp_read_str("205418657260510546733082285384744539230409867551175649321847618486369671955948433884385977461705708629768431483165108678"
                         "842880244207056768833777064305266103662894985870100602095555059567859056442004466890122799106190021904948149190201604561"
