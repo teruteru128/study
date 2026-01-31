@@ -9,7 +9,7 @@
 
 #define WIDTH 3840
 #define HEIGHT 2160
-#define MAX_ITER 1000
+#define MAX_ITER 10000
 #define THREAD_COUNT 16  // 使用するスレッド数
 
 typedef struct {
@@ -84,6 +84,20 @@ int main(int argc, char *argv[]) {
         pthread_create(&threads[i], NULL, thread_func, &args[i]);
     }
     for (int i = 0; i < THREAD_COUNT; i++) pthread_join(threads[i], NULL);
+
+    // 座標計算と表示
+    long double unit = range / HEIGHT;
+    long double left_top_re = cx - (WIDTH / 2.0L) * unit;
+    long double left_top_im = cy + (HEIGHT / 2.0L) * unit;
+    long double right_bottom_re = cx + (WIDTH / 2.0L) * unit;
+    long double right_bottom_im = cy - (HEIGHT / 2.0L) * unit;
+
+    printf("\n--- Rendering Info ---\n");
+    printf("File:   %s\n", filename);
+    printf("Center: (%.20Lf, %.20Lf)\n", cx, cy);
+    printf("Top-Left:     (%.20Lf, %.20Lf)\n", left_top_re, left_top_im);
+    printf("Bottom-Right: (%.20Lf, %.20Lf)\n", right_bottom_re, right_bottom_im);
+    printf("----------------------\n");
 
     struct IHDR ihdr = { .width = WIDTH, .height = HEIGHT, .bit_depth = 8, .color_type = PNG_COLOR_TYPE_RGB };
     write_png(filename, &ihdr, NULL, NULL, 0, data);

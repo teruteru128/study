@@ -176,6 +176,7 @@ int main(const int argc, const char *argv[])
     if (argc < 2)
     {
         fprintf(stderr, "usage: %s [file path]\n", argv[0]);
+        fprintf(stderr, "2 ^ a + 2 ^ b + 1 が素数かどうか調べる\n");
         return 1;
     }
 
