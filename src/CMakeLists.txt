@@ -626,6 +626,9 @@ target_link_libraries(prime14 gmp Threads::Threads)
 add_executable(prime15 prime15.c)
 target_link_libraries(prime15 PRIVATE gmp)
 
+add_executable(primorial primorial.c)
+target_link_libraries(primorial PRIVATE gmp)
+
 add_executable(primesearch primesearch.c)
 target_link_libraries(primesearch gmp)
 
@@ -656,6 +659,9 @@ add_executable(rsa rsa.c)
 add_executable(rsa1024 rsa1024.c)
 target_link_libraries(rsa1024 gmp study)
 target_include_directories(rsa1024 PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
+
+add_executable(rsa1024-2 rsa1024-2.c)
+target_link_libraries(rsa1024-2 gmp)
 
 add_executable(selfmadelibsha self-made-libsha.c)
 target_link_libraries(selfmadelibsha study)
