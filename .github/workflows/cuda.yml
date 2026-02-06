@@ -26,7 +26,7 @@ jobs:
       - run: 'echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"'
       - run: nvcc -V
       - name: Install dependents
-        run: sudo apt install --no-install-recommends --no-install-suggests ninja-build autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64 gettext libjsonrpc-glib-1.0-dev opencl-c-headers libgnutls28-dev libjpeg9-dev libpng-dev libpari-dev
+        run: sudo apt install --no-install-recommends --no-install-suggests ninja-build autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64 gettext libjsonrpc-glib-1.0-dev opencl-c-headers libgnutls28-dev libjpeg9-dev libpng-dev libpari-dev libomp-dev
       - name: Configuration
         run: cmake . -G Ninja -B build -DENABLE_CUDA=ON
       - name: build
