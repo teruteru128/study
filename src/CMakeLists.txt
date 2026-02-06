@@ -143,9 +143,9 @@ target_compile_options(bmkeysearch14 PUBLIC $<$<BOOL:${OpenACC_C_FOUND}>:${OpenA
 
 add_executable(bmkeysearch15 bmkeysearch15.c timeutil.c load_key.c)
 target_link_libraries(bmkeysearch15 OpenSSL::Crypto GnuTLS::GnuTLS Threads::Threads study OpenMP::OpenMP_C)
-target_include_directories(bmkeysearch15 PRIVATE ${OPENSSL_INCLUDE_DIR} $<$<BOOL:${GNUTLS_FOUND}>:${GNUTLS_INCLUDE_DIR}> ${PROJECT_SOURCE_DIR}/libstudy/include)
+target_include_directories(bmkeysearch15 PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/include ${OpenMP_C_INCLUDE_DIRS})
 target_compile_options(bmkeysearch15 PRIVATE $<$<BOOL:${OpenACC_C_FOUND}>:${OpenACC_C_FLAGS}>)
-target_compile_definitions(bmkeysearch15 PRIVATE $<$<BOOL:${GNUTLS_FOUND}>:${GNUTLS_DEFINITIONS}>)
+target_compile_definitions(bmkeysearch15 PRIVATE )
 
 add_executable(bmkeysearch16 bmkeysearch16.c)
 target_link_libraries(bmkeysearch16 OpenSSL::Crypto)
@@ -793,3 +793,5 @@ add_executable(yakusokunohi yakusokunohi.c countdown.c)
 add_executable(yakusokunohi2 yakusokunohi2.c countdown.c)
 
 add_executable(yattaze yattaze.c)
+
+add_executable(yoriwake yoriwake.c)
