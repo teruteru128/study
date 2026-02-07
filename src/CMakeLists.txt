@@ -447,7 +447,7 @@ target_link_libraries(main
                         PNG::PNG
                         gmp
                         OpenMP::OpenMP_C
-                        #OpenCL::OpenCL
+                        OpenCL::OpenCL
                         JPEG::JPEG
                         PkgConfig::JSONRPC_GLIB1
                         CURL::libcurl
