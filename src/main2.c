@@ -148,93 +148,102 @@ const char *clGetErrorString(cl_int err) {
  */
 int entrypoint(int argc, char **argv, char *const *envp)
 {
-    struct drand48_data data;
-    uint64_t seeds[] = {125352706827826ULL, 116229385253865ULL};
-    uint64_t seed;
-    uint16_t seed2[3];
-    size_t size = sizeof(struct drand48_data);
-    for (int j = 0; j < 2; j++)
+    if(argc < 2)
     {
-        seed = seeds[j];
-        fprintf(stderr, "before scramble: %012" PRIx64 "\n", seed);
-        seed = initialScramble(seed);
-        fprintf(stderr, "after scramble: %012" PRIx64 "\n", seed);
-        // これメモリオーダーがビッグエンディアンだったら0x00ffff部分がコピーされるんか？
-        memcpy(seed2, &seed, 6);
-        fprintf(stderr, "after memcpy: %04" PRIx16 "%04" PRIx16 "%04" PRIx16 "\n", seed2[2], seed2[1], seed2[0]);
-        seed48_r((uint16_t *)seed2, &data);
-        fprintf(stderr, "after setseed: %04x%04x%04x\n", data.__x[2], data.__x[1], data.__x[0]);
-        float f;
-        int ffff;
-        for (int i = 0; i < 2; i++)
-        {
-            f = nextFloat(&data);
-            memcpy(&ffff, &f, 4);
-            fprintf(stderr, "%f, %08x\n", f, ffff);
-        }
-        if (j != 1)
-        {
-            fprintf(stderr, "--\n");
-        }
+        return 1;
     }
+    const int W = 625;
+    const int size = W * W;
+    int *h_res = (int *)calloc(size, sizeof(int));
+    long world_seed = 6088315209L;
     cl_int ret;
 
-    // プラットフォーム数取得
-    cl_uint num_platforms;
-    if((ret = clGetPlatformIDs(0, NULL, &num_platforms)) != 0)
-    {
-        perror("clGetPlatformIDs");
-        fprintf(stderr, "%s\n", clGetErrorString(ret));
-        return 1;
-    }
-    printf("num_platforms: %u\n", num_platforms);
+	// 1. プラットフォーム・デバイス取得
+    cl_platform_id platform;
+    clGetPlatformIDs(1, &platform, NULL);
+    cl_device_id device;
+    clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
 
-    // プラットフォーム取得
-    cl_platform_id *platforms = alloca(sizeof(cl_platform_id) * num_platforms);
-    if((ret = clGetPlatformIDs(num_platforms, platforms, NULL)) != 0)
-    {
-        perror("clGetPlatformIDs");
-        fprintf(stderr, "%s\n", clGetErrorString(ret));
-        return 1;
-    }
-    cl_platform_id platform = platforms[0];
-    unsigned char *tmp = (unsigned char *)platform;
-    for(size_t i = 0; i < 16; i++)
-    {
-        printf("%u", tmp[i] & 0xff);
-    }
-    printf("\n");
+    // 2. コンテキスト・コマンドキュー作成
+    cl_context context = clCreateContext(NULL, 1, &device, NULL, NULL, NULL);
+    cl_command_queue queue = clCreateCommandQueueWithProperties(context, device, NULL, NULL);
 
-    // デバイス数取得
-    cl_uint num_devices;
-    if((ret = clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_ALL, 0, NULL, &num_devices) != 0))
-    {
-        perror("clGetDeviceIDs");
-        fprintf(stderr, "%s\n", clGetErrorString(ret));
-        return 1;
-    }
-    printf("num_devices: %d\n", num_devices);
+    // 3. バッファ作成
+    cl_mem d_res = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(int) * size, NULL, NULL);
 
-    // デバイス取得
-    cl_device_id *devices = alloca(sizeof(cl_device_id) * num_devices);
-    if((ret = clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_ALL, num_devices, devices, NULL) != 0))
+    // 4. カーネルの読み込み・コンパイル
+    char source[BUFSIZ];
+    FILE *in = fopen(argv[1], "r");
+    if(!in)
     {
-        perror("clGetDeviceIDs");
-        fprintf(stderr, "%s\n", clGetErrorString(ret));
+        perror("kernel.cl not found");
+        return 1;
+    }
+    fread(source, 1, BUFSIZ, in);
+    fclose(in);
+    size_t sourceLength = strlen(source);
+    const char *input[] = {source, NULL};
+    cl_program program = clCreateProgramWithSource(context, 1, input, &sourceLength, &ret);
+    if(ret){
+        fprintf(stderr, "clCreateProgramWithSource: %s\n", clGetErrorString(ret));
+        return 1;
+    }
+    ret = clBuildProgram(program, 1, &device, NULL, NULL, NULL);
+    if(ret){
+        fprintf(stderr, "clBuildProgram: %s\n", clGetErrorString(ret));
+		char log[10000];
+		clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, sizeof(log), log, NULL);
+		printf("Build Log:\n%s\n", log);
+        return 1;
+    }
+    cl_kernel kernel = clCreateKernel(program, "check_slime_optimized", &ret);
+    if(ret){
+        fprintf(stderr, "clCreateKernel: %s\n", clGetErrorString(ret));
         return 1;
     }
 
-    // コンテキスト作成
-    cl_context context = clCreateContext(NULL, num_devices, devices, NULL, NULL, &ret);
-    if(ret != CL_SUCCESS)
-    {
-        fprintf(stderr, "%s\n", clGetErrorString(ret));
-		return 1;
-    }
-    if((ret = clReleaseContext(context)) != 0)
-    {
-        fprintf(stderr, "%s\n", clGetErrorString(ret));
+    // 5. 引数セット
+    ret = clSetKernelArg(kernel, 0, sizeof(long), &world_seed);
+    if(ret){
+        fprintf(stderr, "clSetKernelArg: %s\n", clGetErrorString(ret));
         return 1;
+    }
+    int start_pos_x = -313;
+    int start_pos_z = -313;
+    ret = clSetKernelArg(kernel, 1, sizeof(int), &start_pos_x);
+    if(ret){
+        fprintf(stderr, "clSetKernelArg: %s\n", clGetErrorString(ret));
+        return 1;
+    }
+    ret = clSetKernelArg(kernel, 2, sizeof(int), &start_pos_z);
+    if(ret){
+        fprintf(stderr, "clSetKernelArg: %s\n", clGetErrorString(ret));
+        return 1;
+    }
+    ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), &d_res);
+    if(ret){
+        fprintf(stderr, "clSetKernelArg: %s\n", clGetErrorString(ret));
+        return 1;
+    }
+
+    // 6. 実行 (625x625のワークアイテム)
+    size_t global_size[2] = {W, W};
+    ret = clEnqueueNDRangeKernel(queue, kernel, 2, NULL, global_size, NULL, 0, NULL, NULL);
+    if(ret){
+        fprintf(stderr, "clEnqueueNDRangeKernel: %s\n", clGetErrorString(ret));
+        return 1;
+    }
+
+    // 7. 結果取得
+    ret = clEnqueueReadBuffer(queue, d_res, CL_TRUE, 0, sizeof(int) * size, h_res, 0, NULL, NULL);
+    if(ret){
+        fprintf(stderr, "clEnqueueReadBuffer: %s\n", clGetErrorString(ret));
+        return 1;
+    }
+
+    // 結果表示 (見つかった場所だけ表示)
+    for(int i=0; i<size; i++) {
+        if(h_res[i] >= 16) printf("Found at index %d(%d, %d): %d slimes\n", i, (i % 625) - 313, (i / 625) - 313, h_res[i]);
     }
     return 0;
 }
