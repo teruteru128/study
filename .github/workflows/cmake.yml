@@ -17,7 +17,7 @@ jobs:
       - name: apt update
         run: sudo apt update
       - name: Install dependents
-        run: sudo apt install --no-install-recommends --no-install-suggests ninja-build autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64 gettext libjsonrpc-glib-1.0-dev opencl-c-headers opencl-icd-loader pocl-opencl-icd libgnutls28-dev libjpeg9-dev libpng-dev libpari-dev libomp-dev
+        run: sudo apt install --no-install-recommends --no-install-suggests ninja-build autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64 gettext libjsonrpc-glib-1.0-dev opencl-c-headers ocl-icd-opencl-dev pocl-opencl-icd libgnutls28-dev libjpeg9-dev libpng-dev libpari-dev libomp-dev
       - name: Configuration
         run: cmake . -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug -DENABLE_CUDA=OFF
       - name: build
