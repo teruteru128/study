@@ -155,7 +155,6 @@ int entrypoint(int argc, char **argv, char *const *envp)
     const int W = 625;
     const int size = W * W;
     int *h_res = (int *)calloc(size, sizeof(int));
-    long world_seed = 6088315209L;
     cl_int ret;
 
 	// 1. プラットフォーム・デバイス取得
@@ -170,6 +169,8 @@ int entrypoint(int argc, char **argv, char *const *envp)
 
     // 3. バッファ作成
     cl_mem d_res = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(int) * size, NULL, NULL);
+    cl_mem found_seeds = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(long) * 1000, NULL, NULL);
+    cl_mem found_count = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(int), NULL, NULL);
 
     // 4. カーネルの読み込み・コンパイル
     char source[BUFSIZ];
@@ -196,54 +197,69 @@ int entrypoint(int argc, char **argv, char *const *envp)
 		printf("Build Log:\n%s\n", log);
         return 1;
     }
-    cl_kernel kernel = clCreateKernel(program, "check_slime_optimized", &ret);
+    cl_kernel kernel = clCreateKernel(program, "search_perfect_seeds", &ret);
     if(ret){
         fprintf(stderr, "clCreateKernel: %s\n", clGetErrorString(ret));
         return 1;
     }
 
     // 5. 引数セット
-    ret = clSetKernelArg(kernel, 0, sizeof(long), &world_seed);
+    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), &found_seeds);
     if(ret){
         fprintf(stderr, "clSetKernelArg: %s\n", clGetErrorString(ret));
         return 1;
     }
-    int start_pos_x = -313;
-    int start_pos_z = -313;
-    ret = clSetKernelArg(kernel, 1, sizeof(int), &start_pos_x);
-    if(ret){
-        fprintf(stderr, "clSetKernelArg: %s\n", clGetErrorString(ret));
-        return 1;
-    }
-    ret = clSetKernelArg(kernel, 2, sizeof(int), &start_pos_z);
-    if(ret){
-        fprintf(stderr, "clSetKernelArg: %s\n", clGetErrorString(ret));
-        return 1;
-    }
-    ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), &d_res);
+    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), &found_count);
     if(ret){
         fprintf(stderr, "clSetKernelArg: %s\n", clGetErrorString(ret));
         return 1;
     }
 
-    // 6. 実行 (625x625のワークアイテム)
+    // 6. 実行 
     size_t global_size[2] = {W, W};
-    ret = clEnqueueNDRangeKernel(queue, kernel, 2, NULL, global_size, NULL, 0, NULL, NULL);
-    if(ret){
-        fprintf(stderr, "clEnqueueNDRangeKernel: %s\n", clGetErrorString(ret));
-        return 1;
-    }
+    long current_seed = 0L;
+    size_t step = 1024;
+    int host_found_count;
+    long host_found_seeds[1000];
+    int zero = 0;
 
-    // 7. 結果取得
-    ret = clEnqueueReadBuffer(queue, d_res, CL_TRUE, 0, sizeof(int) * size, h_res, 0, NULL, NULL);
-    if(ret){
-        fprintf(stderr, "clEnqueueReadBuffer: %s\n", clGetErrorString(ret));
-        return 1;
-    }
+    for(int i = 0; i < 1000; i++) {
+        clEnqueueWriteBuffer(queue, found_count, CL_TRUE, 0, sizeof(int), &zero, 0, NULL, NULL);
+        ret = clSetKernelArg(kernel, 0, sizeof(long), &current_seed);
+        if(ret){
+            fprintf(stderr, "clSetKernelArg: %s\n", clGetErrorString(ret));
+            return 1;
+        }
+        ret = clEnqueueNDRangeKernel(queue, kernel, 1, NULL, &step, NULL, 0, NULL, NULL);
+        if(ret){
+            fprintf(stderr, "clEnqueueNDRangeKernel: %s\n", clGetErrorString(ret));
+            return 1;
+        }
 
-    // 結果表示 (見つかった場所だけ表示)
-    for(int i=0; i<size; i++) {
-        if(h_res[i] >= 16) printf("Found at index %d(%d, %d): %d slimes\n", i, (i % 625) - 313, (i / 625) - 313, h_res[i]);
+        // 7. 結果取得
+        ret = clEnqueueReadBuffer(queue, found_count, CL_TRUE, 0, sizeof(int), &host_found_count, 0, NULL, NULL);
+        if(ret){
+            fprintf(stderr, "clEnqueueReadBuffer: %s\n", clGetErrorString(ret));
+            return 1;
+        }
+
+        // 結果表示 (見つかった場所だけ表示)
+        if(host_found_count > 0)
+        {
+            printf("host found count: %d\n", host_found_count);
+            ret = clEnqueueReadBuffer(queue, found_seeds, CL_TRUE, 0, sizeof(long) * (host_found_count > 1000 ? 1000 : host_found_count), host_found_seeds, 0, NULL, NULL);
+            if(ret){
+                fprintf(stderr, "clEnqueueReadBuffer: %s\n", clGetErrorString(ret));
+                return 1;
+            }
+            for(int i = 0; i < host_found_count; i++)
+            {
+                printf("found seeds: %ld\n", host_found_seeds[i]);
+            }
+            break;
+        }
+        current_seed += step;
+        if(i % 10 == 0) printf("Checked up to seed: %ld\n", current_seed);
     }
     return 0;
 }
