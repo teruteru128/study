@@ -17,7 +17,7 @@ jobs:
       - name: Setup MOK keys
         run: |
           mkdir -p $HOME/.local/share/kernel-keys/
-          echo "${{ secrets.MOK_PRIV }}" > $HOME/.local/share/kernel-keys/MOK.priv
+          echo "${{ secrets.MOK_PRIV }}" | base64 -d > $HOME/.local/share/kernel-keys/MOK.priv
           chmod 600 $HOME/.local/share/kernel-keys/MOK.priv
       - name: apt update
         run: sudo apt update
