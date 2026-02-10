@@ -16,7 +16,7 @@ jobs:
           submodules: "recursive"
       - name: Setup MOK keys
         run: |
-          mkdir -p $HOME/.kernel-keys
+          mkdir -p $HOME/.local/share/kernel-keys/
           echo "${{ secrets.MOK_PRIV }}" | base64 -d > $HOME/.local/share/kernel-keys/MOK.priv
           chmod 600 $HOME/.local/share/kernel-keys/MOK.priv
       - name: apt update
