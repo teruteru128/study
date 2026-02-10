@@ -205,3 +205,4 @@ imaginaryaddress.txt
 keys/
 config/
 !config/CMakeLists.txt
+*.priv

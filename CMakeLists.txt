@@ -213,6 +213,21 @@ endif()
 #add_compile_definitions(PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}" VERSION="${study_VERSION}")
 #include_directories("${PROJECT_BINARY_DIR}")
 
+# 秘密鍵のパス。設定されていなければデフォルト値を参照
+set(K_PRIV_KEY "$ENV{HOME}/.local/share/kernel-keys/MOK.priv" CACHE FILEPATH "Path to MOK private key")
+set(K_DER_CERT "${CMAKE_CURRENT_SOURCE_DIR}/MOK.der" CACHE FILEPATH "Path to MOK public cert")
+
+set(KDIR /lib/modules/${CMAKE_SYSTEM_PROCESSOR}/build)
+if(NOT EXISTS ${KDIR})
+    execute_process(COMMAND uname -r OUTPUT_VARIABLE KERNEL_RELEASE OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set(KDIR /lib/modules/${KERNEL_RELEASE}/build)
+endif()
+
+# クリーン操作の定義
+add_custom_target(clean_driver
+    COMMAND make -C ${KDIR} M=${CMAKE_CURRENT_SOURCE_DIR} clean
+)
+
 add_subdirectory(libstudy)
 add_subdirectory(include)
 add_subdirectory(config)

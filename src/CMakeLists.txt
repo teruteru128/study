@@ -496,6 +496,42 @@ target_link_libraries(mysqlbf mysqlclient)
 add_executable(mysqlfast mysqlfast.c)
 target_link_libraries(mysqlfast mysqlclient)
 
+# ビルドコマンドの定義
+message(NOTICE  ${K_DER_CERT})
+add_custom_target(my_driver ALL
+    COMMAND make -C ${KDIR} M=${CMAKE_CURRENT_SOURCE_DIR} modules
+    DEPENDS devicedriversample.c
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "Building Kernel Module..."
+)
+# ビルド後の署名コマンドを追加
+add_custom_command(TARGET my_driver POST_BUILD
+    COMMAND sudo /usr/src/linux-headers-${KERNEL_RELEASE}/scripts/sign-file sha384 
+            ${K_PRIV_KEY} ${K_DER_CERT} 
+            ${CMAKE_CURRENT_SOURCE_DIR}/devicedriversample.ko
+    COMMENT "Signing kernel module with MOK..."
+)
+# --- LSP用の設定（ここを追加） ---
+# ビルド対象からは除外(EXCLUDE_FROM_ALL)し、
+# CMAKE_EXPORT_COMPILE_COMMANDS=ON の時に json に出力させる
+add_executable(lsp_helper EXCLUDE_FROM_ALL devicedriversample.c)
+
+# カーネルのインクルードパスを明示的に指定
+target_include_directories(lsp_helper PRIVATE
+    ${KDIR}/include
+    ${KDIR}/arch/x86/include  # アーキテクチャに合わせて変更
+    ${KDIR}/arch/x86/include/generated
+    ${KDIR}/include/uapi
+    ${KDIR}/arch/x86/include/generated/uapi
+    ${KDIR}/include/generated/uapi
+)
+
+# カーネル特有のマクロ定義を追加
+target_compile_definitions(lsp_helper PRIVATE
+    __KERNEL__
+    MODULE
+)
+
 add_executable(octorberfirst octoberfirst.c)
 #target_link_libraries(octorberfirst)
 
