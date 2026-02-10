@@ -11,9 +11,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           submodules: "recursive"
+      - name: Setup MOK keys
+        run: |
+          mkdir -p $HOME/.kernel-keys
+          echo "${{ secrets.MOK_PRIV }}" > $HOME/.local/share/kernel-keys/MOK.priv
+          chmod 600 $HOME/.local/share/kernel-keys/MOK.priv
       - name: apt update
         run: sudo apt update
       - uses: Jimver/cuda-toolkit@v0.2.29
@@ -28,6 +33,6 @@ jobs:
       - name: Install dependents
         run: sudo apt install --no-install-recommends --no-install-suggests ninja-build autopoint libcurl4-gnutls-dev libgmp-dev libsodium-dev libupnp-dev libxmlrpc-core-c3-dev uuid-dev libcunit1-dev libjson-c-dev libtommath-dev libtomcrypt-dev mingw-w64 gettext libjsonrpc-glib-1.0-dev opencl-c-headers ocl-icd-opencl-dev pocl-opencl-icd libgnutls28-dev libjpeg9-dev libpng-dev libpari-dev libomp-dev
       - name: Configuration
-        run: cmake . -G Ninja -B build -DENABLE_CUDA=ON
+        run: cmake . -G Ninja -B build -DENABLE_CUDA=ON -DMOK_PRIV=$HOME/.local/share/kernel-keys/MOK.priv
       - name: build
         run: ninja -j 0 -C build
