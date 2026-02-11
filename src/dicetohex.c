@@ -12,73 +12,83 @@
 /**
  * @brief サイコロによる6進数をバイナリに変換するツール
  * dicetobin(unsigned char *bin, size_t s, char *dice)
- * 
- * @param argc 
- * @param argv 
- * @return int 
+ *
+ * @param argc
+ * @param argv
+ * @return int
  */
-int main(int argc, char *argv[])
-{
-    mpz_t hex;
-    mpz_init(hex);
+int main(int argc, char *argv[]) {
+  mpz_t hex;
+  mpz_init(hex);
 
-    size_t size = 256;
-    char *dice = malloc(size);
-    memset(dice, 0, size);
-    size_t length = 0;
+  size_t size = 256;
+  char *dice = malloc(size);
+  memset(dice, 0, size);
+  size_t length = 0;
 
-    int c;
-    int con = 1;
-    printf("'q'で終了します。\n");
-    while (con)
-    {
-        while (1)
-        {
-            c = fgetc(stdin);
-            if (isdigit(c) && '1' <= c && c <= '6')
-            {
-                dice[length++] = (char)c;
-                if (length == size)
-                {
-                    char *tmp = realloc(dice, size * 2);
-                    if (tmp != NULL)
-                    {
-                        dice = tmp;
-                        size *= 2;
-                        memset(dice + length, 0, size - length);
-                    }
-                    else
-                    {
-                        perror("realloc");
-                        free(dice);
-                        exit(EXIT_FAILURE);
-                    }
-                }
-                mpz_mul_ui(hex, hex, 6);
-                mpz_add_ui(hex, hex, (unsigned long)(c - '1'));
-            }
-            else if (c == 'c' || c == 'f' || c == 'q' || c == EOF)
-            {
-                if (ferror(stdin) != 0)
-                {
-                    perror("fgetc");
-                }
-                con = 0;
-                break;
-            }
-            else if (c == '\n')
-            {
-                break;
-            }
-            else
-            {
-                fprintf(stderr, "invarit charactor!: (0x%02x)\n", c);
-            }
-        }
-        gmp_fprintf(stdout, "(%zudigits)%s\n(%zubit)%Zx\n", length, dice,
-                    mpz_sizeinbase(hex, 2), hex);
+  int c;
+  int con = 1;
+  printf("'c'でリセットします。\n");
+  printf("'q', 'f' のいずれかで終了します。\n");
+  while (1) {
+    c = fgetc(stdin);
+
+    // 1. 終了・エラー判定
+    if (c == EOF || strchr("fq", c)) {
+      if (c == EOF && ferror(stdin)) {
+        perror("fgetc");
+      }
+      break;
     }
+
+    // 1.1. リセット処理
+    if (c == 'c') {
+      length = 0;
+      if (dice)
+        dice[0] = '\0';
+      mpz_set_ui(hex, 0);
+      printf("--- Data Reset ---\n");
+    }
+
+    // 2. 有効な入力（1-6）
+    if (c >= '1' && c <= '6') {
+      if (length + 1 == size) {
+        size *= 2;
+        char *tmp = realloc(dice, size);
+        if (!tmp) {
+          perror("realloc");
+          free(dice);
+          exit(EXIT_FAILURE);
+        }
+        dice = tmp;
+      }
+
+      dice[length++] = (char)c;
+      dice[length] = '\0'; // 終端保証
+
+      mpz_mul_ui(hex, hex, 6);
+      mpz_add_ui(hex, hex, (unsigned long)(c - '1'));
+      continue;
+    }
+
+    // 4. 無視する文字（空白など）とエラー
+    if (isspace(c)) {
+      if (c == '\n' && length > 0) {
+        gmp_printf("(%zudigits)%s\n(%zubit)%Zx\n", length, dice,
+                   mpz_sizeinbase(hex, 2), hex);
+      }
+      continue;
+    }
+    fprintf(stderr, "invarit charactor!: (0x%02x)\n", c);
+  }
+
+  // 終了直前
+  if (dice) {
+    memset(dice, 0, size); // メモリ上の機密情報を消去
     free(dice);
-    mpz_clear(hex);
-    return 0;
+    dice = NULL;
+  }
+
+  mpz_clear(hex);
+  return 0;
 }
