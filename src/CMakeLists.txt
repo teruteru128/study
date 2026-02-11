@@ -497,7 +497,6 @@ add_executable(mysqlfast mysqlfast.c)
 target_link_libraries(mysqlfast mysqlclient)
 
 # ビルドコマンドの定義
-message(NOTICE  ${K_DER_CERT})
 add_custom_target(my_driver ALL
     COMMAND make -C ${KDIR} M=${CMAKE_CURRENT_SOURCE_DIR} modules
     DEPENDS devicedriversample.c
