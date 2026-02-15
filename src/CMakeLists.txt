@@ -615,6 +615,9 @@ target_compile_definitions(potest PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALE
 add_executable(pprimegen pprimegen.c)
 target_link_libraries(pprimegen PRIVATE gmp)
 
+add_executable(pqsample pqsample.c)
+target_link_libraries(pqsample pq)
+
 add_executable(prime1 prime1.c)
 target_link_libraries(prime1 gmp)
 
