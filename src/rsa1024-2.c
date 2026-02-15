@@ -12,7 +12,7 @@ int main(int argc, char *argv[], char *envp[])
     }
 
     mpz_t n;
-    mpz_init_set_str(n, N, 16);
+    mpz_init_set_str(n, RSA_1024, 16);
     FILE *in = fopen(argv[1], "r");
     if(in == NULL){
         perror("fopen");
