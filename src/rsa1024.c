@@ -8,18 +8,6 @@
 #include <string.h>
 
 #include "rsa1024.h"
-#define SQRT_RSA_1024                                                          \
-  ("61010335669222"                                                            \
-   "10362775848843"                                                            \
-   "04342266592405"                                                            \
-   "29938912424519"                                                            \
-   "32861862025497"                                                            \
-   "93063658618503"                                                            \
-   "39108937034593"                                                            \
-   "69951328434771"                                                            \
-   "91458334610516"                                                            \
-   "14689649154484"                                                            \
-   "55746310700313")
 #define BASE 16
 #define T_NUM 16
 
@@ -36,7 +24,7 @@ int main(int argc, char *argv[]) {
       pSubQ, num;
   mpz_inits(n, p, q, r, minQ, maxQ, sqQ, sqrtN, nSubSqQ, nSubSqQModQ,
             doubledSqQ, pSubQ, num, NULL);
-  mpz_set_str(n, N, BASE);
+  mpz_set_str(n, RSA_1024, BASE);
   if(argc >= 2 && strcmp(argv[1], "--bottom-up") == 0)
   {
       mpz_mul_2exp(n, n, 3);
