@@ -75,5 +75,6 @@ int main(int argc, char *argv[], char *envp[])
     curl_easy_cleanup(hnd);
     curl_global_cleanup();
     mpz_clear(p);
+    mpz_clear(factor1);
     return 0;
 }

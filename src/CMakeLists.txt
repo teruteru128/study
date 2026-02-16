@@ -664,6 +664,9 @@ target_link_libraries(prime14 gmp Threads::Threads)
 add_executable(prime15 prime15.c)
 target_link_libraries(prime15 PRIVATE gmp)
 
+add_executable(primespam primespam.c)
+target_link_libraries(primespam PRIVATE gmp CURL::libcurl)
+
 add_executable(primorial primorial.c)
 target_link_libraries(primorial PRIVATE gmp)
 
