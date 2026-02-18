@@ -207,8 +207,8 @@ add_executable(cl cl.c)
 target_link_libraries(cl study)
 target_include_directories(cl PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
-add_executable(clocksample clocktest-driver.c clocktest.c)
-#target_link_libraries(clocksample PRIVATE clocktest)
+add_executable(clocksample clocktest-driver.c)
+target_link_libraries(clocksample PRIVATE study)
 
 add_executable(collatz collatz.c)
 target_link_libraries(collatz m)
