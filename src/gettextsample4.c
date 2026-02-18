@@ -43,7 +43,7 @@ int main(void)
         exit(EXIT_FAILURE);
     }
 
-    printf(_("%dmicro seconds stopping.\n"), microseconds);
+    printf(_("%d micro seconds stopping.\n"), microseconds);
     // expiration
     uint64_t exp;
     ssize_t size = read(timerfd, &exp, sizeof(uint64_t));
@@ -53,7 +53,7 @@ int main(void)
         close(timerfd);
         exit(EXIT_FAILURE);
     }
-    printf(_("%dmicro seconds stoped.\n"), microseconds);
+    printf(_("%d micro seconds stoped.\n"), microseconds);
 
     close(timerfd);
     return EXIT_SUCCESS;

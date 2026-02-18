@@ -30,13 +30,13 @@ msgstr "1秒あたり %.1f回\n"
 
 #: src/gettextsample3.c:23 src/gettextsample4.c:51
 #, c-format
-msgid "%dmicro seconds stoped.\n"
-msgstr "%dマイクロ秒停止しました。\n"
+msgid "%d micro seconds stoped.\n"
+msgstr "%d マイクロ秒停止しました。\n"
 
 #: src/gettextsample3.c:21 src/gettextsample4.c:41
 #, c-format
-msgid "%dmicro seconds stopping.\n"
-msgstr "%dマイクロ秒停止します。\n"
+msgid "%d micro seconds stopping.\n"
+msgstr "%d マイクロ秒停止します。\n"
 
 #: src/printBench.c:45
 #, c-format

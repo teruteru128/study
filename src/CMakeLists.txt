@@ -207,10 +207,8 @@ add_executable(cl cl.c)
 target_link_libraries(cl study)
 target_include_directories(cl PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
-add_executable(clocksample clocktest-driver.c)
-target_link_libraries(clocksample PRIVATE clocktest)
-
-add_library(clocktest clocktest.c)
+add_executable(clocksample clocktest-driver.c clocktest.c)
+#target_link_libraries(clocksample PRIVATE clocktest)
 
 add_executable(collatz collatz.c)
 target_link_libraries(collatz m)
@@ -342,7 +340,8 @@ add_executable(gettextsample3 gettextsample3.c textdomain.c)
 target_compile_definitions(gettextsample3 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
 add_executable(gettextsample4 gettextsample4.c textdomain.c)
-target_compile_definitions(gettextsample4 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
+target_compile_definitions(gettextsample4 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}" $<$<BOOL:${GETTEXT_FOUND}>:ENABLE_NLS=1>)
+#install(TARGETS gettextsample4)
 
 add_executable(gettime gettime.c)
 target_link_libraries(gettime study)

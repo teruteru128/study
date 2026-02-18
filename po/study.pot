@@ -56,12 +56,12 @@ msgstr ""
 
 #: src/gettextsample3.c:21 src/gettextsample4.c:41
 #, c-format
-msgid "%dmicro seconds stopping.\n"
+msgid "%d micro seconds stopping.\n"
 msgstr ""
 
 #: src/gettextsample3.c:23 src/gettextsample4.c:51
 #, c-format
-msgid "%dmicro seconds stoped.\n"
+msgid "%d micro seconds stoped.\n"
 msgstr ""
 
 #: src/itoabench.c:44 src/itoabench.c:60
