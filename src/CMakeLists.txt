@@ -349,6 +349,8 @@ target_include_directories(gettime PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/includ
 
 add_executable(getuidsample getuidsample.c)
 
+add_executable(golomb golomb.c)
+
 add_executable(harmonic harmonic.c)
 
 add_executable(httpd httpd.c)
