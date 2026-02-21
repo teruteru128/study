@@ -36,7 +36,7 @@ int main(int argc, char const *argv[])
     }
     else if(strcmp(argv[1], "eja") == 0)
     {
-        eja();
+        eja(argc < 3?0:atoi(argv[2]));
         return 0;
     }
     else if(strcmp(argv[1], "penis") == 0)

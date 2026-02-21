@@ -496,7 +496,7 @@ add_executable(mysqlfast mysqlfast.c)
 target_link_libraries(mysqlfast mysqlclient)
 
 # ビルドコマンドの定義
-add_custom_target(my_driver ALL
+add_custom_target(my_driver
     COMMAND make -C ${KDIR} M=${CMAKE_CURRENT_SOURCE_DIR} modules
     DEPENDS devicedriversample.c
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -504,9 +504,10 @@ add_custom_target(my_driver ALL
 )
 # ビルド後の署名コマンドを追加
 add_custom_command(TARGET my_driver POST_BUILD
-    COMMAND sudo /usr/src/linux-headers-${KERNEL_RELEASE}/scripts/sign-file sha384 
-            ${K_PRIV_KEY} ${K_DER_CERT} 
-            ${CMAKE_CURRENT_SOURCE_DIR}/devicedriversample.ko
+    COMMAND openssl dgst -sha384 -sign ${K_PRIV_KEY} -keyform DER
+        -out ${CMAKE_CURRENT_SOURCE_DIR}/devicedriversample.ko.sig
+        ${CMAKE_CURRENT_SOURCE_DIR}/devicedriversample.ko
+    COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/devicedriversample.ko.sig >> ${CMAKE_CURRENT_SOURCE_DIR}/devicedriversample.ko
     COMMENT "Signing kernel module with MOK..."
 )
 # --- LSP用の設定（ここを追加） ---
@@ -662,6 +663,9 @@ target_link_libraries(prime14 gmp Threads::Threads)
 
 add_executable(prime15 prime15.c)
 target_link_libraries(prime15 PRIVATE gmp)
+
+add_executable(prime16 prime16.c)
+target_link_libraries(prime16 PRIVATE gmp)
 
 add_executable(primespam primespam.c)
 target_link_libraries(primespam PRIVATE gmp CURL::libcurl)
