@@ -7,3 +7,6 @@
 [submodule "math-scripts"]
 	path = math-scripts
 	url = https://github.com/teruteru128/math-scripts.git
+[submodule "python"]
+	path = python
+	url = https://github.com/teruteru128/python-study.git
