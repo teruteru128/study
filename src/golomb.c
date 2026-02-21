@@ -1,6 +1,5 @@
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -63,77 +62,8 @@ void solve(int k, int current_pos) {
 
 int main(int argc, char *argv[], char *envp[])
 {
-	marks[0] = 0;
-    /*0 25 67 89 137 171 212 221 245 273 311 338 394 406 449 463 500 535 554 614 635*/
-    /*New Record: 807 [0, 25, 67, 89, 137, 171, 212, 221, 245, 273, 311, 338, 394, 406, 449, 463, 500, 535, 554, 614, 635, 637, 638, 654, 683, 781, 796, 801, 807]*/
     /*New Record: 801 [0, 25, 67, 89, 137, 171, 212, 221, 245, 273, 311, 338, 394, 406, 449, 463, 500, 535, 554, 614, 633, 662, 677, 709, 780, 790, 796, 797, 801]*/
-#if 0
-    marks[1] = 25;
-    marks[2] = 67;
-    marks[3] = 89;
-    marks[4] = 137;
-    marks[5] = 171;
-    marks[6] = 212;
-    marks[7] = 221;
-    marks[8] = 245;
-    marks[9] = 273;
-    marks[10] = 311;
-    marks[11] = 338;
-    marks[12] = 394;
-    marks[13] = 406;
-    marks[14] = 449;
-    marks[15] = 463;
-    marks[16] = 500;
-    marks[17] = 535;
-    marks[18] = 554;
-    marks[19] = 614;
-    //marks[20] = 635;
-	solve(20, 614);
-#endif
-    /*0 42 46 52 90 101 133 186 257 307 337 393 426 455 492 532 590*/
-#if 0
-    marks[1] = 42;
-    marks[2] = 46;
-    marks[3] = 52;
-    marks[4] = 90;
-    marks[5] = 101;
-    marks[6] = 133;
-    marks[7] = 186;
-    marks[8] = 257;
-    marks[9] = 307;
-    marks[10] = 337;
-    marks[11] = 393;
-    marks[12] = 426;
-    marks[13] = 455;
-    marks[14] = 492;
-    marks[15] = 532;
-    marks[16] = 590;
-	solve(17, 590);
-#endif
-    /*0 6 13 24 51 67 86 103 123 149 171 204 218 278 293 337 386 478 569 594 626*/
-#if 0
-    marks[1] = 6;
-    marks[2] = 13;
-    marks[3] = 24;
-    marks[4] = 51;
-    marks[5] = 67;
-    marks[6] = 86;
-    marks[7] = 103;
-    marks[8] = 123;
-    marks[9] = 149;
-    marks[10] = 171;
-    marks[11] = 204;
-    marks[12] = 218;
-    marks[13] = 278;
-    marks[14] = 293;
-    marks[15] = 337;
-    marks[16] = 386;
-    marks[17] = 478;
-    marks[18] = 569;
-    marks[19] = 594;
-    marks[20] = 626;
-	solve(21, 626);
-#endif
+	marks[0] = 0;
     marks[1] = 4;
     marks[2] = 5;
     marks[3] = 11;
