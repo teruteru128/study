@@ -7,107 +7,125 @@
 
 #define MAX_MARKS 32
 #define MAX_LENGTH 1024
+#define CKPT_FILE "checkpoint.txt"
 
 const int LOWER_BOUNDS[] = {
     0, 0, 1, 3, 6, 11, 17, 25, 34, 44, 55, 72, 85, 106, 127,
     151, 177, 199, 216, 246, 283, 333, 356, 372, 425, 480, 492, 553, 585, 650
 };
 
-// スレッド間で共有する暫定最短
 int best_limit = 801;
+int last_completed_pos = 11; // marks[4]の開始位置
 
-// ビットセット操作のインライン関数（スレッド個別データ用）
 static inline void set_bit(uint64_t *bs, int d) { bs[d >> 6] |= (1ULL << (d & 63)); }
 static inline void clear_bit(uint64_t *bs, int d) { bs[d >> 6] &= ~(1ULL << (d & 63)); }
 static inline int check_bit(uint64_t *bs, int d) { return (bs[d >> 6] >> (d & 63)) & 1ULL; }
 
-// 再帰関数（スレッドごとに独立した marks と bitset を持つ）
-void solve_parallel(int k, int current_pos, int num_marks, int *local_marks, uint64_t *local_bs) {
-    // 枝刈り
+// チェックポイントの読み込み
+void load_checkpoint() {
+    FILE *fp = fopen(CKPT_FILE, "r");
+    if (fp) {
+        if (fscanf(fp, "%d %d", &best_limit, &last_completed_pos) == 2) {
+            printf("Checkpoint loaded: Best=%d, Resume from pos=%d\n", best_limit, last_completed_pos);
+        }
+        fclose(fp);
+    }
+}
+
+// チェックポイントの保存
+void save_checkpoint(int current_pos) {
+    #pragma omp critical(save_lock)
+    {
+        FILE *fp = fopen(CKPT_FILE, "w");
+        if (fp) {
+            fprintf(fp, "%d %d", best_limit, current_pos);
+            fclose(fp);
+        }
+    }
+}
+
+void solve_recursive(int k, int current_pos, int num_marks, int *local_marks, uint64_t *local_bs) {
     if (current_pos + LOWER_BOUNDS[num_marks - k] >= best_limit) return;
 
     if (k == num_marks) {
-        #pragma omp critical
+        #pragma omp critical(best_lock)
         {
             if (current_pos < best_limit) {
                 best_limit = current_pos;
-                printf("\n--- New Record: %d ---\n", best_limit);
-                for (int i = 0; i < num_marks; i++) printf("%d%s", local_marks[i], i == k - 1 ? "" : ", ");
-                printf("\n---------------------\n");
+                printf("\n[*] NEW BEST FOUND: %d\n", best_limit);
+                FILE *log = fopen("found_rulers.log", "a");
+                fprintf(log, "Length %d: ", best_limit);
+                for (int i = 0; i < num_marks; i++) fprintf(log, "%d%s", local_marks[i], i==num_marks-1?"":", ");
+                fprintf(log, "\n");
+                fclose(log);
+                save_checkpoint(last_completed_pos);
             }
         }
         return;
     }
 
-    int start = local_marks[k - 1] + 1;
-    // 枝刈り効率化のため best_limit を動的にチェック
-    for (int pos = start; pos < best_limit - LOWER_BOUNDS[num_marks - k]; pos++) {
-        int added_diffs[MAX_MARKS];
-        int count = 0;
-        int conflict = 0;
-
+    for (int pos = local_marks[k-1] + 1; pos < best_limit - LOWER_BOUNDS[num_marks - k]; pos++) {
+        bool conflict = false;
+        int diffs[MAX_MARKS], d_cnt = 0;
         for (int i = 0; i < k; i++) {
             int d = pos - local_marks[i];
-            if (check_bit(local_bs, d)) { conflict = 1; break; }
-            added_diffs[count++] = d;
+            if (check_bit(local_bs, d)) { conflict = true; break; }
+            diffs[d_cnt++] = d;
         }
-
         if (!conflict) {
-            for (int i = 0; i < count; i++) set_bit(local_bs, added_diffs[i]);
+            for (int i = 0; i < d_cnt; i++) set_bit(local_bs, diffs[i]);
             local_marks[k] = pos;
-            solve_parallel(k + 1, pos, num_marks, local_marks, local_bs);
-            for (int i = 0; i < count; i++) clear_bit(local_bs, added_diffs[i]);
+            solve_recursive(k + 1, pos, num_marks, local_marks, local_bs);
+            for (int i = 0; i < d_cnt; i++) clear_bit(local_bs, diffs[i]);
         }
     }
 }
 
 int main() {
+    load_checkpoint();
     int num_marks = 29;
-    
-    // 初期固定値 (パターンCベース)
-    int initial_marks[MAX_MARKS] = {0, 4, 5, 11};
+    int initial_marks[] = {0, 4, 5, 11};
     uint64_t initial_bs[16] = {0};
-    
-    // 初期ビット登録
-    int init_count = 4;
-    for(int i=0; i<init_count; i++) {
-        for(int j=0; j<i; j++) {
-            set_bit(initial_bs, initial_marks[i] - initial_marks[j]);
-        }
+
+    for(int i=0; i<4; i++) {
+        for(int j=0; j<i; j++) set_bit(initial_bs, initial_marks[i] - initial_marks[j]);
     }
 
-    printf("Starting parallel search for OGR-%d (Current Limit: %d)...\n", num_marks, best_limit);
+    printf("Starting search... Press Ctrl+C to stop. Checkpoint saved periodically.\n");
 
-    // marks[4] のループを並列化
     #pragma omp parallel
     {
-        // 各スレッドに専用のメモリ領域を確保
         int local_marks[MAX_MARKS];
         uint64_t local_bs[16];
-        memcpy(local_marks, initial_marks, sizeof(int) * MAX_MARKS);
-        memcpy(local_bs, initial_bs, sizeof(uint64_t) * 16);
+        memcpy(local_marks, initial_marks, sizeof(int)*4);
+        memcpy(local_bs, initial_bs, sizeof(uint64_t)*16);
 
-        // marks[4] の範囲をスレッド間で分割
         #pragma omp for schedule(dynamic, 1)
-        for (int pos = initial_marks[init_count-1] + 1; pos < 801; pos++) {
-            int added_diffs[MAX_MARKS];
-            int count = 0;
-            int conflict = 0;
+        for (int p4 = last_completed_pos + 1; p4 < 801; p4++) {
+            // 定期的な進捗表示 (スレッド0のみ)
+            if (omp_get_thread_num() == 0) {
+                printf("Searching marks[4] = %d (Best: %d)\n", p4, best_limit);
+                last_completed_pos = p4;
+                save_checkpoint(p4);
+            }
 
-            for (int i = 0; i < init_count; i++) {
-                int d = pos - local_marks[i];
-                if (check_bit(local_bs, d)) { conflict = 1; break; }
-                added_diffs[count++] = d;
+            int diffs[4], d_cnt = 0;
+            bool conflict = false;
+            for (int i = 0; i < 4; i++) {
+                int d = p4 - local_marks[i];
+                if (check_bit(local_bs, d)) { conflict = true; break; }
+                diffs[d_cnt++] = d;
             }
 
             if (!conflict) {
-                for (int i = 0; i < count; i++) set_bit(local_bs, added_diffs[i]);
-                local_marks[init_count] = pos;
-                solve_parallel(init_count + 1, pos, num_marks, local_marks, local_bs);
-                for (int i = 0; i < count; i++) clear_bit(local_bs, added_diffs[i]);
+                for (int i = 0; i < d_cnt; i++) set_bit(local_bs, diffs[i]);
+                local_marks[4] = p4;
+                solve_recursive(5, p4, num_marks, local_marks, local_bs);
+                for (int i = 0; i < d_cnt; i++) clear_bit(local_bs, diffs[i]);
             }
         }
     }
 
+    printf("Search completed up to length 801.\n");
     return 0;
 }
