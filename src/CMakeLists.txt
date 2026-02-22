@@ -350,6 +350,7 @@ target_include_directories(gettime PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/includ
 add_executable(getuidsample getuidsample.c)
 
 add_executable(golomb golomb.c)
+target_link_libraries(golomb PRIVATE OpenMP::OpenMP_C)
 
 add_executable(harmonic harmonic.c)
 
