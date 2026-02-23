@@ -537,6 +537,10 @@ target_compile_definitions(lsp_helper PRIVATE
 add_executable(octorberfirst octoberfirst.c)
 #target_link_libraries(octorberfirst)
 
+add_executable(ogr_filler ogr_filler.c)
+
+add_executable(ogr_candidate_finder ogr_candidate_finder.c)
+
 add_executable(oncecallsample oncecallsample.c)
 target_link_libraries(oncecallsample Threads::Threads)
 
@@ -590,6 +594,10 @@ target_include_directories(pixiv PRIVATE ${CURL_INCLUDE_DIRS})
 add_executable(pkeyencsample pkeyencsample.c)
 target_link_libraries(pkeyencsample OpenSSL::Crypto)
 target_include_directories(pkeyencsample PRIVATE ${OPENSSL_INCLUDE_DIR})
+
+add_library(plugin MODULE plugin.c)
+target_include_directories(plugin PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
+set_target_properties(plugin PROPERTIES version 1.0.0 SOVERSION 1)
 
 add_executable(pngconcat pngconcat.c)
 target_link_libraries(pngconcat m)
