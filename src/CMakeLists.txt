@@ -507,7 +507,7 @@ add_custom_target(my_driver
 )
 # ビルド後の署名コマンドを追加
 add_custom_command(TARGET my_driver POST_BUILD
-    COMMAND openssl dgst -sha384 -sign ${K_PRIV_KEY} -keyform DER
+    COMMAND openssl dgst -sha384 -sign ${K_PRIV_KEY} -keyform PEM
         -out ${CMAKE_CURRENT_SOURCE_DIR}/devicedriversample.ko.sig
         ${CMAKE_CURRENT_SOURCE_DIR}/devicedriversample.ko
     COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/devicedriversample.ko.sig >> ${CMAKE_CURRENT_SOURCE_DIR}/devicedriversample.ko
@@ -696,6 +696,8 @@ add_executable(printinttest printinttest.c)
 target_link_libraries(printinttest study)
 target_include_directories(printinttest PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
+add_executable(printsample printsample.c)
+
 add_executable(pngshowstatus pngshowstatus.c pngreadwrite.c)
 target_link_libraries(pngshowstatus PRIVATE PNG::PNG)
 
@@ -840,6 +842,9 @@ target_link_libraries(uuidtest uuid)
 add_executable(virtsample virtsample.c)
 
 add_executable(widecharsample widecharsample.c)
+
+add_executable(wikigacha_parse wikigacha_parse.c)
+target_link_libraries(wikigacha_parse PRIVATE json-c OpenSSL::Crypto OpenSSL::SSL)
 
 add_executable(wordconv wordconv.c)
 

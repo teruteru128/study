@@ -1,4 +1,5 @@
 
+#include <json-c/json_object.h>
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -62,6 +63,7 @@ int main(void) {
     puts("\n== json parse from srting");
     struct json_object *jobj_from_string = json_tokener_parse("{\"a\":1,\"b\":2,\"c\":3}");
     test_parse_obj_to_string(jobj_from_string);
+    json_object_put(jobj_from_string);
 
     puts("\n== json parse from file");
     struct json_object *jobj_from_file = json_object_from_file("./config.json");
@@ -69,6 +71,7 @@ int main(void) {
 
     puts("\n== json parse from file & check type");
     test_parse_check_type(jobj_from_file);
+    json_object_put(jobj_from_file);
 
     return 0;
 }

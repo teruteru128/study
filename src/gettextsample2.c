@@ -6,6 +6,7 @@
 #include "gettextsample2.h"
 #include "gettext.h"
 #define _(str) gettext(str)
+#define p_(msgctxt, str) pgettext(msgctxt, str)
 #include <stdio.h>
 #include <locale.h>
 

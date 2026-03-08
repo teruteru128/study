@@ -6,7 +6,7 @@
 #include <omp.h>
 
 #define MAX_MARKS 32
-#define MAX_LENGTH 1024
+#define MAX_LENGTH 2048
 #define CKPT_FILE "checkpoint.txt"
 
 const int LOWER_BOUNDS[] = {
@@ -14,7 +14,7 @@ const int LOWER_BOUNDS[] = {
     151, 177, 199, 216, 246, 283, 333, 356, 372, 425, 480, 492, 553, 585, 650
 };
 
-int best_limit = 801;
+int best_limit = 1024;
 int last_completed_pos = 11; // marks[4]の開始位置
 
 static inline void set_bit(uint64_t *bs, int d) { bs[d >> 6] |= (1ULL << (d & 63)); }
