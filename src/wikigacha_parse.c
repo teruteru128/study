@@ -7,10 +7,8 @@
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 
-// Base64デコード（バッファを動的に確保して返す）
 unsigned char* base64_decode(const char* input, int* out_len) {
     int input_len = strlen(input);
-    // デコード後のサイズは最大でも入力の3/4
     unsigned char* buffer = (unsigned char*)malloc(input_len);
     if (!buffer) return NULL;
 
@@ -38,7 +36,6 @@ void decrypt_backup(const char* filename, const char* password) {
     }
 
     struct json_object *kdf_obj, *cipher_obj, *salt_obj, *iter_obj, *iv_obj, *ct_obj;
-    // 構造を辿って値を取得
     if (!json_object_object_get_ex(root, "kdf", &kdf_obj) ||
         !json_object_object_get_ex(kdf_obj, "salt", &salt_obj) ||
         !json_object_object_get_ex(kdf_obj, "iterations", &iter_obj) ||
@@ -61,14 +58,12 @@ void decrypt_backup(const char* filename, const char* password) {
         goto cleanup;
     }
 
-    // 鍵生成 (AES-256)
     unsigned char key[32];
     if (!PKCS5_PBKDF2_HMAC(password, strlen(password), salt, salt_len, iterations, EVP_sha256(), 32, key)) {
         fprintf(stderr, "Error: Key generation failed.\n");
         goto cleanup;
     }
 
-    // 復号
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     unsigned char *plaintext = malloc(ct_len + 1);
     int outlen = 0, finalen = 0;
@@ -77,7 +72,6 @@ void decrypt_backup(const char* filename, const char* password) {
     EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, iv_len, NULL);
     EVP_DecryptInit_ex(ctx, NULL, NULL, key, iv);
 
-    // AES-GCMの仕様: ciphertextの末尾16バイトがTag
     int tag_len = 16;
     int data_len = ct_len - tag_len;
     if (data_len < 0) {
