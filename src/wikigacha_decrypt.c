@@ -7,6 +7,9 @@
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 
+// 静かなモード（ヘッダーを出さない）
+int silent_mode = 0;
+
 unsigned char* base64_decode(const char* input, int* out_len) {
     int input_len = strlen(input);
     unsigned char* buffer = (unsigned char*)malloc(input_len);
@@ -17,10 +20,8 @@ unsigned char* base64_decode(const char* input, int* out_len) {
     BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
     bio = BIO_new_mem_buf(input, input_len);
     bio = BIO_push(b64, bio);
-    
     *out_len = BIO_read(bio, buffer, input_len);
     BIO_free_all(bio);
-    
     if (*out_len <= 0) {
         free(buffer);
         return NULL;
@@ -31,7 +32,7 @@ unsigned char* base64_decode(const char* input, int* out_len) {
 void decrypt_backup(const char* filename, const char* password) {
     struct json_object *root = json_object_from_file(filename);
     if (!root) {
-        fprintf(stderr, "Error: JSON file not found or invalid format.\n");
+        fprintf(stderr, "Error: JSON file invalid.\n");
         return;
     }
 
@@ -42,9 +43,8 @@ void decrypt_backup(const char* filename, const char* password) {
         !json_object_object_get_ex(root, "cipher", &cipher_obj) ||
         !json_object_object_get_ex(cipher_obj, "iv", &iv_obj) ||
         !json_object_object_get_ex(root, "ciphertext", &ct_obj)) {
-        fprintf(stderr, "Error: Required JSON fields are missing.\n");
-        json_object_put(root);
-        return;
+        fprintf(stderr, "Error: Required JSON fields missing.\n");
+        json_object_put(root); return;
     }
 
     int salt_len, iv_len, ct_len;
@@ -53,16 +53,8 @@ void decrypt_backup(const char* filename, const char* password) {
     unsigned char *ciphertext = base64_decode(json_object_get_string(ct_obj), &ct_len);
     int iterations = json_object_get_int(iter_obj);
 
-    if (!salt || !iv || !ciphertext) {
-        fprintf(stderr, "Error: Base64 decoding failed.\n");
-        goto cleanup;
-    }
-
     unsigned char key[32];
-    if (!PKCS5_PBKDF2_HMAC(password, strlen(password), salt, salt_len, iterations, EVP_sha256(), 32, key)) {
-        fprintf(stderr, "Error: Key generation failed.\n");
-        goto cleanup;
-    }
+    PKCS5_PBKDF2_HMAC(password, strlen(password), salt, salt_len, iterations, EVP_sha256(), 32, key);
 
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     unsigned char *plaintext = malloc(ct_len + 1);
@@ -72,39 +64,34 @@ void decrypt_backup(const char* filename, const char* password) {
     EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, iv_len, NULL);
     EVP_DecryptInit_ex(ctx, NULL, NULL, key, iv);
 
-    int tag_len = 16;
-    int data_len = ct_len - tag_len;
-    if (data_len < 0) {
-        fprintf(stderr, "Error: Ciphertext too short.\n");
-        goto cipher_cleanup;
-    }
-
+    int data_len = ct_len - 16;
     EVP_DecryptUpdate(ctx, plaintext, &outlen, ciphertext, data_len);
-    EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, tag_len, ciphertext + data_len);
+    EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, 16, ciphertext + data_len);
 
     if (EVP_DecryptFinal_ex(ctx, plaintext + outlen, &finalen) > 0) {
         plaintext[outlen + finalen] = '\0';
-        printf("--- DECRYPTED ---\n%s\n", plaintext);
+        if (!silent_mode) fprintf(stderr, "--- Decryption Success ---\n");
+        printf("%s", (char*)plaintext); // JSON結果のみを標準出力へ
     } else {
-        printf("Decryption Failed: Verification error (wrong password?).\n");
+        fprintf(stderr, "Decryption Failed: Verification error.\n");
     }
 
-cipher_cleanup:
     EVP_CIPHER_CTX_free(ctx);
-    free(plaintext);
-
-cleanup:
-    if (salt) free(salt);
-    if (iv) free(iv);
-    if (ciphertext) free(ciphertext);
+    free(plaintext); free(salt); free(iv); free(ciphertext);
     json_object_put(root);
 }
 
 int main(int argc, char *argv[]) {
-    if (argc < 3) {
-        printf("Usage: %s <json_file> <password>\n", argv[0]);
+    char *file = NULL, *pass = NULL;
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--silent") == 0) silent_mode = 1;
+        else if (!file) file = argv[i];
+        else if (!pass) pass = argv[i];
+    }
+    if (!file || !pass) {
+        fprintf(stderr, "Usage: %s [-s] <json_file> <password>\n", argv[0]);
         return 1;
     }
-    decrypt_backup(argv[1], argv[2]);
+    decrypt_backup(file, pass);
     return 0;
 }

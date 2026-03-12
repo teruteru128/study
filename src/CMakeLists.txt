@@ -843,8 +843,11 @@ add_executable(virtsample virtsample.c)
 
 add_executable(widecharsample widecharsample.c)
 
-add_executable(wikigacha_parse wikigacha_parse.c)
-target_link_libraries(wikigacha_parse PRIVATE json-c OpenSSL::Crypto OpenSSL::SSL)
+add_executable(wikigacha_decrypt wikigacha_decrypt.c)
+target_link_libraries(wikigacha_decrypt PRIVATE json-c OpenSSL::Crypto OpenSSL::SSL)
+
+add_executable(wikigacha_encrypt wikigacha_encrypt.c)
+target_link_libraries(wikigacha_encrypt PRIVATE json-c OpenSSL::Crypto OpenSSL::SSL)
 
 add_executable(wordconv wordconv.c)
 
