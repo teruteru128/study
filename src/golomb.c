@@ -15,7 +15,7 @@ const int LOWER_BOUNDS[] = {
 };
 
 int best_limit = 1024;
-int last_completed_pos = 11; // marks[4]の開始位置
+int last_completed_pos = 1; // marks[4]の開始位置
 
 static inline void set_bit(uint64_t *bs, int d) { bs[d >> 6] |= (1ULL << (d & 63)); }
 static inline void clear_bit(uint64_t *bs, int d) { bs[d >> 6] &= ~(1ULL << (d & 63)); }
@@ -84,10 +84,10 @@ void solve_recursive(int k, int current_pos, int num_marks, int *local_marks, ui
 int main() {
     load_checkpoint();
     int num_marks = 29;
-    int initial_marks[] = {0, 4, 5, 11};
+    int initial_marks[] = {0};
     uint64_t initial_bs[16] = {0};
 
-    for(int i=0; i<4; i++) {
+    for(int i=0; i<1; i++) {
         for(int j=0; j<i; j++) set_bit(initial_bs, initial_marks[i] - initial_marks[j]);
     }
 
@@ -97,7 +97,7 @@ int main() {
     {
         int local_marks[MAX_MARKS];
         uint64_t local_bs[16];
-        memcpy(local_marks, initial_marks, sizeof(int)*4);
+        memcpy(local_marks, initial_marks, sizeof(int)*1);
         memcpy(local_bs, initial_bs, sizeof(uint64_t)*16);
 
         #pragma omp for schedule(dynamic, 1)
@@ -111,7 +111,7 @@ int main() {
 
             int diffs[4], d_cnt = 0;
             bool conflict = false;
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 1; i++) {
                 int d = p4 - local_marks[i];
                 if (check_bit(local_bs, d)) { conflict = true; break; }
                 diffs[d_cnt++] = d;
@@ -119,8 +119,8 @@ int main() {
 
             if (!conflict) {
                 for (int i = 0; i < d_cnt; i++) set_bit(local_bs, diffs[i]);
-                local_marks[4] = p4;
-                solve_recursive(5, p4, num_marks, local_marks, local_bs);
+                local_marks[1] = p4;
+                solve_recursive(1, p4, num_marks, local_marks, local_bs);
                 for (int i = 0; i < d_cnt; i++) clear_bit(local_bs, diffs[i]);
             }
         }

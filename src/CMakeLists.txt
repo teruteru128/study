@@ -849,6 +849,9 @@ target_link_libraries(wikigacha_decrypt PRIVATE json-c OpenSSL::Crypto OpenSSL::
 add_executable(wikigacha_encrypt wikigacha_encrypt.c)
 target_link_libraries(wikigacha_encrypt PRIVATE json-c OpenSSL::Crypto OpenSSL::SSL)
 
+add_executable(wikigacha_enrich enrich_all.c)
+target_link_libraries(wikigacha_enrich PRIVATE json-c CURL::libcurl)
+
 add_executable(wordconv wordconv.c)
 
 add_executable(yakusokunohi yakusokunohi.c countdown.c)
