@@ -1,4 +1,5 @@
 
+#include <stddef.h>
 #define _DEFAULT_SOURCE 1
 #define _GNU_SOURCE 1
 #define OPENSSL_API_COMPAT 0x30000000L
@@ -10,15 +11,12 @@
 #endif
 #include <bm_sonota.h>
 #include <complex.h>
-#include <ctype.h>
 #include <curl/curl.h>
 #include <dirent.h>
 #include <endian.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <gmp.h>
 #include <iconv.h>
-#include <inttypes.h>
 #include <java_random.h>
 #include <jsonrpc-glib.h>
 #include <limits.h>
@@ -40,9 +38,7 @@
 #include <png.h>
 #include <printaddrinfo.h>
 #include <regex.h>
-#include <signal.h>
 #include <stdatomic.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -69,7 +65,6 @@
 #include <openssl/types.h>
 #endif
 
-#include "ripemd160.h"
 #include <dlfcn.h>
 #include <plugin.h>
 

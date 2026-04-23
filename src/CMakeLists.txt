@@ -14,6 +14,8 @@ target_compile_definitions(Nabeatsu3 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOC
 
 add_executable(Nabeatsu4 Nabeatsu4.c)
 
+add_executable(Nabeatsu5 Nabeatsu5.c)
+
 add_executable(TSIdentityTool TSIdentityTool.c)
 target_link_libraries(TSIdentityTool tommath tomcrypt)
 

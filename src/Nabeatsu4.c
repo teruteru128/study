@@ -34,7 +34,7 @@ int main(int argc, char const *argv[], char const *envp[])
     size_t target = 300000ULL;
     for(int i = 1; i < argc; i++)
     {
-        if(strcmp(argv[i], "--verbose") == 0)
+        if(strcmp(argv[i], "--verbose") == 0 || strcmp(argv[1], "-v") == 0)
         {
             verbose = 1;
         }
@@ -57,14 +57,21 @@ int main(int argc, char const *argv[], char const *envp[])
     t.tv_sec = timewithmilli / 1000;
     t.tv_nsec = (timewithmilli % 1000) * 1000000L;
     size_t count = (size_t)strtol(argv[2], NULL, 10);
-    time_t goCrazy = t.tv_sec + (target - count) * 5400;
+    ssize_t diff = target - count;
+    time_t goCrazy = t.tv_sec + diff * 5400;
     struct tm tm;
     localtime_r(&goCrazy, &tm);
     char buffer[32];
     strftime(buffer, 32, "%FT%T%z", &tm);
-    printf("%s\n", buffer);
+    printf("到達時刻: %s\n", buffer);
     if(verbose)
     {
+        struct tm tm2;
+        localtime_r(&t.tv_sec, &tm2);
+        char buffer2[32];
+        strftime(buffer2, 32, "%FT%T%z", &tm2);
+        printf("ポスト時刻: %s\n", buffer2);
+        printf("残りポスト数: %zd\n", diff);
         int64_t machine = (id >> 12) & 0x3ff;
         int64_t sequence = id & 0xfff;
         printf("machine id: %" PRId64 ", sequence id: %" PRId64 "\n", machine, sequence);
