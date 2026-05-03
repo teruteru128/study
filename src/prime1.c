@@ -29,9 +29,14 @@ int main(int argc, char *argv[])
     // mpz_sub_ui(number, number, 13);
     // 9cfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff4
     mpz_prevprime(p, number);
-    size_t length = mpz_sizeinbase(p, 16) + 2;
+    int base = 16;
+    for(int i = 1; i < argc; i++)
+    {
+        base = atoi(argv[i]);
+    }
+    size_t length = mpz_sizeinbase(p, base) + 2;
     char *buf = malloc(length);
-    mpz_get_str(buf, 16, p);
+    mpz_get_str(buf, base, p);
     printf("%s\n", buf);
     free(buf);
     mpz_clears(number, p, NULL);

@@ -364,6 +364,9 @@ add_executable(hugecollatztest hugecollatztest.c)
 target_link_libraries(hugecollatztest OpenSSL::Crypto)
 target_include_directories(hugecollatztest PRIVATE ${OPENSSL_INCLUDE_DIR})
 
+add_executable(hunter hunter.c)
+target_link_libraries(hunter PRIVATE ecm gmp)
+
 add_executable(iconvtest iconvtest.c)
 
 add_executable(idvalidate idvalidate.c)
