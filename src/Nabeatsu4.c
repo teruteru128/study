@@ -82,12 +82,14 @@ int main(int argc, char const *argv[], char const *envp[])
     t.tv_sec = timewithmilli / 1000;
     t.tv_nsec = (timewithmilli % 1000) * 1000000L;
     ssize_t diff = target - count;
-    time_t goCrazy = t.tv_sec + diff * 5400;
+    time_t diffSeconds = diff * 5400;
+    time_t goCrazy = t.tv_sec + diffSeconds;
     struct tm tm;
     localtime_r(&goCrazy, &tm);
     char buffer[32];
     strftime(buffer, 32, "%FT%T%z", &tm);
     printf("到達時刻: %s\n", buffer);
+    printf("到達まであと%lf日\n", (double)diffSeconds / 86400);
     if(verbose)
     {
         struct tm tm2;

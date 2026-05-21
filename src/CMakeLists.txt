@@ -356,6 +356,9 @@ target_link_libraries(golomb PRIVATE OpenMP::OpenMP_C)
 
 add_executable(harmonic harmonic.c)
 
+add_executable(helppowm helppowm.c)
+target_link_libraries(helppowm PRIVATE gmp)
+
 add_executable(httpd httpd.c)
 target_link_libraries(httpd study)
 target_include_directories(httpd PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
@@ -472,6 +475,8 @@ target_link_libraries(mappingsample m)
 add_executable(maxmovingsum maxmovingsum.c)
 target_link_libraries(maxmovingsum study)
 target_include_directories(maxmovingsum PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
+
+add_executable(meumeu meumeu.c)
 
 add_executable(md5fullzero md5fullzero.c)
 target_link_libraries(md5fullzero m Threads::Threads OpenSSL::Crypto study xmlrpc xmlrpc_client)
