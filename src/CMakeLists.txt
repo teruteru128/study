@@ -615,6 +615,12 @@ target_link_libraries(pngconcat m)
 add_executable(pngdiff pngdiff.c)
 target_link_libraries(pngdiff PNG::PNG)
 
+add_executable(image_diff image_diff.c)
+target_link_libraries(image_diff PNG::PNG)
+
+add_executable(image_xor image_xor.c)
+target_link_libraries(image_xor PNG::PNG)
+
 add_executable(pngpalletssample pngpalletssample.c pngreadwrite.c)
 target_link_libraries(pngpalletssample PNG::PNG)
 

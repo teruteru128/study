@@ -8,7 +8,6 @@ int main(int argc, char const *argv[])
     int64_t seed = 0x0;
     struct drand48_data data;
     unsigned short buf[3];
-    /*
      seed = lcgInverse(seed);
      printf("%ld\n", initialScramble(seed));
      seed = 107038380838084L;
@@ -36,7 +35,6 @@ int main(int argc, char const *argv[])
      printf("246 : %012lx\n", seed);
      seed = lcg(seed);
      printf("246 : %012lx\n", seed);
-     */
     seed = initialScramble(74803317123181L);
     buf[0] = (unsigned short)(seed >> 0);
     buf[0] = (unsigned short)(seed >> 16);
