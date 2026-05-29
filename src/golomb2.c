@@ -3,21 +3,22 @@
 #include <stdbool.h>
 #include <time.h>
 #include <string.h>
-#include <omp.h> // マルチスレッド用ライブラリ
+#include <omp.h>
 
 #define ORDER 29
 #define MAX_CANDIDATES 3
 #define MAX_ATTEMPTS 2000
-#define POP_SIZE 40          // 共有プールのサイズ（少し大きめに拡大）
-#define MAX_DIFF 100000      // 差分マップのサイズ
-#define THREAD_CYCLES 500000 // 各スレッドが同期するまでに回すサイクル数
+#define POP_SIZE 40          
+#define MAX_DIFF 100000      
+#define THREAD_CYCLES 500000 
+#define SAVE_FILE "golomb_pool.dat" // 保存ファイル名
 
 typedef struct {
     int marks[ORDER];
     int length;
 } Ruler;
 
-// スレッド安全な乱数生成 (Xorshift)
+// Xorshift乱数
 unsigned int get_thread_rand(unsigned int* state) {
     unsigned int x = *state;
     x ^= x << 13;
@@ -40,7 +41,7 @@ bool is_valid_ruler(const int* marks, int count) {
     return true;
 }
 
-// マーク配置の検証（安全ガード付き）
+// マーク配置の検証
 bool is_valid_mark(int next_val, const int* marks, int count, const bool* diff_map) {
     for (int i = 0; i < count; i++) {
         int d = next_val - marks[i];
@@ -49,9 +50,9 @@ bool is_valid_mark(int next_val, const int* marks, int count, const bool* diff_m
     return true;
 }
 
-// ランダム貪欲による定規生成（スレッド安全版）
+// ランダム貪欲による定規生成
 bool generate_greedy_ruler(Ruler* ruler, int target_max, unsigned int* rand_state) {
-    bool diff_map[MAX_DIFF] = {false}; // スレッドごとのローカルスタックに確保
+    bool diff_map[MAX_DIFF] = {false}; 
     ruler->marks[0] = 0;
     int count = 1;
 
@@ -66,7 +67,7 @@ bool generate_greedy_ruler(Ruler* ruler, int target_max, unsigned int* rand_stat
 
         while (cand_count < MAX_CANDIDATES && attempts < MAX_ATTEMPTS) {
             if (is_valid_mark(check_val, ruler->marks, count, diff_map)) {
-                if (count == 1 && check_val > 50) break; // 鏡像排除
+                if (count == 1 && check_val > 50) break; 
                 candidates[cand_count] = check_val;
                 cand_count++;
             }
@@ -97,7 +98,7 @@ bool crossover_and_mutate(const Ruler* parentA, const Ruler* parentB, Ruler* chi
     for (int i = cross_point; i < ORDER; i++) {
         int gap = parentB->marks[i] - parentB->marks[i - 1];
         if (get_thread_rand(rand_state) % 10 == 0) { 
-            gap += (get_thread_rand(rand_state) % 3) - 1; // -1 〜 +1
+            gap += (get_thread_rand(rand_state) % 3) - 1; 
             if (gap <= 0) gap = 1;
         }
         child->marks[i] = child->marks[i - 1] + gap;
@@ -107,9 +108,30 @@ bool crossover_and_mutate(const Ruler* parentA, const Ruler* parentB, Ruler* chi
     return (child->length <= target_max && is_valid_ruler(child->marks, ORDER));
 }
 
-// 構造体の比較関数（qsort用: 長さの昇順）
 int compare_rulers(const void* a, const void* b) {
     return ((Ruler*)a)->length - ((Ruler*)b)->length;
+}
+
+// 【新規追加】プールの状態をファイルに保存する関数
+void save_pool(const Ruler* pool) {
+    FILE* fp = fopen(SAVE_FILE, "wb");
+    if (fp == NULL) {
+        printf("\n[警告] ファイルの保存に失敗しました。\n");
+        return;
+    }
+    fwrite(pool, sizeof(Ruler), POP_SIZE, fp);
+    fclose(fp);
+}
+
+// 【新規追加】ファイルからプールの状態を読み込む関数
+bool load_pool(Ruler* pool) {
+    FILE* fp = fopen(SAVE_FILE, "rb");
+    if (fp == NULL) {
+        return false; // ファイルが存在しない場合は新規作成へ
+    }
+    size_t read_cnt = fread(pool, sizeof(Ruler), POP_SIZE, fp);
+    fclose(fp);
+    return (read_cnt == POP_SIZE);
 }
 
 int main() {
@@ -120,34 +142,39 @@ int main() {
 
     printf("== 29次ゴロム定規 超高速マルチスレッド・ハイブリッド探索 ==\n");
     int threads = omp_get_max_threads();
-    printf("検出されたCPUコア（スレッド）数: %d\n", threads);
-    printf("1. 初期プール（%d個体）を生成中...\n", POP_SIZE);
+    printf("使用スレッド数: %d\n", threads);
 
-    int initialized = 0;
-    while (initialized < POP_SIZE) {
-        if (generate_greedy_ruler(&global_pool[initialized], 1500, &main_seed)) {
-            if (global_pool[initialized].length < current_best) {
-                current_best = global_pool[initialized].length;
+    // セーブデータの読み込みを試みる
+    if (load_pool(global_pool)) {
+        qsort(global_pool, POP_SIZE, sizeof(Ruler), compare_rulers);
+        current_best = global_pool[0].length;
+        printf("1. 前回のセーブデータを読み込みました！ (現在のベスト長さ: %d)\n", current_best);
+    } else {
+        printf("1. 新規初期プール（%d個体）を生成中...\n", POP_SIZE);
+        int initialized = 0;
+        while (initialized < POP_SIZE) {
+            if (generate_greedy_ruler(&global_pool[initialized], 1500, &main_seed)) {
+                if (global_pool[initialized].length < current_best) {
+                    current_best = global_pool[initialized].length;
+                }
+                initialized++;
+                printf("\r初期個体生成: [%d / %d] (現在のベスト: %d)", initialized, POP_SIZE, current_best);
+                fflush(stdout);
             }
-            initialized++;
-            printf("\r初期個体生成: [%d / %d] (現在のベスト: %d)", initialized, POP_SIZE, current_best);
-            fflush(stdout);
         }
+        qsort(global_pool, POP_SIZE, sizeof(Ruler), compare_rulers);
+        save_pool(global_pool); // 初期状態を念のため保存
     }
-    qsort(global_pool, POP_SIZE, sizeof(Ruler), compare_rulers);
 
-    printf("\n\n2. 並行進化探索スタート\n");
+    printf("\n2. 並行進化探索スタート (Ctrl+C でいつでも安全に終了できます)\n");
     unsigned long long total_generations = 0;
 
     while (1) {
         total_generations++;
-        
-        // 各スレッドがこの世代で発見したベスト定規を一時保存するバッファ
         Ruler thread_bests[threads];
         bool thread_found[threads];
         memset(thread_found, 0, sizeof(thread_found));
 
-        // --- ここからマルチスレッド並行処理 ---
         #pragma omp parallel
         {
             int tid = omp_get_thread_num();
@@ -156,9 +183,7 @@ int main() {
             Ruler local_best_ruler;
             bool found_any = false;
 
-            // 各スレッドが指定サイクル分、自律的に回す
             for (int c = 0; c < THREAD_CYCLES; c++) {
-                // 50%の確率で新規貪欲、50%の確率でGA進化を試みる
                 if (get_thread_rand(&thread_seed) % 2 == 0) {
                     Ruler tmp;
                     if (generate_greedy_ruler(&tmp, local_best_len - 1, &thread_seed)) {
@@ -178,22 +203,17 @@ int main() {
                 }
             }
 
-            // スレッドの結果を回収
             if (found_any) {
                 thread_bests[tid] = local_best_ruler;
                 thread_found[tid] = true;
             }
         }
-        // --- マルチスレッド処理 ここまで ---
 
-        // 各スレッドの成果を中央プールに集約（同期フェーズ）
         bool updated = false;
         for (int i = 0; i < threads; i++) {
             if (thread_found[i] && thread_bests[i].length < current_best) {
                 current_best = thread_bests[i].length;
-                // プールの最悪個体（配列の最後尾）を上書き
                 global_pool[POP_SIZE - 1] = thread_bests[i];
-                // 常に短い順にソートを維持
                 qsort(global_pool, POP_SIZE, sizeof(Ruler), compare_rulers);
                 updated = true;
             }
@@ -204,8 +224,11 @@ int main() {
             printf("マーク座標: ");
             for (int i = 0; i < ORDER; i++) printf("%d ", global_pool[0].marks[i]);
             printf("\n");
+            
+            // 【新規追加】記録更新時にプールをファイルへ自動保存
+            save_pool(global_pool);
         } else {
-            printf("\r世代: %llu | 現在の最高記録(長さ): %d を維持したまま次世代へ...", total_generations, current_best);
+            printf("\r世代: %llu | 最高記録: %d | 次の進化を探索中...", total_generations, current_best);
             fflush(stdout);
         }
     }
