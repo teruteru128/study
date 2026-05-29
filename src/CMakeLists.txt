@@ -355,7 +355,9 @@ add_executable(golomb golomb.c)
 target_link_libraries(golomb PRIVATE OpenMP::OpenMP_C)
 
 add_executable(golomb2 golomb2.c)
-#target_link_libraries(golomb2 PRIVATE OpenMP::OpenMP_C)
+target_link_libraries(golomb2 PRIVATE OpenMP::OpenMP_C)
+
+add_executable(save_fix save_fix.c)
 
 add_executable(harmonic harmonic.c)
 
