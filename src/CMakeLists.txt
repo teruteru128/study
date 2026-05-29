@@ -354,6 +354,9 @@ add_executable(getuidsample getuidsample.c)
 add_executable(golomb golomb.c)
 target_link_libraries(golomb PRIVATE OpenMP::OpenMP_C)
 
+add_executable(golomb2 golomb2.c)
+#target_link_libraries(golomb2 PRIVATE OpenMP::OpenMP_C)
+
 add_executable(harmonic harmonic.c)
 
 add_executable(helppowm helppowm.c)
