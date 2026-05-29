@@ -11,7 +11,8 @@
 #define POP_SIZE 40          
 #define MAX_DIFF 100000      
 #define THREAD_CYCLES 500000 
-#define SAVE_FILE "golomb_pool.dat" // 保存ファイル名
+#define SAVE_FILE "golomb_pool.dat"
+#define STAGNANT_LIMIT 100  // 【新設定】何世代更新がなかったら大手術を行うか
 
 typedef struct {
     int marks[ORDER];
@@ -50,12 +51,19 @@ bool is_valid_mark(int next_val, const int* marks, int count, const bool* diff_m
     return true;
 }
 
-// ランダム貪欲による定規生成
-bool generate_greedy_ruler(Ruler* ruler, int target_max, unsigned int* rand_state) {
+// ランダム貪欲による定規生成（途中からの再構築にも対応）
+bool generate_greedy_ruler_from(Ruler* ruler, int start_count, int target_max, unsigned int* rand_state) {
     bool diff_map[MAX_DIFF] = {false}; 
-    ruler->marks[0] = 0;
-    int count = 1;
+    
+    // start_countまでの既存の差分をマップに登録
+    for (int i = 0; i < start_count; i++) {
+        for (int j = i + 1; j < start_count; j++) {
+            int d = ruler->marks[j] - ruler->marks[i];
+            if (d > 0 && d < MAX_DIFF) diff_map[d] = true;
+        }
+    }
 
+    int count = start_count;
     while (count < ORDER) {
         int last_val = ruler->marks[count - 1];
         if (last_val + (ORDER - count) > target_max) return false;
@@ -112,23 +120,16 @@ int compare_rulers(const void* a, const void* b) {
     return ((Ruler*)a)->length - ((Ruler*)b)->length;
 }
 
-// 【新規追加】プールの状態をファイルに保存する関数
 void save_pool(const Ruler* pool) {
     FILE* fp = fopen(SAVE_FILE, "wb");
-    if (fp == NULL) {
-        printf("\n[警告] ファイルの保存に失敗しました。\n");
-        return;
-    }
+    if (fp == NULL) return;
     fwrite(pool, sizeof(Ruler), POP_SIZE, fp);
     fclose(fp);
 }
 
-// 【新規追加】ファイルからプールの状態を読み込む関数
 bool load_pool(Ruler* pool) {
     FILE* fp = fopen(SAVE_FILE, "rb");
-    if (fp == NULL) {
-        return false; // ファイルが存在しない場合は新規作成へ
-    }
+    if (fp == NULL) return false;
     size_t read_cnt = fread(pool, sizeof(Ruler), POP_SIZE, fp);
     fclose(fp);
     return (read_cnt == POP_SIZE);
@@ -140,37 +141,37 @@ int main() {
     int current_best = 99999;
     unsigned int main_seed = (unsigned int)rand();
 
-    printf("== 29次ゴロム定規 超高速マルチスレッド・ハイブリッド探索 ==\n");
+    printf("== 29次ゴロム定規 超高速マルチスレッド・並行進化（大手術機能付き） ==\n");
     int threads = omp_get_max_threads();
     printf("使用スレッド数: %d\n", threads);
 
-    // セーブデータの読み込みを試みる
     if (load_pool(global_pool)) {
         qsort(global_pool, POP_SIZE, sizeof(Ruler), compare_rulers);
         current_best = global_pool[0].length;
-        printf("1. 前回のセーブデータを読み込みました！ (現在のベスト長さ: %d)\n", current_best);
+        printf("1. セーブデータを読み込みました。 (ベスト長さ: %d)\n", current_best);
     } else {
-        printf("1. 新規初期プール（%d個体）を生成中...\n", POP_SIZE);
+        printf("1. 初期プールを新規生成中...\n");
         int initialized = 0;
         while (initialized < POP_SIZE) {
-            if (generate_greedy_ruler(&global_pool[initialized], 1500, &main_seed)) {
+            if (generate_greedy_ruler_from(&global_pool[initialized], 1, 1500, &main_seed)) {
                 if (global_pool[initialized].length < current_best) {
                     current_best = global_pool[initialized].length;
                 }
                 initialized++;
-                printf("\r初期個体生成: [%d / %d] (現在のベスト: %d)", initialized, POP_SIZE, current_best);
-                fflush(stdout);
             }
         }
         qsort(global_pool, POP_SIZE, sizeof(Ruler), compare_rulers);
-        save_pool(global_pool); // 初期状態を念のため保存
+        save_pool(global_pool);
     }
 
-    printf("\n2. 並行進化探索スタート (Ctrl+C でいつでも安全に終了できます)\n");
+    printf("\n2. 並行進化探索スタート\n");
     unsigned long long total_generations = 0;
+    int stagnant_generations = 0; // 停滞している世代数
 
     while (1) {
         total_generations++;
+        stagnant_generations++;
+        
         Ruler thread_bests[threads];
         bool thread_found[threads];
         memset(thread_found, 0, sizeof(thread_found));
@@ -186,7 +187,7 @@ int main() {
             for (int c = 0; c < THREAD_CYCLES; c++) {
                 if (get_thread_rand(&thread_seed) % 2 == 0) {
                     Ruler tmp;
-                    if (generate_greedy_ruler(&tmp, local_best_len - 1, &thread_seed)) {
+                    if (generate_greedy_ruler_from(&tmp, 1, local_best_len - 1, &thread_seed)) {
                         local_best_len = tmp.length;
                         local_best_ruler = tmp;
                         found_any = true;
@@ -216,6 +217,7 @@ int main() {
                 global_pool[POP_SIZE - 1] = thread_bests[i];
                 qsort(global_pool, POP_SIZE, sizeof(Ruler), compare_rulers);
                 updated = true;
+                stagnant_generations = 0; // 更新されたので停滞カウンターをリセット
             }
         }
 
@@ -224,12 +226,44 @@ int main() {
             printf("マーク座標: ");
             for (int i = 0; i < ORDER; i++) printf("%d ", global_pool[0].marks[i]);
             printf("\n");
-            
-            // 【新規追加】記録更新時にプールをファイルへ自動保存
             save_pool(global_pool);
         } else {
-            printf("\r世代: %llu | 最高記録: %d | 次の進化を探索中...", total_generations, current_best);
+            printf("\r世代: %llu | 最高記録: %d | 停滞: %d/%d 世代...", total_generations, current_best, stagnant_generations, STAGNANT_LIMIT);
             fflush(stdout);
+        }
+
+        // --- 【大手術ロジック】 ---
+        if (stagnant_generations >= STAGNANT_LIMIT) {
+            printf("\n【警告】%d世代連続で更新がありません。大手術（カタストロフィ突然変異）を実行します。\n", STAGNANT_LIMIT);
+            
+            // 上位3個体のエリートだけは完全にそのまま残す
+            for (int p = 3; p < POP_SIZE; p++) {
+                // ベースとして最高のエリート（global_pool）をコピー
+                global_pool[p] = global_pool[0];
+                
+                // 後半（15〜29個目のマーク）を切り捨て、現在のベスト未満を目標に貪欲法で無理やり再構築を試みる
+                // 何度かリトライして、成功した個体だけをプールに戻す
+                bool success = false;
+                for (int retry = 0; retry < 50; retry++) {
+                    if (generate_greedy_ruler_from(&global_pool[p], 15, current_best + 200, &main_seed)) {
+                        success = true;
+                        break;
+                    }
+                }
+                
+                // もし再構築に失敗したら、完全な新規ランダム定規を割り当てる
+                if (!success) {
+                    generate_greedy_ruler_from(&global_pool[p], 1, 1500, &main_seed);
+                }
+            }
+            
+            // プールを再ソートして保存
+            qsort(global_pool, POP_SIZE, sizeof(Ruler), compare_rulers);
+            current_best = global_pool[0].length;
+            save_pool(global_pool);
+            
+            printf("大手術完了。新しい可能性で探索を再開します。現在のプール最高長: %d\n", current_best);
+            stagnant_generations = 0; // カウンターリセット
         }
     }
 
