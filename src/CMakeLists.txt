@@ -833,7 +833,7 @@ add_executable(timerfdsample timerfdsample.c timerfdsample0.c timerfdsample1.c t
 
 add_executable(timesample timesample.c)
 
-add_executable(tntn chinpo.c eja.c ftnr.c ochinchin.c penis.c tntn.c)
+add_executable(tntn chinpo.c ftnr.c ochinchin.c penis.c tntn.c)
 target_link_libraries(tntn study m)
 target_include_directories(tntn PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
