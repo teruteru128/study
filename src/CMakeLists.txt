@@ -594,6 +594,8 @@ add_executable(passwordhashsample passwordhashsample.c)
 target_link_libraries(passwordhashsample OpenSSL::Crypto)
 target_include_directories(passwordhashsample PRIVATE ${OPENSSL_INCLUDE_DIR})
 
+add_executable(parseid parseid.c)
+
 add_executable(pbkdf2sample pbkdf2sample.c)
 target_link_libraries(pbkdf2sample OpenSSL::Crypto)
 target_include_directories(pbkdf2sample PRIVATE ${OPENSSL_INCLUDE_DIR})
