@@ -81,16 +81,19 @@ int entrypoint(int argc, char **argv, char *const *envp)
         fprintf(stderr, "%s <sofile> <function symbol>\n", argv[0]);
         return 1;
     }
-        void *handle;
+    void *main_handle;
+    void *handle;
     feature_func func;
     char *error;
 
     printf("[Main] Loading optional feature...\n");
 
     // 1. 共有ライブラリをオープン (RTLD_LAZY: 必要になったらシンボル解決)
+    error = dlerror();
+    printf("initialize dlerror: %s\n", error);
     handle = dlopen(argv[1], RTLD_LAZY);
-    if (!handle) {
-        fprintf(stderr, "[Main] No optional feature found: %s\n", dlerror());
+    if ((error = dlerror()) != NULL || !handle) {
+        fprintf(stderr, "[Main] No optional feature found: %s\n", error);
         printf("[Main] Running without optional feature.\n");
         return 0;
     }
