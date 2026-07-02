@@ -32,12 +32,12 @@ size_t process_file(const char *filename, FILE *out_fp, size_t counter) {
 
 int main(int argc, char const *argv[]) {
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s [--append] [--counter N] [--outfile FILE] <input files...>\n", argv[0]);
+        fprintf(stderr, "Usage: %s [--append] [--offset-count N] [--outfile FILE] <input files...>\n", argv[0]);
         return 1;
     }
 
     int append = 0;
-    size_t counter = 1;
+    size_t count = 1;
     char outfile[PATH_MAX] = "gp-tests.txt";
     
     // 入力ファイルパスを一時的に保持する配列（簡易版）
@@ -48,8 +48,8 @@ int main(int argc, char const *argv[]) {
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--append") == 0) {
             append = 1;
-        } else if (strcmp(argv[i], "--counter") == 0 && i + 1 < argc) {
-            counter = strtoull(argv[++i], NULL, 10);
+        } else if (strcmp(argv[i], "--offset-count") == 0 && i + 1 < argc) {
+            count = strtoull(argv[++i], NULL, 10);
         } else if (strcmp(argv[i], "--outfile") == 0 && i + 1 < argc) {
             snprintf(outfile, PATH_MAX, "%s", argv[++i]);
         } else {
@@ -77,13 +77,13 @@ int main(int argc, char const *argv[]) {
     }
 
     // 各入力ファイルを順次処理
-    size_t start_counter = counter;
+    size_t start_counter = count;
     for (int i = 0; i < input_count; i++) {
-        counter = process_file(input_files[i], tests, counter);
+        count = process_file(input_files[i], tests, count);
     }
 
     fclose(tests);
-    fprintf(stderr, "Success: Processed %zu lines.\n", counter - start_counter);
+    fprintf(stderr, "Success: Processed %zu lines.\n", count - start_counter);
     return 0;
 }
 

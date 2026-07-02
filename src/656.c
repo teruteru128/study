@@ -2,6 +2,13 @@
 #include <stdio.h>
 #include <gmp.h>
 
+/**
+ *
+ * factor1 = 2 *(10^i - )/3 - 3
+ * p = factor1 - 10^j
+ *
+ * レピュニット数に近い素数を探索ツール
+ * */
 int main(int argc, char *argv[], char *envp[])
 {
     mpz_t p, n, factor1, power_n, m, power_m;
@@ -16,7 +23,7 @@ int main(int argc, char *argv[], char *envp[])
         mpz_sub_ui(factor1, factor1, 3);
         for(int j = 1; j < i; j++)
         {
-           mpz_ui_pow_ui(power_m, 10, j); 
+           mpz_ui_pow_ui(power_m, 10, j);
            mpz_sub(p, factor1, power_m);
            int r = mpz_probab_prime_p(p, 24);
            if(r){

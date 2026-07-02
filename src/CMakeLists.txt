@@ -229,6 +229,9 @@ add_executable(cp2peq cp2peq.c)
 target_link_libraries(cp2peq study)
 target_include_directories(cp2peq PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
+add_executable(cubes cubes.c)
+target_link_libraries(cubes PRIVATE gmp)
+
 add_executable(curlonionheadertest curlonionheadertest.c)
 target_link_libraries(curlonionheadertest CURL::libcurl)
 target_include_directories(curlonionheadertest PRIVATE ${CURL_INCLUDE_DIRS})
@@ -271,6 +274,8 @@ add_executable(eckeygentest eckeygentest.c timeutil.c)
 target_link_libraries(eckeygentest m OpenSSL::Crypto)
 target_include_directories(eckeygentest PRIVATE ${CURL_INCLUDE_DIRS})
 target_compile_definitions(eckeygentest PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
+
+add_executable(ecpp-script-generator ecpp-script-generator.c)
 
 add_executable(encodersa encodersa.c)
 target_link_libraries(encodersa uuid OpenSSL::Crypto)
