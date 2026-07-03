@@ -751,6 +751,9 @@ target_link_libraries(rsa1024-2 PkgConfig::GMP)
 add_executable(rsa_der_crt rsa_der_crt.c)
 target_link_libraries(rsa_der_crt PRIVATE PkgConfig::GMP OpenMP::OpenMP_C)
 
+add_executable(rsa_huge_tool rsa_huge_tool.c)
+target_link_libraries(rsa_huge_tool PRIVATE PkgConfig::GMP OpenMP::OpenMP_C)
+
 add_executable(selfmadelibsha self-made-libsha.c)
 target_link_libraries(selfmadelibsha study)
 target_include_directories(selfmadelibsha PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
