@@ -15,8 +15,8 @@ unsigned char* load_der_file(const char* filepath, size_t* out_len) {
     *out_len = fsize; return buffer;
 }
 
-// PKCS#1 DERから巨大整数を抽出するパーサー
-int parse_pkcs1_private_key(const unsigned char* der, size_t der_len, mpz_t* elements, int max_elements) {
+// PKCS#1 DERから巨大整数を抽出するパーサー（要素数をカウントして返す）
+int parse_pkcs1_key(const unsigned char* der, size_t der_len, mpz_t* elements, int max_elements) {
     int count = 0; size_t i = 0;
     if (der[i] == 0x30) { i++; if (der[i] & 0x80) { i += (der[i] & 0x7F) + 1; } else { i++; } }
     while (i < der_len && count < max_elements) {
@@ -33,7 +33,6 @@ int parse_pkcs1_private_key(const unsigned char* der, size_t der_len, mpz_t* ele
     return count;
 }
 
-// データファイルからmpzへインポートする関数
 void load_data_to_mpz(const char* filepath, mpz_t out_m) {
     size_t len;
     unsigned char* buf = load_der_file(filepath, &len);
@@ -42,7 +41,6 @@ void load_data_to_mpz(const char* filepath, mpz_t out_m) {
     free(buf);
 }
 
-// mpzのデータをファイルへ書き出す関数
 void save_mpz_to_file(const char* filepath, mpz_t in_c) {
     FILE* fp = fopen(filepath, "wb");
     if (!fp) { perror("出力ファイルを開けません"); exit(1); }
@@ -53,25 +51,19 @@ void save_mpz_to_file(const char* filepath, mpz_t in_c) {
     fclose(fp);
 }
 
-// OpenMPを用いたマルチスレッドCRT冪乗余（核心部分）
+// OpenMPを用いたマルチスレッドCRT冪乗余
 void crt_powm_parallel(mpz_t out_m, const mpz_t c, const mpz_t dp, const mpz_t dq, const mpz_t p, const mpz_t q, const mpz_t qinv) {
     mpz_t m1, m2, h;
     mpz_inits(m1, m2, h, NULL);
 
-    // #pragma omp parallel sections により、2つのコアでp側とq側の100万bit冪乗を完全に同時並列実行
     #pragma omp parallel sections
     {
         #pragma omp section
-        {
-            mpz_powm(m1, c, dp, p); // コアA担当
-        }
+        { mpz_powm(m1, c, dp, p); }
         #pragma omp section
-        {
-            mpz_powm(m2, c, dq, q); // コアB担当
-        }
+        { mpz_powm(m2, c, dq, q); }
     }
 
-    // CRT合成（ここは一瞬）
     mpz_sub(h, m1, m2);
     if (mpz_sgn(h) < 0) mpz_add(h, h, p);
     mpz_mul(h, h, qinv);
@@ -84,12 +76,12 @@ void crt_powm_parallel(mpz_t out_m, const mpz_t c, const mpz_t dp, const mpz_t d
 
 int main(int argc, char* argv[]) {
     if (argc < 5) {
-        printf("【2097152bit RSA 高速並列CLIツール】\n");
+        printf("【2097152bit RSA 統合並列CLIツール v2】\n");
         printf("使用法:\n");
-        printf("  暗号化: %s enc <key.der> <input_file> <output_file>\n", argv[0]);
-        printf("  復  号: %s dec <key.der> <input_file> <output_file>\n", argv[0]);
-        printf("  署  名: %s sign <key.der> <input_file> <output_file>\n", argv[0]);
-        printf("  検  証: %s verify <key.der> <input_file> <signature_file>\n", argv[0]);
+        printf("  暗号化(公/私可): %s enc <key.der> <input_file> <output_file>\n", argv[0]);
+        printf("  復  号(秘密鍵専用): %s dec <key.der> <input_file> <output_file>\n", argv[0]);
+        printf("  署  名(秘密鍵専用): %s sign <key.der> <input_file> <output_file>\n", argv[0]);
+        printf("  検  証(公/私可): %s verify <key.der> <input_file> <signature_file>\n", argv[0]);
         return 1;
     }
 
@@ -98,11 +90,9 @@ int main(int argc, char* argv[]) {
     char* in_path = argv[3];
     char* out_path = argv[4];
 
-    // GMP変数の初期化
     mpz_t m, c, n, e, d, p, q, dp, dq, qinv;
     mpz_inits(m, c, n, e, d, p, q, dp, dq, qinv, NULL);
 
-    // 鍵のパース
     size_t der_len;
     unsigned char* der_bytes = load_der_file(key_path, &der_len);
     if (!der_bytes) return 1;
@@ -110,72 +100,88 @@ int main(int argc, char* argv[]) {
     int max_el = 9;
     mpz_t* raw_elements = malloc(max_el * sizeof(mpz_t));
     for(int i=0; i<max_el; i++) mpz_init(raw_elements[i]);
-    int found = parse_pkcs1_private_key(der_bytes, der_len, raw_elements, max_el);
+    
+    // 鍵のパース
+    int found = parse_pkcs1_key(der_bytes, der_len, raw_elements, max_el);
     free(der_bytes);
 
-    if (found < 9) {
-        fprintf(stderr, "エラー: 秘密鍵の全パラメータ(9個)をパースできませんでした。公開鍵は指定できません。\n");
+    int is_private_key = 0;
+
+    if (found >= 9) {
+        // 要素が9個以上ある場合は「秘密鍵」としてマッピング
+        is_private_key = 1;
+        mpz_set(n, raw_elements[1]); mpz_set(e, raw_elements[2]); mpz_set(d, raw_elements[3]);
+        mpz_set(p, raw_elements[4]); mpz_set(q, raw_elements[5]);
+        mpz_set(dp, raw_elements[6]); mpz_set(dq, raw_elements[7]); mpz_set(qinv, raw_elements[8]);
+        printf("→ 秘密鍵を検出しました (Modulus: %lu bits)\n", (unsigned long)mpz_sizeinbase(n, 2));
+    } else if (found >= 2) {
+        // 要素が2個（または3個）の場合は「公開鍵」としてマッピング (PKCS#1 RSAPublicKey: n, e)
+        is_private_key = 0;
+        mpz_set(n, raw_elements[0]);
+        mpz_set(e, raw_elements[1]);
+        printf("→ 公開鍵を検出しました (Modulus: %lu bits)\n", (unsigned long)mpz_sizeinbase(n, 2));
+    } else {
+        fprintf(stderr, "エラー: 有効なRSA鍵パラメータが検出されませんでした。(検出要素数: %d)\n", found);
         return 1;
     }
-
-    mpz_set(n, raw_elements[1]); mpz_set(e, raw_elements[2]); mpz_set(d, raw_elements[3]);
-    mpz_set(p, raw_elements[4]); mpz_set(q, raw_elements[5]);
-    mpz_set(dp, raw_elements[6]); mpz_set(dq, raw_elements[7]); mpz_set(qinv, raw_elements[8]);
 
     for(int i=0; i<max_el; i++) mpz_clear(raw_elements[i]); free(raw_elements);
 
     // 入力データの読み込み
     load_data_to_mpz(in_path, m);
 
-    // 各モードの実行
+    // モード別の分岐処理
     if (strcmp(mode, "enc") == 0) {
-        printf("[OpenMP] 公開鍵による高速暗号化を実行中...\n");
+        printf("公開鍵による高速暗号化を実行中...\n");
         mpz_powm(c, m, e, n);
         save_mpz_to_file(out_path, c);
-        printf("→ 暗号化完了。ファイルを保存しました: %s\n", out_path);
+        printf("→ 暗号化完了: %s\n", out_path);
 
     } else if (strcmp(mode, "dec") == 0) {
+        if (!is_private_key) {
+            fprintf(stderr, "エラー: 復号には秘密鍵（DER）が必要です。\n");
+            return 1;
+        }
         printf("[OpenMP] 2コア並列CRTによる高速復号を実行中...\n");
         crt_powm_parallel(c, m, dp, dq, p, q, qinv);
         save_mpz_to_file(out_path, c);
-        printf("→ 復号完了。ファイルを保存しました: %s\n", out_path);
+        printf("→ 復号完了: %s\n", out_path);
 
     } else if (strcmp(mode, "sign") == 0) {
+        if (!is_private_key) {
+            fprintf(stderr, "エラー: 署名には秘密鍵（DER）が必要です。\n");
+            return 1;
+        }
         printf("[OpenMP] 2コア並列CRTによる署名生成を実行中...\n");
         crt_powm_parallel(c, m, dp, dq, p, q, qinv);
 
-        // ⚠️ Bellcoreフォルト攻撃対策：出力前に公開鍵 e でセルフ検証を行う
-        mpz_t test_h;
-        mpz_init(test_h);
-        mpz_powm(test_h, c, e, n); // s^e mod n
-
+        // Bellcoreフォルト攻撃対策
+        mpz_t test_h; mpz_init(test_h);
+        mpz_powm(test_h, c, e, n);
         if (mpz_cmp(test_h, m) != 0) {
-            fprintf(stderr, "\n🔥 [CRITICAL WARNING] 計算中にビット反転（フォルト）を検出しました！\n");
-            fprintf(stderr, "秘密鍵漏洩を防ぐため、壊れた署名の出力をブロックし、処理を強制遮断します。\n");
-            mpz_clear(test_h);
-            return 99;
+            fprintf(stderr, "\n🔥 [CRITICAL] 計算フォルトを検出！出力をブロックします。\n");
+            mpz_clear(test_h); return 99;
         }
-        printf("→ セルフ検証クリア（整合性確認完了）。安全な署名です。\n");
-        save_mpz_to_file(out_path, c);
-        printf("→ 署名完了。ファイルを保存しました: %s\n", out_path);
         mpz_clear(test_h);
+        printf("→ セルフ検証クリア（整合性確認完了）。\n");
+        save_mpz_to_file(out_path, c);
+        printf("→ 署名完了: %s\n", out_path);
 
     } else if (strcmp(mode, "verify") == 0) {
-        printf("[OpenMP] 署名の検証を実行中...\n");
-        mpz_t sig;
-        mpz_init(sig);
-        load_data_to_mpz(out_path, sig); // 第5引数相当（署名ファイル）
+        printf("署名の検証を実行中...\n");
+        mpz_t sig; mpz_init(sig);
+        load_data_to_mpz(out_path, sig);
 
         mpz_powm(c, sig, e, n); // s^e mod n
 
         if (mpz_cmp(c, m) == 0) {
-            printf("🟢 【検証成功】 署名は正当であり、データは改ざんされていません。\n");
+            printf("🟢 【検証成功】 署名は正当です。\n");
         } else {
-            printf("🔴 【検証失敗】 署名が不正か、データが書き換えられています！\n");
+            printf("🔴 【検証失敗】 署名が不正か、データが改ざんされています！\n");
         }
         mpz_clear(sig);
     } else {
-        fprintf(stderr, "未知のモードです: %s\n", mode);
+        fprintf(stderr, "未知のモード: %s\n", mode);
     }
 
     mpz_clears(m, c, n, e, d, p, q, dp, dq, qinv, NULL);
