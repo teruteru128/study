@@ -20,34 +20,34 @@ add_executable(TSIdentityTool TSIdentityTool.c)
 target_link_libraries(TSIdentityTool tommath tomcrypt)
 
 add_executable(114514 114514.c)
-target_link_libraries(114514 PRIVATE gmp)
+target_link_libraries(114514 PRIVATE PkgConfig::GMP)
 
 add_executable(114514-2 114514-2.c)
-target_link_libraries(114514-2 PRIVATE gmp)
+target_link_libraries(114514-2 PRIVATE PkgConfig::GMP)
 
 add_executable(114514-3 114514-3.c)
-target_link_libraries(114514-3 PRIVATE gmp)
+target_link_libraries(114514-3 PRIVATE PkgConfig::GMP)
 
 add_executable(114514-4 114514-4.c)
-target_link_libraries(114514-4 PRIVATE gmp)
+target_link_libraries(114514-4 PRIVATE PkgConfig::GMP)
 
 add_executable(141361 141361.c)
-target_link_libraries(141361 PRIVATE gmp)
+target_link_libraries(141361 PRIVATE PkgConfig::GMP)
 
 add_executable(1564 1564.c)
-target_link_libraries(1564 PRIVATE gmp)
+target_link_libraries(1564 PRIVATE PkgConfig::GMP)
 
 add_executable(1564-2 1564-2.c)
-target_link_libraries(1564-2 PRIVATE gmp CURL::libcurl Threads::Threads)
+target_link_libraries(1564-2 PRIVATE PkgConfig::GMP CURL::libcurl Threads::Threads)
 
 add_executable(1919191919419 1919191919419.c)
-target_link_libraries(1919191919419 PRIVATE gmp)
+target_link_libraries(1919191919419 PRIVATE PkgConfig::GMP)
 
 add_executable(19digits 19digits.c)
-target_link_libraries(19digits PRIVATE gmp CURL::libcurl)
+target_link_libraries(19digits PRIVATE PkgConfig::GMP CURL::libcurl)
 
 add_executable(656 656.c)
-target_link_libraries(656 PRIVATE gmp)
+target_link_libraries(656 PRIVATE PkgConfig::GMP)
 
 add_executable(addpadding addpadding.c)
 
@@ -56,7 +56,7 @@ add_executable(alignformatter alignformatter.c)
 add_executable(alimentsample alimentsample.c)
 
 add_executable(aliquot780 aliquot780.c)
-target_link_libraries(aliquot780 PRIVATE gmp)
+target_link_libraries(aliquot780 PRIVATE PkgConfig::GMP)
 
 add_executable(argsample argsample.c)
 target_link_libraries(argsample study)
@@ -72,7 +72,7 @@ add_executable(bb bb.c)
 add_executable(bcasttest bcasttest.c)
 
 add_executable(bino bino.c biom.c)
-target_link_libraries(bino PRIVATE gmp)
+target_link_libraries(bino PRIVATE PkgConfig::GMP)
 
 add_executable(bm bm.c bm_queues.c bm_threads.c)
 target_link_libraries(bm PRIVATE study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util OpenSSL::Crypto PkgConfig::JSONRPC_GLIB1 SQLite::SQLite3)
@@ -199,11 +199,11 @@ add_executable(bouyomiTalk bouyomiTalk.c)
 target_link_libraries(bouyomiTalk study)
 
 add_executable(calc calc.c)
-target_link_libraries(calc gmp)
+target_link_libraries(calc PkgConfig::GMP)
 
 add_executable(checkprimes checkprimes.c)
 
-target_link_libraries(checkprimes gmp)
+target_link_libraries(checkprimes PkgConfig::GMP)
 
 add_executable(cl cl.c)
 target_link_libraries(cl study)
@@ -220,7 +220,7 @@ target_link_libraries(concurrencysample PRIVATE Threads::Threads)
 #target_compile_definitions(concurrencysample PRIVATE _GNU_SOURCE=1)
 
 add_executable(conv conv.c)
-target_link_libraries(conv PRIVATE gmp)
+target_link_libraries(conv PRIVATE PkgConfig::GMP)
 
 add_executable(countdownsample countdownsample.c countdown.c)
 add_executable(countdown2038 countdown2038.c)
@@ -230,7 +230,7 @@ target_link_libraries(cp2peq study)
 target_include_directories(cp2peq PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(cubes cubes.c)
-target_link_libraries(cubes PRIVATE gmp)
+target_link_libraries(cubes PRIVATE PkgConfig::GMP)
 
 add_executable(curlonionheadertest curlonionheadertest.c)
 target_link_libraries(curlonionheadertest CURL::libcurl)
@@ -262,7 +262,7 @@ target_include_directories(deterministicaddressgenerator PRIVATE ${PROJECT_SOURC
 add_executable(dice dice.c)
 
 add_executable(dicetohex dicetohex.c)
-target_link_libraries(dicetohex gmp)
+target_link_libraries(dicetohex PkgConfig::GMP)
 
 add_executable(doublerandom doublerandom.c)
 
@@ -367,7 +367,7 @@ add_executable(save_fix save_fix.c)
 add_executable(harmonic harmonic.c)
 
 add_executable(helppowm helppowm.c)
-target_link_libraries(helppowm PRIVATE gmp)
+target_link_libraries(helppowm PRIVATE PkgConfig::GMP)
 
 add_executable(httpd httpd.c)
 target_link_libraries(httpd study)
@@ -378,7 +378,7 @@ target_link_libraries(hugecollatztest OpenSSL::Crypto)
 target_include_directories(hugecollatztest PRIVATE ${OPENSSL_INCLUDE_DIR})
 
 add_executable(hunter hunter.c)
-target_link_libraries(hunter PRIVATE ecm gmp)
+target_link_libraries(hunter PRIVATE ecm PkgConfig::GMP)
 
 add_executable(iconvtest iconvtest.c)
 
@@ -393,7 +393,7 @@ target_include_directories(itoabench PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/incl
 target_compile_definitions(itoabench PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
 add_executable(javarandom-sandbox javarandom-sandbox.c)
-target_link_libraries(javarandom-sandbox PRIVATE gmp)
+target_link_libraries(javarandom-sandbox PRIVATE PkgConfig::GMP)
 
 add_executable(json-c_test json-c_test.c)
 target_link_libraries(json-c_test json-c)
@@ -465,7 +465,7 @@ target_link_libraries(main
                         OpenSSL::Crypto
                         OpenSSL::SSL
                         PNG::PNG
-                        gmp
+                        PkgConfig::GMP
                         OpenMP::OpenMP_C
                         OpenCL::OpenCL
                         JPEG::JPEG
@@ -652,68 +652,68 @@ add_executable(potest potest.c)
 target_compile_definitions(potest PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}" $<$<BOOL:${GETTEXT_FOUND}>:ENABLE_NLS=1>)
 
 add_executable(pprimegen pprimegen.c)
-target_link_libraries(pprimegen PRIVATE gmp)
+target_link_libraries(pprimegen PRIVATE PkgConfig::GMP)
 
 add_executable(pqsample pqsample.c)
 target_link_libraries(pqsample pq)
 
 add_executable(prime1 prime1.c)
-target_link_libraries(prime1 gmp)
+target_link_libraries(prime1 PkgConfig::GMP)
 
 add_executable(prime2 prime2.c)
-target_link_libraries(prime2 gmp)
+target_link_libraries(prime2 PkgConfig::GMP)
 
 add_executable(prime3 prime3.c)
-target_link_libraries(prime3 gmp)
+target_link_libraries(prime3 PkgConfig::GMP)
 
 add_executable(prime4 prime4.c)
-target_link_libraries(prime4 gmp)
+target_link_libraries(prime4 PkgConfig::GMP)
 
 add_executable(prime5 prime5.c)
-target_link_libraries(prime5 gmp uuid)
+target_link_libraries(prime5 PkgConfig::GMP uuid)
 
 add_executable(prime6 prime6.c bitsieve.c timeutil.c)
-target_link_libraries(prime6 gmp Threads::Threads)
+target_link_libraries(prime6 PkgConfig::GMP Threads::Threads)
 
 add_executable(prime7 prime7.c bitsieve.c timeutil.c)
-target_link_libraries(prime7 gmp Threads::Threads)
+target_link_libraries(prime7 PkgConfig::GMP Threads::Threads)
 
 add_executable(prime8 prime8.c bitsieve.c task_queue.c queue.c timeutil.c gettextsample.c)
-target_link_libraries(prime8 gmp Threads::Threads)
+target_link_libraries(prime8 PkgConfig::GMP Threads::Threads)
 target_compile_definitions(prime8 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
 add_executable(prime9 prime9.c)
-target_link_libraries(prime9 gmp)
+target_link_libraries(prime9 PkgConfig::GMP)
 
 add_executable(prime10 prime10.c)
-target_link_libraries(prime10 gmp)
+target_link_libraries(prime10 PkgConfig::GMP)
 
 add_executable(prime11 prime11.c)
-target_link_libraries(prime11 gmp)
+target_link_libraries(prime11 PkgConfig::GMP)
 
 add_executable(prime12 prime12.c bitsieve.c timeutil.c)
-target_link_libraries(prime12 gmp Threads::Threads)
+target_link_libraries(prime12 PkgConfig::GMP Threads::Threads)
 
 add_executable(prime13 prime13.c bitsieve.c queue.c timeutil.c)
-target_link_libraries(prime13 gmp Threads::Threads)
+target_link_libraries(prime13 PkgConfig::GMP Threads::Threads)
 
 add_executable(prime14 prime14.c bitsieve.c timeutil.c)
-target_link_libraries(prime14 gmp Threads::Threads)
+target_link_libraries(prime14 PkgConfig::GMP Threads::Threads)
 
 add_executable(prime15 prime15.c)
-target_link_libraries(prime15 PRIVATE gmp)
+target_link_libraries(prime15 PRIVATE PkgConfig::GMP)
 
 add_executable(prime16 prime16.c)
-target_link_libraries(prime16 PRIVATE gmp)
+target_link_libraries(prime16 PRIVATE PkgConfig::GMP)
 
 add_executable(primespam primespam.c)
-target_link_libraries(primespam PRIVATE gmp CURL::libcurl)
+target_link_libraries(primespam PRIVATE PkgConfig::GMP CURL::libcurl)
 
 add_executable(primorial primorial.c)
-target_link_libraries(primorial PRIVATE gmp)
+target_link_libraries(primorial PRIVATE PkgConfig::GMP)
 
 add_executable(primesearch primesearch.c)
-target_link_libraries(primesearch gmp)
+target_link_libraries(primesearch PkgConfig::GMP)
 
 add_executable(printBench printBench.c timeutil.c)
 target_link_libraries(printBench m study)
@@ -742,14 +742,14 @@ add_executable(repeated-trials repeated-trials.c)
 add_executable(rsa rsa.c)
 
 add_executable(rsa1024 rsa1024.c)
-target_link_libraries(rsa1024 gmp study)
+target_link_libraries(rsa1024 PkgConfig::GMP study)
 target_include_directories(rsa1024 PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(rsa1024-2 rsa1024-2.c)
-target_link_libraries(rsa1024-2 gmp)
+target_link_libraries(rsa1024-2 PkgConfig::GMP)
 
 add_executable(rsa_der_crt rsa_der_crt.c)
-target_link_libraries(rsa_der_crt PRIVATE ${GMP_LIBRARIES} OpenMP::OpenMP_C)
+target_link_libraries(rsa_der_crt PRIVATE PkgConfig::GMP OpenMP::OpenMP_C)
 
 add_executable(selfmadelibsha self-made-libsha.c)
 target_link_libraries(selfmadelibsha study)
@@ -794,7 +794,7 @@ target_include_directories(sntpc PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_definitions(sntpc PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
 add_executable(split split.c)
-target_link_libraries(split PRIVATE gmp)
+target_link_libraries(split PRIVATE PkgConfig::GMP)
 
 add_executable(splitsample splitsample.c splitsample-driver.c)
 target_include_directories(splitsample PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
@@ -816,7 +816,7 @@ target_link_libraries(sha-test OpenSSL::Crypto)
 target_include_directories(sha-test PRIVATE ${OPENSSL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(sum sum.c)
-target_link_libraries(sum gmp study)
+target_link_libraries(sum PkgConfig::GMP study)
 target_include_directories(sum PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(teamspeakIdUpgrader teamspeakIdUpgrader.c)
