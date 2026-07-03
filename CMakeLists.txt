@@ -111,6 +111,9 @@ else()
 	message(FATAL_ERROR "PARI/GP library not found.")
 endif()
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GMP REQUIRED gmp)
+
 #link_libraries(${CMAKE_THREAD_LIBS_INIT} ${Intl_LIBRARIES} ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${OPENSSL_SSL_LIBRARIES})
 include(GNUInstallDirs)
 include(CheckIncludeFile)
