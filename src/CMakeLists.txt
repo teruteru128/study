@@ -75,7 +75,7 @@ add_executable(bino bino.c biom.c)
 target_link_libraries(bino PRIVATE PkgConfig::GMP)
 
 add_executable(bm bm.c bm_queues.c bm_threads.c)
-target_link_libraries(bm PRIVATE study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util OpenSSL::Crypto PkgConfig::JsonRpcGlib SQLite::SQLite3)
+target_link_libraries(bm PRIVATE study XMLRPC::XMLRPC OpenSSL::Crypto PkgConfig::JsonRpcGlib SQLite::SQLite3)
 target_include_directories(bm PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_definitions(bm PRIVATE VERSION="${study_VERSION}" BM_VERSION="0.1.0.0")
 
@@ -84,20 +84,20 @@ target_link_libraries(bmkeygen OpenSSL::Crypto)
 target_include_directories(bmkeygen PRIVATE)
 
 add_executable(bmkeysearch1 bmkeysearch1.c queue.c bmkeyload.c)
-target_link_libraries(bmkeysearch1 study xmlrpc xmlrpc_client Threads::Threads OpenSSL::Crypto)
+target_link_libraries(bmkeysearch1 study XMLRPC::XMLRPC Threads::Threads OpenSSL::Crypto)
 target_include_directories(bmkeysearch1 PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_definitions(bmkeysearch1 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
 add_executable(bmkeysearch2 bmkeysearch2.c queue.c)
-target_link_libraries(bmkeysearch2 OpenSSL::Crypto Threads::Threads study xmlrpc xmlrpc_client)
+target_link_libraries(bmkeysearch2 OpenSSL::Crypto Threads::Threads study XMLRPC::XMLRPC)
 target_include_directories(bmkeysearch2 PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(bmkeysearch3 bmkeysearch3.c)
-target_link_libraries(bmkeysearch3 OpenSSL::Crypto Threads::Threads study xmlrpc xmlrpc_client)
+target_link_libraries(bmkeysearch3 OpenSSL::Crypto Threads::Threads study XMLRPC::XMLRPC)
 target_include_directories(bmkeysearch3 PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(bmkeysearch4 bmkeysearch4.c)
-target_link_libraries(bmkeysearch4 OpenSSL::Crypto Threads::Threads study xmlrpc xmlrpc_client)
+target_link_libraries(bmkeysearch4 OpenSSL::Crypto Threads::Threads study XMLRPC::XMLRPC)
 target_include_directories(bmkeysearch4 PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(bmkeysearch5 bmkeysearch5.c)
@@ -158,7 +158,7 @@ target_link_libraries(bmks17 OpenSSL::Crypto Threads::Threads)
 target_include_directories(bmks17 PRIVATE)
 
 add_executable(bmmultisendsample bmmultisendsample.c)
-target_link_libraries(bmmultisendsample study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util OpenSSL::Crypto)
+target_link_libraries(bmmultisendsample study XMLRPC::XMLRPC OpenSSL::Crypto)
 target_include_directories(bmmultisendsample PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_definitions(bmmultisendsample PRIVATE VERSION="${study_VERSION}")
 
@@ -170,14 +170,14 @@ target_include_directories(bmrandomaddressgenerator PRIVATE)
 add_executable(bmsearchpass bmsearchpass.c)
 
 add_executable(bmsendmsg bmsendmsg.c)
-target_link_libraries(bmsendmsg study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util)
+target_link_libraries(bmsendmsg study XMLRPC::XMLRPC)
 target_include_directories(bmsendmsg PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_definitions(bmsendmsg PRIVATE VERSION="${study_VERSION}")
 
 add_executable(bmsort bmsort.c)
 
 add_executable(bmspam bmspam.c)
-target_link_libraries(bmspam study xmlrpc xmlrpc_client xmlrpc_server xmlrpc_util OpenSSL::Crypto)
+target_link_libraries(bmspam study XMLRPC::XMLRPC OpenSSL::Crypto)
 target_include_directories(bmspam PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_definitions(bmspam PRIVATE VERSION="${study_VERSION}")
 
@@ -278,7 +278,7 @@ target_compile_definitions(eckeygentest PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" 
 add_executable(ecpp-script-generator ecpp-script-generator.c)
 
 add_executable(encodersa encodersa.c)
-target_link_libraries(encodersa uuid OpenSSL::Crypto)
+target_link_libraries(encodersa PkgConfig::UUID OpenSSL::Crypto)
 target_include_directories(encodersa PRIVATE)
 target_compile_definitions(encodersa PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
@@ -405,7 +405,7 @@ target_link_libraries(keyconvert OpenSSL::Crypto study OpenMP::OpenMP_C)
 target_compile_options(keyconvert PRIVATE)
 
 add_executable(keypairgenerator keypairgenerator.c)
-target_link_libraries(keypairgenerator Threads::Threads OpenSSL::Crypto uuid)
+target_link_libraries(keypairgenerator Threads::Threads OpenSSL::Crypto PkgConfig::UUID)
 target_include_directories(keypairgenerator PRIVATE)
 
 add_executable(keysample keysample.c)
@@ -454,8 +454,7 @@ target_include_directories(main PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_link_libraries(main
                         study
                         m
-                        xmlrpc
-                        xmlrpc_client
+                        XMLRPC::XMLRPC
                         OpenSSL::Crypto
                         OpenSSL::SSL
                         PNG::PNG
@@ -465,7 +464,7 @@ target_link_libraries(main
                         JPEG::JPEG
                         PkgConfig::JsonRpcGlib
                         CURL::libcurl
-                        uuid
+                        PkgConfig::UUID
                      )
 target_compile_options(main PRIVATE)
 
@@ -483,7 +482,7 @@ target_include_directories(maxmovingsum PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/i
 add_executable(meumeu meumeu.c)
 
 add_executable(md5fullzero md5fullzero.c)
-target_link_libraries(md5fullzero m Threads::Threads OpenSSL::Crypto study xmlrpc xmlrpc_client)
+target_link_libraries(md5fullzero m Threads::Threads OpenSSL::Crypto study XMLRPC::XMLRPC)
 target_include_directories(md5fullzero PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(mdcountup mdcountup.c)
@@ -664,7 +663,7 @@ add_executable(prime4 prime4.c)
 target_link_libraries(prime4 PkgConfig::GMP)
 
 add_executable(prime5 prime5.c)
-target_link_libraries(prime5 PkgConfig::GMP uuid)
+target_link_libraries(prime5 PkgConfig::GMP PkgConfig::UUID)
 
 add_executable(prime6 prime6.c bitsieve.c timeutil.c)
 target_link_libraries(prime6 PkgConfig::GMP Threads::Threads)
@@ -845,7 +844,7 @@ target_link_libraries(tntn study m)
 target_include_directories(tntn PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(totp totp.c)
-target_link_libraries(totp m study OpenSSL::Crypto xmlrpc xmlrpc_client)
+target_link_libraries(totp m study OpenSSL::Crypto XMLRPC::XMLRPC)
 target_include_directories(totp PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(tsidbench tsidbench.c)
@@ -865,7 +864,7 @@ add_executable(udpsender udpsender.c)
 add_executable(upnp-port-fowarding-test upnp-port-fowarding-test.c)
 
 add_executable(uuidtest uuidtest.c)
-target_link_libraries(uuidtest uuid)
+target_link_libraries(uuidtest PkgConfig::UUID)
 
 add_executable(virtsample virtsample.c)
 
