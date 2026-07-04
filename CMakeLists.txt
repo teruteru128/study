@@ -84,7 +84,10 @@ endif(PNG_FOUND)
 
 find_package(PkgConfig REQUIRED)
 if(PKG_CONFIG_FOUND)
-    pkg_check_modules(JSONRPC_GLIB1 REQUIRED IMPORTED_TARGET jsonrpc-glib-1.0)
+    pkg_check_modules(JsonRpcGlib REQUIRED IMPORTED_TARGET jsonrpc-glib-1.0)
+    pkg_check_modules(GMP REQUIRED IMPORTED_TARGET gmp)
+    pkg_check_modules(TomMath REQUIRED IMPORTED_TARGET libtommath)
+    pkg_check_modules(TomCrypt REQUIRED IMPORTED_TARGET libtomcrypt)
 endif()
 
 find_package(XMLRPC REQUIRED)
@@ -111,8 +114,6 @@ else()
 	message(FATAL_ERROR "PARI/GP library not found.")
 endif()
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GMP REQUIRED IMPORTED_TARGET gmp)
 
 #link_libraries(${CMAKE_THREAD_LIBS_INIT} ${Intl_LIBRARIES} ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${OPENSSL_SSL_LIBRARIES})
 include(GNUInstallDirs)
