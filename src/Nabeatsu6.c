@@ -5,7 +5,9 @@
 #include <time.h>
 #include <unistd.h>
 
-#define VERSION "1.1.0"
+#ifndef VERSION
+#define VERSION "1.0.0-unknown"
+#endif
 
 // ヘルプメッセージを表示する関数
 void print_help(const char *prog_name) {

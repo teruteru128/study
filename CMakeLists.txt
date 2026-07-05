@@ -84,8 +84,10 @@ endif(PNG_FOUND)
 
 find_package(PkgConfig REQUIRED)
 if(PKG_CONFIG_FOUND)
-    pkg_check_modules(JsonRpcGlib REQUIRED IMPORTED_TARGET jsonrpc-glib-1.0)
     pkg_check_modules(GMP REQUIRED IMPORTED_TARGET gmp)
+    pkg_check_modules(JsonC REQUIRED IMPORTED_TARGET json-c)
+    pkg_check_modules(JsonRpcGlib REQUIRED IMPORTED_TARGET jsonrpc-glib-1.0)
+    pkg_check_modules(MySQLClient REQUIRED IMPORTED_TARGET mysqlclient)
     pkg_check_modules(TomMath REQUIRED IMPORTED_TARGET libtommath)
     pkg_check_modules(TomCrypt REQUIRED IMPORTED_TARGET libtomcrypt)
     pkg_check_modules(UUID REQUIRED IMPORTED_TARGET uuid)
@@ -215,7 +217,7 @@ endif()
 
 #include_directories(${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/libstudy/include ${CMAKE_CURRENT_SOURCE_DIR})
 #add_compile_options(-Wall -Wextra -pedantic-errors -Wcast-align -Wcast-qual -Wconversion -Wdisabled-optimization -Wendif-labels -Wfloat-equal -Winit-self -Winline -Wlogical-op -Wmissing-include-dirs -Wpacked -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wswitch-enum -Wunsafe-loop-optimizations -Wvariadic-macros -Wwrite-strings)
-#add_compile_definitions(PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}" VERSION="${study_VERSION}")
+#add_compile_definitions(PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}" VERSION="${PROJECT_VERSION}")
 #include_directories("${PROJECT_BINARY_DIR}")
 
 # 秘密鍵のパス。設定されていなければデフォルト値を参照

@@ -17,6 +17,7 @@ add_executable(Nabeatsu4 Nabeatsu4.c)
 add_executable(Nabeatsu5 Nabeatsu5.c)
 
 add_executable(Nabeatsu6 Nabeatsu6.c)
+target_compile_definitions(Nabeatsu6 PRIVATE VERSION="${PROJECT_VERSION}")
 
 add_executable(TSIdentityTool TSIdentityTool.c)
 target_link_libraries(TSIdentityTool PkgConfig::TomMath PkgConfig::TomCrypt)
@@ -79,7 +80,7 @@ target_link_libraries(bino PRIVATE PkgConfig::GMP)
 add_executable(bm bm.c bm_queues.c bm_threads.c)
 target_link_libraries(bm PRIVATE study XMLRPC::XMLRPC OpenSSL::Crypto PkgConfig::JsonRpcGlib SQLite::SQLite3)
 target_include_directories(bm PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/include)
-target_compile_definitions(bm PRIVATE VERSION="${study_VERSION}" BM_VERSION="0.1.0.0")
+target_compile_definitions(bm PRIVATE VERSION="${PROJECT_VERSION}" BM_VERSION="0.1.0.0")
 
 add_executable(bmkeygen bmkeygen.c)
 target_link_libraries(bmkeygen OpenSSL::Crypto)
@@ -162,7 +163,7 @@ target_include_directories(bmks17 PRIVATE)
 add_executable(bmmultisendsample bmmultisendsample.c)
 target_link_libraries(bmmultisendsample study XMLRPC::XMLRPC OpenSSL::Crypto)
 target_include_directories(bmmultisendsample PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
-target_compile_definitions(bmmultisendsample PRIVATE VERSION="${study_VERSION}")
+target_compile_definitions(bmmultisendsample PRIVATE VERSION="${PROJECT_VERSION}")
 
 add_executable(bmrandomaddressgenerator bmrandomaddressgenerator.c)
 target_link_libraries(bmrandomaddressgenerator OpenSSL::Crypto Threads::Threads study)
@@ -174,14 +175,14 @@ add_executable(bmsearchpass bmsearchpass.c)
 add_executable(bmsendmsg bmsendmsg.c)
 target_link_libraries(bmsendmsg study XMLRPC::XMLRPC)
 target_include_directories(bmsendmsg PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
-target_compile_definitions(bmsendmsg PRIVATE VERSION="${study_VERSION}")
+target_compile_definitions(bmsendmsg PRIVATE VERSION="${PROJECT_VERSION}")
 
 add_executable(bmsort bmsort.c)
 
 add_executable(bmspam bmspam.c)
 target_link_libraries(bmspam study XMLRPC::XMLRPC OpenSSL::Crypto)
 target_include_directories(bmspam PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
-target_compile_definitions(bmspam PRIVATE VERSION="${study_VERSION}")
+target_compile_definitions(bmspam PRIVATE VERSION="${PROJECT_VERSION}")
 
 add_executable(bouyomiClear bouyomiClear.c)
 
@@ -398,7 +399,7 @@ add_executable(javarandom-sandbox javarandom-sandbox.c)
 target_link_libraries(javarandom-sandbox PRIVATE PkgConfig::GMP)
 
 add_executable(json-c_test json-c_test.c)
-target_link_libraries(json-c_test json-c)
+target_link_libraries(json-c_test PkgConfig::JsonC)
 
 add_executable(kana kana.c)
 
@@ -414,7 +415,7 @@ add_executable(keysample keysample.c)
 target_link_libraries(keysample Threads::Threads)
 
 add_executable(kxsample kxsample.c)
-target_link_libraries(kxsample sodium)
+target_link_libraries(kxsample PkgConfig::Sodium)
 
 add_executable(leapyeartest leapyeartest.c tmcomp.c)
 
@@ -502,16 +503,16 @@ add_executable(multiprosessmutexsample multiprosessmutexsample.c)
 target_link_libraries(multiprosessmutexsample PRIVATE Threads::Threads)
 
 add_executable(mysqlaccesssample mysqlaccesssample.c)
-target_link_libraries(mysqlaccesssample mysqlclient)
+target_link_libraries(mysqlaccesssample PkgConfig::MySQLClient)
 
 add_executable(mysqlaccesssample2 mysqlaccesssample2.c)
-target_link_libraries(mysqlaccesssample2 mysqlclient)
+target_link_libraries(mysqlaccesssample2 PkgConfig::MySQLClient)
 
 add_executable(mysqlbf mysqlbf.c)
-target_link_libraries(mysqlbf mysqlclient)
+target_link_libraries(mysqlbf PkgConfig::MySQLClient)
 
 add_executable(mysqlfast mysqlfast.c)
-target_link_libraries(mysqlfast mysqlclient)
+target_link_libraries(mysqlfast PkgConfig::MySQLClient)
 
 # ビルドコマンドの定義
 add_custom_target(my_driver
