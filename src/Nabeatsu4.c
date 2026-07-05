@@ -38,7 +38,7 @@ int main(int argc, char const *argv[], char const *envp[])
     // フラグと位置引数を処理
     for(int i = 1; i < argc; i++)
     {
-        if(strcmp(argv[i], "--verbose") == 0 || strcmp(argv[1], "-v") == 0)
+        if(strcmp(argv[i], "--verbose") == 0 || strcmp(argv[i], "-v") == 0)
         {
             verbose = 1;
         }
@@ -90,8 +90,8 @@ int main(int argc, char const *argv[], char const *envp[])
     char buffer[32];
     strftime(buffer, 32, "%FT%T%z", &tm);
     printf("到達時刻: %s\n", buffer);
-    printf("到達まであと%lf日\n", (double)diffSeconds / 86400);
-    printf("到達まであと%lf日\n", (double)diff2 / 86400);
+    printf("ポスト時点: 到達まであと%lf日\n", (double)diffSeconds / 86400);
+    printf("現在時点: 到達まであと%lf日\n", (double)diff2 / 86400);
     if(verbose)
     {
         struct tm tm2;

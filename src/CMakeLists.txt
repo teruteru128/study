@@ -16,6 +16,8 @@ add_executable(Nabeatsu4 Nabeatsu4.c)
 
 add_executable(Nabeatsu5 Nabeatsu5.c)
 
+add_executable(Nabeatsu6 Nabeatsu6.c)
+
 add_executable(TSIdentityTool TSIdentityTool.c)
 target_link_libraries(TSIdentityTool PkgConfig::TomMath PkgConfig::TomCrypt)
 
