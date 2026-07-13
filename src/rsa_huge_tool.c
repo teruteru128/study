@@ -33,12 +33,79 @@ int parse_pkcs1_key(const unsigned char* der, size_t der_len, mpz_t* elements, i
     return count;
 }
 
+// ファイルまたは標準入力から全データを読み込む
+unsigned char* load_input_data(const char* filepath, size_t* out_len) {
+    FILE* fp = stdin;
+    if (strcmp(filepath, "-") != 0) {
+        fp = fopen(filepath, "rb");
+        if (!fp) { perror("入力ファイルを開けません"); return NULL; }
+    } else {
+        // Windows環境などの場合は、標準入力をバイナリモードにする必要がある（Linux等では不要）
+        #ifdef _WIN32
+        _setmode(_fileno(stdin), _O_BINARY);
+        #endif
+    }
+
+    size_t capacity = 512 * 1024; // 初期バッファ: 512KB (200万bit = 250KBが収まるサイズ)
+    unsigned char* buffer = malloc(capacity);
+    size_t total_len = 0;
+
+    if (fp == stdin) {
+        // パイプ（ストリーム）からの読み込み
+        size_t bytes_read;
+        while ((bytes_read = fread(buffer + total_len, 1, 4096, fp)) > 0) {
+            total_len += bytes_read;
+            if (total_len + 4096 > capacity) {
+                capacity *= 2;
+                buffer = realloc(buffer, capacity);
+            }
+        }
+    } else {
+        // 通常ファイルからの高速読み込み
+        fseek(fp, 0, SEEK_END); long fsize = ftell(fp); fseek(fp, 0, SEEK_SET);
+        buffer = realloc(buffer, fsize); // ジャストサイズに調整
+        fread(buffer, 1, fsize, fp);
+        total_len = fsize;
+        fclose(fp);
+    }
+
+    *out_len = total_len;
+    return buffer;
+}
+
 void load_data_to_mpz(const char* filepath, mpz_t out_m) {
     size_t len;
-    unsigned char* buf = load_der_file(filepath, &len);
+    unsigned char* buf = load_input_data(filepath, &len);
     if (!buf) { fprintf(stderr, "データファイルの読み込み失敗\n"); exit(1); }
     mpz_import(out_m, len, 1, 1, 1, 0, buf);
     free(buf);
+}
+
+void save_mpz_to_output(const char* filepath, mpz_t in_c) {
+    FILE* fp = stdout;
+    if (strcmp(filepath, "-") != 0) {
+        fp = fopen(filepath, "wb");
+        if (!fp) { perror("出力ファイルを開けません"); exit(1); }
+    } else {
+        #ifdef _WIN32
+        _setmode(_fileno(stdout), _O_BINARY);
+        #endif
+    }
+
+    size_t count;
+    unsigned char* buf = mpz_export(NULL, &count, 1, 1, 1, 0, in_c);
+    
+    // 200万ビット環境（固定長/最大長パディング）を考慮し、
+    // 必要に応じて先頭のゼロ埋め（パディングサイズ合わせ）をここで行うとより堅牢になります。
+    
+    fwrite(buf, 1, count, fp);
+    free(buf);
+
+    if (fp != stdout) {
+        fclose(fp);
+    } else {
+        fflush(stdout); // パイプラインが詰まらないよう確実にフラッシュ
+    }
 }
 
 void save_mpz_to_file(const char* filepath, mpz_t in_c) {
@@ -76,12 +143,11 @@ void crt_powm_parallel(mpz_t out_m, const mpz_t c, const mpz_t dp, const mpz_t d
 
 int main(int argc, char* argv[]) {
     if (argc < 5) {
-        printf("【2097152bit RSA 統合並列CLIツール v2】\n");
+        printf("【2097152bit RSA 統合並列CLIツール v3】\n");
         printf("使用法:\n");
-        printf("  暗号化(公/私可): %s enc <key.der> <input_file> <output_file>\n", argv[0]);
-        printf("  復  号(秘密鍵専用): %s dec <key.der> <input_file> <output_file>\n", argv[0]);
-        printf("  署  名(秘密鍵専用): %s sign <key.der> <input_file> <output_file>\n", argv[0]);
-        printf("  検  証(公/私可): %s verify <key.der> <input_file> <signature_file>\n", argv[0]);
+        printf("  公開鍵演算(暗号化/復号): %s pub-pow <key.der> <input_file> <output_file>\n", argv[0]);
+        printf("  秘密鍵演算(復　号/署名): %s pri-pow <key.der> <input_file> <output_file>\n", argv[0]);
+        printf("  ※ ファイルパスに '-' を指定すると標準入出力（パイプ）になります。\n");
         return 1;
     }
 
@@ -130,32 +196,32 @@ int main(int argc, char* argv[]) {
     // 入力データの読み込み
     load_data_to_mpz(in_path, m);
 
-    // モード別の分岐処理
-    if (strcmp(mode, "enc") == 0) {
-        printf("公開鍵による高速暗号化を実行中...\n");
+    int ret = 0;
+    // モード別の分岐処理（2つに集約）
+    if (strcmp(mode, "pub-pow") == 0) {
+        printf("公開鍵による冪乗余計算 (m^e mod n) を実行中...\n");
+        // 入力（メッセージ、または署名データ）を読み込み
+        load_data_to_mpz(in_path, m);
+        
+        // 計算実行
         mpz_powm(c, m, e, n);
-        save_mpz_to_file(out_path, c);
-        printf("→ 暗号化完了: %s\n", out_path);
+        
+        // 結果（暗号文、または復元パディング）を出力
+        save_mpz_to_output(out_path, c);
+        printf("→ 計算完了\n");
 
-    } else if (strcmp(mode, "dec") == 0) {
+    } else if (strcmp(mode, "pri-pow") == 0) {
         if (!is_private_key) {
-            fprintf(stderr, "エラー: 復号には秘密鍵（DER）が必要です。\n");
+            fprintf(stderr, "エラー: pri-pow（秘密鍵演算）には秘密鍵（DER）が必要です。\n");
             return 1;
         }
-        printf("[OpenMP] 2コア並列CRTによる高速復号を実行中...\n");
-        crt_powm_parallel(c, m, dp, dq, p, q, qinv);
-        save_mpz_to_file(out_path, c);
-        printf("→ 復号完了: %s\n", out_path);
-
-    } else if (strcmp(mode, "sign") == 0) {
-        if (!is_private_key) {
-            fprintf(stderr, "エラー: 署名には秘密鍵（DER）が必要です。\n");
-            return 1;
-        }
-        printf("[OpenMP] 2コア並列CRTによる署名生成を実行中...\n");
+        printf("[OpenMP] 秘密鍵による並列CRT冪乗余計算 (m^d mod n) を実行中...\n");
+        load_data_to_mpz(in_path, m);
+        
+        // 2コア並列CRT計算
         crt_powm_parallel(c, m, dp, dq, p, q, qinv);
 
-        // Bellcoreフォルト攻撃対策
+        // Bellcoreフォルト攻撃対策（すべての秘密鍵演算で実行されるため安全！）
         mpz_t test_h; mpz_init(test_h);
         mpz_powm(test_h, c, e, n);
         if (mpz_cmp(test_h, m) != 0) {
@@ -163,28 +229,16 @@ int main(int argc, char* argv[]) {
             mpz_clear(test_h); return 99;
         }
         mpz_clear(test_h);
-        printf("→ セルフ検証クリア（整合性確認完了）。\n");
-        save_mpz_to_file(out_path, c);
-        printf("→ 署名完了: %s\n", out_path);
+        
+        save_mpz_to_output(out_path, c);
+        printf("→ 計算完了\n");
 
-    } else if (strcmp(mode, "verify") == 0) {
-        printf("署名の検証を実行中...\n");
-        mpz_t sig; mpz_init(sig);
-        load_data_to_mpz(out_path, sig);
-
-        mpz_powm(c, sig, e, n); // s^e mod n
-
-        if (mpz_cmp(c, m) == 0) {
-            printf("🟢 【検証成功】 署名は正当です。\n");
-        } else {
-            printf("🔴 【検証失敗】 署名が不正か、データが改ざんされています！\n");
-        }
-        mpz_clear(sig);
     } else {
-        fprintf(stderr, "未知のモード: %s\n", mode);
+        fprintf(stderr, "未知のモード: %s (使用可能: pub-pow / pri-pow)\n", mode);
+        return 1;
     }
 
     mpz_clears(m, c, n, e, d, p, q, dp, dq, qinv, NULL);
-    return 0;
+    return ret;
 }
 

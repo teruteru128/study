@@ -280,6 +280,9 @@ target_compile_definitions(eckeygentest PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" 
 
 add_executable(ecpp-script-generator ecpp-script-generator.c)
 
+add_executable(emsa-pss emsa_pss_tool.c)
+target_link_libraries(emsa-pss PRIVATE OpenSSL::Crypto)
+
 add_executable(encodersa encodersa.c)
 target_link_libraries(encodersa PkgConfig::UUID OpenSSL::Crypto)
 target_include_directories(encodersa PRIVATE)
@@ -550,6 +553,9 @@ target_compile_definitions(lsp_helper PRIVATE
     MODULE
 )
 
+add_executable(noise_gen noise_gen.c)
+target_link_libraries(noise_gen PRIVATE PNG::PNG)
+
 add_executable(octorberfirst octoberfirst.c)
 #target_link_libraries(octorberfirst)
 
@@ -747,8 +753,8 @@ target_link_libraries(rsa1024-2 PkgConfig::GMP)
 add_executable(rsa_der_crt rsa_der_crt.c)
 target_link_libraries(rsa_der_crt PRIVATE PkgConfig::GMP OpenMP::OpenMP_C)
 
-add_executable(rsa_huge_tool rsa_huge_tool.c)
-target_link_libraries(rsa_huge_tool PRIVATE PkgConfig::GMP OpenMP::OpenMP_C)
+add_executable(rsa-calc rsa_huge_tool.c)
+target_link_libraries(rsa-calc PRIVATE PkgConfig::GMP OpenMP::OpenMP_C)
 
 add_executable(selfmadelibsha self-made-libsha.c)
 target_link_libraries(selfmadelibsha study)
@@ -874,13 +880,13 @@ add_executable(virtsample virtsample.c)
 add_executable(widecharsample widecharsample.c)
 
 add_executable(wikigacha_decrypt wikigacha_decrypt.c)
-target_link_libraries(wikigacha_decrypt PRIVATE json-c OpenSSL::Crypto OpenSSL::SSL)
+target_link_libraries(wikigacha_decrypt PRIVATE PkgConfig::JsonC OpenSSL::Crypto OpenSSL::SSL)
 
 add_executable(wikigacha_encrypt wikigacha_encrypt.c)
-target_link_libraries(wikigacha_encrypt PRIVATE json-c OpenSSL::Crypto OpenSSL::SSL)
+target_link_libraries(wikigacha_encrypt PRIVATE PkgConfig::JsonC OpenSSL::Crypto OpenSSL::SSL)
 
 add_executable(wikigacha_enrich enrich_all.c)
-target_link_libraries(wikigacha_enrich PRIVATE json-c CURL::libcurl)
+target_link_libraries(wikigacha_enrich PRIVATE PkgConfig::JsonC CURL::libcurl)
 
 add_executable(wordconv wordconv.c)
 
