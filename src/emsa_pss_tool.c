@@ -142,7 +142,6 @@ int get_key_bits(const char *key_path, const char *inform) {
 
 // EMSA-PSS 署名用エンコード (署名生成時)
 int emsa_pss_encode(const unsigned char *m_hash, const EVP_MD *md, unsigned char *em, size_t em_len, int key_bits) {
-    fprintf(stderr, "[VERBOSE] %s, %zu, %d\n", em, em_len, key_bits);
     size_t h_len = EVP_MD_size(md);
     
     // 境界チェック
@@ -151,9 +150,12 @@ int emsa_pss_encode(const unsigned char *m_hash, const EVP_MD *md, unsigned char
         return -1;
     }
 
-    // 1. Salt の生成
+    // 1. Salt の生成 (OpenSSLのCSPRNGを使用)
     unsigned char salt[SALT_LEN];
-    for (int i = 0; i < SALT_LEN; i++) salt[i] = rand() & 0xFF; 
+    if (RAND_bytes(salt, SALT_LEN) != 1) {
+        fprintf(stderr, "エラー: 暗号論的に安全な乱数の生成に失敗しました。\n");
+        return -1;
+    }
 
     // 2. M' = (0x00)*8 || mHash || salt の作成とハッシュ化
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
@@ -174,6 +176,7 @@ int emsa_pss_encode(const unsigned char *m_hash, const EVP_MD *md, unsigned char
     // 3. DB = PS || 0x01 || salt の作成
     size_t db_len = em_len - h_len - 1;
     unsigned char *db = malloc(db_len);
+    if (!db) return -1;
     size_t ps_len = db_len - SALT_LEN - 1;
     
     memset(db, 0, ps_len);
@@ -182,7 +185,7 @@ int emsa_pss_encode(const unsigned char *m_hash, const EVP_MD *md, unsigned char
 
     // 4. dbMask = MGF1(H, emLen - hLen - 1)
     unsigned char *db_mask = malloc(db_len);
-    if (mgf1(md, h, h_len, db_mask, db_len) < 0) {
+    if (!db_mask || mgf1(md, h, h_len, db_mask, db_len) < 0) {
         free(db); free(db_mask);
         return -1;
     }
@@ -192,12 +195,10 @@ int emsa_pss_encode(const unsigned char *m_hash, const EVP_MD *md, unsigned char
         em[i] = db[i] ^ db_mask[i];
     }
 
-    // 6. 最上位ビットのクリア (RSAモジュラスのビット長制限に合わせた厳密なマスク処理)
-    // 8の倍数ではないビット長の場合、余剰ビットをクリアする
+    // 6. 最上位ビットのクリア
     if (key_bits % 8 != 0) {
         em[0] &= (0xFF >> (8 - (key_bits % 8)));
     } else {
-        // バイト境界にジャストな場合、最上位ビット(1bit分)を落とす
         em[0] &= 0x7F;
     }
 
