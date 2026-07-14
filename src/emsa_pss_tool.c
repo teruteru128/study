@@ -196,10 +196,14 @@ int emsa_pss_encode(const unsigned char *m_hash, const EVP_MD *md, unsigned char
     }
 
     // 6. 最上位ビットのクリア
-    if (key_bits % 8 != 0) {
-        em[0] &= (0xFF >> (8 - (key_bits % 8)));
+    // emsa_pss_encode / verify 内の「6. 最上位ビットのクリア」部分
+    // emBits = key_bits - 1 に合わせて、先頭バイトの余剰ビットを確実に0にする
+    size_t em_bits = key_bits - 1;
+    if (em_bits % 8 != 0) {
+        em[0] &= (0xFF >> (8 - (em_bits % 8)));
     } else {
-        em[0] &= 0x7F;
+        // 1024bit鍵の場合、emBitsは1023bitになり、1023 % 8 == 7 となるため
+        // 自動的に em[0] &= 0x7F となり、最上位ビットが正しくクリアされます。
     }
 
     // 7. 最終識別子のセット
@@ -341,7 +345,7 @@ int main(int argc, char *argv[]) {
     }
 
     // ビット長からバイトサイズを計算 (切り上げ)
-    size_t em_len = (key_bits + 7) / 8;
+    size_t em_len = ((key_bits - 1) + 7) / 8;
 
     // 1. 元メッセージのハッシュ化 (SHA-256)
     size_t msg_len;
