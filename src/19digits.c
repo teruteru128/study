@@ -47,6 +47,11 @@ int main(int argc, char *argv[], char *envp[])
 
     // GMP 変数の初期化
     mpz_t p, factor1;
+    // GMPの一時変数を初期化
+    mpz_t n, n_cubed, numerator;
+    mpz_init(n);
+    mpz_init(n_cubed);
+    mpz_init(numerator);
     mpz_init(p);
     mpz_init(factor1);
     
@@ -76,74 +81,96 @@ int main(int argc, char *argv[], char *envp[])
     
     // コマンドライン引数からループの開始インデックス i を取得
     long i = strtol(argv[1], NULL, 10);
-    
+    // ループ開始インデックスの初期値を mpz_t にセット
+    mpz_set_si(n, i);
     int p_count = 0;       // 発見した素数のカウンタ
     int retry_count = 0;   // リトライ用カウンタ
 
     // 指定された個数の素数が見つかるまでループ
     while (p_count < MAX_PRIMES_TO_FIND)
     {
-        // p = i * (2^22) + 1 を計算
-        mpz_set(p, factor1);
-        mpz_mul_ui(p, p, i);
-        mpz_add_ui(p, p, 1);
+        // 1. n^3 を計算
+        mpz_pow_ui(n_cubed, n, 3);
 
-        // 確率的素数判定を実行 (0を返さなければ素数、または高確率で素数)
-        if (mpz_probab_prime_p(p, PRIME_TEST_REPS) != 0)
+        // 2. 分子 (numerator) = n^3 + 9 を計算
+        mpz_add_ui(numerator, n_cubed, 9);
+
+        // 3. 分子から 7*n を引く (numerator = n^3 - 7n + 9)
+        mpz_submul_ui(numerator, n, 7);
+
+        // 4. 数学的に必ず3で割り切れるため、divexact で高速に商を求める
+        mpz_divexact_ui(p, numerator, 3);
+
+        // p が 2 以上の正の数の場合のみ素数判定を行う
+        if (mpz_cmp_si(p, 1) > 0)
         {
-            retry_count = 0;
-
-            // 素数 p を10進数文字列に変換するためのバッファを動的に確保 (バッファオーバーフロー対策)
-            // mpz_sizeinbase は指定した基数での桁数の近似値を返すため、終端文字分 (+2) を加えて確保
-            size_t str_size = mpz_sizeinbase(p, 10) + 2;
-            char *strpbuffer = malloc(str_size);
-            if (strpbuffer == NULL)
+            // 確率的素数判定
+            if (mpz_probab_prime_p(p, PRIME_TEST_REPS) != 0)
             {
-                fprintf(stderr, "Error: Memory allocation failed.\n");
-                break;
-            }
-            mpz_get_str(strpbuffer, 10, p);
+                retry_count = 0;
 
-            printf("%s is prime\n", strpbuffer);
-
-            // FactorDB API の URL を構築
-            snprintf(url_buffer, sizeof(url_buffer), "https://factordb.com/api?query=%s", strpbuffer);
-            curl_easy_setopt(hnd, CURLOPT_URL, url_buffer);
-
-            // APIリクエストの実行 (失敗時は指数バックオフでリトライ)
-            do
-            {
-                res = curl_easy_perform(hnd);
-                if (res == CURLE_OK)
+                // 文字列バッファを動的に確保
+                size_t str_size = mpz_sizeinbase(p, 10) + 2;
+                char *strpbuffer = malloc(str_size);
+                if (strpbuffer == NULL)
                 {
-                    break; // 送信成功
+                    fprintf(stderr, "Error: Memory allocation failed.\n");
+                    break;
                 }
-                
-                // 指数バックオフ: 2 << retry_count (2秒, 4秒, 8秒...) スリープ
-                unsigned int sleep_time = 2 << retry_count;
-                fprintf(stderr, "API request failed (%s). Retrying in %u seconds...\n", 
-                        curl_easy_strerror(res), sleep_time);
-                sleep(sleep_time);
-                
-                retry_count++;
-            } while (retry_count < MAX_RETRIES);
+                mpz_get_str(strpbuffer, 10, p);
 
-            // 動的に確保したバッファを解放
-            free(strpbuffer);
+                // n の値もデバッグ用に表示すると便利です
+                gmp_printf("n = %Zd: %s is prime\n", n, strpbuffer);
 
-            // 発見した素数の数をカウントアップ
-            p_count++;
+                // FactorDB API の URL を構築して送信
+                snprintf(url_buffer, sizeof(url_buffer), "https://factordb.com/api?query=%s", strpbuffer);
+                curl_easy_setopt(hnd, CURLOPT_URL, url_buffer);
+
+                do
+                {
+                    res = curl_easy_perform(hnd);
+                    if (res == CURLE_OK)
+                    {
+                        break;
+                    }
+                    unsigned int sleep_time = 2 << retry_count;
+                    sleep(sleep_time);
+                    retry_count++;
+                } while (retry_count < MAX_RETRIES);
+
+                free(strpbuffer);
+                // 2. リトライ上限に達した（送信に失敗した）場合の終了処理
+                if (retry_count >= MAX_RETRIES)
+                {
+                    fprintf(stderr, "\n[ERROR] Failed to post prime to FactorDB after %d retries. Exiting...\n", MAX_RETRIES);
+                    
+                    // メモリリークを防ぐため、確保済みの全リソースをここで適切に解放します
+                    curl_easy_cleanup(hnd);
+                    curl_global_cleanup();
+                    
+                    mpz_clear(p);
+                    mpz_clear(factor1);
+                    mpz_clear(n);
+                    mpz_clear(n_cubed);
+                    mpz_clear(numerator);
+
+                    return 1; // エラーコード 1 で即座に終了
+                }
+                p_count++;
+            }
         }
         
-        // 次のインデックスへ
-        i++;
+        // n を 1 進める (n = n + 1)
+        mpz_add_ui(n, n, 1);
     }
 
+    // 後片付け（忘れずに解放）
+    mpz_clear(n);
+    mpz_clear(n_cubed);
+    mpz_clear(numerator);
     // 後処理 (リソースの解放)
     curl_easy_cleanup(hnd);
     curl_global_cleanup();
-    mpz_clear(p);
-    mpz_clear(factor1);
 
     return 0;
 }
