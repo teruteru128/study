@@ -179,13 +179,13 @@ int main(int argc, char* argv[]) {
         mpz_set(n, raw_elements[1]); mpz_set(e, raw_elements[2]); mpz_set(d, raw_elements[3]);
         mpz_set(p, raw_elements[4]); mpz_set(q, raw_elements[5]);
         mpz_set(dp, raw_elements[6]); mpz_set(dq, raw_elements[7]); mpz_set(qinv, raw_elements[8]);
-        printf("→ 秘密鍵を検出しました (Modulus: %lu bits)\n", (unsigned long)mpz_sizeinbase(n, 2));
+        fprintf(stderr, "→ 秘密鍵を検出しました (Modulus: %lu bits)\n", (unsigned long)mpz_sizeinbase(n, 2));
     } else if (found >= 2) {
         // 要素が2個（または3個）の場合は「公開鍵」としてマッピング (PKCS#1 RSAPublicKey: n, e)
         is_private_key = 0;
         mpz_set(n, raw_elements[0]);
         mpz_set(e, raw_elements[1]);
-        printf("→ 公開鍵を検出しました (Modulus: %lu bits)\n", (unsigned long)mpz_sizeinbase(n, 2));
+        fprintf(stderr, "→ 公開鍵を検出しました (Modulus: %lu bits)\n", (unsigned long)mpz_sizeinbase(n, 2));
     } else {
         fprintf(stderr, "エラー: 有効なRSA鍵パラメータが検出されませんでした。(検出要素数: %d)\n", found);
         return 1;
@@ -199,7 +199,7 @@ int main(int argc, char* argv[]) {
     int ret = 0;
     // モード別の分岐処理（2つに集約）
     if (strcmp(mode, "pub-pow") == 0) {
-        printf("公開鍵による冪乗余計算 (m^e mod n) を実行中...\n");
+        fprintf(stderr, "公開鍵による冪乗余計算 (m^e mod n) を実行中...\n");
         // 入力（メッセージ、または署名データ）を読み込み
         load_data_to_mpz(in_path, m);
         
@@ -208,14 +208,14 @@ int main(int argc, char* argv[]) {
         
         // 結果（暗号文、または復元パディング）を出力
         save_mpz_to_output(out_path, c);
-        printf("→ 計算完了\n");
+        fprintf(stderr, "→ 計算完了\n");
 
     } else if (strcmp(mode, "pri-pow") == 0) {
         if (!is_private_key) {
             fprintf(stderr, "エラー: pri-pow（秘密鍵演算）には秘密鍵（DER）が必要です。\n");
             return 1;
         }
-        printf("[OpenMP] 秘密鍵による並列CRT冪乗余計算 (m^d mod n) を実行中...\n");
+        fprintf(stderr, "[OpenMP] 秘密鍵による並列CRT冪乗余計算 (m^d mod n) を実行中...\n");
         load_data_to_mpz(in_path, m);
         
         // 2コア並列CRT計算
@@ -231,7 +231,7 @@ int main(int argc, char* argv[]) {
         mpz_clear(test_h);
         
         save_mpz_to_output(out_path, c);
-        printf("→ 計算完了\n");
+        fprintf(stderr, "→ 計算完了\n");
 
     } else {
         fprintf(stderr, "未知のモード: %s (使用可能: pub-pow / pri-pow)\n", mode);
