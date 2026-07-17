@@ -375,6 +375,9 @@ add_executable(harmonic harmonic.c)
 add_executable(helppowm helppowm.c)
 target_link_libraries(helppowm PRIVATE PkgConfig::GMP)
 
+add_executable(hmpr_system hmpr_system.c)
+target_link_libraries(hmpr_system PRIVATE PkgConfig::GMP m)
+
 add_executable(httpd httpd.c)
 target_link_libraries(httpd study)
 target_include_directories(httpd PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)

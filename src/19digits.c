@@ -9,7 +9,7 @@
 #define POWER_OF_TWO 22       // 2 の累乗数 (2^22)
 #define PRIME_TEST_REPS 24    // GMPの確率的素数判定の試行回数 (判定精度に影響)
 #define MAX_RETRIES 3         // cURLリクエスト失敗時の最大リトライ回数
-#define MAX_PRIMES_TO_FIND 2000 // 探索する素数の最大個数
+#define MAX_PRIMES_TO_FIND maxPrimesToFind // 探索する素数の最大個数
 #define CURL_TIMEOUT_SEC 30L  // cURLのタイムアウト時間（秒）
 
 /**
@@ -85,6 +85,13 @@ int main(int argc, char *argv[], char *envp[])
     mpz_set_si(n, i);
     int p_count = 0;       // 発見した素数のカウンタ
     int retry_count = 0;   // リトライ用カウンタ
+
+    int maxPrimesToFind = 10000;
+    
+    if(argc >= 3) {
+        maxPrimesToFind = strtol(argv[2], NULL, 10);
+        
+    }
 
     // 指定された個数の素数が見つかるまでループ
     while (p_count < MAX_PRIMES_TO_FIND)
