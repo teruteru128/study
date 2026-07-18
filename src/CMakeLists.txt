@@ -505,6 +505,9 @@ target_include_directories(mineseed PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/inclu
 
 add_executable(mkk mkk.c)
 
+add_executable(multiprime_rsa multiprime_rsa.c)
+target_link_libraries(multiprime_rsa PRIVATE PkgConfig::GMP m)
+
 add_executable(multiprosessmutexsample multiprosessmutexsample.c)
 target_link_libraries(multiprosessmutexsample PRIVATE Threads::Threads)
 

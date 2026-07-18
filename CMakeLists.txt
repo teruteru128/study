@@ -111,6 +111,8 @@ if(SQLite3_FOUND)
     #include_directories(${SQLite3_INCLUDE_DIRS})
 endif(SQLite3_FOUND)
 
+find_package(MPI REQUIRED)
+
 find_path(PARI_INCLUDE_DIR NAMES pari/pari.h)
 find_library(PARI_LIBRARY NAMES pari)
 if(PARI_INCLUDE_DIR AND PARI_LIBRARY)
