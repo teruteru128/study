@@ -218,6 +218,9 @@ target_link_libraries(clocksample PRIVATE study)
 add_executable(collatz collatz.c)
 target_link_libraries(collatz m)
 
+add_executable(compogen compogen.c)
+target_link_libraries(compogen PRIVATE PkgConfig::GMP)
+
 add_executable(concurrencysample concurrencysample.c)
 target_link_libraries(concurrencysample PRIVATE Threads::Threads)
 #target_compile_definitions(concurrencysample PRIVATE _GNU_SOURCE=1)
@@ -375,9 +378,6 @@ add_executable(harmonic harmonic.c)
 add_executable(helppowm helppowm.c)
 target_link_libraries(helppowm PRIVATE PkgConfig::GMP)
 
-add_executable(hmpr_system hmpr_system.c)
-target_link_libraries(hmpr_system PRIVATE PkgConfig::GMP m)
-
 add_executable(httpd httpd.c)
 target_link_libraries(httpd study)
 target_include_directories(httpd PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
@@ -505,8 +505,8 @@ target_include_directories(mineseed PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/inclu
 
 add_executable(mkk mkk.c)
 
-add_executable(multiprime_rsa multiprime_rsa.c)
-target_link_libraries(multiprime_rsa PRIVATE PkgConfig::GMP m)
+add_executable(mpi-hello mpi-hello.c)
+target_link_libraries(mpi-hello PRIVATE MPI::MPI_C)
 
 add_executable(multiprosessmutexsample multiprosessmutexsample.c)
 target_link_libraries(multiprosessmutexsample PRIVATE Threads::Threads)
