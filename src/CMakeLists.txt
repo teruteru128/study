@@ -714,6 +714,9 @@ target_link_libraries(prime15 PRIVATE PkgConfig::GMP)
 add_executable(prime16 prime16.c)
 target_link_libraries(prime16 PRIVATE PkgConfig::GMP)
 
+add_executable(primecheck primecheck.c)
+target_link_libraries(primecheck PRIVATE PkgConfig::GMP)
+
 add_executable(primespam primespam.c)
 target_link_libraries(primespam PRIVATE PkgConfig::GMP CURL::libcurl)
 
