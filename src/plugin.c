@@ -1,12 +1,12 @@
 
 #include <dlfcn.h>
+#include <inttypes.h>
 #include <malloc.h>
 #include <plugin.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
-#include <inttypes.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -21,5 +21,28 @@ end:
     dlclose(handle1);
   if (handle2)
     dlclose(handle2);
+  return NULL;
+}
+#define N 3000
+
+void *nextCumshoot(char *msg) {
+  srand(time(NULL));
+
+  int num;
+  size_t count = 0;
+  do {
+    num = rand() % N;
+    count++;
+
+    if (num == 0) {
+      printf("!? "
+             "ｳｧｧ!!ｵﾚﾓｲｯﾁｬｳｩｩｩ!!!ｳｳｳｳｳｳｳｳｳｩｩｩｩｩｩｩｩｳｳｳｳｳｳｳｳ!"
+             "ｲｨｨｲｨｨｨｲｲｲｨｲｲｲｲｲｲｲｲｲｲｲｲ!!(感度＆射精量3000倍)(%d, %zu)\n",
+             num, count);
+    } else {
+      printf("うっ！ふぅ……(%d, %zu)\n", num, count);
+    }
+  } while (num != 0);
+
   return NULL;
 }
