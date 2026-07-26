@@ -50,7 +50,7 @@ static size_t bs_sieveSearch(struct BitSieve *bs, size_t limit, size_t start)
 }
 
 /**
- * @brief startの倍数にフラグを立てます.
+ * @brief ふるい落とし処理.
  *
  * @param bs
  * @param limit
@@ -176,7 +176,7 @@ void bs_initInstance(struct BitSieve *bs, mpz_t base, size_t searchLen)
 
         step = bs_sieveSearch(smallSieve, smallSieve->length, step + 1UL);
         convertedStep = step * 2UL + 1UL;
-    } while (step != (size_t)-1);
+    } while (convertedStep < 100000000UL &&step != (size_t)-1);
 }
 
 struct BitSieve *bs_getInstance(mpz_t base, size_t searchLen)

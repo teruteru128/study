@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     strftime(time_buffer, 64, "%Y-%m-%d %H:%M:%S", &tm);
     printf("%s: 基準偶数に対するlarge-sieveの生成を開始します...\n", time_buffer);
     clock_gettime(CLOCK_MONOTONIC, &startt);
-    bs_initInstance(largeSieve, &base, searchLength);
+    bs_initInstance(largeSieve, base, searchLength);
     struct timespec finish;
     clock_gettime(CLOCK_MONOTONIC, &finish);
     struct timespec diff;
