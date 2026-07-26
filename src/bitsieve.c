@@ -151,7 +151,7 @@ struct BitSieve *bs_new(void)
  * @param base
  * @param searchLen
  */
-void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
+void bs_initInstance(struct BitSieve *bs, mpz_t base, size_t searchLen)
 {
     bs_initSmallSieve();
     if (bs == NULL || base == NULL)
@@ -164,11 +164,12 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
     size_t start = 0;
 
     size_t step = bs_sieveSearch(smallSieve, smallSieve->length, start);
+    // 法となる素数
     size_t convertedStep = ((step * 2) + 1);
 
     do
     {
-        start = convertedStep - mpz_fdiv_ui(*base, convertedStep);
+        start = convertedStep - mpz_fdiv_ui(base, convertedStep);
         if ((start & 1UL) == 0UL)
             start += convertedStep;
         bs_sieveSingle(bs, searchLen, (start - 1UL) / 2UL, convertedStep);
@@ -178,7 +179,7 @@ void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen)
     } while (step != (size_t)-1);
 }
 
-struct BitSieve *bs_getInstance(mpz_t *base, size_t searchLen)
+struct BitSieve *bs_getInstance(mpz_t base, size_t searchLen)
 {
     struct BitSieve *instance = bs_new();
     bs_initInstance(instance, base, searchLen);

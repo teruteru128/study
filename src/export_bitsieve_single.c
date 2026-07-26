@@ -35,8 +35,14 @@ int replaceextension(char *out, size_t outlen, char *in, char *ext)
     return 0;
 }
 
-// bitsieveをエクスポートして毎回使い回せば早くなるんじゃねえか？作戦
-int exportBitSieve_main(int argc, const char *argv[])
+/**
+ * @brief ビット篩を生成してファイルに書き出し
+ *
+ * @param argc
+ * @param argv
+ * @return int
+ */
+int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
@@ -63,7 +69,7 @@ int exportBitSieve_main(int argc, const char *argv[])
     printf("%d/%d/%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
            tm.tm_hour, tm.tm_min, tm.tm_sec);
     clock_gettime(CLOCK_MONOTONIC, &startt);
-    bs_initInstance(bitSieve, &base, searchLength);
+    bs_initInstance(bitSieve, base, searchLength);
     struct timespec finish;
     clock_gettime(CLOCK_MONOTONIC, &finish);
     struct timespec diff;
@@ -84,16 +90,4 @@ int exportBitSieve_main(int argc, const char *argv[])
     bs_free(bitSieve);
     mpz_clear(base);
     return 0;
-}
-
-/**
- * @brief ビット篩を生成してファイルに書き出し
- *
- * @param argc
- * @param argv
- * @return int
- */
-int main(int argc, const char *argv[])
-{
-    return exportBitSieve_main(argc, argv);
 }

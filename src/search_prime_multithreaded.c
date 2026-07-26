@@ -96,7 +96,7 @@ void *produce_prime_candidate(void *arg)
     else
     {
         // bsファイルアクセス不可能
-        bs_initInstance(&searchSieve, &base, searchLength);
+        bs_initInstance(&searchSieve, base, searchLength);
         fputs(_("The bit sieve has been generated.\n"), stderr);
         // ファイルへbit篩をエクスポート
         FILE *fout = fopen(bs_filename, "wb");

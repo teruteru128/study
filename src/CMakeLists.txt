@@ -295,6 +295,9 @@ add_executable(enginetest enginetest.c)
 target_link_libraries(enginetest OpenSSL::Crypto)
 target_include_directories(enginetest PRIVATE)
 
+add_executable(entropy_pool entropy_pool.c)
+target_link_libraries(entropy_pool PRIVATE OpenSSL::Crypto PkgConfig::GMP)
+
 add_executable(envgettest envgettest.c)
 
 add_executable(epspsample epspsample.c epspsample-driver.c)
@@ -665,54 +668,54 @@ target_link_libraries(pprimegen PRIVATE PkgConfig::GMP)
 add_executable(pqsample pqsample.c)
 target_link_libraries(pqsample pq)
 
-add_executable(prime1 prime1.c)
-target_link_libraries(prime1 PkgConfig::GMP)
+add_executable(find_prevprime find_prevprime.c)
+target_link_libraries(find_prevprime PkgConfig::GMP)
 
-add_executable(prime2 prime2.c)
-target_link_libraries(prime2 PkgConfig::GMP)
+add_executable(search_2apow_2bpow_plus1 search_2apow_2bpow_plus1.c)
+target_link_libraries(search_2apow_2bpow_plus1 PkgConfig::GMP)
 
-add_executable(prime3 prime3.c)
-target_link_libraries(prime3 PkgConfig::GMP)
+add_executable(search_factorial_prime search_factorial_prime.c)
+target_link_libraries(search_factorial_prime PkgConfig::GMP)
 
-add_executable(prime4 prime4.c)
-target_link_libraries(prime4 PkgConfig::GMP)
+add_executable(test_gmp_hex_parse test_gmp_hex_parse.c)
+target_link_libraries(test_gmp_hex_parse PkgConfig::GMP)
 
-add_executable(prime5 prime5.c)
-target_link_libraries(prime5 PkgConfig::GMP PkgConfig::UUID)
+add_executable(generate_random_seed_value generate_random_seed_value.c)
+target_link_libraries(generate_random_seed_value PkgConfig::GMP PkgConfig::UUID)
 
-add_executable(prime6 prime6.c bitsieve.c timeutil.c)
-target_link_libraries(prime6 PkgConfig::GMP Threads::Threads)
+add_executable(search_prime_via_bitsieve search_prime_via_bitsieve.c bitsieve.c timeutil.c)
+target_link_libraries(search_prime_via_bitsieve PkgConfig::GMP Threads::Threads)
 
-add_executable(prime7 prime7.c bitsieve.c timeutil.c)
-target_link_libraries(prime7 PkgConfig::GMP Threads::Threads)
+add_executable(list_bitsieve_candidates list_bitsieve_candidates.c bitsieve.c timeutil.c)
+target_link_libraries(list_bitsieve_candidates PkgConfig::GMP Threads::Threads)
 
-add_executable(prime8 prime8.c bitsieve.c task_queue.c queue.c timeutil.c gettextsample.c)
-target_link_libraries(prime8 PkgConfig::GMP Threads::Threads)
-target_compile_definitions(prime8 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
+add_executable(search_prime_multithreaded search_prime_multithreaded.c bitsieve.c task_queue.c queue.c timeutil.c gettextsample.c)
+target_link_libraries(search_prime_multithreaded PkgConfig::GMP Threads::Threads)
+target_compile_definitions(search_prime_multithreaded PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
 
-add_executable(prime9 prime9.c)
-target_link_libraries(prime9 PkgConfig::GMP)
+add_executable(add_offset_write_candidate add_offset_write_candidate.c)
+target_link_libraries(add_offset_write_candidate PkgConfig::GMP)
 
-add_executable(prime10 prime10.c)
-target_link_libraries(prime10 PkgConfig::GMP)
+add_executable(test_primality_single test_primality_single.c)
+target_link_libraries(test_primality_single PkgConfig::GMP)
 
-add_executable(prime11 prime11.c)
-target_link_libraries(prime11 PkgConfig::GMP)
+add_executable(compute_value_gap compute_value_gap.c)
+target_link_libraries(compute_value_gap PkgConfig::GMP)
 
-add_executable(prime12 prime12.c bitsieve.c timeutil.c)
-target_link_libraries(prime12 PkgConfig::GMP Threads::Threads)
+add_executable(export_bitsieve_single export_bitsieve_single.c bitsieve.c timeutil.c)
+target_link_libraries(export_bitsieve_single PkgConfig::GMP Threads::Threads)
 
-add_executable(prime13 prime13.c bitsieve.c queue.c timeutil.c)
-target_link_libraries(prime13 PkgConfig::GMP Threads::Threads)
+add_executable(export_bitsieve_multithreaded export_bitsieve_multithreaded.c bitsieve.c queue.c timeutil.c)
+target_link_libraries(export_bitsieve_multithreaded PkgConfig::GMP Threads::Threads)
 
-add_executable(prime14 prime14.c bitsieve.c timeutil.c)
-target_link_libraries(prime14 PkgConfig::GMP Threads::Threads)
+add_executable(generate_small_sieve generate_small_sieve.c bitsieve.c timeutil.c)
+target_link_libraries(generate_small_sieve PkgConfig::GMP Threads::Threads)
 
-add_executable(prime15 prime15.c)
-target_link_libraries(prime15 PRIVATE PkgConfig::GMP)
+add_executable(check_imported_number_size check_imported_number_size.c)
+target_link_libraries(check_imported_number_size PRIVATE PkgConfig::GMP)
 
-add_executable(prime16 prime16.c)
-target_link_libraries(prime16 PRIVATE PkgConfig::GMP)
+add_executable(compute_composite_length compute_composite_length.c)
+target_link_libraries(compute_composite_length PRIVATE PkgConfig::GMP)
 
 add_executable(primecheck primecheck.c)
 target_link_libraries(primecheck PRIVATE PkgConfig::GMP)
@@ -749,6 +752,9 @@ target_include_directories(read_random PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/in
 add_executable(redossample redossample.c)
 
 add_executable(repeated-trials repeated-trials.c)
+
+add_executable(rrandombsample rrandombsample.c)
+target_link_libraries(rrandombsample PRIVATE PkgConfig::GMP)
 
 add_executable(rsa rsa.c)
 

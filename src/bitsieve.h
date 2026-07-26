@@ -24,8 +24,8 @@ struct bs_ctx
     pthread_mutex_t mutex;
 };
 struct BitSieve *bs_new(void);
-struct BitSieve *bs_getInstance(mpz_t *base, size_t searchLen);
-void bs_initInstance(struct BitSieve *bs, mpz_t *base, size_t searchLen);
+struct BitSieve *bs_getInstance(mpz_t base, size_t searchLen);
+void bs_initInstance(struct BitSieve *bs, mpz_t base, size_t searchLen);
 void bs_free(struct BitSieve *bs);
 mpz_t *bs_retrieve(struct BitSieve *bs, mpz_t *initValue, int certainty);
 void bs_foreach(struct BitSieve *bs, void (*function)(mpz_t *base, unsigned long offset, void *arg), mpz_t *base, void *arg);

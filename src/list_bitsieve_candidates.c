@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     mpz_inp_str(initValue, fin, 16);
     fclose(fin);
     struct BitSieve *searchSieve = bs_new();
-    bs_initInstance(searchSieve, &initValue, (size_t)SEARCH_LENGTH);
+    bs_initInstance(searchSieve, initValue, (size_t)SEARCH_LENGTH);
     size_t k = 0;
     for (size_t i = 0; i < searchSieve->bits_length; i++)
     {

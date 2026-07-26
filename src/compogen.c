@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <sys/random.h>
 
+#define RND_BUFFER_SIZE 2493
+
 int main (int argc, char *argv[]) {
     if (argc < 3) {
         fprintf(stderr, "%s <素数> <桁数>\n", argv[0]);
@@ -34,10 +36,10 @@ int main (int argc, char *argv[]) {
     gmp_randinit_default(state);
     mpz_t seed;
     mpz_init(seed);
-    unsigned char buffer[2493];
-    getrandom(buffer, 2493, GRND_NONBLOCK);
+    unsigned char buffer[RND_BUFFER_SIZE];
+    getrandom(buffer, RND_BUFFER_SIZE, GRND_NONBLOCK);
     gmp_randclear(state);
-    mpz_import(seed, 2493, 1, 1, 0, 0, buffer);
+    mpz_import(seed, RND_BUFFER_SIZE, 1, 1, 0, 0, buffer);
     gmp_randseed(state, seed);
     mpz_clear(seed);
     mpz_sub(window, pow_n_max, pow_n_min);

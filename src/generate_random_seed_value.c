@@ -4,6 +4,7 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <gmp.h>
 #include <sys/random.h>
@@ -20,7 +21,7 @@ static void generate_output_filename(char *dest, size_t maxlen,
     uuid_generate_random(uuid);
     uuid_unparse(uuid, uuid_str);
 
-    snprintf(dest, maxlen, "%lubit-%s-initialValue.txt", bit_length, uuid_str);
+    snprintf(dest, maxlen, "even-number-%lubit-%s.txt", bit_length, uuid_str);
 }
 
 /**
@@ -32,17 +33,17 @@ static void generate_output_filename(char *dest, size_t maxlen,
  */
 int main(int argc, char *argv[])
 {
-    const size_t bit_length = 1024;
+    const size_t bit_length = 1 << 21;
     const size_t buffer_size = ((bit_length - 1) >> 3) + 1;
     mpz_t base;
     mpz_inits(base, NULL);
     unsigned char *p = calloc(buffer_size, sizeof(char));
-    ssize_t numberOfRandomBytes = getrandom(p, buffer_size, GRND_NONBLOCK);
-    if (numberOfRandomBytes < 0)
-    {
+    ssize_t numberOfRandomBytes = getrandom(p, buffer_size, GRND_RANDOM);
+    if (numberOfRandomBytes < buffer_size) {
         return 1;
     }
     mpz_import(base, buffer_size, 1, sizeof(char), 0, 0, p);
+    explicit_bzero(p, buffer_size);
     free(p);
     p = NULL;
 
@@ -53,8 +54,7 @@ int main(int argc, char *argv[])
     generate_output_filename(dest, PATH_MAX, bit_length);
 
     FILE *fout = fopen(dest, "w");
-    if (fout == NULL)
-    {
+    if (fout == NULL) {
         perror("Failed to open the output file.");
         mpz_clear(base);
         return EXIT_FAILURE;

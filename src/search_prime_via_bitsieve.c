@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     mpz_add_ui(p, p, 44008U +8546U);
 
     struct BitSieve *searchSieve = bs_new();
-    bs_initInstance(searchSieve, &p, (size_t)SEARCH_LENGTH);
+    bs_initInstance(searchSieve, p, (size_t)SEARCH_LENGTH);
     mpz_t *candidate = bs_retrieve(searchSieve, &p, DEFAULT_CERTAINTY);
 
     while ((candidate == NULL) || (mpz_sizeinbase(*candidate, 2) != BIT_LENGTH))
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
         }
         mpz_clrbit(p, 0);
         bs_free(searchSieve);
-        bs_initInstance(searchSieve, &p, SEARCH_LENGTH);
+        bs_initInstance(searchSieve, p, SEARCH_LENGTH);
         mpz_clear(*candidate);
         free(candidate);
         candidate = bs_retrieve(searchSieve, &p, DEFAULT_CERTAINTY);

@@ -67,28 +67,45 @@ void *nextCumshoot(char *msg) {
   // 範囲設定: log(0.8) 〜 log(13.0)
   double min_val = log(0.8);
   double max_val = log(13.0);
+  double d_max_val = log(1500000.0 / 3000.0);
 
   // 乱数の生成と変換
   double r0;
   double r1;
   double result0;
   double result1;
+  double explosive = -1.0;
 
   int num;
   size_t count = 0;
   do {
-  	r0  = next_double();
+    r0 = next_double();
     result0 = min_val + r0 * (max_val - min_val);
-  	r1  = next_double();
+    r1 = next_double();
     result1 = r1 * N;
     count++;
 
     if (result1 < 1) {
-      printf("!!! %zu: %f\n", count, exp(result0) * 3000);
+      explosive = exp(min_val + r0 * (d_max_val - min_val)) * 3000;
+      printf("!!! %zu: %f\n", count, explosive);
     } else {
       printf("%zu: %f\n", count, exp(result0));
     }
-  } while (result1 >= 1);
+  } while (explosive < 1200000.);
 
+  return NULL;
+}
+
+void *genentropypool(char *msg) {
+  unsigned char buffer[64];
+  getrandom(buffer, sizeof(buffer), GRND_RANDOM);
+  FILE *out = fopen("entropy_pool.bin", "wb");
+  if (out == NULL) {
+    perror("ファイルオープン失敗");
+    return NULL;
+  }
+  size_t num = fwrite(buffer, 1, 64, out);
+
+  fclose(out);
   return NULL;
 }
