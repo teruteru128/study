@@ -172,6 +172,9 @@ void bs_initInstance(struct BitSieve *bs, mpz_t base, size_t searchLen)
         start = convertedStep - mpz_fdiv_ui(base, convertedStep);
         if ((start & 1UL) == 0UL)
             start += convertedStep;
+        if ((start - 1) / 2 < searchLen) {
+            printf("ch %zu\n", convertedStep);
+        }
         bs_sieveSingle(bs, searchLen, (start - 1UL) / 2UL, convertedStep);
 
         step = bs_sieveSearch(smallSieve, smallSieve->length, step + 1UL);
