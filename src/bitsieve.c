@@ -128,6 +128,7 @@ static void bs_smallSieve_Constract(void)
         } while ((nextIndex != (size_t)-1)
                  && (nextPrime < smallSieve->length));
     }
+    fprintf(stderr, "small sieveが%zu bitで初期化されました。%zu\n", smallSieve->length, smallSieve->bits_length);
 }
 
 static pthread_once_t smallSieveInitialize = PTHREAD_ONCE_INIT;
@@ -173,7 +174,7 @@ void bs_initInstance(struct BitSieve *bs, mpz_t base, size_t searchLen)
         if ((start & 1UL) == 0UL)
             start += convertedStep;
         if ((start - 1) / 2 < searchLen) {
-            printf("ch %zu\n", convertedStep);
+            fprintf(stderr, "ch %zu\n", convertedStep);
         }
         bs_sieveSingle(bs, searchLen, (start - 1UL) / 2UL, convertedStep);
 

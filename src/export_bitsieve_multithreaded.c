@@ -92,8 +92,7 @@ static void *consume(void *arg)
  */
 int main(const int argc, const char *argv[])
 {
-    if (argc < 2)
-    {
+    if (argc < 2) {
         return EXIT_FAILURE;
     }
 
@@ -120,29 +119,26 @@ int main(const int argc, const char *argv[])
     pthread_mutex_init(&arg.ctx.mutex, NULL);
 
     pthread_t *consumer_threads = calloc(THREADS, sizeof(pthread_t));
-    for (size_t i = 0; i < THREADS; i++)
-    {
+    for (size_t i = 0; i < THREADS; i++) {
         pthread_create(consumer_threads + i, NULL, consume, &arg);
     }
 
     struct BitSieve *result[THREADS];
-    for (size_t i = 0; i < THREADS; i++)
-    {
+    for (size_t i = 0; i < THREADS; i++) {
         pthread_join(consumer_threads[i], (void **)(result + i));
     }
     mpz_clear(&base);
     free(consumer_threads);
-    struct BitSieve bs = { 0 };
-    bs.length = searchLength;
-    bs.bits_length = unitIndex(searchLength - 1) + 1;
-    bs.bits = calloc(bs.bits_length, sizeof(unsigned long));
-    const size_t l = bs.bits_length;
+    struct BitSieve *bs = bs_new();
+    bs->length = searchLength;
+    bs->bits_length = unitIndex(searchLength - 1) + 1;
+    bs->bits = calloc(bs->bits_length, sizeof(unsigned long));
+    const size_t l = bs->bits_length;
     size_t j = 0;
-    for (size_t i = 0; i < THREADS; i++)
-    {
+    for (size_t i = 0; i < THREADS; i++) {
         for (j = 0; j < l; j++)
         {
-            bs.bits[j] |= result[i]->bits[j];
+            bs->bits[j] |= result[i]->bits[j];
         }
     }
 
@@ -159,8 +155,8 @@ int main(const int argc, const char *argv[])
         free(work);
     }
     FILE *fout = fopen(outfilename, "wb");
-    bs_fileout(fout, &bs);
+    bs_fileout(fout, bs);
     fclose(fout);
-    bs_free(&bs);
+    bs_free(bs);
     return EXIT_SUCCESS;
 }

@@ -343,6 +343,9 @@ target_include_directories(formatbmkey PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/in
 
 add_executable(genericsample genericsample.c)
 
+add_executable(genprimedb genprimedb.c)
+target_link_libraries(genprimedb PRIVATE PkgConfig::GMP m)
+
 add_executable(getnyanpass getnyanpass.c)
 target_link_libraries(getnyanpass CURL::libcurl)
 target_include_directories(getnyanpass PRIVATE)
@@ -510,6 +513,12 @@ add_executable(mkk mkk.c)
 
 add_executable(mpi-hello mpi-hello.c)
 target_link_libraries(mpi-hello PRIVATE MPI::MPI_C)
+
+add_executable(multiprime_asn1 multiprime_asn1.c)
+target_link_libraries(multiprime_asn1 PRIVATE PkgConfig::GMP)
+
+add_executable(multiprime_rsa multiprime_rsa.c)
+target_link_libraries(multiprime_rsa PRIVATE PkgConfig::GMP)
 
 add_executable(multiprosessmutexsample multiprosessmutexsample.c)
 target_link_libraries(multiprosessmutexsample PRIVATE Threads::Threads)
@@ -765,11 +774,20 @@ target_include_directories(rsa1024 PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/includ
 add_executable(rsa1024-2 rsa1024-2.c)
 target_link_libraries(rsa1024-2 PkgConfig::GMP)
 
+add_executable(rsa_bench rsa_bench.c)
+target_link_libraries(rsa_bench PRIVATE OpenSSL::Crypto)
+
 add_executable(rsa_der_crt rsa_der_crt.c)
 target_link_libraries(rsa_der_crt PRIVATE PkgConfig::GMP OpenMP::OpenMP_C)
 
 add_executable(rsa-calc rsa_huge_tool.c)
 target_link_libraries(rsa-calc PRIVATE PkgConfig::GMP OpenMP::OpenMP_C)
+
+add_executable(rsacheck rsacheck.c)
+target_link_libraries(rsacheck PRIVATE PkgConfig::GMP m)
+
+add_executable(rsaminimalmessage rsaminimalmessage.c)
+target_link_libraries(rsaminimalmessage PRIVATE PkgConfig::GMP)
 
 add_executable(selfmadelibsha self-made-libsha.c)
 target_link_libraries(selfmadelibsha study)

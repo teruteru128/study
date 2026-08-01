@@ -12,7 +12,9 @@ typedef struct BitSieve BitSieve;
 #ifdef PUBLISH_STRUCT_BS
 struct BitSieve
 {
+    // length of bitsieve
     size_t length;
+    // length of bits array elements
     size_t bits_length;
     uint64_t *bits;
 };

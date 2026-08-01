@@ -203,13 +203,17 @@ int main(int argc, char* argv[]) {
         // 入力（メッセージ、または署名データ）を読み込み
         load_data_to_mpz(in_path, m);
         
-        // 計算実行
-        mpz_powm(c, m, e, n);
-        
-        // 結果（暗号文、または復元パディング）を出力
-        save_mpz_to_output(out_path, c);
-        fprintf(stderr, "→ 計算完了\n");
-
+        if (mpz_cmp(m, n) > 0) {
+            fprintf(stderr, "m > n\n");
+            return 1;
+        } else {
+            // 計算実行
+            mpz_powm(c, m, e, n);
+            
+            // 結果（暗号文、または復元パディング）を出力
+            save_mpz_to_output(out_path, c);
+            fprintf(stderr, "→ 計算完了\n");
+        }
     } else if (strcmp(mode, "pri-pow") == 0) {
         if (!is_private_key) {
             fprintf(stderr, "エラー: pri-pow（秘密鍵演算）には秘密鍵（DER）が必要です。\n");
