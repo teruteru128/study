@@ -1,6 +1,8 @@
 
 #include "bitset.h"
+#include <sys/mman.h>
 #include <time.h>
+#include <unistd.h>
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -13,8 +15,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <fcntl.h>
+#include <inttypes.h>
 #include <pthread.h>
 #include <stdint.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #define MAX_QUEUE_SIZE 4 // キューに貯めておけるタスクの最大数
 #define NUM_WORKERS 1    // ワーカースレッドの数
@@ -22,7 +28,7 @@
 // 1つのタスク（メインからワーカーへ渡す素数リストの塊）
 typedef struct {
   uint64_t *primes; // 復元された素数の配列（またはビットマップの断片）
-  size_t count; // この塊に含まれる素数の数
+  size_t count;     // この塊に含まれる素数の数
 } SieveTask;
 
 // スレッド間で共有するタスクキュー
@@ -64,14 +70,19 @@ uint64_t sieve_search(uint64_t *sieve, size_t size, size_t start) {
  */
 int main(int argc, char *argv[]) {
   if (argc < 3) {
-    fprintf(stderr, "%s <input even number file> <output large sieve file>\n",
+    fprintf(stderr,
+            "%s <input even number file> <input small sieve file> <output "
+            "large sieve file>\n",
             argv[0]);
     return EXIT_FAILURE;
   }
   mpz_t base;
   mpz_init(base);
 
+  // 偶数読み込み
   char *base_filename = argv[1];
+  char *smallSievePath = argv[2];
+  char *outfilename = argv[3];
   {
     FILE *fin = fopen(base_filename, "r");
     if (fin == NULL) {
@@ -95,21 +106,36 @@ int main(int argc, char *argv[]) {
   }
   fprintf(stderr, "even number is %zu bits\n", mpz_sizeinbase(base, 2));
 
-  char *smallSievePath = argv[3];
-  FILE *smallSieveFile = fopen(smallSievePath, "rb");
-  if (smallSieveFile == NULL) {
-    perror("small");
+  // 小ふるいオープン
+  int smallSieveFD = open(smallSievePath, O_RDONLY);
+  if (smallSieveFD < 0) {
+    perror("small sieve open failed");
     return 1;
   }
-  uint64_t bitcount_in = 0;
-  size_t readcount = fread(&bitcount_in, sizeof(uint64_t), 1, smallSieveFile);
-  if (readcount < 0) {
-    perror("small sieve haeder");
-    return 1;
-  }
+  size_t total_elements = 2147483645ULL;
+  size_t file_size = sizeof(uint64_t) + (total_elements * sizeof(uint64_t));
+
+  void *map_start =
+      mmap(NULL, file_size, PROT_READ, MAP_SHARED, smallSieveFD, 0);
+
+  uint64_t header = htobe64(*(uint64_t *)map_start);
+  uint64_t *file_primes = (uint64_t *)map_start + 1;
 
   const size_t searchLength = (size_t)(mpz_sizeinbase(base, 2) / 20.0 * 64);
+  // Maximum value of the known prime number sieve
+  uint64_t maxValOfTheKnownPrimeNumberSieve =
+      (uint64_t)total_elements * 64 * 2 + 1;
+  uint64_t nextNoti = (uint64_t)(maxValOfTheKnownPrimeNumberSieve * 0.000001);
+  uint64_t notiStep = (uint64_t)(maxValOfTheKnownPrimeNumberSieve * 0.000001);
   fprintf(stderr, "large sieve size: %zu bits\n", searchLength);
+  size_t largeSieveElementNum = ((searchLength - 1) / 64) + 1;
+  fprintf(stderr, "large sieve elements: %zu elements\n", largeSieveElementNum);
+  fprintf(stderr, "small sieve size: %zu bits\n", total_elements * 64);
+  uint64_t *largeSieve = calloc(largeSieveElementNum, sizeof(uint64_t));
+  if (largeSieve == NULL) {
+    perror("large sieve malloc error");
+    exit(1);
+  }
   // printf("%lu\n", searchLength);
   // struct BitSieve *largeSieve = bs_new();
   struct timespec startt;
@@ -118,46 +144,59 @@ int main(int argc, char *argv[]) {
   localtime_r(&startt.tv_sec, &tm);
   char time_buffer[64];
   strftime(time_buffer, 64, "%Y-%m-%d %H:%M:%S", &tm);
-  fprintf(stderr, "%s: 基準偶数に対するlarge-sieveの生成を開始します...\n",
+  fprintf(stderr, "[%s] 基準偶数に対するlarge-sieveの生成を開始します...\n",
           time_buffer);
   clock_gettime(CLOCK_MONOTONIC, &startt);
   // ファイル読み進めながら篩い分けするの〜？
   // bs_initInstance(largeSieve, base, searchLength);
 
-  size_t start = 0;
-  uint64_t primebuffer[128];
-  readcount = fread(primebuffer, sizeof(uint64_t), 128, smallSieveFile);
-  // エンディアン変換
-  for (size_t i = 0; i < readcount; i++) {
-    primebuffer[i] = be64toh(primebuffer[i]);
-  }
-  // 素数取得
-  // 断片オフセット
-  size_t fragment_offset = 0;
-  size_t step = 0;
-  uint64_t prime = 0;
-
-  // sizeが要素単位なのかバイト単位なのかビット単位なのかわからんねん！！
-  step = sieve_search(primebuffer, readcount * 64, start);
-  // fragment_offsetが要素単位なら*64だしバイト単位なら*8だしビット単位なら*1なんだが
-  prime = (fragment_offset + step) * 2ULL + 1ULL;
-
-  do {
-    start = prime - mpz_fdiv_ui(base, prime);
-    if ((start & 1UL) == 0UL)
-      start += prime;
-    if ((start - 1) / 2 < searchLength)
-      fprintf(stderr, "start is over in search length\n");
-    // sieve single
-    while(start < readcount * 64) {
-        worker_outputs[0][unitIndex(start)] |= bit(start);
-        start += prime;
+  uint64_t mask = 1ULL;
+  uint64_t start = 0;
+  uint64_t prime = 3;
+  uint64_t bitcnt = 0;
+  for (size_t i = 0; i < total_elements; i++) {
+    // ★ ここで配列から取り出すと同時にリトルエンディアンに変換！
+    uint64_t element = be64toh(file_primes[i]);
+    if (element == (uint64_t)-1) {
+      // 全ビット合成数
+      continue;
     }
-    // sieve search
-    // calc next prime
-  } while (step != (size_t)-1);
-  
-  fragment_offset += readcount;
+    mask = 1ULL;
+    // これで変数 prime には正しい素数（例: 3, 5, 7...）が入ります
+    // あとは何事もなかったかのように篩の処理をするだけです
+    for (size_t j = 0; j < 64; j++, mask = mask << 1) {
+      if ((element & mask) != 0) {
+        // 合成数
+        continue;
+      }
+      prime = (i * 64 + j) * 2 + 1;
+      start = prime - mpz_fdiv_ui(base, prime);
+      if ((start & 1ULL) == 0ULL)
+        start += prime;
+
+      while (start < searchLength) {
+        largeSieve[unitIndex(start)] |= bit(start);
+        start += prime;
+      }
+      if (prime > nextNoti) {
+        bitcnt = 0;
+        for (size_t k = 0; k < largeSieveElementNum; k++) {
+          bitcnt += __builtin_popcountll(~largeSieve[k]);
+        }
+        clock_gettime(CLOCK_REALTIME, &startt);
+        localtime_r(&startt.tv_sec, &tm);
+        strftime(time_buffer, 64, "%Y-%m-%d %H:%M:%S", &tm);
+        fprintf(stderr,
+                "[%s] %" PRIu64
+                "(%f %%) done, Remaining prime number candidates: %" PRIu64
+                "(%f %%)\n",
+                time_buffer, prime,
+                (prime * 100.) / maxValOfTheKnownPrimeNumberSieve, bitcnt,
+                (double)bitcnt / searchLength);
+        nextNoti += notiStep;
+      }
+    }
+  }
 
   struct timespec finish;
   clock_gettime(CLOCK_MONOTONIC, &finish);
@@ -168,17 +207,22 @@ int main(int argc, char *argv[]) {
   strftime(time_buffer, 64, "%Y-%m-%d %H:%M:%S", &tm);
   fprintf(stderr, "%s: 篩の初期化を完了しました. (%ld.%09lds)\n", time_buffer,
           diff.tv_sec, diff.tv_nsec);
-  fclose(smallSieveFile);
 
-#if 0
-  char *outfilename = argv[2];
+#if 1
   {
+    for(size_t i = 0; i < largeSieveElementNum; i++) {
+      largeSieve[i] = htobe64(largeSieve[i]);
+    }
     FILE *fout = fopen(outfilename, "wb");
     //bs_fileout(fout, largeSieve);
+    fwrite(largeSieve, sizeof(uint64_t), largeSieveElementNum, fout);
     fclose(fout);
   }
   // bs_free(largeSieve);
 #endif
   mpz_clear(base);
+  free(largeSieve);
+  close(smallSieveFD);
+  munmap(map_start, file_size);
   return 0;
 }

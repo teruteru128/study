@@ -341,6 +341,9 @@ add_executable(formatbmkey formatbmkey.c)
 target_link_libraries(formatbmkey OpenSSL::Crypto study)
 target_include_directories(formatbmkey PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
+add_executable(gcdsearch gcdsearch.c)
+target_link_libraries(gcdsearch PRIVATE PkgConfig::GMP)
+
 add_executable(genericsample genericsample.c)
 
 add_executable(genprimedb genprimedb.c)

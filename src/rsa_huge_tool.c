@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
     for(int i=0; i<max_el; i++) mpz_clear(raw_elements[i]); free(raw_elements);
 
     // 入力データの読み込み
-    load_data_to_mpz(in_path, m);
+    //load_data_to_mpz(in_path, m);
 
     int ret = 0;
     // モード別の分岐処理（2つに集約）
