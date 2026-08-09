@@ -46,11 +46,14 @@ void small_sieve_close(struct SmallSieve *sieve);
 
 /**
  * @brief largeSieveの内容をbig-endianに変換してファイルへ書き出す。
+ * 先頭8byteにbig-endianでsearchLength(有効なビット数)のヘッダーを付ける
+ * (small_sieve_openが読む既知素数篩ファイルのヘッダーと対称な形式)。
  * 呼び出し後、largeSieveの内容はbig-endianへ書き換わったままになる。
  *
+ * @param searchLength 有効なビット数(elementNum*64とは限らない端数を含む)
  * @return int 成功時0、失敗時-1(エラーメッセージは出力済み)
  */
 int write_large_sieve(const char *path, uint64_t *largeSieve,
-                       size_t elementNum);
+                       size_t elementNum, size_t searchLength);
 
 #endif

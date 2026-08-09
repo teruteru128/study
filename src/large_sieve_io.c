@@ -101,15 +101,25 @@ void small_sieve_close(struct SmallSieve *sieve) {
 }
 
 int write_large_sieve(const char *path, uint64_t *largeSieve,
-                       size_t elementNum) {
-  for (size_t i = 0; i < elementNum; i++) {
-    largeSieve[i] = htobe64(largeSieve[i]);
-  }
-
+                       size_t elementNum, size_t searchLength) {
   FILE *fout = fopen(path, "wb");
   if (fout == NULL) {
     perror("open output file");
     return -1;
+  }
+
+  // small_sieve_openが読む既知素数篩ファイルのヘッダーと対称にする:
+  // 先頭8byteにbig-endianでsearchLength(有効なビット数、要素数*64とは限らない
+  // 端数を含む)を書く。
+  uint64_t header = htobe64((uint64_t)searchLength);
+  if (fwrite(&header, sizeof(header), 1, fout) != 1) {
+    perror("write large sieve header");
+    fclose(fout);
+    return -1;
+  }
+
+  for (size_t i = 0; i < elementNum; i++) {
+    largeSieve[i] = htobe64(largeSieve[i]);
   }
   size_t written = fwrite(largeSieve, sizeof(uint64_t), elementNum, fout);
   fclose(fout);

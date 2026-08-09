@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
   fprintf(stderr, "%s: 篩の初期化を完了しました. (%ld.%09lds)\n", time_buffer,
           diff.tv_sec, diff.tv_nsec);
 
-  int writeResult = write_large_sieve(outfilename, largeSieve, largeSieveElementNum);
+  int writeResult = write_large_sieve(outfilename, largeSieve, largeSieveElementNum, searchLength);
 
   mpz_clear(base);
   free(largeSieve);

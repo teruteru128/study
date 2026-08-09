@@ -254,7 +254,7 @@ int main(int argc, char *argv[]) {
           (double)bitcnt / searchLength);
 
   int writeResult =
-      write_large_sieve(outfilename, largeSieve, largeSieveElementNum);
+      write_large_sieve(outfilename, largeSieve, largeSieveElementNum, searchLength);
 
   mpz_clear(base);
   free(largeSieve);
