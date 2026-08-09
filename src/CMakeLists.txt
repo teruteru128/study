@@ -1,26 +1,15 @@
 
-add_executable(FizzBuzz FizzBuzz.c)
-target_include_directories(FizzBuzz PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/include)
-target_compile_definitions(FizzBuzz PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}")
+add_executable(19digits 19digits.c)
+target_link_libraries(19digits PRIVATE PkgConfig::GMP CURL::libcurl)
 
-add_executable(Nabeatsu1 Nabeatsu1.c)
-target_compile_definitions(Nabeatsu1 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
+add_executable(656 656.c)
+target_link_libraries(656 PRIVATE PkgConfig::GMP)
 
-add_executable(Nabeatsu2 Nabeatsu2.c)
-target_compile_definitions(Nabeatsu2 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
+add_executable(1564 1564.c)
+target_link_libraries(1564 PRIVATE PkgConfig::GMP)
 
-add_executable(Nabeatsu3 Nabeatsu3.c)
-target_compile_definitions(Nabeatsu3 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
-
-add_executable(Nabeatsu4 Nabeatsu4.c)
-
-add_executable(Nabeatsu5 Nabeatsu5.c)
-
-add_executable(Nabeatsu6 Nabeatsu6.c)
-target_compile_definitions(Nabeatsu6 PRIVATE VERSION="${PROJECT_VERSION}")
-
-add_executable(TSIdentityTool TSIdentityTool.c)
-target_link_libraries(TSIdentityTool PkgConfig::TomMath PkgConfig::TomCrypt)
+add_executable(1564-2 1564-2.c)
+target_link_libraries(1564-2 PRIVATE PkgConfig::GMP CURL::libcurl Threads::Threads)
 
 add_executable(114514 114514.c)
 target_link_libraries(114514 PRIVATE PkgConfig::GMP)
@@ -37,20 +26,11 @@ target_link_libraries(114514-4 PRIVATE PkgConfig::GMP)
 add_executable(141361 141361.c)
 target_link_libraries(141361 PRIVATE PkgConfig::GMP)
 
-add_executable(1564 1564.c)
-target_link_libraries(1564 PRIVATE PkgConfig::GMP)
-
-add_executable(1564-2 1564-2.c)
-target_link_libraries(1564-2 PRIVATE PkgConfig::GMP CURL::libcurl Threads::Threads)
-
 add_executable(1919191919419 1919191919419.c)
 target_link_libraries(1919191919419 PRIVATE PkgConfig::GMP)
 
-add_executable(19digits 19digits.c)
-target_link_libraries(19digits PRIVATE PkgConfig::GMP CURL::libcurl)
-
-add_executable(656 656.c)
-target_link_libraries(656 PRIVATE PkgConfig::GMP)
+add_executable(add_offset_write_candidate add_offset_write_candidate.c)
+target_link_libraries(add_offset_write_candidate PkgConfig::GMP)
 
 add_executable(addpadding addpadding.c)
 
@@ -61,11 +41,14 @@ add_executable(alimentsample alimentsample.c)
 add_executable(aliquot780 aliquot780.c)
 target_link_libraries(aliquot780 PRIVATE PkgConfig::GMP)
 
+add_executable(argparsesample argparsesample.c)
+
 add_executable(argsample argsample.c)
 target_link_libraries(argsample study)
 target_include_directories(argsample PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/include)
 
-add_executable(argparsesample argparsesample.c)
+add_executable(atomicsample atomicsample.c)
+target_link_libraries(atomicsample Threads::Threads)
 
 add_executable(barrier_test barrier_test.c)
 target_link_libraries(barrier_test PRIVATE Threads::Threads)
@@ -204,8 +187,10 @@ target_link_libraries(bouyomiTalk study)
 add_executable(calc calc.c)
 target_link_libraries(calc PkgConfig::GMP)
 
-add_executable(checkprimes checkprimes.c)
+add_executable(check_imported_number_size check_imported_number_size.c)
+target_link_libraries(check_imported_number_size PRIVATE PkgConfig::GMP)
 
+add_executable(checkprimes checkprimes.c)
 target_link_libraries(checkprimes PkgConfig::GMP)
 
 add_executable(cl cl.c)
@@ -221,6 +206,12 @@ target_link_libraries(collatz m)
 add_executable(compogen compogen.c)
 target_link_libraries(compogen PRIVATE PkgConfig::GMP)
 
+add_executable(compute_composite_length compute_composite_length.c)
+target_link_libraries(compute_composite_length PRIVATE PkgConfig::GMP)
+
+add_executable(compute_value_gap compute_value_gap.c)
+target_link_libraries(compute_value_gap PkgConfig::GMP)
+
 add_executable(concurrencysample concurrencysample.c)
 target_link_libraries(concurrencysample PRIVATE Threads::Threads)
 #target_compile_definitions(concurrencysample PRIVATE _GNU_SOURCE=1)
@@ -228,8 +219,9 @@ target_link_libraries(concurrencysample PRIVATE Threads::Threads)
 add_executable(conv conv.c)
 target_link_libraries(conv PRIVATE PkgConfig::GMP)
 
-add_executable(countdownsample countdownsample.c countdown.c)
 add_executable(countdown2038 countdown2038.c)
+
+add_executable(countdownsample countdownsample.c countdown.c)
 
 add_executable(cp2peq cp2peq.c)
 target_link_libraries(cp2peq study)
@@ -323,6 +315,9 @@ target_link_libraries(evptest OpenSSL::Crypto)
 
 add_executable(execvesample execvesample.c)
 
+add_executable(export_bitsieve_multithreaded export_bitsieve_multithreaded.c bitsieve.c queue.c timeutil.c)
+target_link_libraries(export_bitsieve_multithreaded PkgConfig::GMP Threads::Threads)
+
 add_executable(falcon falcon.c)
 target_link_libraries(falcon study)
 target_include_directories(falcon PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
@@ -333,7 +328,12 @@ add_executable(fdsample fdsample.c)
 
 add_executable(fdThread fdThread.c)
 
-add_executable(ftm ftm.c)
+add_executable(find_prevprime find_prevprime.c)
+target_link_libraries(find_prevprime PkgConfig::GMP)
+
+add_executable(FizzBuzz FizzBuzz.c)
+target_include_directories(FizzBuzz PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/include)
+target_compile_definitions(FizzBuzz PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}")
 
 add_executable(forksample forksample.c)
 
@@ -341,8 +341,22 @@ add_executable(formatbmkey formatbmkey.c)
 target_link_libraries(formatbmkey OpenSSL::Crypto study)
 target_include_directories(formatbmkey PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
+add_executable(ftm ftm.c)
+
 add_executable(gcdsearch gcdsearch.c)
 target_link_libraries(gcdsearch PRIVATE PkgConfig::GMP)
+
+add_executable(generate_large_sieve_multithreaded generate_large_sieve_multithreaded.c large_sieve_io.c bitsieve.c timeutil.c)
+target_link_libraries(generate_large_sieve_multithreaded PkgConfig::GMP Threads::Threads)
+
+add_executable(generate_large_sieve_single generate_large_sieve_single.c large_sieve_io.c bitsieve.c timeutil.c)
+target_link_libraries(generate_large_sieve_single PkgConfig::GMP Threads::Threads)
+
+add_executable(generate_random_seed_value generate_random_seed_value.c)
+target_link_libraries(generate_random_seed_value PkgConfig::GMP PkgConfig::UUID)
+
+add_executable(generate_small_sieve generate_small_sieve.c bitsieve.c timeutil.c)
+target_link_libraries(generate_small_sieve PkgConfig::GMP Threads::Threads)
 
 add_executable(genericsample genericsample.c)
 
@@ -380,8 +394,6 @@ target_link_libraries(golomb PRIVATE OpenMP::OpenMP_C)
 add_executable(golomb2 golomb2.c)
 target_link_libraries(golomb2 PRIVATE OpenMP::OpenMP_C)
 
-add_executable(save_fix save_fix.c)
-
 add_executable(harmonic harmonic.c)
 
 add_executable(helppowm helppowm.c)
@@ -402,6 +414,12 @@ add_executable(iconvtest iconvtest.c)
 
 add_executable(idvalidate idvalidate.c)
 target_link_libraries(idvalidate m)
+
+add_executable(image_diff image_diff.c)
+target_link_libraries(image_diff PNG::PNG)
+
+add_executable(image_xor image_xor.c)
+target_link_libraries(image_xor PNG::PNG)
 
 add_executable(inf inf.c)
 
@@ -435,6 +453,9 @@ target_link_libraries(kxsample PkgConfig::Sodium)
 add_executable(leapyeartest leapyeartest.c tmcomp.c)
 
 add_executable(list2 list2.c)
+
+add_executable(list_bitsieve_candidates list_bitsieve_candidates.c bitsieve.c timeutil.c)
+target_link_libraries(list_bitsieve_candidates PkgConfig::GMP Threads::Threads)
 
 add_executable(localesample1 localesample1.c)
 target_compile_definitions(localesample1 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
@@ -497,14 +518,14 @@ add_executable(maxmovingsum maxmovingsum.c)
 target_link_libraries(maxmovingsum study)
 target_include_directories(maxmovingsum PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
-add_executable(meumeu meumeu.c)
-
 add_executable(md5fullzero md5fullzero.c)
 target_link_libraries(md5fullzero m Threads::Threads OpenSSL::Crypto study XMLRPC::XMLRPC)
 target_include_directories(md5fullzero PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(mdcountup mdcountup.c)
 target_link_libraries(mdcountup PRIVATE OpenSSL::Crypto OpenSSL::SSL)
+
+add_executable(meumeu meumeu.c)
 
 add_executable(mine mine.c)
 
@@ -525,18 +546,6 @@ target_link_libraries(multiprime_rsa PRIVATE PkgConfig::GMP)
 
 add_executable(multiprosessmutexsample multiprosessmutexsample.c)
 target_link_libraries(multiprosessmutexsample PRIVATE Threads::Threads)
-
-add_executable(mysqlaccesssample mysqlaccesssample.c)
-target_link_libraries(mysqlaccesssample PkgConfig::MySQLClient)
-
-add_executable(mysqlaccesssample2 mysqlaccesssample2.c)
-target_link_libraries(mysqlaccesssample2 PkgConfig::MySQLClient)
-
-add_executable(mysqlbf mysqlbf.c)
-target_link_libraries(mysqlbf PkgConfig::MySQLClient)
-
-add_executable(mysqlfast mysqlfast.c)
-target_link_libraries(mysqlfast PkgConfig::MySQLClient)
 
 # ビルドコマンドの定義
 add_custom_target(my_driver
@@ -574,15 +583,43 @@ target_compile_definitions(lsp_helper PRIVATE
     MODULE
 )
 
+add_executable(mysqlaccesssample mysqlaccesssample.c)
+target_link_libraries(mysqlaccesssample PkgConfig::MySQLClient)
+
+add_executable(mysqlaccesssample2 mysqlaccesssample2.c)
+target_link_libraries(mysqlaccesssample2 PkgConfig::MySQLClient)
+
+add_executable(mysqlbf mysqlbf.c)
+target_link_libraries(mysqlbf PkgConfig::MySQLClient)
+
+add_executable(mysqlfast mysqlfast.c)
+target_link_libraries(mysqlfast PkgConfig::MySQLClient)
+
+add_executable(Nabeatsu1 Nabeatsu1.c)
+target_compile_definitions(Nabeatsu1 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
+
+add_executable(Nabeatsu2 Nabeatsu2.c)
+target_compile_definitions(Nabeatsu2 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
+
+add_executable(Nabeatsu3 Nabeatsu3.c)
+target_compile_definitions(Nabeatsu3 PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
+
+add_executable(Nabeatsu4 Nabeatsu4.c)
+
+add_executable(Nabeatsu5 Nabeatsu5.c)
+
+add_executable(Nabeatsu6 Nabeatsu6.c)
+target_compile_definitions(Nabeatsu6 PRIVATE VERSION="${PROJECT_VERSION}")
+
 add_executable(noise_gen noise_gen.c)
 target_link_libraries(noise_gen PRIVATE PNG::PNG)
 
 add_executable(octorberfirst octoberfirst.c)
 #target_link_libraries(octorberfirst)
 
-add_executable(ogr_filler ogr_filler.c)
-
 add_executable(ogr_candidate_finder ogr_candidate_finder.c)
+
+add_executable(ogr_filler ogr_filler.c)
 
 add_executable(oncecallsample oncecallsample.c)
 target_link_libraries(oncecallsample Threads::Threads)
@@ -594,6 +631,7 @@ target_link_libraries(openmpsample1 PRIVATE OpenMP::OpenMP_C)
 add_executable(openmpsample2 openmpsample2.c)
 target_compile_options(openmpsample2 PUBLIC)
 target_link_libraries(openmpsample2 PRIVATE OpenMP::OpenMP_C)
+
 add_executable(openmpsample3 openmpsample3.c)
 target_compile_options(openmpsample3 PUBLIC )
 target_link_libraries(openmpsample3 PRIVATE OpenMP::OpenMP_C)
@@ -601,6 +639,7 @@ target_link_libraries(openmpsample3 PRIVATE OpenMP::OpenMP_C)
 add_executable(openmpsample4 openmpsample4.c)
 target_compile_options(openmpsample4 PUBLIC )
 target_link_libraries(openmpsample4 PRIVATE OpenMP::OpenMP_C)
+
 add_executable(openmpsample5 openmpsample5.c)
 target_compile_options(openmpsample5 PUBLIC )
 target_link_libraries(openmpsample5 PRIVATE OpenMP::OpenMP_C)
@@ -608,6 +647,7 @@ target_link_libraries(openmpsample5 PRIVATE OpenMP::OpenMP_C)
 add_executable(openmpsample6 openmpsample6.c)
 target_compile_options(openmpsample6 PUBLIC )
 target_link_libraries(openmpsample6 PRIVATE OpenMP::OpenMP_C)
+
 add_executable(openmpsample7 openmpsample7-driver.c openmpsample7.c openmpsample7-stub.c)
 target_compile_options(openmpsample7 PUBLIC )
 target_link_libraries(openmpsample7 PRIVATE OpenMP::OpenMP_C)
@@ -618,11 +658,11 @@ add_executable(paribatch paribatch.c)
 target_link_libraries(paribatch PRIVATE pari Threads::Threads OpenMP::OpenMP_C)
 target_compile_options(paribatch PRIVATE)
 
+add_executable(parseid parseid.c)
+
 add_executable(passwordhashsample passwordhashsample.c)
 target_link_libraries(passwordhashsample OpenSSL::Crypto)
 target_include_directories(passwordhashsample PRIVATE)
-
-add_executable(parseid parseid.c)
 
 add_executable(pbkdf2sample pbkdf2sample.c)
 target_link_libraries(pbkdf2sample OpenSSL::Crypto)
@@ -650,12 +690,6 @@ target_link_libraries(pngconcat m)
 add_executable(pngdiff pngdiff.c)
 target_link_libraries(pngdiff PNG::PNG)
 
-add_executable(image_diff image_diff.c)
-target_link_libraries(image_diff PNG::PNG)
-
-add_executable(image_xor image_xor.c)
-target_link_libraries(image_xor PNG::PNG)
-
 add_executable(pngpalletssample pngpalletssample.c pngreadwrite.c)
 target_link_libraries(pngpalletssample PNG::PNG)
 
@@ -664,6 +698,9 @@ target_link_libraries(pngphysedit PNG::PNG)
 
 add_executable(pngshitimage pngshitimage.c pngreadwrite.c)
 target_link_libraries(pngshitimage PNG::PNG)
+
+add_executable(pngshowstatus pngshowstatus.c pngreadwrite.c)
+target_link_libraries(pngshowstatus PRIVATE PNG::PNG)
 
 add_executable(portscanner portscanner.c)
 
@@ -680,69 +717,17 @@ target_link_libraries(pprimegen PRIVATE PkgConfig::GMP)
 add_executable(pqsample pqsample.c)
 target_link_libraries(pqsample pq)
 
-add_executable(find_prevprime find_prevprime.c)
-target_link_libraries(find_prevprime PkgConfig::GMP)
-
-add_executable(search_2apow_2bpow_plus1 search_2apow_2bpow_plus1.c)
-target_link_libraries(search_2apow_2bpow_plus1 PkgConfig::GMP)
-
-add_executable(search_factorial_prime search_factorial_prime.c)
-target_link_libraries(search_factorial_prime PkgConfig::GMP)
-
-add_executable(test_gmp_hex_parse test_gmp_hex_parse.c)
-target_link_libraries(test_gmp_hex_parse PkgConfig::GMP)
-
-add_executable(generate_random_seed_value generate_random_seed_value.c)
-target_link_libraries(generate_random_seed_value PkgConfig::GMP PkgConfig::UUID)
-
-add_executable(search_prime_via_bitsieve search_prime_via_bitsieve.c bitsieve.c timeutil.c)
-target_link_libraries(search_prime_via_bitsieve PkgConfig::GMP Threads::Threads)
-
-add_executable(list_bitsieve_candidates list_bitsieve_candidates.c bitsieve.c timeutil.c)
-target_link_libraries(list_bitsieve_candidates PkgConfig::GMP Threads::Threads)
-
-add_executable(search_prime_multithreaded search_prime_multithreaded.c bitsieve.c task_queue.c queue.c timeutil.c gettextsample.c)
-target_link_libraries(search_prime_multithreaded PkgConfig::GMP Threads::Threads)
-target_compile_definitions(search_prime_multithreaded PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
-
-add_executable(add_offset_write_candidate add_offset_write_candidate.c)
-target_link_libraries(add_offset_write_candidate PkgConfig::GMP)
-
-add_executable(test_primality_single test_primality_single.c)
-target_link_libraries(test_primality_single PkgConfig::GMP)
-
-add_executable(compute_value_gap compute_value_gap.c)
-target_link_libraries(compute_value_gap PkgConfig::GMP)
-
-add_executable(generate_large_sieve_single generate_large_sieve_single.c large_sieve_io.c bitsieve.c timeutil.c)
-target_link_libraries(generate_large_sieve_single PkgConfig::GMP Threads::Threads)
-
-add_executable(generate_large_sieve_multithreaded generate_large_sieve_multithreaded.c large_sieve_io.c bitsieve.c timeutil.c)
-target_link_libraries(generate_large_sieve_multithreaded PkgConfig::GMP Threads::Threads)
-
-add_executable(export_bitsieve_multithreaded export_bitsieve_multithreaded.c bitsieve.c queue.c timeutil.c)
-target_link_libraries(export_bitsieve_multithreaded PkgConfig::GMP Threads::Threads)
-
-add_executable(generate_small_sieve generate_small_sieve.c bitsieve.c timeutil.c)
-target_link_libraries(generate_small_sieve PkgConfig::GMP Threads::Threads)
-
-add_executable(check_imported_number_size check_imported_number_size.c)
-target_link_libraries(check_imported_number_size PRIVATE PkgConfig::GMP)
-
-add_executable(compute_composite_length compute_composite_length.c)
-target_link_libraries(compute_composite_length PRIVATE PkgConfig::GMP)
-
 add_executable(primecheck primecheck.c)
 target_link_libraries(primecheck PRIVATE PkgConfig::GMP)
+
+add_executable(primesearch primesearch.c)
+target_link_libraries(primesearch PkgConfig::GMP)
 
 add_executable(primespam primespam.c)
 target_link_libraries(primespam PRIVATE PkgConfig::GMP CURL::libcurl)
 
 add_executable(primorial primorial.c)
 target_link_libraries(primorial PRIVATE PkgConfig::GMP)
-
-add_executable(primesearch primesearch.c)
-target_link_libraries(primesearch PkgConfig::GMP)
 
 add_executable(printBench printBench.c timeutil.c)
 target_link_libraries(printBench m study)
@@ -754,9 +739,6 @@ target_link_libraries(printinttest study)
 target_include_directories(printinttest PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(printsample printsample.c)
-
-add_executable(pngshowstatus pngshowstatus.c pngreadwrite.c)
-target_link_libraries(pngshowstatus PRIVATE PNG::PNG)
 
 add_executable(randomcolor randomcolor.c)
 
@@ -780,20 +762,35 @@ target_include_directories(rsa1024 PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/includ
 add_executable(rsa1024-2 rsa1024-2.c)
 target_link_libraries(rsa1024-2 PkgConfig::GMP)
 
+add_executable(rsa-calc rsa_huge_tool.c)
+target_link_libraries(rsa-calc PRIVATE PkgConfig::GMP OpenMP::OpenMP_C)
+
 add_executable(rsa_bench rsa_bench.c)
 target_link_libraries(rsa_bench PRIVATE OpenSSL::Crypto)
 
 add_executable(rsa_der_crt rsa_der_crt.c)
 target_link_libraries(rsa_der_crt PRIVATE PkgConfig::GMP OpenMP::OpenMP_C)
 
-add_executable(rsa-calc rsa_huge_tool.c)
-target_link_libraries(rsa-calc PRIVATE PkgConfig::GMP OpenMP::OpenMP_C)
-
 add_executable(rsacheck rsacheck.c)
 target_link_libraries(rsacheck PRIVATE PkgConfig::GMP m)
 
 add_executable(rsaminimalmessage rsaminimalmessage.c)
 target_link_libraries(rsaminimalmessage PRIVATE PkgConfig::GMP)
+
+add_executable(save_fix save_fix.c)
+
+add_executable(search_2apow_2bpow_plus1 search_2apow_2bpow_plus1.c)
+target_link_libraries(search_2apow_2bpow_plus1 PkgConfig::GMP)
+
+add_executable(search_factorial_prime search_factorial_prime.c)
+target_link_libraries(search_factorial_prime PkgConfig::GMP)
+
+add_executable(search_prime_multithreaded search_prime_multithreaded.c bitsieve.c task_queue.c queue.c timeutil.c gettextsample.c)
+target_link_libraries(search_prime_multithreaded PkgConfig::GMP Threads::Threads)
+target_compile_definitions(search_prime_multithreaded PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
+
+add_executable(search_prime_via_bitsieve search_prime_via_bitsieve.c bitsieve.c timeutil.c)
+target_link_libraries(search_prime_via_bitsieve PkgConfig::GMP Threads::Threads)
 
 add_executable(selfmadelibsha self-made-libsha.c)
 target_link_libraries(selfmadelibsha study)
@@ -815,6 +812,10 @@ target_include_directories(service-sample PRIVATE ${PROJECT_SOURCE_DIR}/libstudy
 add_executable(sha1rngsample sha1rngsample.c)
 target_link_libraries(sha1rngsample OpenSSL::Crypto)
 target_include_directories(sha1rngsample PRIVATE)
+
+add_executable(sha-test sha-test.c)
+target_link_libraries(sha-test OpenSSL::Crypto)
+target_include_directories(sha-test PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(shanfrowatcher shanfrowatcher.c)
 target_link_libraries(shanfrowatcher CURL::libcurl)
@@ -850,22 +851,11 @@ add_executable(ssh-keyconvert ssh-keyconvert.c)
 target_link_libraries(ssh-keyconvert OpenSSL::Crypto)
 target_include_directories(ssh-keyconvert PRIVATE)
 
-add_executable(atomicsample atomicsample.c)
-target_link_libraries(atomicsample Threads::Threads)
-
 add_executable(strspntest strspntest.c)
-
-add_executable(sha-test sha-test.c)
-target_link_libraries(sha-test OpenSSL::Crypto)
-target_include_directories(sha-test PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(sum sum.c)
 target_link_libraries(sum PkgConfig::GMP study)
 target_include_directories(sum PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
-
-add_executable(teamspeakIdUpgrader teamspeakIdUpgrader.c)
-target_link_libraries(teamspeakIdUpgrader study OpenSSL::Crypto Threads::Threads)
-target_include_directories(teamspeakIdUpgrader PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
 add_executable(teamspeakcalc teamspeakcalc.c)
 target_link_libraries(teamspeakcalc study OpenSSL::Crypto OpenMP::OpenMP_C Intl::Intl)
@@ -876,6 +866,16 @@ target_compile_definitions(teamspeakcalc PRIVATE $<$<BOOL:${GETTEXT_FOUND}>:ENAB
 add_executable(teamspeakcalc2 teamspeakcalc2.c)
 target_link_libraries(teamspeakcalc2 PRIVATE OpenSSL::Crypto OpenMP::OpenMP_C)
 target_include_directories(teamspeakcalc2 PRIVATE)
+
+add_executable(teamspeakIdUpgrader teamspeakIdUpgrader.c)
+target_link_libraries(teamspeakIdUpgrader study OpenSSL::Crypto Threads::Threads)
+target_include_directories(teamspeakIdUpgrader PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
+
+add_executable(test_gmp_hex_parse test_gmp_hex_parse.c)
+target_link_libraries(test_gmp_hex_parse PkgConfig::GMP)
+
+add_executable(test_primality_single test_primality_single.c)
+target_link_libraries(test_primality_single PkgConfig::GMP)
 
 add_executable(threadAttr threadAttr.c)
 target_link_libraries(threadAttr Threads::Threads)
@@ -898,6 +898,9 @@ target_include_directories(totp PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 add_executable(tsidbench tsidbench.c)
 target_link_libraries(tsidbench OpenSSL::Crypto Threads::Threads)
 target_include_directories(tsidbench PRIVATE)
+
+add_executable(TSIdentityTool TSIdentityTool.c)
+target_link_libraries(TSIdentityTool PkgConfig::TomMath PkgConfig::TomCrypt)
 
 add_executable(tsidshowsample tsidshowsample.c)
 target_link_libraries(tsidshowsample OpenSSL::Crypto PkgConfig::TomMath PkgConfig::TomCrypt)
