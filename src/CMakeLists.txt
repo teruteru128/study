@@ -714,8 +714,11 @@ target_link_libraries(test_primality_single PkgConfig::GMP)
 add_executable(compute_value_gap compute_value_gap.c)
 target_link_libraries(compute_value_gap PkgConfig::GMP)
 
-add_executable(generate_large_sieve_single generate_large_sieve_single.c bitsieve.c timeutil.c)
+add_executable(generate_large_sieve_single generate_large_sieve_single.c large_sieve_io.c bitsieve.c timeutil.c)
 target_link_libraries(generate_large_sieve_single PkgConfig::GMP Threads::Threads)
+
+add_executable(generate_large_sieve_multithreaded generate_large_sieve_multithreaded.c large_sieve_io.c bitsieve.c timeutil.c)
+target_link_libraries(generate_large_sieve_multithreaded PkgConfig::GMP Threads::Threads)
 
 add_executable(export_bitsieve_multithreaded export_bitsieve_multithreaded.c bitsieve.c queue.c timeutil.c)
 target_link_libraries(export_bitsieve_multithreaded PkgConfig::GMP Threads::Threads)
