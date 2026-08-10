@@ -21,8 +21,50 @@ int load_even_base(const char *path, mpz_t base) {
     perror("load even number");
     return -1;
   }
-  mpz_inp_str(base, fin, 16);
+  if (fseek(fin, 0, SEEK_END) != 0 || ftell(fin) < 0) {
+    perror("fseek/ftell");
+    fclose(fin);
+    return -1;
+  }
+  long fsize = ftell(fin);
+  if (fseek(fin, 0, SEEK_SET) != 0) {
+    perror("fseek");
+    fclose(fin);
+    return -1;
+  }
+  char *buf = malloc((size_t)fsize + 1);
+  if (buf == NULL) {
+    perror("malloc");
+    fclose(fin);
+    return -1;
+  }
+  size_t len = fread(buf, 1, (size_t)fsize, fin);
+  buf[len] = '\0';
   fclose(fin);
+
+  // 16進数としてa-fを一切含まない場合、10進数のファイルを誤って16進として
+  // 読み込んだ可能性が高い(桁数が多いほど偶然a-fを含まない確率は天文学的に低い)
+  int has_hex_letter = 0;
+  for (size_t i = 0; i < len; i++) {
+    char c = buf[i];
+    if ((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
+      has_hex_letter = 1;
+      break;
+    }
+  }
+  if (!has_hex_letter) {
+    fprintf(stderr,
+            "warning: %s にa-fが1つも含まれていません。"
+            "10進数のファイルを誤って16進として読み込んでいませんか？\n",
+            path);
+  }
+
+  if (mpz_set_str(base, buf, 16) != 0) {
+    fprintf(stderr, "%s の16進数パースに失敗しました\n", path);
+    free(buf);
+    return -1;
+  }
+  free(buf);
 
   if (mpz_cmp_ui(base, 0) == 0) {
     fprintf(stderr, "why? base is zero.\n");
@@ -31,26 +73,6 @@ int load_even_base(const char *path, mpz_t base) {
   if (mpz_odd_p(base)) {
     fprintf(stderr, "base is odd.\n");
     return -1;
-  }
-
-  // 16進数としてa-fを一切含まない場合、10進数のファイルを誤って16進として
-  // 読み込んだ可能性が高い(桁数が多いほど偶然a-fを含まない確率は天文学的に低い)
-  {
-    char *hex = mpz_get_str(NULL, 16, base);
-    int has_hex_letter = 0;
-    for (char *p = hex; *p != '\0'; p++) {
-      if (*p >= 'a' && *p <= 'f') {
-        has_hex_letter = 1;
-        break;
-      }
-    }
-    if (!has_hex_letter) {
-      fprintf(stderr,
-              "warning: %s の16進表現にa-fが1つも含まれていません。"
-              "10進数のファイルを誤って16進として読み込んでいませんか？\n",
-              path);
-    }
-    free(hex);
   }
   return 0;
 }
