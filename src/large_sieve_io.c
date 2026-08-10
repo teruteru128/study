@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -30,6 +31,26 @@ int load_even_base(const char *path, mpz_t base) {
   if (mpz_odd_p(base)) {
     fprintf(stderr, "base is odd.\n");
     return -1;
+  }
+
+  // 16進数としてa-fを一切含まない場合、10進数のファイルを誤って16進として
+  // 読み込んだ可能性が高い(桁数が多いほど偶然a-fを含まない確率は天文学的に低い)
+  {
+    char *hex = mpz_get_str(NULL, 16, base);
+    int has_hex_letter = 0;
+    for (char *p = hex; *p != '\0'; p++) {
+      if (*p >= 'a' && *p <= 'f') {
+        has_hex_letter = 1;
+        break;
+      }
+    }
+    if (!has_hex_letter) {
+      fprintf(stderr,
+              "warning: %s の16進表現にa-fが1つも含まれていません。"
+              "10進数のファイルを誤って16進として読み込んでいませんか？\n",
+              path);
+    }
+    free(hex);
   }
   return 0;
 }
