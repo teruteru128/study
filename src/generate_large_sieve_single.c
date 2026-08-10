@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
                 "(%f %%)\n",
                 time_buffer, prime,
                 (prime * 100.) / maxValOfTheKnownPrimeNumberSieve, bitcnt,
-                (double)bitcnt / searchLength);
+                (double)bitcnt / searchLength * 100.);
         nextNoti += notiStep;
       }
     }

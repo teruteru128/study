@@ -251,7 +251,7 @@ int main(int argc, char *argv[]) {
     bitcnt += __builtin_popcountll(~largeSieve[k]);
   }
   fprintf(stderr, "Remaining prime number candidates: %zu(%f %%)\n", bitcnt,
-          (double)bitcnt / searchLength);
+          (double)bitcnt / searchLength * 100.);
 
   int writeResult =
       write_large_sieve(outfilename, largeSieve, largeSieveElementNum, searchLength);
