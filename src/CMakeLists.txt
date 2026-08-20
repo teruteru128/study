@@ -507,6 +507,9 @@ target_link_libraries(main
                      )
 target_compile_options(main PRIVATE)
 
+add_executable(make_hdr_png make_hdr_png.c)
+target_link_libraries(make_hdr_png PRIVATE PNG::PNG)
+
 add_executable(mandelbrot mandelbrot.c pngreadwrite.c)
 target_link_libraries(mandelbrot PRIVATE m PNG::PNG)
 target_compile_options(mandelbrot PRIVATE $<$<BOOL:${COMPILER_SUPPORTS_AVX2}>:-mavx2>)
