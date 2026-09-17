@@ -104,10 +104,13 @@ static void print_progress(const char *tag, uint64_t steps, const mpz_t n,
                            size_t start_bits, size_t max_bits, double elapsed)
 {
     size_t bits = mpz_sizeinbase(n, 2);
+    /* 上昇する初期値(collatz_seedの出力など)では開始bit数より上に伸びるので、
+       これまでの最大値を基準にしないと上昇中ずっと0%%になる */
+    size_t ref = max_bits > start_bits ? max_bits : start_bits;
     double done = 0.0;
-    if (start_bits > 0 && bits < start_bits)
+    if (ref > 0 && bits < ref)
     {
-        done = (double)(start_bits - bits) * 100.0 / (double)start_bits;
+        done = (double)(ref - bits) * 100.0 / (double)ref;
     }
     fprintf(stderr,
             "[%s] steps=%" PRIu64 " bits=%zu max_bits=%zu progress~%.2f%% "
