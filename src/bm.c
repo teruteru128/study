@@ -65,7 +65,7 @@ int main(const int argc, const char **argv)
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
-    int rc = getaddrinfo("192.168.12.9", "8444", &hints, &res);
+    int rc = getaddrinfo("185.158.248.216", "8444", &hints, &res);
     if (rc != 0)
     {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rc));

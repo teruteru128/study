@@ -343,6 +343,12 @@ target_include_directories(formatbmkey PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/in
 
 add_executable(ftm ftm.c)
 
+add_executable(gcdcheck gcdcheck.c)
+target_link_libraries(gcdcheck PRIVATE PostgreSQL::PostgreSQL PkgConfig::GMP)
+
+add_executable(eratoscheck eratoscheck.c)
+target_link_libraries(eratoscheck PRIVATE PkgConfig::GMP)
+
 add_executable(gcdsearch gcdsearch.c)
 target_link_libraries(gcdsearch PRIVATE PkgConfig::GMP)
 
