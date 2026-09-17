@@ -203,6 +203,9 @@ target_link_libraries(clocksample PRIVATE study)
 add_executable(collatz_delay_record collatz_delay_record.c)
 target_link_libraries(collatz_delay_record PRIVATE m)
 
+add_executable(collatz_search collatz_search.c)
+target_link_libraries(collatz_search PRIVATE PkgConfig::GMP m)
+
 add_executable(collatz_seed collatz_seed.c)
 target_link_libraries(collatz_seed PRIVATE PkgConfig::GMP)
 
