@@ -409,6 +409,9 @@ add_executable(httpd httpd.c)
 target_link_libraries(httpd study)
 target_include_directories(httpd PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 
+add_executable(hugecollatz hugecollatz.c)
+target_link_libraries(hugecollatz PRIVATE PkgConfig::GMP)
+
 add_executable(hugecollatztest hugecollatztest.c)
 target_link_libraries(hugecollatztest OpenSSL::Crypto)
 target_include_directories(hugecollatztest PRIVATE)
@@ -776,6 +779,9 @@ target_link_libraries(rsa-calc PRIVATE PkgConfig::GMP OpenMP::OpenMP_C)
 
 add_executable(rsa_bench rsa_bench.c)
 target_link_libraries(rsa_bench PRIVATE OpenSSL::Crypto)
+
+add_executable(rsa_extract_primes rsa_extract_primes.c)
+target_link_libraries(rsa_extract_primes PRIVATE OpenSSL::Crypto)
 
 add_executable(rsa_der_crt rsa_der_crt.c)
 target_link_libraries(rsa_der_crt PRIVATE PkgConfig::GMP OpenMP::OpenMP_C)
