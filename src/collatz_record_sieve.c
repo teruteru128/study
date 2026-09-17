@@ -16,6 +16,9 @@
  * delay は「2^T 未満に落ちるまでジャンプで辿り、そこからはメモ化表を引く」で
  * 厳密に求まる。T は探索範囲と独立に選べるので、メモリが探索範囲を縛らない。
  *
+ * 軌道の値は unsigned __int128 で持つ。36bitの n でも軌道が2^64を超えることが
+ * あるため(例: 36258954475 の軌道は66bitに達する)、64bitでは足りない。
+ *
  *   stdout : bit数ごとの記録(TSV、collatz_delay_recordと同じ列)
  *   stderr : 進捗とメモリ使用量
  */
@@ -26,6 +29,7 @@
 #include <string.h>
 
 typedef uint16_t delay_t;
+typedef unsigned __int128 uint128_t;
 
 /* r を K 手進めた結果。t は 3^j 程度まで大きくなるので64bitで持つ */
 typedef struct
@@ -94,17 +98,20 @@ static delay_t *build_memo(int t)
     memo[1] = 0;
     for (uint64_t n = 2; n < limit; n++)
     {
-        uint64_t x = n;
+        uint128_t x = n;
         uint32_t s = 0;
         while (x >= n)
         {
             x = (x & 1) ? 3 * x + 1 : x >> 1;
             s++;
         }
-        memo[n] = (delay_t)(s + memo[x]);
+        memo[n] = (delay_t)(s + memo[(uint64_t)x]);
     }
     return memo;
 }
+
+/* 128bitでも足りなくなったら打ち切るための上限。ここを超える軌道は未知の領域 */
+#define VALUE_CEILING ((uint128_t)1 << 120)
 
 /* n のdelayを厳密に求める。溢れたら 0 を返す(呼び出し側で打ち切る) */
 static uint64_t delay_of(uint64_t n, const jump_t *tab, int k,
@@ -112,27 +119,46 @@ static uint64_t delay_of(uint64_t n, const jump_t *tab, int k,
                          int *overflow)
 {
     const uint64_t mask = (UINT64_C(1) << k) - 1;
+    /* q がこれ未満なら 3^j*q + t は必ず64bitに収まる(j <= k, t < 3^k) */
+    const uint64_t safe_q = UINT64_MAX / pow3[k] - 1;
     uint64_t steps = 0;
-    uint64_t v = n;
-    while (v >= memo_limit)
+    uint64_t u = n;
+
+    for (;;)
     {
-        const jump_t *e = &tab[v & mask];
-        uint64_t hi;
-        /* v = q*2^K + r  ->  3^j * q + t */
-        if (__builtin_mul_overflow(pow3[e->j], v >> k, &hi) ||
-            __builtin_add_overflow(hi, e->t, &v))
+        /* 軌道の大半は64bitに収まる。収まる間はここだけを回す(ホットループ) */
+        while (u >= memo_limit && (u >> k) < safe_q)
         {
-            *overflow = 1;
-            return 0;
+            const jump_t *e = &tab[u & mask];
+            /* u = q*2^K + r  ->  3^j * q + t */
+            u = pow3[e->j] * (u >> k) + e->t;
+            steps += (uint64_t)k + e->j;
         }
-        steps += (uint64_t)k + e->j;
-        if (v == 0)
+        if (u < memo_limit)
         {
-            *overflow = 1;
-            return 0;
+            return steps + memo[u];
         }
+
+        /* 64bitでは危ない領域に入った。64bitに戻るまで128bitで進める */
+        uint128_t v = u;
+        do
+        {
+            const jump_t *e = &tab[(uint64_t)v & mask];
+            v = (uint128_t)pow3[e->j] * (v >> k) + e->t;
+            steps += (uint64_t)k + e->j;
+            if (v == 0 || v >= VALUE_CEILING)
+            {
+                *overflow = 1;
+                return 0;
+            }
+        } while (v >= memo_limit &&
+                 ((v >> 64) != 0 || ((uint64_t)v >> k) >= safe_q));
+        if (v < memo_limit)
+        {
+            return steps + memo[(uint64_t)v];
+        }
+        u = (uint64_t)v;
     }
-    return steps + memo[v];
 }
 
 int main(int argc, char **argv)
@@ -245,7 +271,7 @@ int main(int argc, char **argv)
                 const uint64_t d = delay_of(n, tab, k, memo, memo_limit, &overflow);
                 if (overflow)
                 {
-                    fprintf(stderr, "# %" PRIu64 " で64bitを溢れました。打ち切ります\n", n);
+                    fprintf(stderr, "# %" PRIu64 " で128bitの上限を超えました。打ち切ります\n", n);
                     break;
                 }
                 if (d > bd)
