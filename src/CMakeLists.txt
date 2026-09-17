@@ -200,6 +200,8 @@ target_include_directories(cl PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 add_executable(clocksample clocktest-driver.c)
 target_link_libraries(clocksample PRIVATE study)
 
+add_executable(collatz_delay_record collatz_delay_record.c)
+
 add_executable(collatz_seed collatz_seed.c)
 target_link_libraries(collatz_seed PRIVATE PkgConfig::GMP)
 
