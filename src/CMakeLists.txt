@@ -707,12 +707,12 @@ add_library(plugin MODULE plugin.c)
 target_include_directories(plugin PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
 set_target_properties(plugin PROPERTIES version 1.0.0 SOVERSION 1)
 
-# Java(FFM)から呼ぶRIPEMD-160の16レーン実装。rmd160_avx512.c は
-# gen_rmd160_avx512.py の生成物なので手で編集しないこと。
-# AVX-512が無いCPUでも読み込めるよう、実行前に rmd160_16way_available() で判定する。
-add_library(rmd160avx512 SHARED rmd160_avx512.c)
-target_compile_options(rmd160avx512 PRIVATE -mavx512f -O3)
-set_target_properties(rmd160avx512 PROPERTIES version 1.0.0 SOVERSION 1)
+# Java(FFM)から呼ぶ、bitmessageのripe計算用16レーンハッシュ。
+# rmd160_avx512.c と sha512_avx512.c はそれぞれ gen_*.py の生成物なので手で編集しないこと。
+# AVX-512が無いCPUでも読み込めるよう、実行前に *_16way_available() で判定する。
+add_library(bmhash16 SHARED rmd160_avx512.c sha512_avx512.c)
+target_compile_options(bmhash16 PRIVATE -mavx512f -O3)
+set_target_properties(bmhash16 PROPERTIES version 1.0.0 SOVERSION 1)
 
 add_executable(pngconcat pngconcat.c)
 target_link_libraries(pngconcat m)

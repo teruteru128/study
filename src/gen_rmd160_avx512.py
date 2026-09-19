@@ -66,7 +66,7 @@ TEMPLATE = r'''/* このファイルは src/gen_rmd160_avx512.py の生成物で
  * 3入力ブール関数なのでvpternlogd 1命令に潰せ、318個あるローテートもvprold 1命令
  * になる。実測でOpenSSLの約20倍。
  */
-#include "rmd160_avx512.h"
+#include "bmhash16.h"
 
 #include <immintrin.h>
 #include <string.h>
