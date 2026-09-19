@@ -16,6 +16,8 @@
 #include <string.h>
 
 #define MSG_LEN 130
+#define PREFIX_LEN 65
+#define SUFFIX_LEN 65
 
 static const uint64_t K[80] = {
     0x428a2f98d728ae22ULL,
@@ -116,21 +118,9 @@ int sha512_16way_available(void)
     return __builtin_cpu_supports("avx512f") != 0;
 }
 
-void sha512_16way(const unsigned char *in, unsigned char *out)
+/* パディング済みの2ブロックを16レーンで処理する。入口はbufの組み立て方だけが違う */
+static void sha512_16way_blocks(const unsigned char buf[16][256], unsigned char *out)
 {
-    /* 入力長が固定なのでパディングは毎回同じ形になる */
-    unsigned char buf[16][256];
-    memset(buf, 0, sizeof buf);
-    for (int i = 0; i < 16; i++)
-    {
-        memcpy(buf[i], in + i * MSG_LEN, MSG_LEN);
-        buf[i][MSG_LEN] = 0x80;
-        uint64_t bits = (uint64_t)MSG_LEN * 8;
-        for (int b = 0; b < 8; b++)
-        {
-            buf[i][255 - b] = (unsigned char)(bits >> (8 * b));
-        }
-    }
     __m512i h0A = _mm512_set1_epi64((long long)0x6a09e667f3bcc908ULL);
     __m512i h1A = _mm512_set1_epi64((long long)0xbb67ae8584caa73bULL);
     __m512i h2A = _mm512_set1_epi64((long long)0x3c6ef372fe94f82bULL);
@@ -218,5 +208,47 @@ void sha512_16way(const unsigned char *in, unsigned char *out)
             }
         }
     }
+}
+
+/* 入力長が固定なのでパディングは毎回同じ形になる */
+static void pad(unsigned char buf[16][256])
+{
+    uint64_t bits = (uint64_t)MSG_LEN * 8;
+    for (int i = 0; i < 16; i++)
+    {
+        buf[i][MSG_LEN] = 0x80;
+        for (int b = 0; b < 8; b++)
+        {
+            buf[i][255 - b] = (unsigned char)(bits >> (8 * b));
+        }
+    }
+}
+
+void sha512_16way(const unsigned char *in, unsigned char *out)
+{
+    unsigned char buf[16][256];
+    memset(buf, 0, sizeof buf);
+    for (int i = 0; i < 16; i++)
+    {
+        memcpy(buf[i], in + i * MSG_LEN, MSG_LEN);
+    }
+    pad(buf);
+    sha512_16way_blocks(buf, out);
+}
+
+void sha512_16way_prefixed(const unsigned char *prefix, const unsigned char *suffixes,
+                           unsigned char *out)
+{
+    /* 全レーンで共通の前半(署名用公開鍵)と、レーンごとに違う後半(暗号化用公開鍵)。
+     * 呼び出し側が130バイト x 16 を組み立て直す必要がなくなる。 */
+    unsigned char buf[16][256];
+    memset(buf, 0, sizeof buf);
+    for (int i = 0; i < 16; i++)
+    {
+        memcpy(buf[i], prefix, PREFIX_LEN);
+        memcpy(buf[i] + PREFIX_LEN, suffixes + i * SUFFIX_LEN, SUFFIX_LEN);
+    }
+    pad(buf);
+    sha512_16way_blocks(buf, out);
 }
 

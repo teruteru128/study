@@ -37,6 +37,18 @@ int sha512_16way_available(void);
  */
 void sha512_16way(const unsigned char *in, unsigned char *out);
 
+/**
+ * 全レーン共通の前半65バイトと、レーンごとに違う後半65バイトからSHA-512を計算する。
+ * 呼び出し側が130バイト×16を組み立て直さずに済むので、bitmessageのアドレス探索のように
+ * 署名用公開鍵を固定して暗号化用公開鍵だけを変える使い方ではコピーが大きく減る。
+ *
+ * @param prefix    65バイト。全レーンで共通
+ * @param suffixes  65バイト×16。連続していること
+ * @param out       16 * 64 バイトの書き込み先
+ */
+void sha512_16way_prefixed(const unsigned char *prefix, const unsigned char *suffixes,
+                           unsigned char *out);
+
 #ifdef __cplusplus
 }
 #endif
