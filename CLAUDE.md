@@ -15,16 +15,32 @@
 - コードを変更したら`./gradlew :prime-search:installDist`してから`systemctl --user restart prime-search.target`しないと反映されない(Gradle経由の起動は`./gradlew --stop`の巻き添えで落ちる事故が起きたため廃止した)
 - 詳しい経緯・ハマりどころは`Claude`の自動メモリ(`build_workflow.md`, `gmp_windows_long_gotcha.md`, `java_gmp_binding_mismatch.md`, `even_number_file_format_history.md`, `old_main_pc_broken.md`, `prime_search_systemd_deployment.md`, `gce_postgres_scaleout_plan.md`, `verify_portability_claims_rigorously.md`)を参照
 
-### GCEスポットインスタンス+Postgresへのスケールアウト計画(2026-08-17〜、進行中)
+### GCEスケールアウト計画(2026-08-17〜、2026-09-20に**見送り**)
 
-自宅マシンだけで回し続けると電気代がかさむため、GCEのスポットインスタンス(c3-standard-88等)をワーカーとして追加投入する計画が進行中。DBは自宅にPostgresを置き、TailscaleでGCEと接続する構成。
+もともとは「自宅マシンだけで回し続けると電気代がかさむため、GCEのスポットインスタンス(c3-standard-88等)を追加投入する」という計画だった。**2026-09-20に実測したところ、この前提が逆だった。**
+
+素数2本ぶんの総額:
+
+| 方式 | 総額 |
+|---|---|
+| **自宅マシン(電気代)** | **13万〜21万円** |
+| GCE スポット | 約151万円 |
+| GCE 3年コミット | 約189万円 |
+| GCE オンデマンド | 約421万円 |
+
+時間あたりで **GCEスポット22円/時 対 自宅1.7円/時**。`c3-standard-8`は自宅マシンとほぼ同性能(21.4対20判定/日)なので、素直に13倍高いだけだった。**「同じ計算を安く回す」用途にクラウドは向かない。** 費用が出せないため計画は見送り。
+
+クラウドに意味があるのは時間を金で買う場合だけ(自宅1台なら8.5年、GCEスポット10台で約9か月、追加151万円)。詳細な実測値と価格の取得方法は自動メモリ`gce-prime-search-benchmark.md`。
+
+**下地自体は完成しているので、気が変わればすぐ再開できる**: Postgresは`100.79.197.1:5432`(Tailscale)で待ち受けており外部から接続確認済み、`PrimeSearchTask2`にアトミックなclaimと`--stale-hours`があるのでスポット回収にも耐える。gcloudは`~/google-cloud-sdk`に導入済み。
 
 - 進捗管理コードを`java/foreign`・`java/develop`から専用モジュール`java/prime-search`(`com.github.teruteru.primesearch`)へ切り出し済み(java-studyコミット`00366cc2`)。**`PrimeSearch`/`PrimeSearchTask2`/`Result`/`Gmp`facadeは`foreign`ではなく`prime-search`が正**
 - DB接続は`SQLiteDataSource`決め打ちから`DriverManager.getConnection(DB_URL)`に統一済み。`DB_URL`のスキーム(`jdbc:sqlite:`/`jdbc:postgresql:`)で自動的にドライバが切り替わる
 - 複数マシンの二重着手を防ぐため、候補行のアトミックなclaim(`--stale-hours`オプション、既定24h)を`PrimeSearchTask2`に実装済み
 - **完了済み**(2026-09-20に実機で確認): 自宅Postgresサーバー導入、`candidates.sqlite3`からのデータ移行(572,165件がPostgresに入っている)、`run-prime-search.sh`のPostgres/新launcherへの切り替え、Tailscale接続設定(このマシンが`server01` / 100.79.197.1として参加済み)
 - **未着手**: GCEインスタンスの実際の構築。`gcloud`コマンドすら入っていない。Tailscaleに参加しているノードもこのマシン1台だけ
-- **効くのは台数だけ。** 1件9.5時間という処理速度はほぼ限界で(2Mbitの冪剰余は約200万回の2Mbit二乗算。FFT乗算を使っても理論上10時間前後)、GMPを速くする余地はほとんど無い。c3-standard-88を1台足せば単純計算で11倍、1本あたり4.3年が半年を切る
+- **効くのは台数だけ。** 1件9.5時間という処理速度はほぼ限界で(2Mbitの冪剰余は約200万回の2Mbit二乗算。FFT乗算を使っても理論上10時間前後)、GMPを速くする余地はほとんど無い
+- **SMTはほとんど効かない(実測)。** 2Mbitの`mpn_sqr`は物理コア数までは劣化ゼロでスケールするが、そこを超えると1.68倍遅くなる。8スレッドの実効は4.76コア相当で、4スレッドに対して19%しか増えない。**vCPU数を性能と読んではいけない**(`c3-standard-88`の88vCPUは約52コア相当)
 - 詳細は自動メモリ`gce_postgres_scaleout_plan.md`
 
 ## 進行中のプロジェクト: bitmessageアドレス探索(2026-09-19〜)
@@ -50,7 +66,9 @@
 
 - 現在稼働中のマシンはRAM 27GB程度(「ミニコンピュータ」)。Miller-Rabin判定を15スレッド並列で回すとメモリ帯域が奪い合いになり実効速度が半減する現象を確認済み
 - 故障中の旧メインPC(RAM 128GB)が自宅にあり、修理すれば計算資源として追加投入できる(型番未確認、修理店に持ち込み待ち)
-- GCEスポットインスタンスの追加投入を計画中(上記参照)。`java/postgres-db-migration-TODO.txt`は初期の移行メモで、移行自体は完了済みなので歴史的資料
+- **GCE投入は費用が見合わず見送り**(上記参照)。`java/postgres-db-migration-TODO.txt`は初期の移行メモで、移行自体は完了済みなので歴史的資料
+- **現実的に効くのは旧メインPCの修理**。クラウドより費用対効果が明らかに良い
+- 自宅マシンの消費電力は`sensors`のPPTで読める(素数探索8スレッド稼働時でCPU 32W、Tctl 92.1℃)。システム全体55〜70Wは推定なので、ワットチェッカーがあれば確定できる
 
 ## ビルド
 
