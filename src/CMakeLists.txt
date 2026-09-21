@@ -907,7 +907,7 @@ target_include_directories(teamspeakIdUpgrader PRIVATE ${PROJECT_SOURCE_DIR}/lib
 add_executable(test_gmp_hex_parse test_gmp_hex_parse.c)
 target_link_libraries(test_gmp_hex_parse PkgConfig::GMP)
 
-add_executable(test_primality_single test_primality_single.c)
+add_executable(test_primality_single test_primality_single.c large_sieve_io.c)
 target_link_libraries(test_primality_single PkgConfig::GMP)
 
 add_executable(threadAttr threadAttr.c)

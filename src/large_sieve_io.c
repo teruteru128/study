@@ -15,10 +15,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-int load_even_base(const char *path, mpz_t base) {
+int load_hex_number(const char *path, mpz_t value) {
   FILE *fin = fopen(path, "r");
   if (fin == NULL) {
-    perror("load even number");
+    perror("load hex number");
     return -1;
   }
   if (fseek(fin, 0, SEEK_END) != 0 || ftell(fin) < 0) {
@@ -59,13 +59,19 @@ int load_even_base(const char *path, mpz_t base) {
             path);
   }
 
-  if (mpz_set_str(base, buf, 16) != 0) {
+  if (mpz_set_str(value, buf, 16) != 0) {
     fprintf(stderr, "%s の16進数パースに失敗しました\n", path);
     free(buf);
     return -1;
   }
   free(buf);
+  return 0;
+}
 
+int load_even_base(const char *path, mpz_t base) {
+  if (load_hex_number(path, base) != 0) {
+    return -1;
+  }
   if (mpz_cmp_ui(base, 0) == 0) {
     fprintf(stderr, "why? base is zero.\n");
     return -1;
