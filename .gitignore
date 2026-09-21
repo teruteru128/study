@@ -200,3 +200,11 @@ keys/
 config/
 !config/CMakeLists.txt
 *.priv
+
+# 鍵素材。*.pem は上にあるが .der が素通りだったため追加する。
+# par2は private_key.pem の復元用データで、揃えば本体を再構成できる。
+*.der
+!MOK.der
+private_key*
+prime_1048576_*.txt
+*.par2
