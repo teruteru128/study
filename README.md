@@ -70,6 +70,31 @@ $ openssl x509 -inform DER -in MOK.der -pubkey -noout | openssl pkey -pubin -pub
 $ openssl pkey -in ~/.local/share/kernel-keys/MOK.priv -pubout -outform DER | sha256sum
 ```
 
+### 紛失したときは作り直す
+
+**秘密鍵のバックアップは取っていない。** 再生成が10分程度で済むうえ、
+古い証明書がMOKリストに残っている限り署名済みモジュールは動き続けるため、
+暗号化バックアップを管理するより作り直すほうが総コストが低いと判断した。
+
+```bash
+# 1. 鍵ペアを作り直す(元と同じ ECDSA P-384、有効期間100年)
+openssl req -new -x509 -newkey ec -pkeyopt ec_paramgen_curve:secp384r1 \
+  -nodes -keyout MOK.priv -outform DER -out MOK.der \
+  -days 36500 -subj "/CN=My ECDSA Driver Key/"
+
+# 2. 秘密鍵を所定の場所へ移す(パーミッションは600)
+install -m 600 -D MOK.priv ~/.local/share/kernel-keys/MOK.priv
+
+# 3. UEFIに登録する。ワンタイムパスワードを設定したあと再起動し、
+#    MOK Managerの画面で承認する(＝物理的に本体を操作できる必要がある)
+sudo mokutil --import MOK.der
+
+# 4. 上のフィンガープリントを新しい値に書き換える
+openssl x509 -inform DER -in MOK.der -noout -fingerprint -sha256
+```
+
+新しい鍵で署名し直すまで、新規のカーネルモジュールはロードできない。
+
 ## このリポジトリに含む機能
 
 - ロケールに関するテスト実装。i18nテスト実装的な？
