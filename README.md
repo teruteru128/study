@@ -70,11 +70,29 @@ $ openssl x509 -inform DER -in MOK.der -pubkey -noout | openssl pkey -pubin -pub
 $ openssl pkey -in ~/.local/share/kernel-keys/MOK.priv -pubout -outform DER | sha256sum
 ```
 
+### バックアップ
+
+外付けHDDに `避難所/MOK.priv.gpg` としてGPG(共通鍵、AES256)で暗号化した
+ものを置いてある。復元は次のとおり。
+
+```bash
+gpg -d /media/teruteru/HD-NRLD-A/避難所/MOK.priv.gpg \
+  > ~/.local/share/kernel-keys/MOK.priv
+chmod 600 ~/.local/share/kernel-keys/MOK.priv
+```
+
+クラウドストレージには置いていない。暗号文が流出すると時間無制限の
+オフライン総当たりを許すことになり、安全性がパスフレーズの強度だけに
+依存するようになるため。この鍵は後述のとおり10分程度で作り直せる以上、
+地理的冗長性を得る利益がそのリスクに見合わないと判断した。
+(再取得不可能なもの——bitmessageの `keys.dat` など——では、この計算は
+逆になりうる)
+
 ### 紛失したときは作り直す
 
-**秘密鍵のバックアップは取っていない。** 再生成が10分程度で済むうえ、
-古い証明書がMOKリストに残っている限り署名済みモジュールは動き続けるため、
-暗号化バックアップを管理するより作り直すほうが総コストが低いと判断した。
+バックアップから復元できない場合(パスフレーズを失念した、HDDが死んだ等)
+は作り直す。再生成は10分程度で済み、古い証明書がMOKリストに残っている
+限り署名済みモジュールは動き続ける。
 
 ```bash
 # 1. 鍵ペアを作り直す(元と同じ ECDSA P-384、有効期間100年)
