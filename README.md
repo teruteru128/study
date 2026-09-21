@@ -47,6 +47,29 @@ A garbage dump repository created for studying Teruteru.
 - libupnp-dev 1:1.6.24-4
 - libjson-c-dev
 
+## MOK.der について
+
+Secure Boot環境でカーネルモジュールに署名するための自己署名証明書
+(`CN = My ECDSA Driver Key`、ECDSA、468バイト)。**公開鍵側のみ**なので
+リポジトリに含めてよい。`mokutil --import MOK.der` にそのまま渡せる形式で
+置いてあるため、DERのまま管理する。
+
+差し替えられていないことは、以下のフィンガープリントで確認できる。
+
+```
+$ openssl x509 -inform DER -in MOK.der -noout -fingerprint -sha256
+SHA256 Fingerprint=D3:A4:8D:AC:A2:E6:AC:35:3A:C5:38:CD:98:14:F8:B9:C9:81:5C:11:75:27:20:85:EB:12:51:C0:0B:8D:0B:44
+```
+
+対になる秘密鍵は `~/.local/share/kernel-keys/MOK.priv` にあり、
+**リポジトリには含めない**(`.gitignore` の `*.priv` で除外済み)。
+対応関係は次のコマンドで確認できる(一致すれば対になっている)。
+
+```
+$ openssl x509 -inform DER -in MOK.der -pubkey -noout | openssl pkey -pubin -pubout -outform DER | sha256sum
+$ openssl pkey -in ~/.local/share/kernel-keys/MOK.priv -pubout -outform DER | sha256sum
+```
+
 ## このリポジトリに含む機能
 
 - ロケールに関するテスト実装。i18nテスト実装的な？
