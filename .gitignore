@@ -208,3 +208,13 @@ config/
 private_key*
 prime_1048576_*.txt
 *.par2
+
+# DB接続情報などの秘密。本体は ~/.config/prime-search/db.env に置いてあるが、
+# 取り回しでリポジトリ内にコピーが生まれても追跡しないようにしておく
+# (2026-09-21、run-prime-search.shに直書きされていたパスワードを外出しした)
+*.env
+!*.example.env
+.pgpass
+*.bak-*
+rotate-db-password.log
+.rotate.pid
