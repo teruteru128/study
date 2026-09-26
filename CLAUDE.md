@@ -11,7 +11,8 @@
 - 進捗(2026-09-20時点): 候補572,165件のうち**判定済み911件、素数はまだ0件**。1日あたり約20件。2つの偶数は`candidates`テーブルの`id`列で区別する(`id=251103173751557352`が037c1901、`id=5318918530104379150`が49d09838)
 - **1本の素数を見つけるのに期待値で約31,000件**の判定が要る計算(2Mbit奇数が素数である確率2/ln(N)=1/726,818を、篩の残存率4.3%で割ったもの)。1日20件なので**このマシンだけだと1本あたり約4.3年、RSAに必要な2本で8〜9年**。候補プール自体は各偶数に28.5万件あり、期待値では1つの偶数あたり9本前後の素数が埋まっているので枯渇の心配は無い
 - 残った候補をGMPの`mpz_probab_prime_p`(BPSW)でMiller-Rabin判定中。1件あたり実測で約7〜15時間かかる、非常に重い探索
-- **systemdのuserサービスとして無人稼働中**。`systemctl --user status prime-search.target 'prime-search@*'`で状態確認、`journalctl --user -u prime-search@037c1901.service`でログ確認
+- **systemdのuserサービスとして無人稼働中**。`systemctl --user status prime-search.target 'prime-search@*'`で状態確認、`journalctl --user -u prime-search@49d09838.service`でログ確認
+- **稼働しているのは`49d09838`だけ(8スレッド)。`037c1901`は意図的に止めている**(`prime-search@037c1901.service`はmasked)。2本同時に動かすのは無理だった。**`49d09838`の探索が終わってから`037c1901`を起動する**こと(`systemctl --user unmask prime-search@037c1901.service`してから起動)。maskedを見て「止まっている、直さなきゃ」と勝手に起動しないこと
 - コードを変更したら`./gradlew :prime-search:installDist`してから`systemctl --user restart prime-search.target`しないと反映されない(Gradle経由の起動は`./gradlew --stop`の巻き添えで落ちる事故が起きたため廃止した)
 - 詳しい経緯・ハマりどころは`Claude`の自動メモリ(`build_workflow.md`, `gmp_windows_long_gotcha.md`, `java_gmp_binding_mismatch.md`, `even_number_file_format_history.md`, `old_main_pc_broken.md`, `prime_search_systemd_deployment.md`, `gce_postgres_scaleout_plan.md`, `verify_portability_claims_rigorously.md`)を参照
 
