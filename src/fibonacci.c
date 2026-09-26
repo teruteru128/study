@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
       unsigned long r = mpz_remove(n, n, p);
       gmp_printf("%Zd^%lu\n", p, r);
     }
+    mpz_nextprime(p, p);
   }
   mpz_clears(n, p, NULL);
   return 0;
