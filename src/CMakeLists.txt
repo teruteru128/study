@@ -342,6 +342,8 @@ add_executable(fdThread fdThread.c)
 add_executable(fibonacci fibonacci.c)
 target_link_libraries(fibonacci PRIVATE PkgConfig::GMP)
 
+add_executable(fiblucas_tf fiblucas_tf.c)
+
 add_executable(find_prevprime find_prevprime.c)
 target_link_libraries(find_prevprime PkgConfig::GMP)
 
