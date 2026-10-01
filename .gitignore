@@ -218,3 +218,6 @@ prime_1048576_*.txt
 *.bak-*
 rotate-db-password.log
 .rotate.pid
+
+# マシン固有のClaude Code用メモ(公開しない)
+CLAUDE.local.md
