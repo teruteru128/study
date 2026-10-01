@@ -9,11 +9,14 @@
   - `49d09838-e81d-470e-a6eb-7157ea24ac6c`
 - 既知素数篩(2.7×10^11まで)で候補を約4%まで削り込み済み。**DBは自宅のPostgres**(`jdbc:postgresql://127.0.0.1:5432/primesearch`、接続情報は`java/run-prime-search.sh`にある)。リポジトリ直下の`candidates.sqlite3`は移行前の遺物で、現在は使われていない
 - 進捗(2026-09-20時点): 候補572,165件のうち**判定済み911件、素数はまだ0件**。1日あたり約20件。2つの偶数は`candidates`テーブルの`id`列で区別する(`id=251103173751557352`が037c1901、`id=5318918530104379150`が49d09838)
-- **1本の素数を見つけるのに期待値で約31,000件**の判定が要る計算(2Mbit奇数が素数である確率2/ln(N)=1/726,818を、篩の残存率4.3%で割ったもの)。1日20件なので**このマシンだけだと1本あたり約4.3年、RSAに必要な2本で8〜9年**。候補プール自体は各偶数に28.5万件あり、期待値では1つの偶数あたり9本前後の素数が埋まっているので枯渇の心配は無い
+- **1本の素数を見つけるのに期待値で約31,000件**の判定が要る計算(2Mbit奇数が素数である確率2/ln(N)=1/726,818を、篩の残存率4.3%で割ったもの)。1日20件なので**1台だと1本あたり約4.3年、RSAに必要な2本で8〜9年**。2026-10-01から2台で1本ずつ並行して探しているので、2本そろうまでの期待値は約4.3年。候補プール自体は各偶数に28.5万件あり、期待値では1つの偶数あたり9本前後の素数が埋まっているので枯渇の心配は無い
 - 残った候補をGMPの`mpz_probab_prime_p`(BPSW)でMiller-Rabin判定中。1件あたり実測で約7〜15時間かかる、非常に重い探索
-- **systemdのuserサービスとして無人稼働中**。`systemctl --user status prime-search.target 'prime-search@*'`で状態確認、`journalctl --user -u prime-search@49d09838.service`でログ確認
-- **稼働しているのは`49d09838`だけ(8スレッド)。`037c1901`は意図的に止めている**(`prime-search@037c1901.service`はmasked)。2本同時に動かすのは無理だった。**`49d09838`の探索が終わってから`037c1901`を起動する**こと(`systemctl --user unmask prime-search@037c1901.service`してから起動)。maskedを見て「止まっている、直さなきゃ」と勝手に起動しないこと
-- コードを変更したら`./gradlew :prime-search:installDist`してから`systemctl --user restart prime-search.target`しないと反映されない(Gradle経由の起動は`./gradlew --stop`の巻き添えで落ちる事故が起きたため廃止した)
+- **systemdのuserサービスとして、2台で無人稼働中**(2026-10-01〜)。各マシンで`systemctl --user status prime-search.target 'prime-search@*'`を実行すると状態を確認できる。ログは`journalctl --user -u prime-search@<UUID接頭辞>.service`で見る
+  - **このマシン(1台目)は`49d09838`専任(8スレッド)。** ここの`prime-search@037c1901.service`は意図的にmaskedにしてある。1台で2本同時に動かすのは無理だった。maskedを見て「止まっている、直さなきゃ」と勝手に起動しないこと
+  - **`037c1901`は2台目のミニPCが専任で担当(8スレッド)。** ホスト名とアドレスは`CLAUDE.local.md`に書いてある。2台目にはリポジトリを置いていない。`~/prime-search/`に、installDistの成果物(`install/`)、偶数ファイル、2台目専用の`run-prime-search.sh`を置いている。DBへは1台目のPostgresにLAN経由で直接つなぐ(`sslmode=require`)。Tailscaleは使っていない
+  - 2台の分担は偶数単位で分けている(同じ偶数を2台で共有しない)。共有しても候補のclaimで二重着手は防げる。ただし素数が見つかったかどうかの判定が起動時にしか無いので、片方が見つけても、もう片方は手動で止めるまで計算を続けてしまう
+- コードを変更したら`./gradlew :prime-search:installDist`してから`systemctl --user restart prime-search.target`しないと反映されない(Gradle経由の起動は`./gradlew --stop`の巻き添えで落ちる事故が起きたため廃止した)。**2台目にも、`build/install/prime-search/`を`~/prime-search/install/`へrsyncしてから再起動する必要がある**
+- `rotate-db-password.sh`は、`WORKERS`に書いた全マシン(sshで操作)の`db.env`を書き換えて再起動する。マシンを増やしたら`WORKERS`に追記すること。**全台が同時にバッチ境界にいないと、どこかの判定中の8件が無駄になる。** 境界の時刻はマシンごとにずれていくので、`--wait`は数日かかることがある
 - 詳しい経緯・ハマりどころは`Claude`の自動メモリ(`build_workflow.md`, `gmp_windows_long_gotcha.md`, `java_gmp_binding_mismatch.md`, `even_number_file_format_history.md`, `old_main_pc_broken.md`, `prime_search_systemd_deployment.md`, `gce_postgres_scaleout_plan.md`, `verify_portability_claims_rigorously.md`)を参照
 
 ### GCEスケールアウト計画(2026-08-17〜、2026-09-20に**見送り**)
@@ -33,12 +36,12 @@
 
 クラウドに意味があるのは時間を金で買う場合だけ(自宅1台なら8.5年、GCEスポット10台で約9か月、追加151万円)。詳細な実測値と価格の取得方法は自動メモリ`gce-prime-search-benchmark.md`。
 
-**下地自体は完成しているので、気が変わればすぐ再開できる**: Postgresは`100.79.197.1:5432`(Tailscale)で待ち受けており外部から接続確認済み、`PrimeSearchTask2`にアトミックなclaimと`--stale-hours`があるのでスポット回収にも耐える。gcloudは`~/google-cloud-sdk`に導入済み。
+**下地自体は完成しているので、気が変わればすぐ再開できる**: PostgresはTailscale経由で外部から待ち受けており接続確認済み(アドレスは`CLAUDE.local.md`)、`PrimeSearchTask2`にアトミックなclaimと`--stale-hours`があるのでスポット回収にも耐える。gcloudは`~/google-cloud-sdk`に導入済み。
 
 - 進捗管理コードを`java/foreign`・`java/develop`から専用モジュール`java/prime-search`(`com.github.teruteru.primesearch`)へ切り出し済み(java-studyコミット`00366cc2`)。**`PrimeSearch`/`PrimeSearchTask2`/`Result`/`Gmp`facadeは`foreign`ではなく`prime-search`が正**
 - DB接続は`SQLiteDataSource`決め打ちから`DriverManager.getConnection(DB_URL)`に統一済み。`DB_URL`のスキーム(`jdbc:sqlite:`/`jdbc:postgresql:`)で自動的にドライバが切り替わる
 - 複数マシンの二重着手を防ぐため、候補行のアトミックなclaim(`--stale-hours`オプション、既定24h)を`PrimeSearchTask2`に実装済み
-- **完了済み**(2026-09-20に実機で確認): 自宅Postgresサーバー導入、`candidates.sqlite3`からのデータ移行(572,165件がPostgresに入っている)、`run-prime-search.sh`のPostgres/新launcherへの切り替え、Tailscale接続設定(このマシンが`server01` / 100.79.197.1として参加済み)
+- **完了済み**(2026-09-20に実機で確認): 自宅Postgresサーバー導入、`candidates.sqlite3`からのデータ移行(572,165件がPostgresに入っている)、`run-prime-search.sh`のPostgres/新launcherへの切り替え、Tailscale接続設定(このマシンが参加済み。ノード名とアドレスは`CLAUDE.local.md`)
 - **未着手**: GCEインスタンスの実際の構築。`gcloud`コマンドすら入っていない。Tailscaleに参加しているノードもこのマシン1台だけ
 - **効くのは台数だけ。** 1件9.5時間という処理速度はほぼ限界で(2Mbitの冪剰余は約200万回の2Mbit二乗算。FFT乗算を使っても理論上10時間前後)、GMPを速くする余地はほとんど無い
 - **SMTはほとんど効かない(実測)。** 2Mbitの`mpn_sqr`は物理コア数までは劣化ゼロでスケールするが、そこを超えると1.68倍遅くなる。8スレッドの実効は4.76コア相当で、4スレッドに対して19%しか増えない。**vCPU数を性能と読んではいけない**(`c3-standard-88`の88vCPUは約52コア相当)
@@ -47,7 +50,7 @@
 ## 進行中のプロジェクト: bitmessageアドレス探索(2026-09-19〜)
 
 先頭に多くのゼロを持つripeのbitmessageアドレスを、既存の公開鍵ファイル群から総当たりで探す。
-`/media/teruteru/HD-NRLD-A/避難所/keys/public/publicKeys{0..255}.bin`(各1,090,519,040バイト = 16,777,216鍵 × 65バイト)を使う。
+外付けHDD(ラベル`HD-NRLD-A`)の`避難所/keys/public/publicKeys{0..255}.bin`(各1,090,519,040バイト = 16,777,216鍵 × 65バイト)を使う。HDDのマウント先は環境によって変わる(udisks2の更新で`/media`配下から`/run/media`配下に移ったことがある)ので、パスを決め打ちせず`findmnt -rno TARGET -S LABEL=HD-NRLD-A`で調べること。
 
 - コマンドは`java/develop`の`addressSearch`(A×A)、`addressSearch2`(2ファイル、8スレッド)、`addressSearch4`(1署名鍵×256ファイル)、`addressSearch5`(1024鍵ずつ、軽い)。**以前は3つとも起動できない状態だった**(picocliの配線漏れ)ので、動かないと思ったらまず`--help`で確認すること
 - ripe計算は`java/bmhash`モジュール経由で、`study`本体の`src/rmd160_avx512.c`・`src/sha512_avx512.c`(AVX-512の16レーン実装)を呼ぶ。ビルドは`cmake --build build-Release --target bmhash16`
@@ -62,10 +65,13 @@
 - **GMPバインディング混在**: `gmp-linux`(Linux向け、64bit、正しい)と`gmp-msys2`(Windows/LLP64向け、`unsigned long`が32bitの`int`として扱われる)の2系統が混在している。`gmp-msys2`を使うコードで`mpz_add_ui`/`mpz_set_ui`/`mpz_fdiv_ui`等に2^31を超える値を渡すとLinux上でもサイレントに壊れる。`prime-search`モジュールの`Gmp`facadeは`gmp-linux`を正しく使っているが、`foreign`に残っている一部の旧コード(`PrimeSearchTask.java`など、未使用の遺物)は今も`gmp-msys2`をimportしている。GMP呼び出しを含むJavaコードを触るときは、どちらのパッケージをimportしているか必ず確認する
 - **C側の`src/bmkeysearch*.c`(17本)は現在動かない**: パスが`/mnt/d/keys/...`とWSL時代のハードコードで、公開鍵を64バイト刻み(先頭の0x04を落とした`trimmed`形式)で読むが、その形式のファイルは削除済み。今あるのは65バイト刻み。復活させるなら引数化とtrimmed再生成が要る。なお`libbmhash16`を`target_link_libraries`するだけでAVX-512化できるので、整備さえすればJava側と同じ速度が出る
 - **even-numberファイルの10進/16進混在**: 旧1,048,576bit世代(外付けHDD保管)は10進数、現行2,097,152bit世代は16進数。10進ファイルを誤って16進として読んでも構文エラーにならず無音で違う値になる(逆方向は`a`〜`f`混入で即エラーになるため気づきやすい)。C側`load_even_base`とJava側`PrimeSearch`には、a-fを1つも含まないファイルを警告するチェックを追加済み
+- **Ubuntu 26.04(GCC 15)ではGMP 6.3.0のconfigureが通らない**: GCC 15は既定の言語規格がC23になった。C23では`void g(){}`が引数なしを意味するので、configureの`long long reliability test`がコンパイルエラーになる。その結果、`could not find a working compiler`で止まる。`./configure CFLAGS="-march=native -O3 -std=gnu17"`とすれば通る。m4も必要
+- **GMPの`gmp-mparam.h`を`tuneup`の結果に差し替えたら、`make clean`してからビルドし直す**: GMPのMakefileはこのヘッダへの依存関係を追跡していない。ただ`make`しても何も再コンパイルされず、計測した閾値がライブラリに入らない
 
 ## 計算資源
 
-- 現在稼働中のマシンはRAM 27GB程度(「ミニコンピュータ」)。Miller-Rabin判定を15スレッド並列で回すとメモリ帯域が奪い合いになり実効速度が半減する現象を確認済み
+- 1台目(このマシン): Ryzen 7 8745H(Zen 4、8コア16スレッド)、RAM 27GB程度(「ミニコンピュータ」)。Miller-Rabin判定を15スレッド並列で回すとメモリ帯域が奪い合いになり実効速度が半減する現象を確認済み
+- 2台目(2026-10-01導入のミニPC): Ryzen 9 PRO 8945HS(Zen 4、8コア16スレッド)、RAM 12GB、Ubuntu 26.04を新規インストール。GMPはこのマシン上で`-march=native`と`tuneup`を使って自家ビルドし、`/usr/local/lib`に入れてある。8スレッド稼働時のPPTは60Wで、1台目(32W)のほぼ2倍。起動直後の温度は83.9℃だった。有線LANは未接続で、Wi-Fiでつながっている
 - 故障中の旧メインPC(RAM 128GB)が自宅にあり、修理すれば計算資源として追加投入できる(型番未確認、修理店に持ち込み待ち)
 - **GCE投入は費用が見合わず見送り**(上記参照)。`java/postgres-db-migration-TODO.txt`は初期の移行メモで、移行自体は完了済みなので歴史的資料
 - **現実的に効くのは旧メインPCの修理**。クラウドより費用対効果が明らかに良い
