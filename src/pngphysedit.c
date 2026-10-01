@@ -21,7 +21,7 @@ int main(int argc, char const *argv[], const char **envp)
     printf("read ok\n");
     // 350 dpi to dots per meter
     phys.res_x = phys.res_y = floor((350 * 10000) / 254.);
-    write_png(outpath, &ihdr, &phys, NULL, NULL, row_pointers);
+    write_png(outpath, &ihdr, &phys, NULL, 0, row_pointers);
     for (size_t y = 0; y < ihdr.height; y++)
     {
         free(row_pointers[y]);

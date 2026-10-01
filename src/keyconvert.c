@@ -160,7 +160,7 @@ int func2(int argc, char **argv)
     return 0;
 }
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
     int code = -1;
     if (argc >= 2)

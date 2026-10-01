@@ -10,7 +10,7 @@
 
 #define BUFSIZE (67108864)
 
-int load(char *fname, MP_INT **num, size_t len)
+int load(char *fname, mpz_t *num, size_t len)
 {
     FILE *fp = fopen(fname, "r");
     if (fp == NULL)

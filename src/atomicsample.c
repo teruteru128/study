@@ -12,9 +12,9 @@
 #include <stdatomic.h>
 #include <pthread.h>
 
-_Atomic int i = ATOMIC_VAR_INIT(0);
+_Atomic int i = 0;
 
-void *func() {
+void *func(void *arg) {
     int j;
 
     for (j = 0; j < 1000000; j++)

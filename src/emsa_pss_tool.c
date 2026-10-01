@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
+#include <openssl/rand.h>
 
 #ifdef _WIN32
 #include <fcntl.h>

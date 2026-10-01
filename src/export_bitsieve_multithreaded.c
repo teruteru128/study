@@ -2,12 +2,12 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <gmp.h>
 #include <pthread.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <gmp.h>
 #define PUBLISH_STRUCT_BS
 #include "bitsieve.h"
 #include "queue.h"

@@ -1,5 +1,4 @@
 
-#include <gmp.h>
 #include <inttypes.h>
 #include <postgresql/libpq-fe.h>
 #include <regex.h>
@@ -9,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <uuid/uuid.h>
+#include <gmp.h>
 
 /**
  * 既知素数篩を超える範囲の素数を200万ビットぐらいにまとめてGCDでぶつける

@@ -15,7 +15,7 @@ static const EVP_MD *ripemd160;
 
 static int has_next_task = 1;
 
-void *funca()
+void *funca(void *arg)
 {
     PublicKey signkeys[1024];
     memcpy(signkeys, publicKeys, 1024 * PUBLIC_KEY_LENGTH);

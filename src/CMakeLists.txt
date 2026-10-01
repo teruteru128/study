@@ -225,7 +225,7 @@ target_link_libraries(compute_value_gap PkgConfig::GMP)
 
 add_executable(concurrencysample concurrencysample.c)
 target_link_libraries(concurrencysample PRIVATE Threads::Threads)
-#target_compile_definitions(concurrencysample PRIVATE _GNU_SOURCE=1)
+target_compile_definitions(concurrencysample PRIVATE _GNU_SOURCE=1)
 
 add_executable(conv conv.c)
 target_link_libraries(conv PRIVATE PkgConfig::GMP)

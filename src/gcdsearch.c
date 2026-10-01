@@ -1,6 +1,6 @@
 
-#include <gmp.h>
 #include <stdio.h>
+#include <gmp.h>
 
 int main(int argc, char *argv[]) {
     mpz_t n, p, gcd;
