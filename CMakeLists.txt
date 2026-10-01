@@ -197,6 +197,10 @@ set(CMAKE_REQUIRED_LIBRARIES "")
 set(CMAKE_REQUIRED_DEFINITIONS "_BSD_SOURCE")
 check_symbol_exists(flsll "string.h" HAVE_FLSLL)
 set(CMAKE_REQUIRED_DEFINITIONS)
+# png_set_cICPはlibpng 1.6.45で追加された。Ubuntu 24.04(GitHub Actionsのubuntu-latest)の1.6.43には無い
+set(CMAKE_REQUIRED_LIBRARIES PNG::PNG)
+check_symbol_exists(png_set_cICP "png.h" HAVE_PNG_SET_CICP)
+set(CMAKE_REQUIRED_LIBRARIES "")
 
 include(CheckCXXSourceRuns)
 

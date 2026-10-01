@@ -532,8 +532,10 @@ target_link_libraries(main
                      )
 target_compile_options(main PRIVATE)
 
-add_executable(make_hdr_png make_hdr_png.c)
-target_link_libraries(make_hdr_png PRIVATE PNG::PNG)
+if(HAVE_PNG_SET_CICP)
+    add_executable(make_hdr_png make_hdr_png.c)
+    target_link_libraries(make_hdr_png PRIVATE PNG::PNG)
+endif()
 
 add_executable(mandelbrot mandelbrot.c pngreadwrite.c)
 target_link_libraries(mandelbrot PRIVATE m PNG::PNG)
