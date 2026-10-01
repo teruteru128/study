@@ -72,11 +72,12 @@ $ openssl pkey -in ~/.local/share/kernel-keys/MOK.priv -pubout -outform DER | sh
 
 ### バックアップ
 
-外付けHDDに `避難所/MOK.priv.gpg` としてGPG(共通鍵、AES256)で暗号化した
-ものを置いてある。復元は次のとおり。
+外付けHDD(ラベル `HD-NRLD-A`)に `避難所/MOK.priv.gpg` としてGPG(共通鍵、AES256)で
+暗号化したものを置いてある。復元は次のとおり(HDDのマウント先は環境によって
+変わるので、ラベルから探す)。
 
 ```bash
-gpg -d /media/teruteru/HD-NRLD-A/避難所/MOK.priv.gpg \
+gpg -d "$(findmnt -rno TARGET -S LABEL=HD-NRLD-A)/避難所/MOK.priv.gpg" \
   > ~/.local/share/kernel-keys/MOK.priv
 chmod 600 ~/.local/share/kernel-keys/MOK.priv
 ```
