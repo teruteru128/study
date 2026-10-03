@@ -721,6 +721,31 @@ add_library(bmhash16 SHARED rmd160_avx512.c sha512_avx512.c)
 target_compile_options(bmhash16 PRIVATE -mavx512f -O3)
 set_target_properties(bmhash16 PROPERTIES version 1.0.0 SOVERSION 1)
 
+# mr2fs: FLINT fft_small(AVX2)による底2のMiller-Rabin。素数探索(java/prime-search)から呼ぶ。
+# 2,097,152bitの判定でGMPのmpz_probab_prime_pの約2倍速い。
+# FLINTは必ず ./configure --enable-avx2 付きでビルドしたものを使うこと。付け忘れると
+# fft_smallがAVX2を使わず、約3割遅くなる(動作と結果は変わらないので気づきにくい)。
+# 見つからなければこのターゲットは作らない。
+set(FLINT_ROOT "/usr/local/flint-3.4.0" CACHE PATH "AVX2有効でビルドしたFLINTのprefix")
+if(EXISTS "${FLINT_ROOT}/include/flint/fft_small.h")
+    add_library(mr2fs SHARED mr2fs.c)
+    target_include_directories(mr2fs PRIVATE ${FLINT_ROOT}/include)
+    target_compile_options(mr2fs PRIVATE -mavx2 -mfma -O3)
+    target_link_directories(mr2fs PRIVATE ${FLINT_ROOT}/lib)
+    target_link_libraries(mr2fs PRIVATE flint PkgConfig::GMP Threads::Threads)
+    set_target_properties(mr2fs PROPERTIES VERSION 1.0.0 SOVERSION 1
+        BUILD_RPATH "${FLINT_ROOT}/lib" INSTALL_RPATH "${FLINT_ROOT}/lib")
+
+    add_executable(mr2fs_test mr2fs_test.c)
+    target_link_libraries(mr2fs_test PRIVATE mr2fs PkgConfig::GMP)
+
+    # 本番サイズ(2Mbit)の残余をmpz_powmと丸ごと比較する検証用。数時間かかる
+    add_executable(mr2fs_full mr2fs_full.c)
+    target_link_libraries(mr2fs_full PRIVATE mr2fs PkgConfig::GMP)
+else()
+    message(STATUS "mr2fs: ${FLINT_ROOT} にAVX2版FLINTが無いためスキップ")
+endif()
+
 add_executable(pngconcat pngconcat.c)
 target_link_libraries(pngconcat m)
 
