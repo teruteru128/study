@@ -10,7 +10,7 @@
 - 既知素数篩(2.7×10^11まで)で候補を約4%まで削り込み済み。**DBは自宅のPostgres**(`jdbc:postgresql://127.0.0.1:5432/primesearch`、接続情報は`java/run-prime-search.sh`にある)。リポジトリ直下の`candidates.sqlite3`は移行前の遺物で、現在は使われていない
 - 進捗(2026-09-20時点): 候補572,165件のうち**判定済み911件、素数はまだ0件**。1日あたり約20件。2つの偶数は`candidates`テーブルの`id`列で区別する(`id=251103173751557352`が037c1901、`id=5318918530104379150`が49d09838)
 - **1本の素数を見つけるのに期待値で約31,000件**の判定が要る計算(2Mbit奇数が素数である確率2/ln(N)=1/726,818を、篩の残存率4.3%で割ったもの)。1日20件なので**1台だと1本あたり約4.3年、RSAに必要な2本で8〜9年**。2026-10-01から2台で1本ずつ並行して探している。実測の速さ(下の「計算資源」)で計算し直すと、1本あたりの期待値は2台目(037c1901)が約2.5年、1台目(49d09838)が約3.2年。ただし1台目でECMなどを並行して動かしていると約4.4年に延びる。候補プール自体は各偶数に28.5万件あり、期待値では1つの偶数あたり9本前後の素数が埋まっているので枯渇の心配は無い
-- 残った候補をGMPの`mpz_probab_prime_p`(BPSW)でMiller-Rabin判定中。1件あたり実測で約7〜15時間かかる、非常に重い探索
+- 残った候補をMiller-Rabin判定中。GMP単独(`mpz_probab_prime_p`のBPSW)だと1件あたり実測で約7〜15時間かかる、非常に重い探索。**2026-10-02から、底2の判定はFLINT `fft_small`経由の`mr2fs`で行い、GMP単独の約2倍速い**(下の「mr2fs高速経路」)
 - **systemdのuserサービスとして、2台で無人稼働中**(2026-10-01〜)。各マシンで`systemctl --user status prime-search.target 'prime-search@*'`を実行すると状態を確認できる。ログは`journalctl --user -u prime-search@<UUID接頭辞>.service`で見る
   - **このマシン(1台目)は`49d09838`専任(8スレッド)。** ここの`prime-search@037c1901.service`は意図的にmaskedにしてある。1台で2本同時に動かすのは無理だった。maskedを見て「止まっている、直さなきゃ」と勝手に起動しないこと
   - **`037c1901`は2台目のミニPCが専任で担当(8スレッド)。** ホスト名とアドレスは`CLAUDE.local.md`に書いてある。2台目にはリポジトリを置いていない。`~/prime-search/`に、installDistの成果物(`install/`)、偶数ファイル、2台目専用の`run-prime-search.sh`を置いている。DBへは1台目のPostgresにLAN経由で直接つなぐ(`sslmode=require`)。Tailscaleは使っていない
@@ -43,9 +43,22 @@
 - 複数マシンの二重着手を防ぐため、候補行のアトミックなclaim(`--stale-hours`オプション、既定24h)を`PrimeSearchTask2`に実装済み
 - **完了済み**(2026-09-20に実機で確認): 自宅Postgresサーバー導入、`candidates.sqlite3`からのデータ移行(572,165件がPostgresに入っている)、`run-prime-search.sh`のPostgres/新launcherへの切り替え、Tailscale接続設定(このマシンが参加済み。ノード名とアドレスは`CLAUDE.local.md`)
 - **未着手**: GCEインスタンスの実際の構築。`gcloud`コマンドすら入っていない。Tailscaleに参加しているノードもこのマシン1台だけ
-- **効くのは台数だけ。** 1件9.5時間という処理速度はほぼ限界で(2Mbitの冪剰余は約200万回の2Mbit二乗算。FFT乗算を使っても理論上10時間前後)、GMPを速くする余地はほとんど無い
+- **GMPの内部を速くする余地はほとんど無い(これは今も正しい)。** 1件9.5時間という速度は、GMPのSSA-FFTを使う限りほぼ限界(2Mbitの冪剰余は約200万回の2Mbit二乗算)。**ただし乗算そのものをFLINT `fft_small`に替えれば約2倍になる。** 2026-10-02に確認した(下の「mr2fs高速経路」)。「理論上10時間前後」という見積もりはGMPのFFT前提だった
 - **SMTはほとんど効かない(実測)。** 2Mbitの`mpn_sqr`は物理コア数までは劣化ゼロでスケールするが、そこを超えると1.68倍遅くなる。8スレッドの実効は4.76コア相当で、4スレッドに対して19%しか増えない。**vCPU数を性能と読んではいけない**(`c3-standard-88`の88vCPUは約52コア相当)
 - 詳細は自動メモリ`gce_postgres_scaleout_plan.md`
+
+### mr2fs高速経路(2026-10-02〜)
+
+2,097,152bitの底2のMiller-Rabinを、GMPの`mpn_sqr`+`mpn_redc_n`の代わりに、FLINT 3.4.0の`fft_small`(`mpn_ctx_mpn_mul`)とMontgomery法で行うC実装(`src/mr2fs.c`)。Javaからは`java/prime-search`の`Mr2fs`クラスがFFMで呼ぶ。
+
+- **効果(実測)**: 1ステップ(二乗+剰余)は、GMPの約10.2msに対して、1スレッドで5.12ms、8スレッド同時で5.84ms。1件あたりでは、本番サイズ(32,768リム、指数全ビット)で`mr2fs` 11,031秒対GMP 23,021秒(約2.1倍)。**残余はmpz_powmとビット単位で一致を確認済み**(`mr2fs_full`)
+- **使い方**: `PrimeSearchTask2`は、`Mr2fs.strongBase2`が0(合成数)ならそこで確定し、通った候補(約1/3万)と使えない場合だけGMPのBPSWに任せる。素数の確認は常にGMPなので、結果の意味は変わらない。ライブラリは`-Dcom.github.teruteru.mr2fs.library=<.soの絶対パス>`で渡す(`java/run-prime-search.sh`が`build-Release/src/libmr2fs.so.1.0.0`を渡す)。見つからなければGMP単独に自動で落ちるので壊れはしない。**起動ログの「mr2fs高速経路: 有効」を必ず確認すること**
+- **FLINTは必ず`./configure --enable-avx2`付きでビルドする。** 付け忘れると`fft_small`がAVX2を使わず約3割遅い(動作と結果は同じなので気づきにくい)。`/usr/local/flint-3.4.0`が現在AVX2版(`cm-0.4.4`もこれを使うので、入れ替えるときは`cm`の動作も確認すること)。`--enable-avx512`は無効(3.4.0の`fft_small`にAVX-512の経路が無く、速度は同じ)
+- **`MALLOC_TOP_PAD_=268435456`をsystemdのユニット(`~/.config/systemd/user/prime-search@.service`の`[Service]`、リポジトリ外)に設定済み。** GMPのFFTが1ステップごとに大きな一時領域をmalloc/freeし、glibcがそのたびにヒープを縮めてページフォルトを起こしていた。GMP経路で約7〜8%速くなる(1スレッド10.23→9.53ms、8スレッド11.05→10.16ms)。`MALLOC_MMAP_THRESHOLD_`や`MALLOC_TRIM_THRESHOLD_`を**単独で**設定すると、glibcの動的調整が切れてかえって約10%遅くなるので、`TOP_PAD`だけにすること。`mr2fs`経路には効かない(`fft_small`が内部バッファを使い回すため)。2台目にも同じ設定が要る
+- **2台目への展開は、タスクの切れ目に手動で行う**: `libmr2fs.so`、`/usr/local/flint-3.4.0`(AVX2版)、2台目の`run-prime-search.sh`への`JAVA_OPTS`の1行、ユニットへの`Environment=`
+- **スレッドごとに`mpn_ctx`を持つ**(RSSは1スレッド約11MB、8スレッドで約58MB)。長時間の連続実行で劣化しないことは、1件ぶんの突き合わせで確認済み
+- 次の伸びしろ(未着手): 剰余の`q = lo(T)*ip`が下位半分しか要らないのに全長乗算をしている点と、定数側(`ip`、`m`)のFFT変換の再利用。`fft_small`の内部関数を直接呼ぶ必要がある
+- 詳細は`src/mr2fs.c`冒頭のコメントと、`src/mr2fs_test.c`、`src/mr2fs_full.c`
 
 ## 進行中のプロジェクト: bitmessageアドレス探索(2026-09-19〜)
 
