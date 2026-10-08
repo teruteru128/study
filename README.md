@@ -185,7 +185,7 @@ openssl x509 -inform DER -in MOK.der -noout -fingerprint -sha256
 - 非線形三項間漸化式のテスト。
 - TCPサーバーを作ろうとした残骸
   - p2p地震情報
-  - bitmessage
+  - bitmessage→[完成しました](https://github.com/teruteru128/bitmessage)
 - unix signalのテスト。
 - stdoutとstderrに書き込むユーティリティシェルスクリプト。
 - 可変長文字列リスト/配列を作ろうとした残骸。
