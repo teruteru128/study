@@ -323,11 +323,11 @@ void print_usage(const char *prog) {
     printf("  --key <ファイル>   RSA鍵ファイルからビット長を自動取得します (公開鍵/秘密鍵、SPKI/PKCS#1)。\n");
     printf("  --inform <auto|pem|der> 鍵ファイルの形式を指定します (デフォルト: auto)。\n\n");
     printf("PSSパラメータ (opensslの pkeyutl のオプションに対応):\n");
-    printf("  --hash <名前>      メッセージ/Hのハッシュ (デフォルト: %s)。 [digest]\n", DEFAULT_HASH);
-    printf("  --mgf1-hash <名前> MGF1のハッシュ (デフォルト: --hash と同じ)。 [rsa_mgf1_md]\n");
+    printf("  --pss-hash <名前>  PSSのハッシュ。mHash と H = Hash(M') に使う (デフォルト: %s)。 [digest]\n", DEFAULT_HASH);
+    printf("  --mgf1-hash <名前> MGF1のハッシュ (デフォルト: --pss-hash と同じ)。 [rsa_mgf1_md]\n");
     printf("  --saltlen <値>     salt長。数値 | digest(ダイジェスト長、デフォルト) | max |\n");
     printf("                     auto(verify専用: EMから検出)。 [rsa_pss_saltlen]\n");
-    printf("  --prehashed        入力をメッセージではなく、--hash で計算済みのダイジェスト\n");
+    printf("  --prehashed        入力をメッセージではなく、--pss-hash で計算済みのダイジェスト\n");
     printf("                     (バイナリ)として扱います。長さがダイジェスト長と一致する必要があります。\n\n");
     printf("※ ファイルパスに '-' を指定すると標準入出力になります。\n");
     printf("終了コード: 0=成功, 1=引数/入出力エラー, 2=verify失敗\n");
@@ -371,7 +371,7 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "エラー: --inform は 'auto' 'pem' 'der' のいずれかを指定してください。\n");
                 return 1;
             }
-        } else if (strcmp(argv[i], "--hash") == 0 && has_val) {
+        } else if ((strcmp(argv[i], "--pss-hash") == 0 || strcmp(argv[i], "--hash") == 0) && has_val) {
             hash_name = argv[++i];
         } else if (strcmp(argv[i], "--mgf1-hash") == 0 && has_val) {
             mgf1_name = argv[++i];
