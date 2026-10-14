@@ -197,15 +197,9 @@ int emsa_pss_encode(const unsigned char *m_hash, const EVP_MD *md, unsigned char
     }
 
     // 6. 最上位ビットのクリア
-    // emsa_pss_encode / verify 内の「6. 最上位ビットのクリア」部分
-    // emBits = key_bits - 1 に合わせて、先頭バイトの余剰ビットを確実に0にする
+    // emBits = key_bits - 1 に合わせて、先頭バイトの余剰ビット (8*emLen - emBits 個) を確実に0にする
     size_t em_bits = key_bits - 1;
-    if (em_bits % 8 != 0) {
-        em[0] &= (0xFF >> (8 - (em_bits % 8)));
-    } else {
-        // 1024bit鍵の場合、emBitsは1023bitになり、1023 % 8 == 7 となるため
-        // 自動的に em[0] &= 0x7F となり、最上位ビットが正しくクリアされます。
-    }
+    em[0] &= 0xFF >> (8 * em_len - em_bits);
 
     // 7. 最終識別子のセット
     em[em_len - 1] = 0xBC;
@@ -218,18 +212,15 @@ int emsa_pss_encode(const unsigned char *m_hash, const EVP_MD *md, unsigned char
 // EMSA-PSS 検証用デコード (署名検証時)
 int emsa_pss_verify(const unsigned char *m_hash, const unsigned char *em, const EVP_MD *md, size_t em_len, int key_bits) {
     size_t h_len = EVP_MD_size(md);
-    size_t db_len = em_len - h_len - 1;
 
     // 基準チェック
     if (em_len < h_len + SALT_LEN + 2 || em[em_len - 1] != 0xBC) return -1;
-    
-    // 最上位ビットチェック
-    if (key_bits % 8 != 0) {
-        unsigned char mask = (unsigned char)(0xFF << (key_bits % 8));
-        if ((em[0] & mask) != 0) return -1;
-    } else {
-        if ((em[0] & 0x80) != 0) return -1;
-    }
+    size_t db_len = em_len - h_len - 1;
+
+    // 最上位の余剰ビットチェック (encodeと同じく emBits = key_bits - 1 から求める)
+    size_t em_bits = key_bits - 1;
+    unsigned char top_mask = 0xFF >> (8 * em_len - em_bits);
+    if ((em[0] & ~top_mask) != 0) return -1;
 
     // 1. maskedDB と H の抽出
     const unsigned char *masked_db = em;
@@ -247,12 +238,8 @@ int emsa_pss_verify(const unsigned char *m_hash, const unsigned char *em, const 
         db[i] = masked_db[i] ^ db_mask[i];
     }
     
-    // エンコード時と同様のマスク解除
-    if (key_bits % 8 != 0) {
-        db[0] &= (0xFF >> (8 - (key_bits % 8)));
-    } else {
-        db[0] &= 0x7F;
-    }
+    // エンコード時と同様に、最上位の余剰ビットを落とす
+    db[0] &= top_mask;
 
     // 4. パディングの正当性検証 (PS || 0x01)
     size_t ps_len = db_len - SALT_LEN - 1;
