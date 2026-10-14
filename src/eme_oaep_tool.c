@@ -295,7 +295,7 @@ static void print_usage(const char *prog)
     printf("  encode: 平文 -> EM (鍵長と同じ長さ k バイト)。RSA演算は含まない。\n");
     printf("  decode: EM -> 平文。EMが k バイトより短い場合は先頭を0x00で埋める\n");
     printf("          (rsa-calc の出力は先頭の0x00が落ちているため)。\n\n");
-    printf("仕上がり長さ (どちらか必須。RSA法の長さから k = ceil(bits/8) を求める):\n");
+    printf("鍵長 (どちらか必須。EMの長さは k = ceil(bits/8) バイトになる):\n");
     printf("  --bits <数値>        鍵のビット長を直接指定します (例: 2048, 2097152)。\n");
     printf("  --key <ファイル>     RSA鍵ファイルからビット長を自動取得します (公開鍵/秘密鍵、SPKI/PKCS#1)。\n");
     printf("  --inform <auto|pem|der> 鍵ファイルの形式 (デフォルト: auto)。\n\n");
