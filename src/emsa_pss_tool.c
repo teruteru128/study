@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <errno.h>
 #include <openssl/evp.h>
-#include <openssl/pem.h>
+#include <openssl/decoder.h>
 #include <openssl/rand.h>
 
 #ifdef _WIN32
@@ -108,45 +108,29 @@ void save_output(const char* filepath, const unsigned char* data, size_t len) {
     else fflush(stdout);
 }
 
-// 鍵ファイルからビット長を検出する関数
+// 鍵ファイル(PEM/DER、公開鍵/秘密鍵、SPKI/PKCS#1)からモジュラスのビット長を得る
 int get_key_bits(const char *key_path, const char *inform) {
-    FILE *fp = fopen(key_path, "rb");
-    if (!fp) {
-        perror("鍵ファイルを開けませんでした");
-        return -1;
-    }
+    size_t len = 0;
+    unsigned char *buf = load_input(key_path, &len);
+    if (!buf) return -1;
 
     EVP_PKEY *pkey = NULL;
-    if (strcmp(inform, "pem") == 0) {
-        // PEM形式で公開鍵・秘密鍵の双方から試行して読み込む
-        pkey = PEM_read_PUBKEY(fp, NULL, NULL, NULL);
-        if (!pkey) {
-            fseek(fp, 0, SEEK_SET);
-            pkey = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
-        }
-    } else if (strcmp(inform, "der") == 0) {
-        // DER形式の読み込み
-        size_t len = 0;
-        unsigned char *buf = load_input(key_path, &len);
-        if (buf) {
-            const unsigned char *p = buf;
-            pkey = d2i_PUBKEY(NULL, &p, len);
-            if (!pkey) {
-                p = buf;
-                pkey = d2i_AutoPrivateKey(NULL, &p, len);
-            }
-            free(buf);
-        }
-    }
+    // 入力形式をNULLにするとPEM/DERを自動判別する。selection=0は公開鍵・秘密鍵どちらも許す
+    OSSL_DECODER_CTX *dctx = OSSL_DECODER_CTX_new_for_pkey(
+        &pkey, strcmp(inform, "auto") == 0 ? NULL : (strcmp(inform, "pem") == 0 ? "PEM" : "DER"),
+        NULL, "RSA", 0, NULL, NULL);
+    const unsigned char *p = buf;
+    size_t remaining = len;
+    int ok = dctx && OSSL_DECODER_from_data(dctx, &p, &remaining);
+    OSSL_DECODER_CTX_free(dctx);
+    free(buf);
 
-    fclose(fp);
-
-    if (!pkey) {
+    if (!ok || !pkey) {
         fprintf(stderr, "エラー: 鍵ファイルの解析に失敗しました。形式 (--inform) が正しいか確認してください。\n");
+        EVP_PKEY_free(pkey);
         return -1;
     }
-
-    int bits = EVP_PKEY_bits(pkey);
+    int bits = EVP_PKEY_get_bits(pkey);
     EVP_PKEY_free(pkey);
     return bits;
 }
@@ -336,8 +320,8 @@ void print_usage(const char *prog) {
     printf("          (rsa-calc の出力は先頭の0x00が落ちているため)。\n\n");
     printf("鍵長 (どちらか必須。emBits = ビット長 - 1 からEMの長さを求める):\n");
     printf("  --bits <数値>      鍵のビット長を直接指定します (例: 2048, 2097152)。\n");
-    printf("  --key <ファイル>   RSA鍵ファイルからビット長を自動取得します。\n");
-    printf("  --inform <pem|der> 鍵ファイルの読み込み形式を指定します (デフォルト: pem)。\n\n");
+    printf("  --key <ファイル>   RSA鍵ファイルからビット長を自動取得します (公開鍵/秘密鍵、SPKI/PKCS#1)。\n");
+    printf("  --inform <auto|pem|der> 鍵ファイルの形式を指定します (デフォルト: auto)。\n\n");
     printf("PSSパラメータ (opensslの pkeyutl のオプションに対応):\n");
     printf("  --hash <名前>      メッセージ/Hのハッシュ (デフォルト: %s)。 [digest]\n", DEFAULT_HASH);
     printf("  --mgf1-hash <名前> MGF1のハッシュ (デフォルト: --hash と同じ)。 [rsa_mgf1_md]\n");
@@ -365,7 +349,7 @@ int main(int argc, char *argv[]) {
 
     int key_bits = 0;
     char *key_path = NULL;
-    char *inform = "pem";
+    char *inform = "auto";
     const char *hash_name = DEFAULT_HASH;
     const char *mgf1_name = NULL;
     int salt_len = SALT_DIGEST;
@@ -383,8 +367,8 @@ int main(int argc, char *argv[]) {
             key_path = argv[++i];
         } else if (strcmp(argv[i], "--inform") == 0 && has_val) {
             inform = argv[++i];
-            if (strcmp(inform, "pem") != 0 && strcmp(inform, "der") != 0) {
-                fprintf(stderr, "エラー: --inform は 'pem' または 'der' を指定してください。\n");
+            if (strcmp(inform, "pem") != 0 && strcmp(inform, "der") != 0 && strcmp(inform, "auto") != 0) {
+                fprintf(stderr, "エラー: --inform は 'auto' 'pem' 'der' のいずれかを指定してください。\n");
                 return 1;
             }
         } else if (strcmp(argv[i], "--hash") == 0 && has_val) {
@@ -430,7 +414,7 @@ int main(int argc, char *argv[]) {
         if (key_bits < 0) {
             return 1; // 鍵読み込みエラー
         }
-        fprintf(stderr, "鍵情報: %s 形式より %d bits として検出しました。\n", inform, key_bits);
+        fprintf(stderr, "鍵情報: %d bits として検出しました。\n", key_bits);
     }
 
     if (key_bits <= 0) {
