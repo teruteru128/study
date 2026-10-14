@@ -729,7 +729,7 @@ set_target_properties(bmhash16 PROPERTIES version 1.0.0 SOVERSION 1)
 # FLINTは必ず ./configure --enable-avx2 付きでビルドしたものを使うこと。付け忘れると
 # fft_smallがAVX2を使わず、約3割遅くなる(動作と結果は変わらないので気づきにくい)。
 # 見つからなければこのターゲットは作らない。
-set(FLINT_ROOT "/usr/local/flint-3.4.0" CACHE PATH "AVX2有効でビルドしたFLINTのprefix")
+set(FLINT_ROOT "/usr/local" CACHE PATH "AVX2有効でビルドしたFLINTのprefix")
 if(EXISTS "${FLINT_ROOT}/include/flint/fft_small.h")
     add_library(mr2fs SHARED mr2fs.c)
     target_include_directories(mr2fs PRIVATE ${FLINT_ROOT}/include)
