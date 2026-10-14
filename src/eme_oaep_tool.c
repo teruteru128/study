@@ -300,8 +300,8 @@ static void print_usage(const char *prog)
     printf("  --key <ファイル>     RSA鍵ファイルからビット長を自動取得します (公開鍵/秘密鍵、SPKI/PKCS#1)。\n");
     printf("  --inform <auto|pem|der> 鍵ファイルの形式 (デフォルト: auto)。\n\n");
     printf("OAEPパラメータ:\n");
-    printf("  --hash <名前>        OAEPのハッシュ (デフォルト: %s)。\n", DEFAULT_HASH);
-    printf("  --mgf1-hash <名前>   MGF1のハッシュ (デフォルト: --hash と同じ)。\n");
+    printf("  --oaep-hash <名前>   OAEPのハッシュ。ラベルのハッシュ lHash に使う (デフォルト: %s)。\n", DEFAULT_HASH);
+    printf("  --mgf1-hash <名前>   MGF1のハッシュ (デフォルト: --oaep-hash と同じ)。\n");
     printf("  --label <文字列>     ラベル (デフォルト: 空)。\n");
     printf("  --label-file <ファイル> ラベルをファイルから読む ('-' で標準入力)。--labelとは併用不可。\n\n");
     printf("※ ファイルパスに '-' を指定すると標準入出力になります。\n");
@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "エラー: --inform は 'auto' 'pem' 'der' のいずれかを指定してください。\n");
                 return 1;
             }
-        } else if (strcmp(argv[i], "--hash") == 0 && has_val) {
+        } else if ((strcmp(argv[i], "--oaep-hash") == 0 || strcmp(argv[i], "--hash") == 0) && has_val) {
             hash_name = argv[++i];
         } else if (strcmp(argv[i], "--mgf1-hash") == 0 && has_val) {
             mgf1_name = argv[++i];
