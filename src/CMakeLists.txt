@@ -289,6 +289,9 @@ add_executable(ecpp-script-generator ecpp-script-generator.c)
 add_executable(emsa-pss emsa_pss_tool.c)
 target_link_libraries(emsa-pss PRIVATE OpenSSL::Crypto)
 
+add_executable(eme-oaep eme_oaep_tool.c)
+target_link_libraries(eme-oaep PRIVATE OpenSSL::Crypto)
+
 add_executable(encodersa encodersa.c)
 target_link_libraries(encodersa PkgConfig::UUID OpenSSL::Crypto)
 target_include_directories(encodersa PRIVATE)
