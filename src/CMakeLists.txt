@@ -292,6 +292,13 @@ target_link_libraries(emsa-pss PRIVATE OpenSSL::Crypto)
 add_executable(eme-oaep eme_oaep_tool.c)
 target_link_libraries(eme-oaep PRIVATE OpenSSL::Crypto)
 
+# 篩の延長(2^38付近〜10^14の素数で E+step*2+1 を割る)。積の木+剰余の木で E mod p を求める。
+add_executable(esieve esieve.c)
+target_link_libraries(esieve PRIVATE PkgConfig::GMP OpenMP::OpenMP_C m)
+
+add_executable(esieve_bench esieve_bench.c)
+target_link_libraries(esieve_bench PRIVATE PkgConfig::GMP)
+
 add_executable(encodersa encodersa.c)
 target_link_libraries(encodersa PkgConfig::UUID OpenSSL::Crypto)
 target_include_directories(encodersa PRIVATE)
