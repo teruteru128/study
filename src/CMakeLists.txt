@@ -286,10 +286,10 @@ target_compile_definitions(eckeygentest PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" 
 
 add_executable(ecpp-script-generator ecpp-script-generator.c)
 
-add_executable(emsa-pss emsa_pss_tool.c)
+add_executable(emsa-pss emsa_pss_tool.c rsa_pad_util.c)
 target_link_libraries(emsa-pss PRIVATE OpenSSL::Crypto)
 
-add_executable(eme-oaep eme_oaep_tool.c)
+add_executable(eme-oaep eme_oaep_tool.c rsa_pad_util.c)
 target_link_libraries(eme-oaep PRIVATE OpenSSL::Crypto)
 
 # 篩の延長(2^38付近〜10^14の素数で E+step*2+1 を割る)。積の木+剰余の木で E mod p を求める。

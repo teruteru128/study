@@ -4,8 +4,10 @@
 #include <stdint.h>
 #include <errno.h>
 #include <openssl/evp.h>
-#include <openssl/decoder.h>
 #include <openssl/rand.h>
+#include <openssl/crypto.h>
+
+#include "rsa_pad_util.h"
 
 #ifdef _WIN32
 #include <fcntl.h>
@@ -24,116 +26,6 @@ typedef struct {
     const EVP_MD *mgf1_md;  // MGF1 に使うハッシュ
     int salt_len;           // 0以上の値 または SALT_*
 } pss_params;
-
-// MGF1 (Mask Generation Function 1) の実装
-int mgf1(const EVP_MD *md, const unsigned char *seed, size_t seed_len, unsigned char *mask, size_t mask_len) {
-    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-    if (!ctx) return -1;
-
-    size_t h_len = EVP_MD_get_size(md);
-    uint32_t counter = 0;
-    size_t out_len = 0;
-    unsigned char cnt_buf[4];
-    unsigned char h_buf[EVP_MAX_MD_SIZE];
-
-    while (out_len < mask_len) {
-        // カウンタをビッグエンディアンの4バイトに変換
-        cnt_buf[0] = (counter >> 24) & 0xFF;
-        cnt_buf[1] = (counter >> 16) & 0xFF;
-        cnt_buf[2] = (counter >> 8)  & 0xFF;
-        cnt_buf[3] = counter         & 0xFF;
-
-        if (!EVP_DigestInit_ex(ctx, md, NULL) ||
-            !EVP_DigestUpdate(ctx, seed, seed_len) ||
-            !EVP_DigestUpdate(ctx, cnt_buf, 4) ||
-            !EVP_DigestFinal_ex(ctx, h_buf, NULL)) {
-            EVP_MD_CTX_free(ctx);
-            return -1;
-        }
-
-        size_t to_copy = (mask_len - out_len < h_len) ? (mask_len - out_len) : h_len;
-        memcpy(mask + out_len, h_buf, to_copy);
-        out_len += to_copy;
-        counter++;
-    }
-
-    EVP_MD_CTX_free(ctx);
-    return 0;
-}
-
-// 汎用データ入力関数 (ファイル または stdin)
-unsigned char* load_input(const char* filepath, size_t* out_len) {
-    FILE* fp = stdin;
-    if (strcmp(filepath, "-") != 0) {
-        fp = fopen(filepath, "rb");
-        if (!fp) { perror("入力データを開けません"); return NULL; }
-    } else {
-#ifdef _WIN32
-        _setmode(_fileno(stdin), _O_BINARY);
-#endif
-    }
-
-    size_t capacity = 1024 * 1024; // 初期 1MB
-    unsigned char* buffer = malloc(capacity);
-    size_t total_len = 0;
-
-    size_t bytes_read;
-    while ((bytes_read = fread(buffer + total_len, 1, 4096, fp)) > 0) {
-        total_len += bytes_read;
-        if (total_len + 4096 > capacity) {
-            capacity *= 2;
-            buffer = realloc(buffer, capacity);
-        }
-    }
-
-    if (fp != stdin) fclose(fp);
-    *out_len = total_len;
-    return buffer;
-}
-
-// 汎用データ出力関数 (ファイル または stdout)
-void save_output(const char* filepath, const unsigned char* data, size_t len) {
-    FILE* fp = stdout;
-    if (strcmp(filepath, "-") != 0) {
-        fp = fopen(filepath, "wb");
-        if (!fp) { perror("出力ファイルを開けません"); exit(1); }
-    } else {
-#ifdef _WIN32
-        _setmode(_fileno(stdout), _O_BINARY);
-#endif
-    }
-
-    fwrite(data, 1, len, fp);
-    if (fp != stdout) fclose(fp);
-    else fflush(stdout);
-}
-
-// 鍵ファイル(PEM/DER、公開鍵/秘密鍵、SPKI/PKCS#1)からモジュラスのビット長を得る
-int get_key_bits(const char *key_path, const char *inform) {
-    size_t len = 0;
-    unsigned char *buf = load_input(key_path, &len);
-    if (!buf) return -1;
-
-    EVP_PKEY *pkey = NULL;
-    // 入力形式をNULLにするとPEM/DERを自動判別する。selection=0は公開鍵・秘密鍵どちらも許す
-    OSSL_DECODER_CTX *dctx = OSSL_DECODER_CTX_new_for_pkey(
-        &pkey, strcmp(inform, "auto") == 0 ? NULL : (strcmp(inform, "pem") == 0 ? "PEM" : "DER"),
-        NULL, "RSA", 0, NULL, NULL);
-    const unsigned char *p = buf;
-    size_t remaining = len;
-    int ok = dctx && OSSL_DECODER_from_data(dctx, &p, &remaining);
-    OSSL_DECODER_CTX_free(dctx);
-    free(buf);
-
-    if (!ok || !pkey) {
-        fprintf(stderr, "エラー: 鍵ファイルの解析に失敗しました。形式 (--inform) が正しいか確認してください。\n");
-        EVP_PKEY_free(pkey);
-        return -1;
-    }
-    int bits = EVP_PKEY_get_bits(pkey);
-    EVP_PKEY_free(pkey);
-    return bits;
-}
 
 // M' = (0x00)*8 || mHash || salt のハッシュを h に書く
 static int pss_hash_mprime(const EVP_MD *md, const unsigned char *m_hash, size_t h_len,
@@ -199,7 +91,7 @@ int emsa_pss_encode(const unsigned char *m_hash, const pss_params *pp, unsigned 
     if (salt_len) memcpy(db + ps_len + 1, salt, salt_len);
 
     // 4. dbMask = MGF1(H, emLen - hLen - 1)
-    if (mgf1(pp->mgf1_md, h, h_len, db_mask, db_len) < 0) {
+    if (rsapad_mgf1(pp->mgf1_md, h, h_len, db_mask, db_len) < 0) {
         free(salt); free(db); free(db_mask);
         return -1;
     }
@@ -244,7 +136,7 @@ int emsa_pss_verify(const unsigned char *m_hash, const unsigned char *em, const 
     unsigned char *db_mask = malloc(db_len);
     unsigned char *db = malloc(db_len);
     if (!db_mask || !db) { free(db_mask); free(db); return -1; }
-    if (mgf1(pp->mgf1_md, h, h_len, db_mask, db_len) < 0) {
+    if (rsapad_mgf1(pp->mgf1_md, h, h_len, db_mask, db_len) < 0) {
         free(db_mask); free(db); return -1;
     }
 
@@ -291,24 +183,6 @@ int emsa_pss_verify(const unsigned char *m_hash, const unsigned char *em, const 
     free(db_mask);
     free(db);
     return result;
-}
-
-static const EVP_MD *lookup_digest(const char *name) {
-    const EVP_MD *md = EVP_get_digestbyname(name);
-    if (!md || EVP_MD_get_size(md) <= 0 || (EVP_MD_get_flags(md) & EVP_MD_FLAG_XOF)) {
-        fprintf(stderr, "エラー: 使用できないハッシュ名です: %s (例: sha1, sha256, sha384, sha512, sha3-256)\n", name);
-        return NULL;
-    }
-    return md;
-}
-
-static int parse_int(const char *s, int min, int *out) {
-    char *end = NULL;
-    errno = 0;
-    long v = strtol(s, &end, 10);
-    if (errno || end == s || *end != '\0' || v < min || v > INT32_MAX) return -1;
-    *out = (int)v;
-    return 0;
 }
 
 void print_usage(const char *prog) {
@@ -359,7 +233,7 @@ int main(int argc, char *argv[]) {
     for (int i = 4; i < argc; i++) {
         int has_val = (i + 1 < argc);
         if (strcmp(argv[i], "--bits") == 0 && has_val) {
-            if (parse_int(argv[++i], 1, &key_bits) < 0) {
+            if (rsapad_parse_int(argv[++i], 1, &key_bits) < 0) {
                 fprintf(stderr, "エラー: --bits には正の整数を指定してください: %s\n", argv[i]);
                 return 1;
             }
@@ -380,7 +254,7 @@ int main(int argc, char *argv[]) {
             if (strcmp(v, "digest") == 0) salt_len = SALT_DIGEST;
             else if (strcmp(v, "max") == 0) salt_len = SALT_MAX;
             else if (strcmp(v, "auto") == 0) salt_len = SALT_AUTO;
-            else if (parse_int(v, 0, &salt_len) < 0) {
+            else if (rsapad_parse_int(v, 0, &salt_len) < 0) {
                 fprintf(stderr, "エラー: --saltlen には 0以上の整数 | digest | max | auto を指定してください: %s\n", v);
                 return 1;
             }
@@ -402,15 +276,15 @@ int main(int argc, char *argv[]) {
     }
 
     pss_params pp;
-    pp.md = lookup_digest(hash_name);
+    pp.md = rsapad_lookup_digest(hash_name);
     if (!pp.md) return 1;
-    pp.mgf1_md = mgf1_name ? lookup_digest(mgf1_name) : pp.md;
+    pp.mgf1_md = mgf1_name ? rsapad_lookup_digest(mgf1_name) : pp.md;
     if (!pp.mgf1_md) return 1;
     pp.salt_len = salt_len;
 
     // ビット数の決定
     if (key_path) {
-        key_bits = get_key_bits(key_path, inform);
+        key_bits = rsapad_get_key_bits(key_path, inform);
         if (key_bits < 0) {
             return 1; // 鍵読み込みエラー
         }
@@ -428,7 +302,7 @@ int main(int argc, char *argv[]) {
 
     // 1. 元メッセージのハッシュ化 (--prehashed のときは入力がそのままダイジェスト)
     size_t msg_len;
-    unsigned char *msg_bytes = load_input(msg_path, &msg_len);
+    unsigned char *msg_bytes = rsapad_load_input(msg_path, &msg_len);
     if (!msg_bytes) return 1;
 
     unsigned char m_hash[EVP_MAX_MD_SIZE];
@@ -457,14 +331,14 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "エンコード失敗\n");
             free(em); return 1;
         }
-        save_output(em_path, em, em_len);
+        int wrote = rsapad_save_output(em_path, em, em_len);
         free(em);
-        return 0;
+        return wrote < 0 ? 1 : 0;
     }
 
     // verify
     size_t loaded_em_len;
-    unsigned char *em_bytes = load_input(em_path, &loaded_em_len);
+    unsigned char *em_bytes = rsapad_load_input(em_path, &loaded_em_len);
     if (!em_bytes) return 1;
 
     // emLen を超える先頭の0x00は取り除き、足りない分は0x00で埋める (I2OSP)
