@@ -20,3 +20,11 @@ endif()
 add_executable(rsa_pad_mgf1_test rsa_pad_mgf1_test.c ${study_SOURCE_DIR}/src/rsa_pad_util.c)
 target_link_libraries(rsa_pad_mgf1_test PRIVATE OpenSSL::Crypto)
 add_test(NAME rsa_pad_mgf1_test COMMAND $<TARGET_FILE:rsa_pad_mgf1_test>)
+
+# esieve (篩の延長) と esieve-verify.py。偶数ファイルは人工的に作るので本番のデータは要らない
+find_program(PYTHON3_PROGRAM python3)
+if(PYTHON3_PROGRAM)
+    add_test(NAME esieve_test
+        COMMAND ${PYTHON3_PROGRAM} -I ${CMAKE_CURRENT_SOURCE_DIR}/esieve_test.py
+                --esieve $<TARGET_FILE:esieve> --verify ${study_SOURCE_DIR}/esieve-verify.py)
+endif()
