@@ -7,3 +7,11 @@ add_test(NAME test.sh COMMAND ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/test.s
 add_executable(ripemd160test ripemd160test.c ${study_SOURCE_DIR}/src/ripemd160.c ${study_SOURCE_DIR}/src/rmd160.c)
 target_link_libraries(ripemd160test cunit)
 add_test(NAME ripemd160test COMMAND $<TARGET_FILE:ripemd160test>)
+
+# eme-oaep / emsa-pss を OpenSSL と突き合わせる (OpenSSLのCLIとbashが要る)
+find_program(OPENSSL_PROGRAM openssl)
+if(OPENSSL_PROGRAM AND BASH_PROGRAM)
+    add_test(NAME rsa_pad_interop
+        COMMAND ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/rsa_pad_interop.sh
+                $<TARGET_FILE:eme-oaep> $<TARGET_FILE:emsa-pss> ${OPENSSL_PROGRAM})
+endif()
