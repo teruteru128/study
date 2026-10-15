@@ -15,3 +15,8 @@ if(OPENSSL_PROGRAM AND BASH_PROGRAM)
         COMMAND ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/rsa_pad_interop.sh
                 $<TARGET_FILE:eme-oaep> $<TARGET_FILE:emsa-pss> ${OPENSSL_PROGRAM})
 endif()
+
+# rsapad_mgf1 を、既知の値と OpenSSL の PKCS1_MGF1 (検算用) に突き合わせる
+add_executable(rsa_pad_mgf1_test rsa_pad_mgf1_test.c ${study_SOURCE_DIR}/src/rsa_pad_util.c)
+target_link_libraries(rsa_pad_mgf1_test PRIVATE OpenSSL::Crypto)
+add_test(NAME rsa_pad_mgf1_test COMMAND $<TARGET_FILE:rsa_pad_mgf1_test>)
