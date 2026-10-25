@@ -109,6 +109,18 @@ PFGW(`~/Documents/Projects/openpfgw-code`、SVN r715。gwnumは`~/Documents/Proj
 - 当たり件数と所要時間は、素数が大きくなるほど減る(1/p に比例)ので、最初のunitの値で全体を外挿してはいけない(2026-10-14に見積もりを誤った)
 - 詳細は`src/esieve.c`冒頭のコメント、`src/esieve_bench.c`、`esieve-apply.sh`、`esieve-verify.py`、自動メモリ`esieve_sieve_extension.md`
 
+## RSA終了後の予定(2026-10-25決定)
+
+49d09838の素数が見つかってRSAの素数探索が終わったら、次の順に進める。素数探索が終わるまでは、CPUを素数探索に回す(電源の制約でマシンを増やせないため)。
+
+1. **bitmessageの鍵探索を少し挟む**: 公開鍵ファイル1つ(16,777,216鍵)のA×A、2^48通りを最後まで回す(`addressSearch`、下の「bitmessageアドレス探索」)。思ったより早く終われば、2ファイルの総当り(`addressSearch2`)もやるかもしれない。全走査の見積もりは、素数探索と併走して約141日。素数探索が終わればCPUが空くので、もっと早くなるはず
+2. **その後にECPP**: factordbのPRP(数千〜1万桁程度)を、CMの`ecpp-mpi`(`/usr/local/bin`。FLINTを使う`cm-0.4.4`)で証明して証明書を作る作業の続き。スクリプトは`math-scripts/ecpp0.sh`・`ecpp1.sh`(`mpirun -np 8 ecpp-mpi -g -t -c -f <証明書> -n <式>`)、一括生成は`src/ecpp-script-generator.c`、factordbとのやりとりは`python/factordb-process.py`
+   - **factordb側に大規模改修が入ったので、`factordb-process.py`はほぼ書き直しになる見込み**。改修後のAPIは自動メモリ`factordb_v3_preview.md`
+   - RSAの2Mbitの素数(63万桁)をECPPで証明するわけではない(その大きさは現実的でない)
+3. **ECMは未定**: 「素数2本が見つかるまで凍結」だったが、凍結が解けても再開するかは決めていない。factordbではスコアとして数えられるが、証明書のような成果物にはならないので迷っている。勝手に再開を提案しないこと
+
+詳細は自動メモリ`post_rsa_plan.md`。
+
 ## 進行中のプロジェクト: bitmessageアドレス探索(2026-09-19〜)
 
 先頭に多くのゼロを持つripeのbitmessageアドレスを、既存の公開鍵ファイル群から総当たりで探す。
