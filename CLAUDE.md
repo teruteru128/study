@@ -12,7 +12,7 @@
   - 素数は`E + 2*step + 1`(`E`は偶数ファイルの16進値)。どちらもGMPのBPSWによる確率的素数で、素数性の証明はしていない
   - 49d09838の最終の内訳: PFGW/MRで合成数5,811件、`esieve`で除外46,827件(`composite=2`)、未判定233,827件
 - **見張り役(java-study `991cab87`)が本番で初めて動き、正しく止まった**: server01は、server02が素数を確定した3分半後(14:39:19)に「他のクライアントがstep 142841 で素数を見つけたので終了しました」とログに出して、終了コード0で止まった。両台の`prime-search@49d09838.service`はinactive(dead)
-  - `prime-search.target`は両台ともenabledのまま。再起動すると`prime-search@49d09838`が起動するが、起動時のDB確認で「既にstep 142841 で素数が見つかっています」となって探索せずに終わるはず。要らなければ`systemctl --user disable prime-search.target`
+  - **2026-11-03に、両台とも`prime-search.target`をstopしてdisableした。** 再起動しても立ち上がらない。もう一度動かすなら`systemctl --user enable --now prime-search.target`(`prime-search@.service`のユニットファイルは両台に残っている)
   - 止めた時点で判定中だった候補の、claimだけ残って結果の無い行が23件と、PFGWの作業ディレクトリ(`~/.local/state/prime-search/pfgw/`、server01に8個・約7MB、server02に7個・約8MB)が残っている。探索を再開しないなら害は無い
 - **RSA鍵**: `4194304bit-457ec20f-805a-4eb6-86f6-741354fdf24d-{priv,pub}.{pem,der}`(リポジトリ直下、`*.pem`などで`.gitignore`の対象。秘密鍵は権限600)。ユーザーがGMPの確定を待たずに、2026-11-02 17:32に作っていた。p(大きい方)が49d09838側、qが037c1901側、`e = 65537`、4,194,304bit。PEMはPKCS#8、DERはPKCS#1
   - 2026-11-03に検算した: {p,q}が2つの素数と一致、`n = pq`、`e·d ≡ 1 (mod λ(N))`、dp/dq/qinvの整合、公開鍵の4ファイルとの一致
