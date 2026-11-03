@@ -9,6 +9,7 @@
  * になる。実測でOpenSSLの約20倍。
  */
 #include "bmhash16.h"
+#include "bmhash16_internal.h"
 
 #include <immintrin.h>
 #include <string.h>
@@ -20,20 +21,11 @@ int rmd160_16way_available(void)
     return __builtin_cpu_supports("avx512f") != 0;
 }
 
-void rmd160_16way(const unsigned char *in, unsigned char *out)
+/* 本体。入力はレーン主体(X[j]のレーンiが、メッセージiのj番目の32bitワード(LE))。
+ * SHA-512から直接つなぐripe16()はこちらを呼ぶ */
+void rmd160_16way_lanes(const __m512i *in, unsigned char *out)
 {
     __m512i X[16];
-    /* レーン主体へ転置する。160ラウンドに対して誤差の範囲なのでスカラーで行う */
-    uint32_t transposed[16][16];
-    for (int i = 0; i < 16; i++)
-    {
-        uint32_t words[16];
-        memcpy(words, in + i * 64, 64);
-        for (int j = 0; j < 16; j++)
-        {
-            transposed[j][i] = words[j];
-        }
-    }
     __m512i h0 = _mm512_set1_epi32(0x67452301);
     __m512i h1 = _mm512_set1_epi32(0xEFCDAB89);
     __m512i h2 = _mm512_set1_epi32(0x98BADCFE);
@@ -46,7 +38,7 @@ void rmd160_16way(const unsigned char *in, unsigned char *out)
         {
             for (int j = 0; j < 16; j++)
             {
-                X[j] = _mm512_loadu_si512(transposed[j]);
+                X[j] = in[j];
             }
         }
         else
@@ -881,5 +873,26 @@ void rmd160_16way(const unsigned char *in, unsigned char *out)
         uint32_t words[5] = { o0[i], o1[i], o2[i], o3[i], o4[i] };
         memcpy(out + i * 20, words, 20);
     }
+}
+
+void rmd160_16way(const unsigned char *in, unsigned char *out)
+{
+    /* レーン主体へ転置する。160ラウンドに対して誤差の範囲なのでスカラーで行う */
+    uint32_t transposed[16][16];
+    for (int i = 0; i < 16; i++)
+    {
+        uint32_t words[16];
+        memcpy(words, in + i * 64, 64);
+        for (int j = 0; j < 16; j++)
+        {
+            transposed[j][i] = words[j];
+        }
+    }
+    __m512i X[16];
+    for (int j = 0; j < 16; j++)
+    {
+        X[j] = _mm512_loadu_si512(transposed[j]);
+    }
+    rmd160_16way_lanes(X, out);
 }
 

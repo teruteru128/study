@@ -49,6 +49,36 @@ void sha512_16way(const unsigned char *in, unsigned char *out);
 void sha512_16way_prefixed(const unsigned char *prefix, const unsigned char *suffixes,
                            unsigned char *out);
 
+/**
+ * ripe16() 用の、署名用公開鍵ごとの事前計算の結果。
+ * 中身は実装の都合で変わるので、直接読み書きしないこと。
+ */
+typedef struct ripe16_sign_ctx
+{
+    uint64_t opaque[17];
+} ripe16_sign_ctx;
+
+/** このCPUで ripe16() を呼べるか(AVX-512FとAVX-512BWが要る)。0なら呼んではならない。 */
+int ripe16_available(void);
+
+/**
+ * 署名用公開鍵を設定する。同じ鍵を使い続ける間は1回呼べばよい。
+ *
+ * @param ctx      書き込み先
+ * @param sign_key 署名用公開鍵65バイト
+ */
+void ripe16_set_sign_key(ripe16_sign_ctx *ctx, const unsigned char *sign_key);
+
+/**
+ * bitmessageのripe RIPEMD160(SHA512(署名用公開鍵 || 暗号化用公開鍵)) を16本まとめて計算する。
+ * sha512_16way_prefixed() + rmd160_16way() と同じ値を返すが、約1.4倍速い。
+ *
+ * @param ctx      ripe16_set_sign_key() で設定したもの
+ * @param enc_keys 暗号化用公開鍵65バイト×16。連続していること。この範囲の外は読まない
+ * @param out      16 * 20 バイトの書き込み先
+ */
+void ripe16(const ripe16_sign_ctx *ctx, const unsigned char *enc_keys, unsigned char *out);
+
 #ifdef __cplusplus
 }
 #endif
