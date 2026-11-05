@@ -1,6 +1,6 @@
 # study リポジトリの現状(2026-08-17作成、2026-11-03更新)
 
-`study`はREADME.mdが自称する通り雑多な個人リポジトリで、暗号プリミティブの未完成実装・i18nテスト・Minecraft関連ツールなど無関係な内容を多数含む。**長く主力だったRSA鍵向けの素数探索は、2026-11-03に2本とも見つかって終了した。** 2026-11-03からはbitmessageアドレス探索(A×A)を無人稼働中(下の「RSA終了後の予定」と「bitmessageアドレス探索」)。それ以外の大半は過去の実験や中断した作業。ただし「古い＝再利用不可」とは限らない。実装済みの暗号プリミティブやユーティリティが今後別タスクの土台として流用できる可能性はあるので、無関係と決めつけず、既存コードに使えるものがないか一応grep等で確認してから書き始めるとよい。確認範囲はこのリポジトリ本体だけでなく、gitサブモジュール(`libstudy`, `java`, `math-scripts`, `python`)配下も対象に含めること。サブモジュールは`git clone`直後は中身が空なので、`git submodule update --init --recursive`していないと存在に気づけない点に注意。
+`study`はREADME.mdが自称する通り雑多な個人リポジトリで、暗号プリミティブの未完成実装・i18nテスト・Minecraft関連ツールなど無関係な内容を多数含む。**長く主力だったRSA鍵向けの素数探索は、2026-11-03に2本とも見つかって終了した。** 2026-11-03からはbitmessageアドレス探索(A×A)を無人稼働中(2026-11-05からは2台で分担)(下の「RSA終了後の予定」と「bitmessageアドレス探索」)。それ以外の大半は過去の実験や中断した作業。ただし「古い＝再利用不可」とは限らない。実装済みの暗号プリミティブやユーティリティが今後別タスクの土台として流用できる可能性はあるので、無関係と決めつけず、既存コードに使えるものがないか一応grep等で確認してから書き始めるとよい。確認範囲はこのリポジトリ本体だけでなく、gitサブモジュール(`libstudy`, `java`, `math-scripts`, `python`)配下も対象に含めること。サブモジュールは`git clone`直後は中身が空なので、`git submodule update --init --recursive`していないと存在に気づけない点に注意。
 
 ## 終了したプロジェクト: 2,097,152bit RSA鍵向け素数探索(2026-11-03終了)
 
@@ -132,7 +132,7 @@ PFGW(`~/Documents/Projects/openpfgw-code`、SVN r715。gwnumは`~/Documents/Proj
 
 **2026-11-03にRSAの素数探索が終わったので、ここからはこの順に進める。** 素数探索が終わるまでは、CPUを素数探索に回していた(電源の制約でマシンを増やせないため)。**1は2026-11-03 15:54に始めた**(下の「稼働状況」)
 
-1. **bitmessageの鍵探索を少し挟む**: 公開鍵ファイル1つ(16,777,216鍵)のA×A、2^48通りを最後まで回す(`addressSearch`、下の「bitmessageアドレス探索」)。思ったより早く終われば、2ファイルの総当り(`addressSearch2`)もやるかもしれない。全走査の見積もりは、素数探索と併走して約141日だった。素数探索なしの16スレッドで、一体版`ripe16`を入れた後は**約47日**(2026-11-03の実測)
+1. **bitmessageの鍵探索を少し挟む**: 公開鍵ファイル1つ(16,777,216鍵)のA×A、2^48通りを最後まで回す(`addressSearch`、下の「bitmessageアドレス探索」)。思ったより早く終われば、2ファイルの総当り(`addressSearch2`)もやるかもしれない。全走査の見積もりは、素数探索と併走して約141日だった。素数探索なしの16スレッドで、一体版`ripe16`を入れた後は**約47日**(2026-11-03の実測)。**2026-11-05からserver02も使い、完了は11/24ごろの見込み**
 2. **その後にECPP**: factordbのPRP(数千〜1万桁程度)を、CMの`ecpp-mpi`(`/usr/local/bin`。FLINTを使う`cm-0.4.4`)で証明して証明書を作る作業の続き。スクリプトは`math-scripts/ecpp0.sh`・`ecpp1.sh`(`mpirun -np 8 ecpp-mpi -g -t -c -f <証明書> -n <式>`)、一括生成は`src/ecpp-script-generator.c`、factordbとのやりとりは`python/factordb-process.py`
    - **factordb側に大規模改修が入ったので、`factordb-process.py`はほぼ書き直しになる見込み**。改修後のAPIは自動メモリ`factordb_v3_preview.md`
    - RSAの2Mbitの素数(63万桁)をECPPで証明するわけではない(その大きさは現実的でない)
@@ -152,15 +152,27 @@ PFGW(`~/Documents/Projects/openpfgw-code`、SVN r715。gwnumは`~/Documents/Proj
 
 ### 稼働状況(2026-11-03〜)
 
-- **`publicKeys0.bin`のA×A(`addressSearch`)を、systemdのuserサービス`address-search.service`(enable済み)で無人稼働中。** 状態は`systemctl --user status address-search.service`、ログは`journalctl --user -u address-search.service`。起動は`java/run-address-search.sh`(`.gitignore`の対象でリポジトリには無い)。`Restart=on-failure`で、全走査を終えると終了コード0で止まる
-- **鍵ファイルは外付けHDDから`~/Documents/bm-keys/publicKeys0.bin`へコピーして使っている**(SHA-256はHDDの`SHA256SUM.txt`と一致を確認済み)。HDDはログインしないとマウントされないので、再起動後に無人で再開できるようにするため
-- 進捗は`java/addressSearch-progress-publicKeys0.bin.bin`(完了した署名鍵のビットマップ。64本(約15秒)ごとにアトミックに保存)。止めても、再起動すれば続きから再開する。先頭ゼロ45bit以上の当たりは`java/addressSearch-hits-publicKeys0.bin.txt`に追記される(全走査で十数本の期待値)
-- **速度(実測)**: 16スレッドで約6.96×10⁷組/秒、**全走査で約47日**。Tctl 92℃で熱に張り付いている
-  - **このワークロードではSMTが効く**: 8スレッド4.3×10⁷、16スレッド5.35×10⁷組/秒(約25%増、一体版を入れる前)。`AddressCalc`のコメントの「物理コア数を超えても速くならない」は当てはまらなかった。`run-address-search.sh`は共通プールの並列度15(+呼び出し元で16スレッド)。環境変数`ADDRESS_SEARCH_PARALLELISM`で変えられる
+- **`publicKeys0.bin`のA×Aを、server01とserver02の2台で分担して無人稼働中(2026-11-05 18:31〜)。** どちらもsystemdのuserサービス`address-search.service`(enable済み)で、コマンドは`addressSearchWorker`。状態は各マシンで`systemctl --user status address-search.service`、ログは`journalctl --user -u address-search.service`。`Restart=on-failure`で、全区間が終わると終了コード0で止まる
+- **分担の仕組み**: 署名鍵の区間(4096本)を素数探索と同じPostgres(DB `primesearch`、テーブル`address_search_files`・`address_search_units`・`address_search_hits`、接続は`~/.config/prime-search/db.env`)でclaimする。実装は`java/develop`の`AddressSearchCluster.java`。速いマシンほど多く取るので配分を決める必要が無い。時刻はDBの`now()`で揃える
+  - **進捗は区間単位**: 1区間はserver01で約945秒、server02で約735秒。止めると計算中の1区間を失い、再起動すれば自分のclaimを取り直して同じ区間からやり直す。他のマシンのclaimは2時間(`--stale-hours`)で期限切れになり、取り直せる。残りが他のマシンの計算中だけになると60秒ごとに確認して待つ
+  - **回線が切れても計算は止まらない**: DBへはclaimと完了の書き込みのときだけつなぐ。接続の失敗(SQLState 08系)は10秒〜10分の間隔で再試行し、完了の書き込みは何度やっても同じ結果になる。それ以外のSQLの誤りでは異常終了して、5分後に再起動する
+  - **DBのパスワードを入れ替えるとき**: `rotate-db-password.sh`の`WORKERS`には入れていない。ワーカーは次の接続で認証に失敗して異常終了し、5分後の再起動で新しい`db.env`を読むはず(失うのは最大1区間)。設計上の動きで、実際には試していない
+  - **当たり**: 先頭ゼロ45bit以上を`address_search_hits`と、見つけたマシンのローカルファイルの両方に記録する(全走査で約8本の期待値。2^48 ÷ 2^45)。ローカルファイルは`java/addressSearch-hits-publicKeys0.bin.txt`(server01)と`~/address-search/addressSearch-hits-publicKeys0.bin.txt`(server02)で、見つけた瞬間に書くので、やり直した区間の当たりは重複することがある。DBへは区間の完了と同じトランザクションで書く
+  - **進捗の確認**: `./psql-primesearch.sh -c "select coalesce(finished_by,'未完了'), count(*), sum(end_key-start_key) from address_search_units group by 1"`、当たりは`select * from address_search_hits`
+  - **鍵ファイルの照合**: 起動時にSHA-256をDBの登録と比べ、違えば異常終了する(別の内容で計算すると、当たりのオフセットが何の鍵か分からなくなるため)
+  - **別の鍵ファイルを分担するには**: `DB_URL`を渡して`addressSearchInit <鍵ファイル>`を1回実行してから、各マシンで`addressSearchWorker <鍵ファイル>`を動かす。区別はファイル名でするので、同名で別内容のファイルは登録できない。単独実行の`addressSearch`から移るときは、サービスを止めてから`--import-progress <進捗ファイル>`を渡せば、完了済みをやり直さない。`--min-zero-bits`の下限は16
+- **移行の記録(2026-11-05)**: 単独実行の進捗780,864本(25区間に分かれていた)を取り込み、残り15,996,352本を3,920区間に切った。**旧ビットマップ`java/addressSearch-progress-publicKeys0.bin.bin`は、これ以降更新されない。単独の`addressSearch`を同じファイルで動かすと、分担側と同じ鍵をやり直すので使わないこと**(`.bak-before-cluster`は移行時点のコピー)。`java/run-address-search.sh`(`.gitignore`の対象)は単独実行の版を`.bak-before-cluster`に残してある
+- **server01の鍵ファイル**: 外付けHDDから`~/Documents/bm-keys/publicKeys0.bin`へコピーして使っている(SHA-256はHDDの`SHA256SUM.txt`と一致を確認済み)。HDDはログインしないとマウントされないので、再起動後に無人で再開できるようにするため
+- **server02の配置**: `~/address-search/`に、`install/`(installDistの成果物)、`bm-keys/publicKeys0.bin`、`lib/libbmhash16.so`、`lib/libcrypto.so`、`run-address-search.sh`を置いている。公開鍵だけで、秘密鍵は置いていない。**server02にはlibssl-devが無く、OpenSSLのバインディングが開く`libcrypto.so`が無い。**システムには何も入れず、`libcrypto.so.3`へのシンボリックリンクを`lib/`に置いて`LD_LIBRARY_PATH`で渡している
+- **コードを変えたとき**: 先に**両台のサービスを止めて**から`./gradlew :develop:installDist`し、`rsync -a --delete develop/build/install/develop/ server02:address-search/install/`してから、両台で起動する。`libbmhash16.so`は`rsync -aL`で送る(シンボリックリンクなので、`-L`が無いと実体が送られない)
+- **速度(2026-11-05の実測)**: server01が約7.3×10⁷組/秒(Tctl 92℃、PPT約33W)、server02が約9.35×10⁷組/秒(Tctl 77℃、PPT約56W)、**2台で約1.66×10⁸組/秒。残り約18.7日、完了は2026-11-24ごろの見込み**(単独実行では残り約41.6日だった)。ログの「全台」の速度と残り推定は、計算中の区間を数えないので低めに出る。server02の消費電力は素数探索のときと同程度で、電源の制約を超えるものではない
+  - 並列ストリームから署名鍵を1本ずつ配る固定スレッドプールに替えたが、server02の1区間は733秒→735秒で効果は無かった(スレッドの速さが揃っていれば塊はほぼ同時に終わるため)。server01は1000秒→945秒だったが、対照のserver02が変わらないので、この変更の効果とは言えない
+- **単独実行のときの速度(実測)**: server01の16スレッドで約6.96〜7.46×10⁷組/秒。Tctl 92℃で熱に張り付いている
+  - **このワークロードではSMTが効く**: 8スレッド4.3×10⁷、16スレッド5.35×10⁷組/秒(約25%増、一体版を入れる前)。`AddressCalc`のコメントの「物理コア数を超えても速くならない」は当てはまらなかった。`run-address-search.sh`は共通プールの並列度15を渡し、ワーカーはそれに1を足した16スレッドで動く。環境変数`ADDRESS_SEARCH_PARALLELISM`で変えられる
   - **キャッシュを意識して鍵を小さく分割しても速くならない**: 暗号化鍵を1MB・8MB・1GBにしても差は1%。計算律速で、メモリの読み込みは帯域の1割未満
 - **一体版`ripe16`(2026-11-03)**: SHA-512とRIPEMD-160を1つの関数で計算する(`src/gen_sha512_avx512.py`の生成物。AVX-512BWが要る)。Java側は`BmHash16.ripe`で、`RipeCalculator`が使えれば自動で使う。**起動ログが「16レーン実装: 有効(SHA-512とRIPEMD-160の一体版)」であることを確認すること**。ライブラリ単体で16スレッド5.18×10⁷→7.44×10⁷組/秒(約1.44倍)。内訳は、入力の組み立てを1バイトずつのシフトからgather+`vpshufb`に替えたのが約+34%、署名鍵だけで決まるSHA-512の最初の8ラウンドの事前計算が約+3%、SHA-512の出力をレジスタのままRIPEMD-160へ渡すのが約+5%。RIPEMD-160はSHA-512の約1/5の重さしかない。詳細は`java/bmhash/README.md`
-  - `libbmhash16.so`を作り直すときは、先にサービスを止めること(稼働中のプロセスが読み込んでいる)。作り直したら`./gradlew :develop:installDist`してから`systemctl --user start address-search.service`
-- **素数探索とCPUを取り合っていた**(素数探索は2026-11-03に終了)。物理8コアしかないので、併走させると両方遅くなる。ECPPなど別の重い計算と併走させるときも同じ。`addressSearch2`には`--threads`オプションがある。`addressSearch`は並列ストリームなので`-Djava.util.concurrent.ForkJoinPool.common.parallelism=N`で絞る
+  - `libbmhash16.so`を作り直すときは、先にサービスを止めること(稼働中のプロセスが読み込んでいる)。作り直したら`./gradlew :develop:installDist`してから`systemctl --user start address-search.service`(2台の手順は上の「コードを変えたとき」)
+- **素数探索とCPUを取り合っていた**(素数探索は2026-11-03に終了)。物理8コアしかないので、併走させると両方遅くなる。ECPPなど別の重い計算と併走させるときも同じ。`addressSearch2`には`--threads`オプションがある。`addressSearch`と`addressSearchWorker`は`-Djava.util.concurrent.ForkJoinPool.common.parallelism=N`で絞る
 - 詳しい経緯は自動メモリ(`bmhash16-avx512.md`, `native-ripemd160-openssl.md`, `ec-batch-inversion.md`, `bitmessage-address-zero-stripping.md`, `vector-api-rmd160-experiment.md`, `measure-before-hypothesizing.md`, `address_search_run_2026_11.md`)を参照
 
 ### 既知の罠
