@@ -132,7 +132,7 @@ PFGW(`~/Documents/Projects/openpfgw-code`、SVN r715。gwnumは`~/Documents/Proj
 
 **2026-11-03にRSAの素数探索が終わったので、ここからはこの順に進める。** 素数探索が終わるまでは、CPUを素数探索に回していた(電源の制約でマシンを増やせないため)。**1は2026-11-03 15:54に始めた**(下の「稼働状況」)
 
-1. **bitmessageの鍵探索を少し挟む**: 公開鍵ファイル1つ(16,777,216鍵)のA×A、2^48通りを最後まで回す(`addressSearch`、下の「bitmessageアドレス探索」)。思ったより早く終われば、2ファイルの総当り(`addressSearch2`)もやるかもしれない。全走査の見積もりは、素数探索と併走して約141日だった。素数探索なしの16スレッドで、一体版`ripe16`を入れた後は**約47日**(2026-11-03の実測)。**2026-11-05からserver02も使い、完了は11/24ごろの見込み**
+1. **bitmessageの鍵探索を少し挟む**: 公開鍵ファイル1つ(16,777,216鍵)のA×A、2^48通りを最後まで回す(`addressSearch`、下の「bitmessageアドレス探索」)。**2ファイルの総当りは見送り(2026-11-06決定)**: やるならA×B・B×A・B×Bの全部で、2台でも約59日かかるため。A×Aが完了したら、結果をコメントに残してGitHubのissue #43を`not planned`で閉じる。全走査の見積もりは、素数探索と併走して約141日だった。素数探索なしの16スレッドで、一体版`ripe16`を入れた後は**約47日**(2026-11-03の実測)。**2026-11-05からserver02も使い、完了は11/24ごろの見込み**
 2. **その後にECPP**: factordbのPRP(数千〜1万桁程度)を、CMの`ecpp-mpi`(`/usr/local/bin`。FLINTを使う`cm-0.4.4`)で証明して証明書を作る作業の続き。スクリプトは`math-scripts/ecpp0.sh`・`ecpp1.sh`(`mpirun -np 8 ecpp-mpi -g -t -c -f <証明書> -n <式>`)、一括生成は`src/ecpp-script-generator.c`、factordbとのやりとりは`python/factordb-process.py`
    - **factordb側に大規模改修が入ったので、`factordb-process.py`はほぼ書き直しになる見込み**。改修後のAPIは自動メモリ`factordb_v3_preview.md`
    - RSAの2Mbitの素数(63万桁)をECPPで証明するわけではない(その大きさは現実的でない)
