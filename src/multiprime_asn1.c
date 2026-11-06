@@ -4,7 +4,7 @@
 #include <string.h>
 #include <gmp.h>
 
-#define MAX_PRIMES 70000
+#define MAX_PRIMES 300000
 
 // ASN.1の動的バッファ構造体
 typedef struct {
@@ -96,8 +96,8 @@ void wrap_sequence(Buffer *dest, Buffer *src) {
 // 鍵パラメータの計算とASN.1構造の組み立て
 void generate_rsa_der(mpz_t *primes, int count, mpz_t e, const char *output_filename) {
     mpz_t n, phi, d, tmp, current_mod;
-    mpz_t d_params[MAX_PRIMES];
-    mpz_t inv_params[MAX_PRIMES];
+    mpz_t *d_params = calloc(sizeof(mpz_t), MAX_PRIMES);
+    mpz_t *inv_params = calloc(sizeof(mpz_t), MAX_PRIMES);
 
     mpz_inits(n, phi, d, tmp, current_mod, NULL);
     mpz_set_ui(n, 1);
@@ -198,6 +198,8 @@ void generate_rsa_der(mpz_t *primes, int count, mpz_t e, const char *output_file
         mpz_clear(d_params[i]);
         mpz_clear(inv_params[i]);
     }
+    free(d_params);
+    free(inv_params);
 }
 
 int main(int argc, char *argv[]) {
