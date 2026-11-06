@@ -143,7 +143,7 @@ PFGW(`~/Documents/Projects/openpfgw-code`、SVN r715。gwnumは`~/Documents/Proj
 ## 進行中のプロジェクト: bitmessageアドレス探索(2026-09-19〜)
 
 先頭に多くのゼロを持つripeのbitmessageアドレスを、既存の公開鍵ファイル群から総当たりで探す。
-外付けHDD(ラベル`HD-NRLD-A`)の`避難所/keys/public/publicKeys{0..255}.bin`(各1,090,519,040バイト = 16,777,216鍵 × 65バイト)を使う。HDDのマウント先は環境によって変わる(udisks2の更新で`/media`配下から`/run/media`配下に移ったことがある)ので、パスを決め打ちせず`findmnt -rno TARGET -S LABEL=HD-NRLD-A`で調べること。
+外付けHDD(ラベル`HD-NRLD-A`)の`避難所/keys/public/publicKeys{0..3}.bin`(各1,090,519,040バイト = 16,777,216鍵 × 65バイト)を使う。**`publicKeys4`〜`255`は2026-11-06に削除した**(同じ番号の`private/privateKeysN.bin`から導出できる。秘密鍵は256本とも残してあり、NVMeの`/srv/backup/hdd/`にも複製がある。作り直した結果は残してある`public/SHA256SUM.txt`で照合できる)。このため`addressSearch4`はこのままでは全ファイルを回せず、`verify-keypairs.py`は既定で252本を「片方が存在しない」と報告する。HDDのマウント先は環境によって変わる(udisks2の更新で`/media`配下から`/run/media`配下に移ったことがある)ので、パスを決め打ちせず`findmnt -rno TARGET -S LABEL=HD-NRLD-A`で調べること。
 
 - コマンドは`java/develop`の`addressSearch`(A×A)、`addressSearch2`(2ファイル、8スレッド)、`addressSearch4`(1署名鍵×256ファイル)、`addressSearch5`(1024鍵ずつ、軽い)。**以前は3つとも起動できない状態だった**(picocliの配線漏れ)ので、動かないと思ったらまず`--help`で確認すること
 - ripe計算は`java/bmhash`モジュール経由で、`study`本体の`src/rmd160_avx512.c`・`src/sha512_avx512.c`(AVX-512の16レーン実装)を呼ぶ。ビルドは`cmake --build build-Release --target bmhash16`
