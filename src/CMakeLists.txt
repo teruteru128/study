@@ -299,7 +299,7 @@ target_link_libraries(esieve PRIVATE PkgConfig::GMP OpenMP::OpenMP_C m)
 add_executable(esieve_bench esieve_bench.c)
 target_link_libraries(esieve_bench PRIVATE PkgConfig::GMP)
 
-add_executable(encodersa encodersa.c)
+add_executable(encodersa encodersa.c secure_memzero.c)
 target_link_libraries(encodersa PkgConfig::UUID OpenSSL::Crypto)
 target_include_directories(encodersa PRIVATE)
 target_compile_definitions(encodersa PRIVATE PACKAGE="${CMAKE_PROJECT_NAME}" LOCALEDIR="${CMAKE_INSTALL_LOCALEDIR}")
@@ -308,7 +308,7 @@ add_executable(enginetest enginetest.c)
 target_link_libraries(enginetest OpenSSL::Crypto)
 target_include_directories(enginetest PRIVATE)
 
-add_executable(entropy_pool entropy_pool.c)
+add_executable(entropy_pool entropy_pool.c secure_memzero.c)
 target_link_libraries(entropy_pool PRIVATE OpenSSL::Crypto PkgConfig::GMP)
 
 add_executable(envgettest envgettest.c)
@@ -338,6 +338,9 @@ add_executable(execvesample execvesample.c)
 
 add_executable(export_bitsieve_multithreaded export_bitsieve_multithreaded.c bitsieve.c queue.c timeutil.c)
 target_link_libraries(export_bitsieve_multithreaded PkgConfig::GMP Threads::Threads)
+
+add_executable(exportprime exportprime.c)
+target_link_libraries(exportprime PRIVATE PkgConfig::GMP)
 
 add_executable(falcon falcon.c)
 target_link_libraries(falcon study)
@@ -578,6 +581,9 @@ add_executable(mkk mkk.c)
 add_executable(mpi-hello mpi-hello.c)
 target_link_libraries(mpi-hello PRIVATE MPI::MPI_C)
 
+add_executable(mul mul.c)
+target_link_libraries(mul PRIVATE PkgConfig::GMP)
+
 add_executable(multiprime_asn1 multiprime_asn1.c)
 target_link_libraries(multiprime_asn1 PRIVATE PkgConfig::GMP)
 
@@ -707,6 +713,9 @@ target_include_directories(passwordhashsample PRIVATE)
 add_executable(pbkdf2sample pbkdf2sample.c)
 target_link_libraries(pbkdf2sample OpenSSL::Crypto)
 target_include_directories(pbkdf2sample PRIVATE)
+
+add_executable(pcre2sample pcre2sample.c)
+target_link_libraries(pcre2sample PRIVATE PkgConfig::PCRE2_8)
 
 add_executable(pgpcrc24sample pgpcrc24sample.c)
 
@@ -867,6 +876,15 @@ target_compile_definitions(search_prime_multithreaded PRIVATE PACKAGE="${CMAKE_P
 add_executable(search_prime_via_bitsieve search_prime_via_bitsieve.c bitsieve.c timeutil.c)
 target_link_libraries(search_prime_via_bitsieve PkgConfig::GMP Threads::Threads)
 
+add_executable(searchpem searchpem.c)
+target_link_libraries(searchpem PRIVATE PkgConfig::GMP OpenSSL::Crypto)
+
+add_executable(searchsymmetricprimes searchsymmetricprimes.c)
+target_link_libraries(searchsymmetricprimes PRIVATE PkgConfig::GMP)
+
+add_executable(searchsymmetricprimes2 searchsymmetricprimes2.c)
+target_link_libraries(searchsymmetricprimes2 PRIVATE PkgConfig::GMP)
+
 add_executable(selfmadelibsha self-made-libsha.c)
 target_link_libraries(selfmadelibsha study)
 target_include_directories(selfmadelibsha PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
@@ -907,6 +925,9 @@ target_link_libraries(signalsample3 Threads::Threads)
 add_executable(slimesearch slimesearch.c timeutil.c)
 target_link_libraries(slimesearch m study)
 target_include_directories(slimesearch PRIVATE ${PROJECT_SOURCE_DIR}/libstudy/include)
+
+add_executable(smallprimegap smallprimegap.c)
+target_link_libraries(smallprimegap PRIVATE PkgConfig::GMP)
 
 add_executable(sntpc sntpc.c ntp.c)
 target_link_libraries(sntpc m study)
