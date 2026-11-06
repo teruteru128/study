@@ -6,16 +6,11 @@
 #include <gmp.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
+#include "secure_memzero.h"
 
 #define POOL_FILE "entropy_pool.bin"
 #define POOL_SIZE 64      // 512ビット (64バイト)
 #define OUTPUT_SIZE 32    // 256ビット (32バイト)
-
-// 安全にメモリをゼロクリアする関数
-void secure_memzero(void *v, size_t n) {
-    volatile unsigned char *p = (volatile unsigned char *)v;
-    while (n--) *p++ = 0;
-}
 
 // 16進数文字列を表示する補助関数
 void print_hex(const uint8_t *data, size_t len) {
