@@ -25,8 +25,6 @@ jobs:
         id: cuda-toolkit
         with:
           cuda: '13.2.0'
-          method: 'network'
-          sub-packages: '["nvcc"]'
       - run: 'echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"'
       - run: 'echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"'
       - run: nvcc -V
