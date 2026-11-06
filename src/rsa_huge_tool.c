@@ -161,7 +161,7 @@ int main(int argc, char* argv[]) {
 
     size_t der_len;
     unsigned char* der_bytes = load_der_file(key_path, &der_len);
-    if (!der_bytes) return 1;
+    if (!der_bytes){ fprintf(stderr, "derっと\n"); return 1; }
 
     int max_el = 9;
     mpz_t* raw_elements = malloc(max_el * sizeof(mpz_t));
