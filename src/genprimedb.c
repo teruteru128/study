@@ -140,10 +140,10 @@ int main(int argc, char *argv[]) {
       break;
     } else {
       // 目標をオーバーした
-      fprintf(stderr, "over: %.2f, %.2f, %.2f, 10個戻ります\n", sum_of_log,
+      fprintf(stderr, "over: %.2f, %.2f, %.2f, 100個戻ります\n", sum_of_log,
               p_log, tmp_sum_of_log);
       // カウントを戻す
-      prime_count -= (prime_count >= 10) ? 10 : prime_count;
+      prime_count -= (prime_count >= 100) ? 100 : prime_count;
       // 対数の合計を再計算する
       sum_of_log = 0;
       for (size_t i = 0; i < prime_count; i++) {
