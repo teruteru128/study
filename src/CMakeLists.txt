@@ -61,7 +61,7 @@ add_executable(bino bino.c biom.c)
 target_link_libraries(bino PRIVATE PkgConfig::GMP)
 
 add_executable(bm bm.c bm_queues.c bm_threads.c)
-target_link_libraries(bm PRIVATE study XMLRPC::XMLRPC OpenSSL::Crypto PkgConfig::JsonRpcGlib SQLite::SQLite3)
+target_link_libraries(bm PRIVATE study XMLRPC::XMLRPC OpenSSL::Crypto PkgConfig::JsonRpcGlib SQLite3::SQLite3)
 target_include_directories(bm PUBLIC ${PROJECT_SOURCE_DIR}/libstudy/include)
 target_compile_definitions(bm PRIVATE VERSION="${PROJECT_VERSION}" BM_VERSION="0.1.0.0")
 
@@ -715,7 +715,7 @@ target_link_libraries(pbkdf2sample OpenSSL::Crypto)
 target_include_directories(pbkdf2sample PRIVATE)
 
 add_executable(pcre2sample pcre2sample.c)
-target_link_libraries(pcre2sample PRIVATE PkgConfig::PCRE2_8)
+target_link_libraries(pcre2sample PRIVATE PkgConfig::PCRE2)
 
 add_executable(pgpcrc24sample pgpcrc24sample.c)
 
