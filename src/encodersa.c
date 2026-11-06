@@ -22,6 +22,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <uuid/uuid.h>
+#include <gmp.h>
+#include "secure_memzero.h"
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/core_names.h>
@@ -88,15 +90,16 @@ int readBigNum(BIGNUM *num, const char *filename)
         }
     }
     fclose(in);
-    if (BN_hex2bn(&num, catbuf) == 0)
+    if (BN_dec2bn(&num, catbuf) == 0)
     {
         perror("BN_hex2bn");
         free(catbuf);
         return EXIT_FAILURE;
     }
-    memset(catbuf, 0, size);
-    memset(buf, 0, BUFSIZ);
+    secure_memzero(catbuf, size);
     free(catbuf);
+    memset(buf, 0, BUFSIZ);
+    secure_memzero(buf, BUFSIZ);
     printf("p : %dbits\n", BN_num_bits(num));
     return 0;
 }
@@ -119,8 +122,8 @@ static RSA *calc_RSA(RSA *dest, BIGNUM *e, BIGNUM *p, BIGNUM *q, BN_CTX *ctx)
 {
     if (BN_cmp(p, q) < 0)
     {
-        printf(_("q is larger\n"));
         BN_swap(p, q);
+        printf(_("q is larger, swithed\n"));
     }
     else
     {
@@ -149,38 +152,44 @@ static RSA *calc_RSA(RSA *dest, BIGNUM *e, BIGNUM *p, BIGNUM *q, BN_CTX *ctx)
         goto err2;
 
     printf("bit size: %d\n", BN_num_bits(n));
-
     // p - 1
     if (!BN_sub(psub1, p, BN_value_one()))
         goto err2;
+    fprintf(stderr, "p - 1\n");
     // q - 1
     if (!BN_sub(qsub1, q, BN_value_one()))
         goto err2;
+    fprintf(stderr, "q - 1\n");
     // オイラーのトーシェント関数
     // φ(n)計算
     if (!BN_mul(phiN, psub1, qsub1, ctx))
         goto err2;
 
+    fprintf(stderr, "phi(N)\n");
     // 秘密指数dを計算
     if (!BN_mod_inverse(d, e, phiN, ctx))
     {
         perror(ERR_reason_error_string(ERR_get_error()));
         goto err2; /* d */
     }
+    fprintf(stderr, "d\n");
 
     // CRTパラメータ計算
     // d mod (p-1), d mod (q-1)
     /* calculate d mod (p-1) and d mod (q - 1) */
     if (!BN_mod(dmp, d, psub1, ctx))
         goto err2;
+    fprintf(stderr, "d mod (p - 1)\n");
 
     if (!BN_mod(dmq, d, qsub1, ctx))
         goto err2;
+    fprintf(stderr, "d mod (q - 1)\n");
 
     // q mod p
     /* calculate inverse of q mod p */
     if (!BN_mod_inverse(iqmp, qSecure, p, ctx))
         goto err2;
+    fprintf(stderr, "q mod p\n");
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     OSSL_PARAM_BLD *bld = OSSL_PARAM_BLD_new();
@@ -208,11 +217,13 @@ static RSA *calc_RSA(RSA *dest, BIGNUM *e, BIGNUM *p, BIGNUM *q, BN_CTX *ctx)
 
     OSSL_PARAM_free(param);
     EVP_PKEY_CTX_free(pkeyctx);
+    fprintf(stderr, "build done with new openssl\n");
 #else
     RSA *work = (dest == NULL) ? RSA_new() : dest;
     RSA_set0_key(work, n, e, d);
     RSA_set0_factors(work, p, q);
     RSA_set0_crt_params(work, dmp, dmq, iqmp);
+    fprintf(stderr, "build done with old openssl\n");
 #endif
     return work;
 err2:
