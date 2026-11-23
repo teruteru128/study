@@ -110,6 +110,9 @@ endif()
 find_package(SQLite3 REQUIRED)
 if(SQLite3_FOUND)
     #include_directories(${SQLite3_INCLUDE_DIRS})
+    if(NOT TARGET SQLite3::SQLite3) # CMake < 4.3
+        add_library(SQLite3::SQLite3 ALIAS SQLite::SQLite3)
+    endif()
 endif(SQLite3_FOUND)
 
 find_package(MPI REQUIRED COMPONENTS C)

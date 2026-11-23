@@ -831,6 +831,9 @@ add_executable(redossample redossample.c)
 
 add_executable(repeated-trials repeated-trials.c)
 
+add_executable(resemble_primes resemble_primes.c)
+target_link_libraries(resemble_primes PRIVATE PkgConfig::GMP)
+
 add_executable(rrandombsample rrandombsample.c)
 target_link_libraries(rrandombsample PRIVATE PkgConfig::GMP)
 
