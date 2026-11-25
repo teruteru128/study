@@ -1,6 +1,6 @@
 # study リポジトリの現状(2026-08-17作成、2026-11-25更新)
 
-`study`はREADME.mdが自称する通り雑多な個人リポジトリで、暗号プリミティブの未完成実装・i18nテスト・Minecraft関連ツールなど無関係な内容を多数含む。**長く主力だったRSA鍵向けの素数探索は、2026-11-03に2本とも見つかって終了した。** **続くbitmessageアドレス探索(A×A)も、2026-11-25に全走査が終わった。** 次の予定は下の「RSA終了後の予定」。それ以外の大半は過去の実験や中断した作業。ただし「古い＝再利用不可」とは限らない。実装済みの暗号プリミティブやユーティリティが今後別タスクの土台として流用できる可能性はあるので、無関係と決めつけず、既存コードに使えるものがないか一応grep等で確認してから書き始めるとよい。確認範囲はこのリポジトリ本体だけでなく、gitサブモジュール(`libstudy`, `java`, `math-scripts`, `python`)配下も対象に含めること。サブモジュールは`git clone`直後は中身が空なので、`git submodule update --init --recursive`していないと存在に気づけない点に注意。
+`study`はREADME.mdが自称する通り雑多な個人リポジトリで、暗号プリミティブの未完成実装・i18nテスト・Minecraft関連ツールなど無関係な内容を多数含む。**長く主力だったRSA鍵向けの素数探索は、2026-11-03に2本とも見つかって終了した。** **続くbitmessageアドレス探索(A×A)も、2026-11-25に全走査が終わった。** **いま動いているのはfactordbのECPP(2026-11-25〜、下の「稼働中: factordbのECPP」)。** 経緯は「RSA終了後の予定」。それ以外の大半は過去の実験や中断した作業。ただし「古い＝再利用不可」とは限らない。実装済みの暗号プリミティブやユーティリティが今後別タスクの土台として流用できる可能性はあるので、無関係と決めつけず、既存コードに使えるものがないか一応grep等で確認してから書き始めるとよい。確認範囲はこのリポジトリ本体だけでなく、gitサブモジュール(`libstudy`, `java`, `math-scripts`, `python`)配下も対象に含めること。サブモジュールは`git clone`直後は中身が空なので、`git submodule update --init --recursive`していないと存在に気づけない点に注意。
 
 ## 終了したプロジェクト: 2,097,152bit RSA鍵向け素数探索(2026-11-03終了)
 
@@ -130,15 +130,32 @@ PFGW(`~/Documents/Projects/openpfgw-code`、SVN r715。gwnumは`~/Documents/Proj
 
 ## RSA終了後の予定(2026-10-25決定)
 
-**2026-11-03にRSAの素数探索が終わったので、ここからはこの順に進める。** 素数探索が終わるまでは、CPUを素数探索に回していた(電源の制約でマシンを増やせないため)。**1は2026-11-03 15:54に始めて、2026-11-25 04:49に終わった**(下の「bitmessageアドレス探索」の「結果」)。次は2
+**2026-11-03にRSAの素数探索が終わったので、ここからはこの順に進める。** 素数探索が終わるまでは、CPUを素数探索に回していた(電源の制約でマシンを増やせないため)。**1は2026-11-03 15:54に始めて、2026-11-25 04:49に終わった**(下の「bitmessageアドレス探索」の「結果」)。**2は2026-11-25に始めて稼働中**
 
 1. **(完了)bitmessageの鍵探索を少し挟む**: 公開鍵ファイル1つ(16,777,216鍵)のA×A、2^48通りを最後まで回す(`addressSearch`、下の「bitmessageアドレス探索」)。**2ファイルの総当りは見送り(2026-11-06決定)**: やるならA×B・B×A・B×Bの全部で、2台でも約59日かかるため。2026-11-25に、結果をコメントに残してGitHubのissue #43を`not planned`で閉じた。全走査の見積もりは、素数探索と併走して約141日だった。素数探索なしの16スレッドで、一体版`ripe16`を入れた後は**約47日**(2026-11-03の実測)。**2026-11-05からserver02も使い、11/25に完了した**
-2. **その後にECPP**: factordbのPRP(数千〜1万桁程度)を、CMの`ecpp-mpi`(`/usr/local/bin`。FLINTを使う`cm-0.4.4`)で証明して証明書を作る作業の続き。スクリプトは`math-scripts/ecpp0.sh`・`ecpp1.sh`(`mpirun -np 8 ecpp-mpi -g -t -c -f <証明書> -n <式>`)、一括生成は`src/ecpp-script-generator.c`、factordbとのやりとりは`python/factordb-process.py`
-   - **factordb側に大規模改修が入ったので、`factordb-process.py`はほぼ書き直しになる見込み**。改修後のAPIは自動メモリ`factordb_v3_preview.md`
+2. **(稼働中)ECPP**: factordbのPRPを、CMの`ecpp-mpi`で証明して証明書を送る(下の「稼働中: factordbのECPP」)
    - RSAの2Mbitの素数(63万桁)をECPPで証明するわけではない(その大きさは現実的でない)
 3. **ECMは未定**: 「素数2本が見つかるまで凍結」だったが、凍結が解けても再開するかは決めていない。factordbではスコアとして数えられるが、証明書のような成果物にはならないので迷っている。勝手に再開を提案しないこと
 
 詳細は自動メモリ`post_rsa_plan.md`。
+
+## 稼働中: factordbのECPP(2026-11-25〜)
+
+factordbの**3184桁以上**(ユーザー指定)の、証明書がまだ無いPRPを、CM 0.4.4の`ecpp-mpi`で証明し、証明書をfactordbへ自動で送っている(自動送信はユーザーが了承済み)。PRPは約137万件あるので尽きない。
+
+- **サービス**: server01とserver02の両方で、systemdのuserサービス`ecpp-factordb.service`(enable済み)。状態は`systemctl --user status ecpp-factordb`、結果は各マシンの`~/ecpp/work/ecpp_task.log`で見る。止めるときは`systemctl --user stop ecpp-factordb`。SIGTERMで止めると、次の起動でチェックポイントから再開する。3件続けて証明に失敗すると終了コード3で止まり、自動では再起動しない
+- **分担**: `--partition 0/2`(server01)と`1/2`(server02)。factordbのid(fid)を2で割った余りで分けるので、マシン間の連絡は要らない。**1つの数を2台のMPIにまたがらせない**: CMのGCDは各プロセスに均等割り当てなので遅い方に揃い、Wi-Fiの往復(約2.8ms)も乗る。MPIは1台の中の並列化だけに使う(8プロセス。rank 0は調整役なので、計算するのは7プロセス)
+- **スクリプト**: `python/factordb-process.py`。実際に動くのは各マシンの`~/ecpp/factordb-process.py`(コピー)なので、**変更したら両台へコピーして`systemctl --user restart ecpp-factordb`する**。DB・ログ・証明書は`~/ecpp/work/`、CMの前計算は`~/ecpp/cm-tmp/`(`CM_ECPP_TMPDIR`)
+  - 候補は`primo_batch`、着手前の確認は`get_number`、送信は`upload_certificate`(`https://factordb.com/rpc`、JSON-RPC 2.0)。APIの規則は、毎秒数件・同時3本まで、429なら待つ、idを1つずつ辿らない
+  - **`-c`の検証(ログの`Time for ECPP check (true)`)が通り、証明書のNが対象と一致したものだけを送る。** 送信に失敗したものは`proved`のまま残し、次の周回で送り直す
+  - トークンは`~/.config/factordb/token`(権限600)。値を画面やログに出さない
+  - 拡張子無しのファイル(PARI形式)は`ecpp-check -f`での再検証用。`.primo`がfactordbへ送る形式で、`ecpp-check`では読めない
+- **審査の確認**: 公式CLIの`fdb primality id:<fid>`。**`id:`を付けないと、fidそのものを数と解釈する**
+- **実測(2026-11-25、各1件)**: server01は3187桁で2,079秒(1段階目1,552、2段階目280、残りはほぼ検証。Tctl 92℃)、server02は3184桁で1,664秒(1,303、162。Tctl 88℃、PPT約55W)。2台で1日約92件の見込み。server02のメモリ使用量は約7.6GB(この桁数で)。桁数を大きく上げるときは先に確認すること
+- **server02の構成**: `~/ecpp/bin/`に`ecpp-mpi`・`ecpp-check`。CM・FLINT・PARIなどはserver01から`/usr/local/lib`へ写したもの、OpenMPIはapt(`--no-install-recommends openmpi-bin`)。**`/usr/local/share/cm/`(モジュラー多項式のデータ、パスは`ecpp-mpi`に埋め込み)も要る。** 無いと1段階目は通り、2段階目で落ちる(`ldd`では分からない)
+- **罠**: 中身が空の`.cert1`/`.cert2`を渡すと、CMは何もせずに終わる(スクリプトが消す)。`ecpp-mpi -h`は使い方を表示せず、終わらずに残る
+- `math-scripts/ecpp0.sh`・`ecpp1.sh`、`src/ecpp-script-generator.c`、旧DB`python/factordb_tasks.db`(連番5874〜6213)は、この運用では使っていない
+- 詳しい経緯は自動メモリ`ecpp_factordb_2026_11.md`・`factordb_v3_preview.md`
 
 ## 終了したプロジェクト: bitmessageアドレス探索(2026-09-19〜2026-11-25)
 
