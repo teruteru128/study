@@ -1,6 +1,6 @@
-# study リポジトリの現状(2026-08-17作成、2026-11-25更新)
+# study リポジトリの現状(2026-08-17作成、2026-11-26更新)
 
-`study`はREADME.mdが自称する通り雑多な個人リポジトリで、暗号プリミティブの未完成実装・i18nテスト・Minecraft関連ツールなど無関係な内容を多数含む。**長く主力だったRSA鍵向けの素数探索は、2026-11-03に2本とも見つかって終了した。** **続くbitmessageアドレス探索(A×A)も、2026-11-25に全走査が終わった。** **いま動いているのはfactordbのECPP(2026-11-25〜、下の「稼働中: factordbのECPP」)。** 経緯は「RSA終了後の予定」。それ以外の大半は過去の実験や中断した作業。ただし「古い＝再利用不可」とは限らない。実装済みの暗号プリミティブやユーティリティが今後別タスクの土台として流用できる可能性はあるので、無関係と決めつけず、既存コードに使えるものがないか一応grep等で確認してから書き始めるとよい。確認範囲はこのリポジトリ本体だけでなく、gitサブモジュール(`libstudy`, `java`, `math-scripts`, `python`)配下も対象に含めること。サブモジュールは`git clone`直後は中身が空なので、`git submodule update --init --recursive`していないと存在に気づけない点に注意。
+`study`はREADME.mdが自称する通り雑多な個人リポジトリで、暗号プリミティブの未完成実装・i18nテスト・Minecraft関連ツールなど無関係な内容を多数含む。**長く主力だったRSA鍵向けの素数探索は、2026-11-03に2本とも見つかって終了した。** **続くbitmessageアドレス探索(A×A)も、2026-11-25に全走査が終わった。** **いま動いているのは、factordbのECPP(server02、下の「稼働中: factordbのECPP」)と、`2^n*21181+1`の未分解部分の分解(server01、下の「稼働中: 2^n·21181+1の分解」)。** 経緯は「RSA終了後の予定」。それ以外の大半は過去の実験や中断した作業。ただし「古い＝再利用不可」とは限らない。実装済みの暗号プリミティブやユーティリティが今後別タスクの土台として流用できる可能性はあるので、無関係と決めつけず、既存コードに使えるものがないか一応grep等で確認してから書き始めるとよい。確認範囲はこのリポジトリ本体だけでなく、gitサブモジュール(`libstudy`, `java`, `math-scripts`, `python`)配下も対象に含めること。サブモジュールは`git clone`直後は中身が空なので、`git submodule update --init --recursive`していないと存在に気づけない点に注意。
 
 ## 終了したプロジェクト: 2,097,152bit RSA鍵向け素数探索(2026-11-03終了)
 
@@ -143,7 +143,7 @@ PFGW(`~/Documents/Projects/openpfgw-code`、SVN r715。gwnumは`~/Documents/Proj
 
 factordbの**3184桁以上**(ユーザー指定)の、証明書がまだ無いPRPを、CM 0.4.4の`ecpp-mpi`で証明し、証明書をfactordbへ自動で送っている(自動送信はユーザーが了承済み)。PRPは約137万件あるので尽きない。
 
-- **サービス**: server01とserver02の両方で、systemdのuserサービス`ecpp-factordb.service`(enable済み)。状態は`systemctl --user status ecpp-factordb`、結果は各マシンの`~/ecpp/work/ecpp_task.log`で見る。止めるときは`systemctl --user stop ecpp-factordb`。SIGTERMで止めると、次の起動でチェックポイントから再開する。3件続けて証明に失敗すると終了コード3で止まり、自動では再起動しない
+- **サービス**: server01とserver02の両方で、systemdのuserサービス`ecpp-factordb.service`。**2026-11-26からserver01の分はdisableして止めてある**(下の「稼働中: 2^n·21181+1の分解」の間だけ。終われば自動で元に戻る)。server02はenableで稼働中。状態は`systemctl --user status ecpp-factordb`、結果は各マシンの`~/ecpp/work/ecpp_task.log`で見る。止めるときは`systemctl --user stop ecpp-factordb`。SIGTERMで止めると、次の起動でチェックポイントから再開する。3件続けて証明に失敗すると終了コード3で止まり、自動では再起動しない
 - **分担**: `--partition 0/2`(server01)と`1/2`(server02)。factordbのid(fid)を2で割った余りで分けるので、マシン間の連絡は要らない。**1つの数を2台のMPIにまたがらせない**: CMのGCDは各プロセスに均等割り当てなので遅い方に揃い、Wi-Fiの往復(約2.8ms)も乗る。MPIは1台の中の並列化だけに使う(8プロセス。rank 0は調整役なので、計算するのは7プロセス)
 - **スクリプト**: `python/factordb-process.py`。実際に動くのは各マシンの`~/ecpp/factordb-process.py`(コピー)なので、**変更したら両台へコピーして`systemctl --user restart ecpp-factordb`する**。DB・ログ・証明書は`~/ecpp/work/`、CMの前計算は`~/ecpp/cm-tmp/`(`CM_ECPP_TMPDIR`)
   - 候補は`primo_batch`、着手前の確認は`get_number`、送信は`upload_certificate`(`https://factordb.com/rpc`、JSON-RPC 2.0)。APIの規則は、毎秒数件・同時3本まで、429なら待つ、idを1つずつ辿らない
@@ -156,6 +156,20 @@ factordbの**3184桁以上**(ユーザー指定)の、証明書がまだ無いPR
 - **罠**: 中身が空の`.cert1`/`.cert2`を渡すと、CMは何もせずに終わる(スクリプトが消す)。`ecpp-mpi -h`は使い方を表示せず、終わらずに残る
 - `math-scripts/ecpp0.sh`・`ecpp1.sh`、`src/ecpp-script-generator.c`、旧DB`python/factordb_tasks.db`(連番5874〜6213)は、この運用では使っていない
 - 詳しい経緯は自動メモリ`ecpp_factordb_2026_11.md`・`factordb_v3_preview.md`
+
+## 稼働中: 2^n·21181+1の分解(2026-11-25〜)
+
+factordbの`2^n*21181+1`のうち、完全分解されていない数(残りがC)を、nの小さい順にyafuで分解してfactordbへ自動で報告している(報告はユーザーが了承済み)。**n=1〜500は完全分解済み**(最後の数件はユーザーが2026-11-18にyafuのSNFSで片付けた)。n=501は2026-11-25(P35×P89、ECMで発見)、n=502は2026-11-26(P61×P62、SNFS)にFFになった。
+
+- **サービス**: server01のsystemd userサービス`proth21181.service`(enable済み)。n=501〜600を16スレッド・`nice` 5で回す。始めるときに`ecpp-factordb`をdisable --nowし、範囲を終えるか2件続けて失敗(終了コード3)すると、`~/Documents/proth21181/on-exit.sh`がECPPを元に戻して自分をdisableする。ログは`~/Documents/proth21181/work/task.log`、状態はDB`work/tasks.db`
+- **報告**: `~/Documents/proth21181/UPLOAD_OK`がある間だけ、検証済み(積とP因子の素数性)のものを`report_factors`で送る。消せば手元に溜める
+- **スクリプト**: `python/factordb-family.py`(`factordb-factor.py`の検証・RPCを使い回す)。実際に動くのは`~/Documents/proth21181/`のコピーなので、変更したらコピーして再起動する。一覧は`fdb family '2^x*21181+1' --start 1 --limit 1000 --factors`で1回で取れる
+- **選び方**: ECMの前処理(t = 4/13 × min(GNFS換算, 残りの桁数))のあと、SNFS難易度のGNFS換算(0.56×難易度+30)が残りの桁数より小さければSNFS。n≤700ではほぼ全件SNFSが安い
+- **yafuの罠**(`25a6f9b`): 残りの数だけを渡すと`k*2^n+1`の形に気づかずGNFSになるので、`snfs(式, 残り)`で式を明示する。SNFSを`-R`で再開すると、ふるう側を取り違えて範囲0から始めて失敗するので、`nfs.dat.ranges`の先頭文字から`-r`/`-a`を渡す。iniの`ggnfs_dir`は相対パスなので、絶対パスに直したiniを作業ディレクトリに置く。式は引数ではなく標準入力で渡す
+- **所要時間**: n=502(GNFS換算117、残り122桁)はSNFSで約40分(16スレッド、ECMの前処理を除く)。n=600(換算134)までの68件で約1週間の見込み。n=651〜700は換算142〜150で数か月、n=700を超えると年単位
+- **n=1148(C350)は諦めた**(2026-11-25)。SNFS難易度350で、CADO-NFSの試しふるいでは520〜770コア年(6次と7次は互角)。P-1はB1=1e10、ECMはt50まで済み(因数なし)。factordbの多項式は`fdb snfs '21181*2^1148+1'`。記録は`~/Documents/snfs-c350-test/`と自動メモリ`c350_snfs_2026_11.md`
+- **次の候補: `523#+1`のC196**(383#+1〜547#+1で唯一の未完全分解)。GNFSの多項式選択と試しふるいまで済み(`~/Documents/c196-523p1/`、Murphy E 8.46e-09)、ふるいは約4〜7コア年の見込み。本番は未決定。自動メモリ`primorial_523_c196.md`
+- 詳しい経緯は自動メモリ`proth21181_cf_2026_11.md`
 
 ## 終了したプロジェクト: bitmessageアドレス探索(2026-09-19〜2026-11-25)
 
